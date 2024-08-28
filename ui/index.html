@@ -1,19 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8"/>
-        <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-        <title>Document</title>
-    </head>
-    <body>
-        <h1 id="header">Welcome from Tauri!</h1>
-        <script>
-            
-        const { invoke } = window.__TAURI__.tauri
-
-        invoke('greet', { name: 'Nate' }).then((response) => {
-            window.header.innerHTML = response
-        })
-        </script>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Website</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="dropdown">
+            <button class="dropbtn">Books</button>
+            <div class="dropdown-content">
+                <a href="#">Genesis</a>
+                <a href="#">Exodus</a>
+                <a href="#">Leviticus</a>
+                <!-- Add more books as needed -->
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="dropbtn">Chapters</button>
+            <div class="dropdown-content">
+                <a href="#">1</a>
+                <a href="#">2</a>
+                <a href="#">3</a>
+                <!-- Add more chapters as needed -->
+            </div>
+        </div>
+    </header>
+    <main>
+        <section class="content">
+            <h1>Welcome to the Bible Website</h1>
+            <p>Select a book and chapter from the dropdown menus to view the content here.</p>
+            <div class="bible-text">
+                <h2>Genesis 1:1</h2>
+                <p>In the beginning, God created the heavens and the earth.</p>
+                <p>This is a sample verse. When you select a book and chapter, the content will be updated to display the text from that section.</p>
+            </div>
+        </section>
+    </main>
+</body>
 </html>
