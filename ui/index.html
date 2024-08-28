@@ -9,17 +9,16 @@
 <body>
     <header>
         <div class="dropdown">
-            <button class="dropbtn">Books</button>
-            <div class="dropdown-content">
+            <button class="dropbtn" id="books-btn">Books</button>
+            <div class="dropdown-content" id="books-dropdown">
                 <a href="#">Genesis</a>
                 <a href="#">Exodus</a>
                 <a href="#">Leviticus</a>
-                <!-- Add more books as needed -->
             </div>
         </div>
         <div class="dropdown">
-            <button class="dropbtn">Chapters</button>
-            <div class="dropdown-content">
+            <button class="dropbtn" id="chapters-btn">Chapters</button>
+            <div class="dropdown-content" id="chapters-dropdown">
                 <a href="#">1</a>
                 <a href="#">2</a>
                 <a href="#">3</a>
@@ -29,14 +28,29 @@
     </header>
     <main>
         <section class="content">
-            <h1>Welcome to the Bible Website</h1>
-            <p>Select a book and chapter from the dropdown menus to view the content here.</p>
             <div class="bible-text">
-                <h2>Genesis 1:1</h2>
-                <p>In the beginning, God created the heavens and the earth.</p>
-                <p>This is a sample verse. When you select a book and chapter, the content will be updated to display the text from that section.</p>
-            </div>
+                <h2>Genesis 1</h2>
+                <div id="chapter-content"></div>
         </section>
     </main>
+    <script src="js/bible.js"></script>
+    <script>
+        get_chapter().then((chapter) => {
+            document.getElementById('books-btn').innerHTML = chapter.book;
+            document.getElementById('chapters-btn').innerHTML = `${chapter.number + 1}`;
+        });
+
+        get_book_selection().then((books) => {
+            document.getElementById('books-dropdown').innerHTML = books;
+        })
+
+        get_chapter_selection().then((chapters) => {
+            document.getElementById('chapters-dropdown').innerHTML = chapters;
+        })
+
+        render_current_chapter().then((content) => {
+            document.getElementById('chapter-content').innerHTML = content;
+        })
+    </script>
 </body>
 </html>
