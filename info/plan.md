@@ -1,5 +1,5 @@
 # Plan:
 ### Version 0.1.0:
-- [ ] Display KJV bible
-- [ ] Chapter Selection
-- [ ] Looks decent
+- [x] Display KJV bible
+- [x] Chapter Selection
+- [x] Looks decent
