@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+        <title>Document</title>
+    </head>
+    <body>
+        <h1 id="header">Welcome from Tauri!</h1>
+        <script>
+            
+        const { invoke } = window.__TAURI__.tauri
+
+        invoke('greet', { name: 'Nate' }).then((response) => {
+            window.header.innerHTML = response
+        })
+        </script>
+    </body>
+</html>
