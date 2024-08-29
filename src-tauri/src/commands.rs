@@ -1,4 +1,6 @@
-use crate::{app_state::AppData, bible::ChapterRef};
+use tauri::api::ipc::serialize_js;
+
+use crate::{app_state::AppData, bible::ChapterIndex};
 
 #[tauri::command]
 pub fn debug_print(message: &str)
@@ -23,14 +25,24 @@ pub fn get_current_chapter() -> String
 #[tauri::command]
 pub fn set_current_chapter(chapter: &str)
 {
-	let chapter: ChapterRef = serde_json::from_str(chapter).unwrap();
+	let chapter: ChapterIndex = serde_json::from_str(chapter).unwrap();
 	AppData::get().set_current_chapter(chapter);
 }
 
 #[tauri::command]
-pub fn get_current_chapter_data() -> String 
+pub fn get_current_chapter_text() -> String 
 {
 	let current = AppData::get().get_current_chapter();
 	let chapter = &AppData::get().bible.books[current.book as usize].chapters[current.number as usize];
 	serde_json::to_string(chapter).unwrap()
+}
+
+#[tauri::command]
+pub fn get_current_chapter_notes() -> String
+{
+	let current = AppData::get().get_current_chapter();
+	AppData::get().read_notes(|notes| {
+		let chapter_notes = &notes.notes.get(&current);
+		serde_json::to_string(chapter_notes).unwrap()
+	})
 }

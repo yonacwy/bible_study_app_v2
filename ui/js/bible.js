@@ -73,23 +73,64 @@ async function set_chapter(chapter)
 
 async function render_current_chapter()
 {
-    let json = await invoke('get_current_chapter_data', {});
-    let chapter = JSON.parse(json);
+    let text_json = await invoke('get_current_chapter_text', {});
+    let chapter = JSON.parse(text_json);
+
+    let notes_json = await invoke('get_current_chapter_notes', {});
+    let notes = notes_json === null ? null : JSON.parse(notes_json);
+
     let html = '<ol>'
 
     for (let verse_index = 0; verse_index < chapter.verses.length; verse_index++)
     {
         let verse = chapter.verses[verse_index];
         let verse_text = '';
+        
+        let last_note_index = -1;
         for (let word_index = 0; word_index < verse.words.length; word_index++)
-        {
-            if (word_index != 0)
+        {   
+            let word = verse.words[word_index];
+            let word_text = word.text;
+            if (word.italicized)
             {
-                verse_text += ' '
+                word_text = italicize(word_text);
             }
 
-            let word = verse.words[word_index];
-            verse_text += word.italicized ? `<i>${word.text}</i>` : word.text;
+            let current_note_index = -1;
+                
+            if (notes != null)
+            {
+                let note_index = -1;
+                for (let i = 0; i < notes.length; i++)
+                {
+                    let note = notes[i];
+                    let start = note.start;
+                    let end = note.end;
+
+                    if (verse_index < start.verse || verse_index > end.verse) { continue; }
+                    if (verse_index == start.verse && word_index < start.word) { continue; }
+                    if (verse_index == end.verse && word_index > end.word) { continue; }
+
+                    word_text = color(word_text, note.color);
+                    note_index = i;
+                }
+                current_note_index = note_index;
+            }
+
+            if (word_index != 0)
+            {
+                let spacer = ' ';
+                if (current_note_index != -1 && current_note_index == last_note_index)
+                {
+                    // should only be called if there is a note, so no need for null checking
+                    spacer = color(spacer, notes[current_note_index].color);
+                }
+
+                verse_text += spacer
+            }
+
+            verse_text += word_text;
+            last_note_index = current_note_index;
         }
 
         html += `<li>${verse_text}</li>`
@@ -98,4 +139,14 @@ async function render_current_chapter()
     html += '</ol>'
 
     return html;
+}
+
+function italicize(t)
+{
+    return `<i>${t}</i>`;
+}
+
+function color(t, c)
+{
+    return `<span style=\"background-color:rgb(${c.r} ${c.g} ${c.b})\">${t}</span>`;
 }

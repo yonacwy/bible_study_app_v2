@@ -19,7 +19,7 @@
     - [ ] Markdown editor
     - [ ] Viewer
   - [ ] Optional Selectable
-    - [ ] Highlight color editor
+    - [ ] Highlight color editor (color picker)
     - [ ] Highlight meaning editor
 - [ ] Basic Markdown:
   - [ ] Bold

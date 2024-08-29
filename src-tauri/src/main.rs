@@ -38,7 +38,8 @@ fn main() {
 			get_bible_view, 
 			get_current_chapter, 
 			set_current_chapter,
-			get_current_chapter_data,
+			get_current_chapter_text,
+			get_current_chapter_notes
 		])
 		.run(tauri::generate_context!())
 		.expect("error while running tauri application");

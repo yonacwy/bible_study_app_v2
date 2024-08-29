@@ -43,15 +43,15 @@
 
         get_book_selection().then((books) => {
             document.getElementById('books-dropdown').innerHTML = books;
-        })
+        });
 
         get_chapter_selection().then((chapters) => {
             document.getElementById('chapters-dropdown').innerHTML = chapters;
-        })
+        });
 
         render_current_chapter().then((content) => {
             document.getElementById('chapter-content').innerHTML = content;
-        })
+        });
     </script>
 </body>
 </html>

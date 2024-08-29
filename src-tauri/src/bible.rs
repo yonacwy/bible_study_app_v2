@@ -50,9 +50,10 @@ impl Bible
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[repr(C)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
-pub struct ChapterRef
+pub struct ChapterIndex
 {
     pub book: u32,
     pub number: u32,
@@ -66,10 +67,11 @@ pub struct BookView
     pub chapter_count: u32,
 }
 
+#[repr(C)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "camelCase")]
 pub struct WordIndex
 {
-    pub book: u8,
-    pub chapter: u8,
     pub verse: u8,
     pub word: u8,
 }
