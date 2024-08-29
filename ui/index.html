@@ -5,11 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bible Website</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .bible-word {
+            user-select: none;
+            display: inline-block;
+        }
+
+        .bible-space {
+            user-select: none;
+            display: inline-block
+        }
+
+        .selected {
+            color: blueviolet;
+        }
+    </style>
 </head>
 <body>
     <header>
         <div class="dropdown">
-            <button class="dropbtn" id="books-btn">Books</button>
+            <button class="dropdown-btn" id="books-btn">Books</button>
             <div class="dropdown-content" id="books-dropdown">
                 <a href="#">Genesis</a>
                 <a href="#">Exodus</a>
@@ -17,13 +32,16 @@
             </div>
         </div>
         <div class="dropdown">
-            <button class="dropbtn" id="chapters-btn">Chapters</button>
+            <button class="dropdown-btn" id="chapters-btn">Chapters</button>
             <div class="dropdown-content" id="chapters-dropdown">
                 <a href="#">1</a>
                 <a href="#">2</a>
                 <a href="#">3</a>
                 <!-- Add more chapters as needed -->
             </div>
+        </div>
+        <div class="image-btn" id="highlight-btn">
+            <input type="image" src="images/light-paintbrush-pencil.svg"/>
         </div>
     </header>
     <main>
@@ -51,6 +69,62 @@
 
         render_current_chapter().then((content) => {
             document.getElementById('chapter-content').innerHTML = content;
+        }).then(() => {
+            let isDragging = false;
+            let startElement = null;
+            let endElement = null;
+
+            document.getElementById('highlight-btn').addEventListener('click', (event) => {
+                debug_print(`Event fired!`);
+            })
+
+            let wordDivs = document.getElementsByClassName('bible-word');
+
+            for (let i = 0; i < wordDivs.length; i++)
+            {
+                let div = wordDivs[i];
+                div.addEventListener('mousedown', (event) => {
+                    isDragging = true;
+                    startElement = event.target;
+
+                    for (let j = 0; j < wordDivs.length; j++)
+                    {
+                        wordDivs[j].classList.remove('selected');   
+                    }
+                });
+
+                div.addEventListener('mouseover', (event) => {
+                    if (isDragging) {
+                        endElement = event.target;
+                        for (let j = 0; j < wordDivs.length; j++)
+                        {
+                            wordDivs[j].classList.remove('selected');   
+                        }
+                        selectRange(startElement, endElement);
+                    }
+                });
+
+                div.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+            };
+
+            function selectRange(start, end) {
+                let selecting = false;
+                for (let i = 0; i < wordDivs.length; i++)
+                {
+                    let div = wordDivs[i];
+                    if (div === start || div === end) 
+                    {
+                        selecting = !selecting;
+                        div.classList.add('selected');
+                    } 
+                    else if (selecting) 
+                    {
+                        div.classList.add('selected');
+                    }   
+                }
+            }
         });
     </script>
 </body>

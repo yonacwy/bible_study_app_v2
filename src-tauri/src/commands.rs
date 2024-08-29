@@ -46,3 +46,11 @@ pub fn get_current_chapter_notes() -> String
 		serde_json::to_string(chapter_notes).unwrap()
 	})
 }
+
+#[tauri::command]
+pub fn get_current_chapter_view() -> String 
+{
+	let chapter = AppData::get().get_current_chapter();
+	let view = AppData::get().bible.books[chapter.book as usize].chapters[chapter.number as usize].get_view();
+	serde_json::to_string(&view).unwrap()
+}

@@ -23,23 +23,23 @@ impl AppData
         };
 
         let mut notes = HashMap::new();
-        notes.insert(ChapterIndex { book: 0, number: 0}, vec![Note {
-            color: Color { r: 100, g: 50, b: 100 },
-            start: WordIndex { verse: 0, word: 0 },
-            end: WordIndex { verse: 0, word: 1 },
-        }]);
+        notes.insert(ChapterIndex { book: 0, number: 0}, vec![Note::new(
+            Color { r: 100, g: 50, b: 100 },
+            WordIndex { verse: 0, word: 0 },
+            WordIndex { verse: 0, word: 1 },
+        )]);
 
         notes.insert(ChapterIndex { book: 2, number: 1}, vec![
-            Note {
-                color: Color { r: 255, g: 233, b: 0 },
-                start: WordIndex { verse: 2, word: 0 },
-                end: WordIndex { verse: 2, word: 1 },
-            },
-            Note {
-                color: Color { r: 100, g: 50, b: 100 },
-                start: WordIndex { verse: 1, word: 0 },
-                end: WordIndex { verse: 1, word: 1 },
-            },
+            Note::new(
+                Color { r: 255, g: 233, b: 0 },
+                WordIndex { verse: 2, word: 0 },
+                WordIndex { verse: 2, word: 1 },
+            ),
+            Note::new(
+                Color { r: 100, g: 50, b: 100 },
+                WordIndex { verse: 1, word: 0 },
+                WordIndex { verse: 1, word: 1 },
+            ),
         ]);
 
         let notebook = Notebook {

@@ -46,8 +46,7 @@
         "signingIdentity": null
       },
       "resources": [
-        "resources/kjv.txt",
-        "resources/small_kjv.txt"
+        "resources/*"
       ],
       "shortDescription": "",
       "targets": "all",

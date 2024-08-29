@@ -119,7 +119,7 @@ async function render_current_chapter()
 
             if (word_index != 0)
             {
-                let spacer = ' ';
+                let spacer = bible_space();
                 if (current_note_index != -1 && current_note_index == last_note_index)
                 {
                     // should only be called if there is a note, so no need for null checking
@@ -129,7 +129,7 @@ async function render_current_chapter()
                 verse_text += spacer
             }
 
-            verse_text += word_text;
+            verse_text += bible_word(word_text);
             last_note_index = current_note_index;
         }
 
@@ -139,6 +139,16 @@ async function render_current_chapter()
     html += '</ol>'
 
     return html;
+}
+
+function bible_space()
+{
+    return `<div class="bible-space">&nbsp;</div>`
+}
+
+function bible_word(t)
+{
+    return `<div class="bible-word">${t}</div>`
 }
 
 function italicize(t)

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::bible::{ChapterIndex, WordIndex};
 
@@ -15,13 +16,28 @@ pub struct Color
     pub b: u8,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Note
 {
     pub color: Color,
     pub start: WordIndex,
     pub end: WordIndex,
+    pub id: String,
+}
+
+impl Note 
+{
+    pub fn new(color: Color, start: WordIndex, end: WordIndex) -> Self 
+    {
+        Self 
+        {
+            color,
+            start,
+            end,
+            id: Uuid::new_v4().to_string()
+        }
+    }
 }
 
 pub struct Notebook
