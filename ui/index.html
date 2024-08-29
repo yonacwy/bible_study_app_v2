@@ -20,6 +20,9 @@
         <div class="image-btn" id="highlight-btn">
             <input type="image" src="images/light-paintbrush-pencil.svg"/>
         </div>
+        <div class="image-btn" id="highlight-settings">
+            <input type="image" src="images/thin-plus.svg"/>
+        </div>
     </header>
     <main>
         <section class="content">
@@ -29,6 +32,11 @@
     </main>
     <script src="js/bible.js"></script>
     <script>
+        document.getElementById('highlight-settings').addEventListener('click', (_) => {
+            debug_print('Trying to go to settings');
+            window.location.href = "highlight_editor.html";
+        });
+
         get_chapter().then((chapter) => {
             load_view().then((view) => {
                 document.getElementById('books-btn').innerHTML = view[chapter.book].name;

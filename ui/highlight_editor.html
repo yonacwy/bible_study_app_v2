@@ -1,11 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
+    <title>Highlight Editor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="styles/styles.css"/>
 </head>
 <body>
     <header>
-        
+        <div class="image-btn" id="back-btn">
+            <input type="image" src="images/light-backward.svg"/>
+        </div>
     </header>
+    <script>
+        document.getElementById('back-btn').addEventListener('click', (_) => {
+            location.href = "index.html"
+        });
+    </script>
 </body>
 </html>
