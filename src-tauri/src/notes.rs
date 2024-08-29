@@ -18,6 +18,16 @@ pub struct Color
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct HighlightCategory
+{
+    pub color: Color,
+    pub name: String,
+    pub description: String,
+    pub id: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Note
 {
     pub color: Color,
