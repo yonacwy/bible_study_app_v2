@@ -63,7 +63,7 @@ pub fn add_note(start: &str, end: &str)
 	
 	let chapter = AppData::get().get_current_chapter();
 	AppData::get().read_notes(|notebook| {
-		let color = Color { r: 255, g: 0, b: 0 };
+		let color = Color { r: 255, g: 233, b: 0 };
 		let notes = notebook.notes.entry(chapter.clone()).or_default();
 		notes.push(Note::new(color, start, end));
 	})

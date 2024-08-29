@@ -4,41 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bible Website</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        .bible-word {
-            user-select: none;
-            display: inline-block;
-        }
-
-        .bible-space {
-            user-select: none;
-            display: inline-block
-        }
-
-        .selected {
-            color: blueviolet;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/bible.css">
 </head>
 <body>
     <header>
         <div class="dropdown">
             <button class="dropdown-btn" id="books-btn">Books</button>
-            <div class="dropdown-content" id="books-dropdown">
-                <a href="#">Genesis</a>
-                <a href="#">Exodus</a>
-                <a href="#">Leviticus</a>
-            </div>
+            <div class="dropdown-content" id="books-dropdown"></div>
         </div>
         <div class="dropdown">
             <button class="dropdown-btn" id="chapters-btn">Chapters</button>
-            <div class="dropdown-content" id="chapters-dropdown">
-                <a href="#">1</a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <!-- Add more chapters as needed -->
-            </div>
+            <div class="dropdown-content" id="chapters-dropdown"></div>
         </div>
         <div class="image-btn" id="highlight-btn">
             <input type="image" src="images/light-paintbrush-pencil.svg"/>
