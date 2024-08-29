@@ -29,15 +29,16 @@
     <main>
         <section class="content">
             <div class="bible-text">
-                <h2>Genesis 1</h2>
                 <div id="chapter-content"></div>
         </section>
     </main>
     <script src="js/bible.js"></script>
     <script>
         get_chapter().then((chapter) => {
-            document.getElementById('books-btn').innerHTML = chapter.book;
-            document.getElementById('chapters-btn').innerHTML = `${chapter.number + 1}`;
+            load_view().then((view) => {
+                document.getElementById('books-btn').innerHTML = view[chapter.book].name;
+                document.getElementById('chapters-btn').innerHTML = `${chapter.number + 1}`;
+            })
         });
 
         get_book_selection().then((books) => {

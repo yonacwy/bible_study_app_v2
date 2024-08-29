@@ -31,9 +31,6 @@ pub fn set_current_chapter(chapter: &str)
 pub fn get_current_chapter_data() -> String 
 {
 	let current = AppData::get().get_current_chapter();
-	let chapter = &AppData::get().bible.books.iter()
-		.find(|b| b.name == current.book).unwrap()
-		.chapters[current.number as usize];
-
+	let chapter = &AppData::get().bible.books[current.book as usize].chapters[current.number as usize];
 	serde_json::to_string(chapter).unwrap()
 }

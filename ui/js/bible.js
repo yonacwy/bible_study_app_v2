@@ -32,7 +32,7 @@ async function get_book_selection()
     for (let i = 0; i < view.length; i++)
     {
         let book = view[i];
-        html += `<a href=\"javascript:set_book('${book.name}')\">${book.name}</a>`;
+        html += `<a href=\"javascript:set_book(${i})\">${book.name}</a>`;
     }
 
     return html;
@@ -44,10 +44,7 @@ async function get_chapter_selection()
     let current = await get_chapter();
 
     
-    let book = view.find((book) => {
-        return book.name === current.book;
-    });
-
+    let book = view[current.book];
     let html = "";
     for (let i = 0; i < book.chapterCount; i++)
     {
@@ -57,9 +54,9 @@ async function get_chapter_selection()
     return html;
 }
 
-async function set_book(name) 
+async function set_book(book_index) 
 {
-    let chapter_src = JSON.stringify({book: name, number: 0});
+    let chapter_src = JSON.stringify({book: book_index, number: 0});
     invoke('set_current_chapter', {chapter: chapter_src}).then((_) => {
         location.reload();
     });

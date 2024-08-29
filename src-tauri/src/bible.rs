@@ -54,7 +54,7 @@ impl Bible
 #[serde(rename_all = "camelCase")]
 pub struct ChapterRef
 {
-    pub book: String,
+    pub book: u32,
     pub number: u32,
 }
 
@@ -64,4 +64,12 @@ pub struct BookView
 {
     pub name: String,
     pub chapter_count: u32,
+}
+
+pub struct WordIndex
+{
+    pub book: u8,
+    pub chapter: u8,
+    pub verse: u8,
+    pub word: u8,
 }

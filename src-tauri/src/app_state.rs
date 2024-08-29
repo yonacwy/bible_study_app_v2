@@ -17,7 +17,7 @@ impl AppData
     {
         let bible = parsing::parse_bible(bible_text).unwrap();
         let chapter = ChapterRef {
-            book: bible.books[0].name.clone(),
+            book: 0,
             number: 0
         };
 
