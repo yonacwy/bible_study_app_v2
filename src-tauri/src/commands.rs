@@ -1,6 +1,6 @@
 use tauri::api::ipc::serialize_js;
 
-use crate::{app_state::AppData, bible::ChapterIndex};
+use crate::{app_state::AppData, bible::{ChapterIndex, WordIndex}, notes::{Color, Note}};
 
 #[tauri::command]
 pub fn debug_print(message: &str)
@@ -53,4 +53,18 @@ pub fn get_current_chapter_view() -> String
 	let chapter = AppData::get().get_current_chapter();
 	let view = AppData::get().bible.books[chapter.book as usize].chapters[chapter.number as usize].get_view();
 	serde_json::to_string(&view).unwrap()
+}
+
+#[tauri::command]
+pub fn add_note(start: &str, end: &str)
+{
+	let start: WordIndex = serde_json::from_str(start).unwrap();
+	let end: WordIndex = serde_json::from_str(end).unwrap();
+	
+	let chapter = AppData::get().get_current_chapter();
+	AppData::get().read_notes(|notebook| {
+		let color = Color { r: 255, g: 0, b: 0 };
+		let notes = notebook.notes.entry(chapter.clone()).or_default();
+		notes.push(Note::new(color, start, end));
+	})
 }

@@ -70,12 +70,16 @@
         render_current_chapter().then((content) => {
             document.getElementById('chapter-content').innerHTML = content;
         }).then(() => {
+            let isHighting = false;
             let isDragging = false;
             let startElement = null;
             let endElement = null;
 
             document.getElementById('highlight-btn').addEventListener('click', (event) => {
-                debug_print(`Event fired!`);
+                isHighting = true;
+                startElement = null;
+                endElement = null;
+                document.getElementById('highlight-btn').classList.add('toggled-btn');
             })
 
             let wordDivs = document.getElementsByClassName('bible-word');
@@ -84,12 +88,16 @@
             {
                 let div = wordDivs[i];
                 div.addEventListener('mousedown', (event) => {
-                    isDragging = true;
-                    startElement = event.target;
-
-                    for (let j = 0; j < wordDivs.length; j++)
+                    if (isHighting)
                     {
-                        wordDivs[j].classList.remove('selected');   
+                        isDragging = true;
+                        for (let j = 0; j < wordDivs.length; j++)
+                        {
+                            wordDivs[j].classList.remove('selected');   
+                        }   
+                        startElement = event.target;
+                        endElement = event.target;
+                        selectRange(startElement, endElement);
                     }
                 });
 
@@ -104,8 +112,50 @@
                     }
                 });
 
-                div.addEventListener('mouseup', () => {
+                document.addEventListener('mouseup', () => {
+                    if (!isHighting) { return; }
+                    document.getElementById('highlight-btn').classList.remove('toggled-btn');
                     isDragging = false;
+                    isHighting = false;
+
+                    for (let j = 0; j < wordDivs.length; j++)
+                    {
+                        wordDivs[j].classList.remove('selected');   
+                    }
+                    
+                    let start_idx = -1;
+                    for (let i = 0; i < wordDivs.length; i++)
+                    {
+                        let word = wordDivs[i];
+                        if (word === startElement) 
+                        { 
+                            start_idx = i;
+                            break;
+                        }
+                    }
+
+                    let end_idx = -1;
+                    for (let i = 0; i < wordDivs.length; i++)
+                    {
+                        let word = wordDivs[i];
+                        if (word === endElement)
+                        {   
+                            end_idx = i;
+                            break;    
+                        }
+                    }
+
+                    if (start_idx > -1 && end_idx > -1)
+                    {
+                        get_chapter_view().then((view) => {
+                            let start = get_word_index(start_idx, view);
+                            let end = get_word_index(end_idx, view);
+
+                            invoke('add_note', { start: JSON.stringify(start), end: JSON.stringify(end) }).then((_) => {
+                                location.reload();
+                            });
+                        })
+                    }
                 });
             };
 
@@ -114,6 +164,11 @@
                 for (let i = 0; i < wordDivs.length; i++)
                 {
                     let div = wordDivs[i];
+                    if (div === start && div === end)
+                    {
+                        div.classList.add('selected');
+                        break;
+                    }
                     if (div === start || div === end) 
                     {
                         selecting = !selecting;

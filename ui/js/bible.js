@@ -13,16 +13,18 @@ async function load_view()
     return view;
 }
 
+async function get_chapter_view() 
+{
+    let str = await invoke('get_current_chapter_view', {});
+    let view = JSON.parse(str);
+    return view;
+}
+
 async function get_chapter()
 {
     let json = await invoke('get_current_chapter', {});
     let chapter = JSON.parse(json);
     return chapter;
-}
-
-function say_hello()
-{
-    debug_print("hello")
 }
 
 async function get_book_selection() 
@@ -90,7 +92,7 @@ async function render_current_chapter()
         for (let word_index = 0; word_index < verse.words.length; word_index++)
         {   
             let word = verse.words[word_index];
-            let word_text = word.text;
+            let word_text = bible_word(word.text);
             if (word.italicized)
             {
                 word_text = italicize(word_text);
@@ -122,14 +124,13 @@ async function render_current_chapter()
                 let spacer = bible_space();
                 if (current_note_index != -1 && current_note_index == last_note_index)
                 {
-                    // should only be called if there is a note, so no need for null checking
                     spacer = color(spacer, notes[current_note_index].color);
                 }
 
                 verse_text += spacer
             }
 
-            verse_text += bible_word(word_text);
+            verse_text += word_text;
             last_note_index = current_note_index;
         }
 
@@ -139,6 +140,25 @@ async function render_current_chapter()
     html += '</ol>'
 
     return html;
+}
+
+function get_word_index(word_number, view)
+{
+    for (let i = 0; i < view.verses.length; i++)
+    {
+        let verse = view.verses[i];
+        if (verse <= word_number)
+        {
+            word_number -= verse;
+        }
+        else 
+        {
+            return {
+                verse: i,
+                word: word_number
+            };
+        }
+    }
 }
 
 function bible_space()

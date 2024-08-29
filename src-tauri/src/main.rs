@@ -39,7 +39,9 @@ fn main() {
 			get_current_chapter, 
 			set_current_chapter,
 			get_current_chapter_text,
-			get_current_chapter_notes
+			get_current_chapter_notes,
+			get_current_chapter_view,
+			add_note,
 		])
 		.run(tauri::generate_context!())
 		.expect("error while running tauri application");

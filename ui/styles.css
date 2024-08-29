@@ -28,6 +28,10 @@ header {
     margin: 0 5px;
 }
 
+.toggled-btn {
+    background-color:#25793a;
+}
+
 .image-btn:hover {
     background-color: #a1e4b2;
     transition: background-color 0.3s ease;
