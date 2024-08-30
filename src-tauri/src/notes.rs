@@ -23,7 +23,13 @@ pub struct HighlightCategory
     pub color: Color,
     pub name: String,
     pub description: String,
-    pub id: String,
+    pub priority: u32,
+    pub id: u64,
+}
+
+pub struct WordData
+{
+    data: HashMap<ChapterIndex, HashMap<WordIndex, Vec<u64>>>
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

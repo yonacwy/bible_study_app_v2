@@ -26,6 +26,10 @@ header {
     height: 80%;
     aspect-ratio: 1 / 1;
     margin: 0 5px;
+    border-radius: 5px;
+    border-color: #333;
+    border-width: 2px;
+    border-style: solid;
 }
 
 .toggled-btn {
@@ -38,8 +42,8 @@ header {
 }
 
 .dropdown-btn {
-    background-color: lightblue; /* Just for visibility */
-    box-sizing: border-box; /* Ensure padding doesn't affect height */
+    background-color: lightblue;
+    box-sizing: border-box;
     justify-content: center;
     margin: 0 5px;
     padding: 7px 10px;
