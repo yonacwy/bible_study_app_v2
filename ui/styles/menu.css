@@ -1,0 +1,29 @@
+.menu {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-width: 400px;
+    background-color: #ffffff;
+    margin: 0 auto;
+}
+
+.menu label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.menu input[type="text"],
+.menu textarea {
+    width: 100%;
+    padding: 8px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.menu input[type="range"] {
+    width: 100%;
+    margin-bottom: 15px;
+}

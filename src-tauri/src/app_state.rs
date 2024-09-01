@@ -24,7 +24,8 @@ impl AppData
 
         let notes = HashMap::new();
         let notebook = Notebook {
-            notes
+            notes,
+            highlight_catagories: HashMap::new(),
         };
 
         unsafe 

@@ -1,33 +1,28 @@
 
 const invoke = window.__TAURI__.invoke
 
-function debug_print(msg)
-{
-    invoke('debug_print', {message: msg});
-}
-
-async function load_view()
+export async function load_view()
 {
     let str = await invoke('get_bible_view', {});
     let view = JSON.parse(str);
     return view;
 }
 
-async function get_chapter_view() 
+export async function get_chapter_view() 
 {
     let str = await invoke('get_current_chapter_view', {});
     let view = JSON.parse(str);
     return view;
 }
 
-async function get_chapter()
+export async function get_chapter()
 {
     let json = await invoke('get_current_chapter', {});
     let chapter = JSON.parse(json);
     return chapter;
 }
 
-async function get_book_selection() 
+export async function get_book_selection() 
 {
     let view = await load_view();
     let html = "";
@@ -40,7 +35,7 @@ async function get_book_selection()
     return html;
 }
 
-async function get_chapter_selection() 
+export async function get_chapter_selection() 
 {
     let view = await load_view();
     let current = await get_chapter();
@@ -56,7 +51,7 @@ async function get_chapter_selection()
     return html;
 }
 
-async function set_book(book_index) 
+export async function set_book(book_index) 
 {
     let chapter_src = JSON.stringify({book: book_index, number: 0});
     invoke('set_current_chapter', {chapter: chapter_src}).then((_) => {
@@ -64,7 +59,7 @@ async function set_book(book_index)
     });
 }
 
-async function set_chapter(chapter) 
+export async function set_chapter(chapter) 
 {
     let current = await get_chapter();
     let chapter_src = JSON.stringify({book: current.book, number: chapter});
@@ -73,7 +68,7 @@ async function set_chapter(chapter)
     });
 }
 
-async function render_current_chapter()
+export async function render_current_chapter()
 {
     let text_json = await invoke('get_current_chapter_text', {});
     let chapter = JSON.parse(text_json);
@@ -142,7 +137,7 @@ async function render_current_chapter()
     return html;
 }
 
-function get_word_index(word_number, view)
+export function get_word_index(word_number, view)
 {
     for (let i = 0; i < view.verses.length; i++)
     {

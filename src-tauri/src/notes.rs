@@ -27,11 +27,6 @@ pub struct HighlightCategory
     pub id: u64,
 }
 
-pub struct WordData
-{
-    data: HashMap<ChapterIndex, HashMap<WordIndex, Vec<u64>>>
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Note
@@ -58,5 +53,6 @@ impl Note
 
 pub struct Notebook
 {
+    pub highlight_catagories: HashMap<u64, HighlightCategory>,
     pub notes: HashMap<ChapterIndex, Vec<Note>>
 }

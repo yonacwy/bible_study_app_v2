@@ -5,6 +5,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="styles/styles.css"/>
+    <link rel="stylesheet" href="styles/popup.css"/>
+    <link rel="stylesheet" href="styles/menu.css">
+    <link rel="stylesheet" href="coloris/coloris.css">
+    <style>
+        .examples input {
+            height: 32px;
+            padding: 0 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: inherit;
+            box-sizing: border-box;
+            width: 150px;
+            height: 50px;
+        }
+
+        .examples {
+            position: relative;
+            flex-wrap: wrap;
+            display: flex;
+        }
+
+        .examples .example {
+            width: 300px;
+            margin-bottom: 30px;
+            flex-shrink: 0;
+        }
+
+        .examples .full .clr-field button {
+            height: 100%;
+            border-radius: 5px;
+            width: 100%;
+            max-height: 100%;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -12,9 +48,75 @@
             <input type="image" src="images/light-backward.svg"/>
         </div>
     </header>
-    <script>
-        document.getElementById('back-btn').addEventListener('click', (_) => {
-            location.href = "index.html"
+    <main>
+        <div class="popup" id="confirm-popup">
+            <div class="popup-content">
+                <p>Are you sure you want to delete this highlight?</p>
+                <button id="confirm-btn" class="yes">Confirm</button>
+                <button id="cancel-delete-btn" class="no">Cancel</button>
+            </div>
+        </div>
+        <div class="popup" id="highlight-popup">
+            <div class="popup-content menu">
+                <div class="examples">
+                    <div class="example full">
+                        <p>Rounded square thumbnail</p>
+                        <input type="text" id="color-input" value="rgb(255, 0, 0)" data-coloris>
+                    </div>
+                </div>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter name">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" placeholder="Enter description"></textarea>
+                <label for="priority">Priority:</label>
+                <input type="range" id="priority" name="priority" min="1" max="10">
+                <button type="button" class="yes" id="submit-btn">Submit</button>
+                <button type="button" class="no" id="cancel-submit-btn">Cancel</button>
+            </div>
+        </div>
+        <button id="show-btn">Show</button>
+        <button id="new-btn">New</button>
+    </main>
+    <script src="./coloris/coloris.js"></script>
+    <script type="module">
+        import * as utils from "./src/utils.js";
+        Coloris.setInstance('#color-input', {
+            theme: 'pill',
+            themeMode: 'dark',
+            formatToggle: true,
+            closeButton: true,
+            swatches: [
+                '#067bc2',
+                '#84bcda',
+                '#80e377',
+                '#ecc30b',
+                '#f37748',
+                '#d56062'
+            ]
+        });
+
+        utils.on_click('show-btn', (e) => {
+            utils.set_display('confirm-popup', 'flex');
+        });
+
+        utils.on_click('confirm-btn', (e) => {
+            utils.set_display('confirm-popup', 'none');
+        });
+
+        utils.on_click('cancel-delete-btn', (e) => {
+            utils.set_display('confirm-popup', 'none');
+        });
+
+        utils.on_click('new-btn', (e) => {
+            utils.set_display('highlight-popup', 'flex');
+        });
+
+        utils.on_click('submit-btn', e => {
+            utils.set_display('highlight-popup', 'none');
+        });
+
+        utils.on_click('cancel-submit-btn', e => {
+            utils.set_display('highlight-popup', 'none');
         });
     </script>
 </body>

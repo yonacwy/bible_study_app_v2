@@ -30,28 +30,30 @@
                 <div id="chapter-content"></div>
         </section>
     </main>
-    <script src="js/bible.js"></script>
-    <script>
+    <script type="module">
+        import { debug_print, invoke } from './src/utils.js';
+        import * as bible from './src/bible.js';
+
         document.getElementById('highlight-settings').addEventListener('click', (_) => {
             window.location.href = "highlight_editor.html";
         });
 
-        get_chapter().then((chapter) => {
-            load_view().then((view) => {
+        bible.get_chapter().then((chapter) => {
+            bible.load_view().then((view) => {
                 document.getElementById('books-btn').innerHTML = view[chapter.book].name;
                 document.getElementById('chapters-btn').innerHTML = `${chapter.number + 1}`;
             })
         });
 
-        get_book_selection().then((books) => {
+        bible.get_book_selection().then((books) => {
             document.getElementById('books-dropdown').innerHTML = books;
         });
 
-        get_chapter_selection().then((chapters) => {
+        bible.get_chapter_selection().then((chapters) => {
             document.getElementById('chapters-dropdown').innerHTML = chapters;
         });
 
-        render_current_chapter().then((content) => {
+        bible.render_current_chapter().then((content) => {
             document.getElementById('chapter-content').innerHTML = content;
         }).then(() => {
             let isHighting = false;
@@ -131,9 +133,9 @@
 
                     if (start_idx > -1 && end_idx > -1)
                     {
-                        get_chapter_view().then((view) => {
-                            let start = get_word_index(start_idx, view);
-                            let end = get_word_index(end_idx, view);
+                        bible.get_chapter_view().then((view) => {
+                            let start = bible.get_word_index(start_idx, view);
+                            let end = bible.get_word_index(end_idx, view);
 
                             invoke('add_note', { start: JSON.stringify(start), end: JSON.stringify(end) }).then((_) => {
                                 location.reload();
