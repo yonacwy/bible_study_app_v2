@@ -1,0 +1,88 @@
+import * as utils from "./utils.js";
+
+export function create_category(color, name, description, priority)
+{
+    utils.invoke('add_highlight_category', {
+        color: color,
+        name: name,
+        description: description,
+        priority: priority
+    });
+}
+
+export function set_category(id, color, name, description, priority)
+{
+    utils.invoke('set_highlight_category', {
+        id: id,
+        color: color,
+        name: name,
+        description: description,
+        priority: priority
+    });
+}
+
+export async function get_catagories() 
+{
+    return await utils.invoke('get_highlight_catagories');    
+}
+
+export function render_catagories(on_delete, on_edit)
+{
+    utils.invoke('get_highlight_catagories').then(catagories_json => {
+        let container = document.getElementById('highlights');
+        let catagories = JSON.parse(catagories_json);
+
+        if (catagories.length == 0)
+        {
+            let messageDiv = document.createElement('div');
+            messageDiv.innerHTML = "No Highlights created";
+            return;
+        }
+
+        for(let id in catagories)
+        {
+            let category = catagories[id];
+            let name = category.name;
+            let description = category.description;
+            let color = category.color;
+            let priority = category.priority;
+            
+            let highlightDiv = document.createElement('div');
+            highlightDiv.className = 'highlight';
+            
+            let colorBar = document.createElement('div');
+            colorBar.className = 'color-bar';
+            colorBar.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+
+            let contentDiv = document.createElement('div');
+            contentDiv.className = 'highlight-content';
+
+            contentDiv.innerHTML = `
+                <h2>${name}</h2>
+                <p>${description}</p>
+                <p><span>Priority:</span> ${priority}</p>
+                <div class="same-line">
+                    <button class="edit-btn" id="edit-btn-n${category.id}">Edit</button>
+                    <button class="delete-btn" id="delete-btn-n${category.id}">Delete</button>
+                </div>
+            `;
+
+            highlightDiv.appendChild(colorBar);
+            highlightDiv.appendChild(contentDiv);
+            container.appendChild(highlightDiv);
+
+            utils.on_click(`delete-btn-n${category.id}`, e => {
+                on_delete(category.id);
+            });
+
+            utils.on_click(`edit-btn-n${category.id}`, e => {
+                on_edit(category.id);
+            })
+        };
+    });
+}
+
+export function sanitize_name_input(name)
+{
+    
+}

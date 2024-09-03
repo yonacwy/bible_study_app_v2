@@ -1,20 +1,9 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, num::ParseIntError};
 
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::bible::{ChapterIndex, WordIndex};
-
-
-#[repr(C)]
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Color
-{
-    pub r: u8,
-    pub g: u8,
-    pub b: u8,
-}
+use crate::{bible::{ChapterIndex, WordIndex}, utils::Color};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -51,6 +40,7 @@ impl Note
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Notebook
 {
     pub highlight_catagories: HashMap<u64, HighlightCategory>,

@@ -7,40 +7,7 @@
     <link rel="stylesheet" href="styles/styles.css"/>
     <link rel="stylesheet" href="styles/popup.css"/>
     <link rel="stylesheet" href="styles/menu.css">
-    <link rel="stylesheet" href="coloris/coloris.css">
-    <style>
-        .examples input {
-            height: 32px;
-            padding: 0 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-family: inherit;
-            font-size: inherit;
-            font-weight: inherit;
-            box-sizing: border-box;
-            width: 150px;
-            height: 50px;
-        }
-
-        .examples {
-            position: relative;
-            flex-wrap: wrap;
-            display: flex;
-        }
-
-        .examples .example {
-            width: 300px;
-            margin-bottom: 30px;
-            flex-shrink: 0;
-        }
-
-        .examples .full .clr-field button {
-            height: 100%;
-            border-radius: 5px;
-            width: 100%;
-            max-height: 100%;
-        }
-    </style>
+    <link rel="stylesheet", href="styles/highlights.css">
 </head>
 <body>
     <header>
@@ -58,53 +25,69 @@
         </div>
         <div class="popup" id="highlight-popup">
             <div class="popup-content menu">
-                <div class="examples">
-                    <div class="example full">
-                        <p>Rounded square thumbnail</p>
-                        <input type="text" id="color-input" value="rgb(255, 0, 0)" data-coloris>
-                    </div>
-                </div>
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" placeholder="Enter name">
-                <label for="description">Description:</label>
-                <textarea id="description" name="description" placeholder="Enter description"></textarea>
-                <label for="priority">Priority:</label>
-                <input type="range" id="priority" name="priority" min="1" max="10">
+                <label for="color-in">Color:</label>
+                <input type="color" id="color-in" value="#FFD700">
+
+                <label for="name-in">Name:</label>
+                <input type="text" id="name-in" placeholder="Enter name">
+                <span id="name-err-msg" style="color: red;"></span>
+
+                <label for="description-in">Description:</label>
+                <textarea id="description-in" placeholder="Enter description"></textarea>
+                <span id="desc-err-msg" style="color: red;"></span>
+
+                <label for="priority-in">Priority:</label>
+                <input type="range" id="priority-in" min="1" max="10">
+
                 <button type="button" class="yes" id="submit-btn">Submit</button>
                 <button type="button" class="no" id="cancel-submit-btn">Cancel</button>
             </div>
         </div>
-        <button id="show-btn">Show</button>
         <button id="new-btn">New</button>
+        <div id="highlights" class="highlight-container"></div>
     </main>
-    <script src="./coloris/coloris.js"></script>
     <script type="module">
         import * as utils from "./src/utils.js";
-        Coloris.setInstance('#color-input', {
-            theme: 'pill',
-            themeMode: 'dark',
-            formatToggle: true,
-            closeButton: true,
-            swatches: [
-                '#067bc2',
-                '#84bcda',
-                '#80e377',
-                '#ecc30b',
-                '#f37748',
-                '#d56062'
-            ]
-        });
+        import { render_catagories, create_category, get_catagories, set_category } from "./src/highlights.js";
 
-        utils.on_click('show-btn', (e) => {
+        let editing_id = null;
+        function on_edit(id)
+        {
+            utils.debug_print(`Edited ${id}`);
+            let category = get_catagories()[id];
+
+            let color = utils.stringify_color(category.color);
+            utils.debug_print(`Got here`);
+            utils.set_value('color-in', color);
+            utils.set_value('name-in', category.name);
+            utils.set_value('description-in', category.description);
+            utils.set_value('priority-in', category.priority);
+
+            editing_id = category.id;
+        }
+
+        let deleting_id = null;
+        function on_delete(id)
+        {
+            deleting_id = id;
             utils.set_display('confirm-popup', 'flex');
-        });
+        }
 
+        render_catagories(on_delete, on_edit);
+        
         utils.on_click('confirm-btn', (e) => {
+            if (deleting_id != null)
+            {
+                utils.invoke('remove_highlight_category', { id: JSON.stringify(deleting_id) });
+            }
+
             utils.set_display('confirm-popup', 'none');
+            location.reload();
         });
 
         utils.on_click('cancel-delete-btn', (e) => {
             utils.set_display('confirm-popup', 'none');
+            deleting_id = null;
         });
 
         utils.on_click('new-btn', (e) => {
@@ -112,12 +95,56 @@
         });
 
         utils.on_click('submit-btn', e => {
-            utils.set_display('highlight-popup', 'none');
+            let color = utils.read_value('color-in');
+            let name = utils.read_value('name-in');
+            let description = utils.read_value('description-in');
+            let priority = utils.read_value('priority-in');
+
+            let was_error = false;
+
+            const NAME_MIN_LENGTH = 3;
+            const NAME_MAX_LENGTH = 20;
+            if(name.length < 3)
+            {
+                was_error = true;
+                utils.set_html('name-err-msg', `Name must be at least ${NAME_MIN_LENGTH} characters long.`);   
+            }
+
+            if(name.length > NAME_MAX_LENGTH)
+            {
+                was_error = true;
+                utils.set_html('name-err-msg', `Cant be longer than ${NAME_MAX_LENGTH} characters long.`);
+            }
+
+            if(!utils.is_alpha_numeric(name))
+            {
+                was_error = true;
+                utils.set_html('name-err-msg', `Name must contain only letters, numbers, and spaces`);
+            }
+
+            if(!was_error)
+            {
+                if(editing_id == null)
+                {
+                    create_category(color, name, description, priority);
+                }
+                else 
+                {
+                    set_category(editing_id, color, name, description, priority);
+                }
+                utils.set_display('highlight-popup', 'none');
+                location.reload();
+            }
         });
 
         utils.on_click('cancel-submit-btn', e => {
+            editing_id = null;
             utils.set_display('highlight-popup', 'none');
         });
+
+        utils.on_click('back-btn', e => {
+            window.location.href = "./index"
+        })
     </script>
 </body>
 </html>

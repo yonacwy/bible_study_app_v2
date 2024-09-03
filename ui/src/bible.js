@@ -1,5 +1,4 @@
-
-const invoke = window.__TAURI__.invoke
+import { invoke, debug_print } from "./utils.js";
 
 export async function load_view()
 {
@@ -22,33 +21,41 @@ export async function get_chapter()
     return chapter;
 }
 
-export async function get_book_selection() 
+export function create_books_selection()
 {
-    let view = await load_view();
-    let html = "";
-    for (let i = 0; i < view.length; i++)
-    {
-        let book = view[i];
-        html += `<a href=\"javascript:set_book(${i})\">${book.name}</a>`;
-    }
+    load_view().then(view => {
+        let container = document.getElementById('books-dropdown');
+        for (let i = 0; i < view.length; i++)
+        {
+            let book = view[i];
+            let book_anchor = document.createElement('a');
+            book_anchor.innerHTML = book.name;
+            book_anchor.addEventListener('click', e => {
+                set_book(i);
+            });
 
-    return html;
+            container.appendChild(book_anchor);
+        }
+    });
 }
 
-export async function get_chapter_selection() 
+export async function create_chapter_selection() 
 {
     let view = await load_view();
     let current = await get_chapter();
-
     
     let book = view[current.book];
-    let html = "";
+    let container = document.getElementById('chapters-dropdown');
     for (let i = 0; i < book.chapterCount; i++)
     {
-        html += `<a href=\"javascript:set_chapter(${i})\">${i + 1}</a>`;
-    }    
+        let chapter_anchor = document.createElement('a');
+        chapter_anchor.innerHTML = `${i + 1}`;
+        chapter_anchor.addEventListener('click', e => {
+            set_chapter(i);
+        });
 
-    return html;
+        container.appendChild(chapter_anchor);
+    }
 }
 
 export async function set_book(book_index) 

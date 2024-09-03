@@ -1,6 +1,6 @@
-use tauri::api::ipc::serialize_js;
+use itertools::Itertools;
 
-use crate::{app_state::AppData, bible::{ChapterIndex, WordIndex}, notes::{Color, Note}};
+use crate::{app_state::AppData, bible::{ChapterIndex, WordIndex}, notes::{HighlightCategory, Note}, utils::{get_hash_code, Color}};
 
 #[tauri::command]
 pub fn debug_print(message: &str)
@@ -66,5 +66,65 @@ pub fn add_note(start: &str, end: &str)
 		let color = Color { r: 255, g: 233, b: 0 };
 		let notes = notebook.notes.entry(chapter.clone()).or_default();
 		notes.push(Note::new(color, start, end));
+	})
+}
+
+#[tauri::command]
+pub fn get_highlight_catagories() -> String 
+{
+	AppData::get().read_notes(|notebook| {
+		serde_json::to_string(&notebook.highlight_catagories).unwrap()
+	})
+}
+
+#[tauri::command]
+pub fn add_highlight_category(color: &str, name: &str, description: &str, priority: &str)
+{
+	AppData::get().read_notes(|notebook| {
+		let color = Color::from_hex(color).unwrap();
+		let name = name.to_string();
+		let description = description.to_string();
+		let priority: u32 = priority.parse().unwrap();
+		let id = get_hash_code(&uuid::Uuid::new_v4());
+		
+		let category = HighlightCategory {
+			color,
+			name,
+			description,
+			priority,
+			id
+		};
+
+		notebook.highlight_catagories.insert(id, category);
+	})
+}
+
+#[tauri::command]
+pub fn remove_highlight_category(id: &str)
+{
+	AppData::get().read_notes(|notebook| {
+		let id = serde_json::from_str(id).unwrap();
+		notebook.highlight_catagories.remove(&id);
+	})
+}
+
+pub fn set_highlight_category(id: &str, color: &str, name: &str, description: &str, priority: &str)
+{
+	AppData::get().read_notes(|notebook| {
+		let color = Color::from_hex(color).unwrap();
+		let name = name.to_string();
+		let description = description.to_string();
+		let priority: u32 = priority.parse().unwrap();
+		let id = id.parse().unwrap();
+		
+		let category = HighlightCategory {
+			color,
+			name,
+			description,
+			priority,
+			id
+		};
+
+		notebook.highlight_catagories.insert(id, category);
 	})
 }

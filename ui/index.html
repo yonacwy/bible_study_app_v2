@@ -45,13 +45,8 @@
             })
         });
 
-        bible.get_book_selection().then((books) => {
-            document.getElementById('books-dropdown').innerHTML = books;
-        });
-
-        bible.get_chapter_selection().then((chapters) => {
-            document.getElementById('chapters-dropdown').innerHTML = chapters;
-        });
+        bible.create_books_selection();
+        bible.create_chapter_selection();
 
         bible.render_current_chapter().then((content) => {
             document.getElementById('chapter-content').innerHTML = content;

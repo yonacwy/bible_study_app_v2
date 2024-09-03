@@ -1,6 +1,6 @@
 use std::{cell::{RefCell, RefMut}, collections::HashMap, sync::Mutex};
 
-use crate::{bible::*, notes::*, parsing};
+use crate::{bible::*, notes::*, parsing, utils::Color};
 
 
 static mut DATA: Option<AppData> = None;
@@ -23,9 +23,35 @@ impl AppData
         };
 
         let notes = HashMap::new();
+        let mut highlight_catagories = HashMap::new();
+
+        highlight_catagories.insert(0, HighlightCategory {
+            color: Color::from_hex("#FF0000").unwrap(),
+            name: "Red".into(),
+            description: "A red highlight".into(),
+            priority: 0,
+            id: 0
+        });
+        
+        highlight_catagories.insert(1, HighlightCategory {
+            color: Color { r: 255, g: 165, b: 0 },
+            name: "Orange?".into(),
+            description: "A orange highlight".into(),
+            priority: 0,
+            id: 1
+        });
+
+        highlight_catagories.insert(2, HighlightCategory {
+            color: Color { r: 0, g: 0, b: 255 },
+            name: "Blue".into(),
+            description: "A blue highlight".into(),
+            priority: 0,
+            id: 2
+        });
+
         let notebook = Notebook {
             notes,
-            highlight_catagories: HashMap::new(),
+            highlight_catagories,
         };
 
         unsafe 

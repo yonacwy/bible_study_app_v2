@@ -1,0 +1,45 @@
+.highlight-container {
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+}
+
+.highlight {
+    display: flex;
+    align-items: stretch; /* Ensures both the color bar and content stretch to the same height */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #f9f9f9;
+}
+
+.color-bar {
+    width: 10px;
+    border-radius: 8px 0 0 8px;
+    margin-right: 10px;
+}
+
+.highlight-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.highlight-content h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.highlight-content p {
+    margin: 5px 0;
+}
+
+.highlight-content span {
+    font-weight: bold;
+}
+
+.same-line
+{
+    flex-direction: row;
+}

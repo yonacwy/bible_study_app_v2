@@ -13,6 +13,7 @@ pub mod parsing;
 pub mod commands;
 pub mod app_state;
 pub mod notes;
+pub mod utils;
 
 use commands::*;
 
@@ -42,6 +43,9 @@ fn main() {
 			get_current_chapter_notes,
 			get_current_chapter_view,
 			add_note,
+			get_highlight_catagories,
+			add_highlight_category,
+			remove_highlight_category,
 		])
 		.run(tauri::generate_context!())
 		.expect("error while running tauri application");

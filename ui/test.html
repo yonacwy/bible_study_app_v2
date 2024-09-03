@@ -3,223 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Highlight Color Manager</title>
+    <title>Highlights</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        .highlight-container {
+            display: flex;
+            flex-direction: column;
             margin: 20px;
-            background-color: #f4f4f4;
         }
-        .button-container {
+
+        .highlight {
             display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        .button-container button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .button-container button:hover {
-            background-color: #45a049;
-        }
-        .menu {
-            margin-top: 20px;
-            padding: 20px;
+            align-items: stretch; /* Ensures both the color bar and content stretch to the same height */
             border: 1px solid #ccc;
-            border-radius: 5px;
-            max-width: 400px;
-            background-color: #ffffff;
-            margin: 0 auto;
-        }
-        .menu label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .menu input[type="text"],
-        .menu input[type="color"],
-        .menu textarea {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
-            border-radius: 3px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-        }
-        .menu input[type="range"] {
-            width: 100%;
-            margin-bottom: 15px;
-        }
-        .menu button {
-            width: 100%;
+            border-radius: 8px;
             padding: 10px;
-            border: none;
-            background-color: #4CAF50;
-            color: white;
-            font-size: 16px;
-            border-radius: 3px;
-            cursor: pointer;
+            margin: 10px 0;
+            background-color: #f9f9f9;
         }
-        .menu button:hover {
-            background-color: #45a049;
+
+        .color-bar {
+            width: 10px;
+            border-radius: 8px 0 0 8px;
+            margin-right: 10px;
         }
-        .highlight-list {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .highlight-item {
+
+        .highlight-content {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #ffffff;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        .highlight-details {
-            flex-grow: 1;
-        }
-        .highlight-item span.color-box {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            margin-right: 15px;
-            vertical-align: middle;
-            border-radius: 3px;
-            border: 1px solid #ccc;
-        }
-        .highlight-item button {
-            padding: 8px 12px;
-            font-size: 14px;
-            background-color: #d9534f;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 20px;
-        }
-        .highlight-item button:hover {
-            background-color: #c9302c;
-        }
-        .popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
+            flex-direction: column;
             justify-content: center;
-            align-items: center;
         }
-        .popup-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            text-align: center;
+
+        .highlight-content h2 {
+            margin: 0;
+            font-size: 1.5em;
         }
-        .popup button {
-            margin: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
+
+        .highlight-content p {
+            margin: 5px 0;
         }
-        .popup button.yes {
-            background-color: #d9534f;
-            color: white;
-        }
-        .popup button.no {
-            background-color: #5bc0de;
-            color: white;
+
+        .highlight-content span {
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-<div class="button-container">
-    <button id="addButton">Create New</button>
-</div>
-
-<div id="menuContainer"></div>
-
-<div class="highlight-list" id="highlightList">
-    <h3>Created Highlights</h3>
-</div>
-
-<div class="popup" id="popup">
-    <div class="popup-content">
-        <p>Are you sure you want to remove this highlight?</p>
-        <button class="yes" id="confirmYes">Yes</button>
-        <button class="no" id="confirmNo">No</button>
-    </div>
+<div id="highlights" class="highlight-container">
+    <!-- Highlights will be rendered here -->
 </div>
 
 <script>
-    document.getElementById('addButton').addEventListener('click', function() {
-        const menuContainer = document.getElementById('menuContainer');
-        const menu = document.createElement('div');
-        menu.className = 'menu';
-        menu.innerHTML = `
-            <label for="color">Color:</label>
-            <input type="color" id="color" name="color" value="#ff0000">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" placeholder="Enter name">
-            <label for="description">Description:</label>
-            <textarea id="description" name="description" placeholder="Enter description"></textarea>
-            <label for="priority">Priority:</label>
-            <input type="range" id="priority" name="priority" min="1" max="10">
-            <button type="button" onclick="submitHighlight(this)">Submit</button>
+    const highlights = [
+        {
+            name: "Important Update",
+            description: "This is a very important update that needs attention.",
+            priority: 1,
+            color: { r: 255, g: 0, b: 0 }
+        },
+        {
+            name: "Reminder",
+            description: "Don't forget to submit your report by the end of the week.",
+            priority: 2,
+            color: { r: 255, g: 165, b: 0 }
+        },
+        {
+            name: "FYI",
+            description: "This is just some general information.",
+            priority: 3,
+            color: { r: 0, g: 0, b: 255 }
+        }
+    ];
+
+    const container = document.getElementById('highlights');
+
+    highlights.forEach(({ name, description, priority, color }) => {
+        const highlightDiv = document.createElement('div');
+        highlightDiv.className = 'highlight';
+
+        const colorBar = document.createElement('div');
+        colorBar.className = 'color-bar';
+        colorBar.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'highlight-content';
+
+        contentDiv.innerHTML = `
+            <h2>${name}</h2>
+            <p>${description}</p>
+            <p><span>Priority:</span> ${priority}</p>
         `;
-        menuContainer.appendChild(menu);
+
+        highlightDiv.appendChild(colorBar);
+        highlightDiv.appendChild(contentDiv);
+
+        container.appendChild(highlightDiv);
     });
-
-    function submitHighlight(button) {
-        const menu = button.parentElement;
-        const color = menu.querySelector('#color').value;
-        const name = menu.querySelector('#name').value;
-        const description = menu.querySelector('#description').value;
-        const priority = menu.querySelector('#priority').value;
-
-        const highlightList = document.getElementById('highlightList');
-        const highlightItem = document.createElement('div');
-        highlightItem.className = 'highlight-item';
-        highlightItem.innerHTML = `
-            <div class="highlight-details">
-                <span class="color-box" style="background-color: ${color};"></span>
-                <strong>Name:</strong> ${name}<br>
-                <strong>Description:</strong> ${description}<br>
-                <strong>Priority:</strong> ${priority}
-            </div>
-            <button onclick="removeHighlight(this)">-</button>
-        `;
-        highlightList.appendChild(highlightItem);
-
-        menu.remove(); // Optionally remove the menu after submission
-    }
-
-    function removeHighlight(button) {
-        const highlightItem = button.parentElement;
-        const popup = document.getElementById('popup');
-        popup.style.display = 'flex';
-
-        document.getElementById('confirmYes').onclick = function() {
-            highlightItem.remove();
-            popup.style.display = 'none';
-        };
-
-        document.getElementById('confirmNo').onclick = function() {
-            popup.style.display = 'none';
-        };
-    }
 </script>
 
 </body>
