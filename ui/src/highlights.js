@@ -12,6 +12,7 @@ export function create_category(color, name, description, priority)
 
 export function set_category(id, color, name, description, priority)
 {
+    utils.debug_print('got here');
     utils.invoke('set_highlight_category', {
         id: id,
         color: color,
@@ -23,7 +24,7 @@ export function set_category(id, color, name, description, priority)
 
 export async function get_catagories() 
 {
-    return await utils.invoke('get_highlight_catagories');    
+    return JSON.parse(await utils.invoke('get_highlight_catagories'));
 }
 
 export function render_catagories(on_delete, on_edit)

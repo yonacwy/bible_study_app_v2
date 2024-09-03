@@ -21,37 +21,27 @@ impl AppData
             book: 0,
             number: 0
         };
-
-        let notes = HashMap::new();
+        
         let mut highlight_catagories = HashMap::new();
 
-        highlight_catagories.insert(0, HighlightCategory {
+        let test_id = uuid::Uuid::new_v4().to_string();
+        highlight_catagories.insert(test_id.clone(), HighlightCategory {
             color: Color::from_hex("#FF0000").unwrap(),
             name: "Red".into(),
             description: "A red highlight".into(),
             priority: 0,
-            id: 0
-        });
-        
-        highlight_catagories.insert(1, HighlightCategory {
-            color: Color { r: 255, g: 165, b: 0 },
-            name: "Orange?".into(),
-            description: "A orange highlight".into(),
-            priority: 0,
-            id: 1
+            id: test_id.clone(),
         });
 
-        highlight_catagories.insert(2, HighlightCategory {
-            color: Color { r: 0, g: 0, b: 255 },
-            name: "Blue".into(),
-            description: "A blue highlight".into(),
-            priority: 0,
-            id: 2
-        });
+        let mut chapter_highlights = HashMap::new();
+
+        let mut highlights = HashMap::new();
+        highlights.insert(WordIndex { verse: 0, word: 0}, vec![test_id]);
+        chapter_highlights.insert(ChapterIndex { book: 0, number: 0 }, highlights);
 
         let notebook = Notebook {
-            notes,
             highlight_catagories,
+            chapter_highlights,
         };
 
         unsafe 

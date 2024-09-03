@@ -38,7 +38,16 @@ export function is_alpha_numeric(str)
     return REGEX.test(str);
 }
 
-export function stringify_color(color)
+export function color_to_hex(color) 
 {
-    return `rgb(${color.r}, ${color.g}, ${color.g})`;
+    const { r, g, b } = color;
+
+    // Ensure r, g, and b are within the range of 0-255
+    const clamp = (value) => Math.max(0, Math.min(255, value));
+
+    // Convert each color component to a two-digit hexadecimal value
+    const toHex = (value) => clamp(value).toString(16).padStart(2, '0');
+
+    // Combine the hex values into a single string
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }

@@ -53,17 +53,17 @@
         let editing_id = null;
         function on_edit(id)
         {
-            utils.debug_print(`Edited ${id}`);
-            let category = get_catagories()[id];
+            get_catagories().then(catagories => {
+                let category = catagories[id];
+                let color = utils.color_to_hex(category.color);
+                utils.set_value('color-in', color);
+                utils.set_value('name-in', category.name);
+                utils.set_value('description-in', category.description);
+                utils.set_value('priority-in', category.priority);
 
-            let color = utils.stringify_color(category.color);
-            utils.debug_print(`Got here`);
-            utils.set_value('color-in', color);
-            utils.set_value('name-in', category.name);
-            utils.set_value('description-in', category.description);
-            utils.set_value('priority-in', category.priority);
-
-            editing_id = category.id;
+                editing_id = category.id;
+                utils.set_display('highlight-popup', 'flex');
+            })
         }
 
         let deleting_id = null;
@@ -78,7 +78,7 @@
         utils.on_click('confirm-btn', (e) => {
             if (deleting_id != null)
             {
-                utils.invoke('remove_highlight_category', { id: JSON.stringify(deleting_id) });
+                utils.invoke('remove_highlight_category', { id: deleting_id });
             }
 
             utils.set_display('confirm-popup', 'none');
@@ -134,6 +134,7 @@
                 }
                 utils.set_display('highlight-popup', 'none');
                 location.reload();
+                editing_id = null;
             }
         });
 
