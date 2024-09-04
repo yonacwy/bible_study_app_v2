@@ -12,7 +12,6 @@ export function create_category(color, name, description, priority)
 
 export function set_category(id, color, name, description, priority)
 {
-    utils.debug_print('got here');
     utils.invoke('set_highlight_category', {
         id: id,
         color: color,
@@ -81,9 +80,4 @@ export function render_catagories(on_delete, on_edit)
             })
         };
     });
-}
-
-export function sanitize_name_input(name)
-{
-    
 }

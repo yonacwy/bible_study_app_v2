@@ -51,3 +51,12 @@ export function color_to_hex(color)
     // Combine the hex values into a single string
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
+
+export function inverse_color(color)
+{
+    const { r, g, b } = color;
+    let ir = 255 - r;
+    let ig = 255 - g;
+    let ib = 255 - b;
+    return { r: ir, g: ig, b: ib };
+}

@@ -24,19 +24,37 @@ impl AppData
         
         let mut highlight_catagories = HashMap::new();
 
-        let test_id = uuid::Uuid::new_v4().to_string();
-        highlight_catagories.insert(test_id.clone(), HighlightCategory {
+        let test_id1 = uuid::Uuid::new_v4().to_string();
+        highlight_catagories.insert(test_id1.clone(), HighlightCategory {
             color: Color::from_hex("#FF0000").unwrap(),
             name: "Red".into(),
             description: "A red highlight".into(),
             priority: 0,
-            id: test_id.clone(),
+            id: test_id1.clone(),
+        });
+
+        let test_id2 = uuid::Uuid::new_v4().to_string();
+        highlight_catagories.insert(test_id2.clone(), HighlightCategory {
+            color: Color::from_hex("#00FF00").unwrap(),
+            name: "Green".into(),
+            description: "A blue highlight".into(),
+            priority: 6,
+            id: test_id2.clone(),
+        });
+
+        let test_id3 = uuid::Uuid::new_v4().to_string();
+        highlight_catagories.insert(test_id3.clone(), HighlightCategory {
+            color: Color::from_hex("#0000FF").unwrap(),
+            name: "Blue".into(),
+            description: "A green highlight".into(),
+            priority: 3,
+            id: test_id3.clone(),
         });
 
         let mut chapter_highlights = HashMap::new();
 
         let mut highlights = HashMap::new();
-        highlights.insert(WordIndex { verse: 0, word: 0}, vec![test_id]);
+        highlights.insert(WordIndex { verse: 0, word: 0}, vec![test_id1]);
         chapter_highlights.insert(ChapterIndex { book: 0, number: 0 }, highlights);
 
         let notebook = Notebook {

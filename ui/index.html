@@ -6,23 +6,27 @@
     <title>Bible Website</title>
     <link rel="stylesheet" href="styles/styles.css">
     <link rel="stylesheet" href="styles/bible.css">
+    <link rel="stylesheet" href="styles/dropdown.css">
 </head>
 <body>
     <header>
         <div class="dropdown">
-            <button class="dropdown-btn" id="books-btn">Books</button>
+            <button class="text-dropdown-btn" id="books-btn">Books</button>
             <div class="dropdown-content" id="books-dropdown"></div>
         </div>
         <div class="dropdown">
-            <button class="dropdown-btn" id="chapters-btn">Chapters</button>
+            <button class="text-dropdown-btn" id="chapters-btn">Chapters</button>
             <div class="dropdown-content" id="chapters-dropdown"></div>
         </div>
-        <div class="image-btn" id="highlight-btn">
-            <input type="image" src="images/light-paintbrush-pencil.svg"/>
+        <div class="dropdown">
+            <button class="image-dropdown-button" id="highlight-selector-btn">
+                <img src="images/light-highlighter-line.svg" alt="Dropdown Button">
+            </button>
+            <div class="dropdown-content" id="highlights-dropdown"></div>
         </div>
-        <div class="image-btn" id="highlight-settings">
-            <input type="image" src="images/light-plus.svg"/>
-        </div>
+        <button class="image-btn" id="highlight-settings">
+            <img src="images/light-plus.svg">
+        </button>
     </header>
     <main>
         <section class="content">
@@ -31,8 +35,11 @@
         </section>
     </main>
     <script type="module">
-        import { debug_print, invoke } from './src/utils.js';
+        import { debug_print, invoke, color_to_hex } from './src/utils.js';
         import * as bible from './src/bible.js';
+        import { get_catagories } from './src/highlights.js';
+
+        let selected_highlight = null;
 
         document.getElementById('highlight-settings').addEventListener('click', (_) => {
             window.location.href = "highlight_editor.html";
@@ -45,122 +52,39 @@
             })
         });
 
+        const DEFAULT_BUTTON_COLOR = document.getElementById('highlight-selector-btn').style.backgroundColor;
+
         bible.create_books_selection();
         bible.create_chapter_selection();
+        bible.create_highlight_selection(id => {
+            get_catagories().then(catagories => {
+                let color = DEFAULT_BUTTON_COLOR;
+                if(id !== null)
+                {
+                    let category = catagories[id];
+                    color = color_to_hex(category.color);
+                }
+
+                let btn = document.getElementById('highlight-selector-btn');
+                btn.style.backgroundColor = color;
+            });
+        });
 
         bible.render_current_chapter().then((content) => {
             document.getElementById('chapter-content').innerHTML = content;
         }).then(() => {
-            let isHighting = false;
-            let isDragging = false;
-            let startElement = null;
-            let endElement = null;
+            let view = bible.get_chapter_view().then(view => {
+                let word_divs = document.getElementsByClassName('bible-word');
 
-            document.getElementById('highlight-btn').addEventListener('click', (event) => {
-                isHighting = true;
-                startElement = null;
-                endElement = null;
-                document.getElementById('highlight-btn').classList.add('toggled-btn');
-            })
-
-            let wordDivs = document.getElementsByClassName('bible-word');
-
-            for (let i = 0; i < wordDivs.length; i++)
-            {
-                let div = wordDivs[i];
-                div.addEventListener('mousedown', (event) => {
-                    if (isHighting)
-                    {
-                        isDragging = true;
-                        for (let j = 0; j < wordDivs.length; j++)
-                        {
-                            wordDivs[j].classList.remove('selected');   
-                        }   
-                        startElement = event.target;
-                        endElement = event.target;
-                        selectRange(startElement, endElement);
-                    }
-                });
-
-                div.addEventListener('mouseover', (event) => {
-                    if (isDragging) {
-                        endElement = event.target;
-                        for (let j = 0; j < wordDivs.length; j++)
-                        {
-                            wordDivs[j].classList.remove('selected');   
-                        }
-                        selectRange(startElement, endElement);
-                    }
-                });
-
-                document.addEventListener('mouseup', () => {
-                    if (!isHighting) { return; }
-                    document.getElementById('highlight-btn').classList.remove('toggled-btn');
-                    isDragging = false;
-                    isHighting = false;
-
-                    for (let j = 0; j < wordDivs.length; j++)
-                    {
-                        wordDivs[j].classList.remove('selected');   
-                    }
-                    
-                    let start_idx = -1;
-                    for (let i = 0; i < wordDivs.length; i++)
-                    {
-                        let word = wordDivs[i];
-                        if (word === startElement) 
-                        { 
-                            start_idx = i;
-                            break;
-                        }
-                    }
-
-                    let end_idx = -1;
-                    for (let i = 0; i < wordDivs.length; i++)
-                    {
-                        let word = wordDivs[i];
-                        if (word === endElement)
-                        {   
-                            end_idx = i;
-                            break;    
-                        }
-                    }
-
-                    if (start_idx > -1 && end_idx > -1)
-                    {
-                        bible.get_chapter_view().then((view) => {
-                            let start = bible.get_word_index(start_idx, view);
-                            let end = bible.get_word_index(end_idx, view);
-
-                            // invoke('add_note', { start: JSON.stringify(start), end: JSON.stringify(end) }).then((_) => {
-                            //     location.reload();
-                            // });
-                        })
-                    }
-                });
-            };
-
-            function selectRange(start, end) {
-                let selecting = false;
-                for (let i = 0; i < wordDivs.length; i++)
+                for(let i = 0; i < word_divs.length; i++)
                 {
-                    let div = wordDivs[i];
-                    if (div === start && div === end)
-                    {
-                        div.classList.add('selected');
-                        break;
-                    }
-                    if (div === start || div === end) 
-                    {
-                        selecting = !selecting;
-                        div.classList.add('selected');
-                    } 
-                    else if (selecting) 
-                    {
-                        div.classList.add('selected');
-                    }   
+                    let word_index = bible.get_word_index(i, view);
+                    let word_div = word_divs[i];
+                    word_div.addEventListener('click', e => {
+                        debug_print(JSON.stringify(word_index));
+                    })
                 }
-            }
+            });
         });
     </script>
 </body>

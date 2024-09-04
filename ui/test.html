@@ -3,103 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Highlights</title>
+    <title>CSS Variable Height Test</title>
     <style>
-        .highlight-container {
-            display: flex;
-            flex-direction: column;
-            margin: 20px;
-        }
-
-        .highlight {
-            display: flex;
-            align-items: stretch; /* Ensures both the color bar and content stretch to the same height */
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            background-color: #f9f9f9;
-        }
-
-        .color-bar {
-            width: 10px;
-            border-radius: 8px 0 0 8px;
-            margin-right: 10px;
-        }
-
-        .highlight-content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .highlight-content h2 {
+        body {
             margin: 0;
-            font-size: 1.5em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Full viewport height */
+            background-color: #f0f0f0;
         }
 
-        .highlight-content p {
-            margin: 5px 0;
+        .container {
+            --full-height: 50vh; /* 50% of the viewport height */
+            height: var(--full-height); /* Set container height to 50% of the viewport */
+            width: 50%; /* Width of the container */
+            background-color: #4CAF50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
         }
 
-        .highlight-content span {
-            font-weight: bold;
+        .child {
+            height: var(--full-height); /* Height equal to the container's height */
+            width: calc(var(--full-height) / 2); /* Width is half of the height */
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            color: #333;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
         }
     </style>
 </head>
 <body>
-
-<div id="highlights" class="highlight-container">
-    <!-- Highlights will be rendered here -->
-</div>
-
-<script>
-    const highlights = [
-        {
-            name: "Important Update",
-            description: "This is a very important update that needs attention.",
-            priority: 1,
-            color: { r: 255, g: 0, b: 0 }
-        },
-        {
-            name: "Reminder",
-            description: "Don't forget to submit your report by the end of the week.",
-            priority: 2,
-            color: { r: 255, g: 165, b: 0 }
-        },
-        {
-            name: "FYI",
-            description: "This is just some general information.",
-            priority: 3,
-            color: { r: 0, g: 0, b: 255 }
-        }
-    ];
-
-    const container = document.getElementById('highlights');
-
-    highlights.forEach(({ name, description, priority, color }) => {
-        const highlightDiv = document.createElement('div');
-        highlightDiv.className = 'highlight';
-
-        const colorBar = document.createElement('div');
-        colorBar.className = 'color-bar';
-        colorBar.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
-
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'highlight-content';
-
-        contentDiv.innerHTML = `
-            <h2>${name}</h2>
-            <p>${description}</p>
-            <p><span>Priority:</span> ${priority}</p>
-        `;
-
-        highlightDiv.appendChild(colorBar);
-        highlightDiv.appendChild(contentDiv);
-
-        container.appendChild(highlightDiv);
-    });
-</script>
-
+    <div class="container">
+        <div class="child">I am a child element.</div>
+    </div>
 </body>
 </html>
