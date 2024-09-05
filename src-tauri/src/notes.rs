@@ -18,6 +18,7 @@ pub struct HighlightCategory
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Notebook
 {
     pub highlight_catagories: HashMap<String, HighlightCategory>,

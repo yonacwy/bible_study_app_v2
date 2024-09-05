@@ -18,9 +18,9 @@
   - [x] Highlight Selection
     - [x] Select category
     - [x] Select area
-  - [ ] Removing Highlights
-    - [ ] Select category
-    - [ ] Hover over verses to remove
+  - [x] Removing Highlights
+    - [x] Select category
+    - [x] Hover over verses to remove
 - [ ] Save and load highlights
   - [ ] Test clearing highlights
 - [ ] Hover display description
