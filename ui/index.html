@@ -24,6 +24,9 @@
             </button>
             <div class="dropdown-content" id="highlights-dropdown"></div>
         </div>
+        <button class="image-btn" id="erase-highlight-toggle">
+            <img src="images/light-eraser.svg">
+        </button>
         <button class="image-btn" id="highlight-settings">
             <img src="images/light-plus.svg">
         </button>
@@ -62,8 +65,7 @@
                     let category = catagories[id];
                     color = color_to_hex(category.color);
                 }
-
-                debug_print(`Set selected highlight: ${id}`);
+                
                 set_selected_highlight(id);
 
                 let btn = document.getElementById('highlight-selector-btn');

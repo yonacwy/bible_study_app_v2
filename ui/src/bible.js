@@ -1,5 +1,5 @@
 import { invoke, debug_print, color_to_hex, inverse_color } from "./utils.js";
-import { get_catagories, get_chapter_highlights } from "./highlights.js";
+import { get_catagories, get_chapter_highlights, get_selected_highlight } from "./highlights.js";
 
 export async function load_view()
 {
@@ -77,6 +77,7 @@ export async function create_highlight_selection(on_selected)
 {
     let highlight_data = await get_catagories();
     let container = document.getElementById('highlights-dropdown');
+    let current_highlight_id = get_selected_highlight();
 
     let highlight_catagories = [];
     for(let id in highlight_data)
@@ -96,6 +97,10 @@ export async function create_highlight_selection(on_selected)
 
         let highlight_div = document.createElement('div');
         highlight_div.classList.add('dropdown-option');
+        if(highlight.id === current_highlight_id)
+        {
+            highlight_div.classList.add('selected-option');
+        }
         
         let span = document.createElement('span');
         span.innerHTML = highlight.name;
@@ -121,7 +126,11 @@ export async function create_highlight_selection(on_selected)
     }
 
     let none_div = document.createElement('div');
-    none_div.classList.add('dropdown-option', 'selected-option');
+    none_div.classList.add('dropdown-option');
+    if(current_highlight_id === null)
+    {
+        none_div.classList.add('selected-option');
+    }
 
     let span = document.createElement('span');
     span.innerHTML = 'None';

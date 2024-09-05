@@ -5,22 +5,27 @@
 - [x] Looks decent
 
 ### Version 0.2.0: Highlight Support
-- [ ] Highlight Category:
-  - [ ] Data:
-    - [ ] Color
-    - [ ] Basic information on what its about
-    - [ ] Name
-    - [ ] Priority
-  - [ ] Can create new catagories
-  - [ ] Can remove old catagories
-    - [ ] Will have a warning message if any are in use
+- [x] Highlight Category:
+  - [x] Data:
+    - [x] Color
+    - [x] Basic information on what its about
+    - [x] Name
+    - [x] Priority
+  - [x] Can create new catagories
+  - [x] Can remove old catagories
+    - [x] Will have a warning message if any are in use
 - [ ] Highlighting Scripture
-  - [ ] Highlight Selection
-    - [ ] Select category
-    - [ ] Select area
+  - [x] Highlight Selection
+    - [x] Select category
+    - [x] Select area
   - [ ] Removing Highlights
     - [ ] Select category
     - [ ] Hover over verses to remove
+- [ ] Save and load highlights
+  - [ ] Test clearing highlights
+- [ ] Hover display description
+  - [ ] Displays little popup with name when hovered over
+  - [ ] When clicked, creates sidebar with all names and description of highlights
 
 ### Version 0.3.0: Note Support
 - [ ] Basic Markdown:
