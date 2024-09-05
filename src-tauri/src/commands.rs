@@ -155,3 +155,21 @@ pub fn add_highlight_to_current_chapter(word_position: u32, highlight_id: &str)
 		}
 	});
 }
+
+#[tauri::command]
+pub fn remove_highlight_from_current_chapter(word_position: u32, highlight_id: &str)
+{
+	println!("Erased Word");
+	let chapter = AppData::get().get_current_chapter();
+	AppData::get().read_notes(|notebook| {
+		let Some(chapter_highlights) = notebook.chapter_highlights.get_mut(&chapter) else {
+			return;
+		};
+
+		let Some(word_highlights) = chapter_highlights.get_mut(&word_position) else {
+			return;
+		};
+
+		word_highlights.retain(|h| h != highlight_id);
+	});
+}

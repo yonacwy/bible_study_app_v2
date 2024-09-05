@@ -38,12 +38,17 @@
         </section>
     </main>
     <script type="module">
-        import { debug_print, invoke, color_to_hex } from './src/utils.js';
+        import { debug_print, invoke, color_to_hex, init_toggle, get_toggle_value } from './src/utils.js';
         import * as bible from './src/bible.js';
-        import { get_catagories, highlight_word, set_selected_highlight, get_selected_highlight } from './src/highlights.js';
+        import { get_catagories, highlight_word, set_selected_highlight, get_selected_highlight, erase_highlight } from './src/highlights.js';
 
         document.getElementById('highlight-settings').addEventListener('click', (_) => {
             window.location.href = "highlight_editor.html";
+        });
+
+        const ERASER_STATE_NAME = "eraser-state";
+        init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, value => {
+            debug_print(`Value changed to: ${value}`);
         });
 
         bible.get_chapter().then((chapter) => {
@@ -109,18 +114,29 @@
                         if(get_selected_highlight() !== null)
                         {
                             is_dragging = true;
-                            word_div.style.color = HIGHLIGHT_SELECTED_WORD_COLOR;
-                            highlight_word(i, get_selected_highlight());
+                            update_word(i, word_div);
                         }
                     });
 
                     word_div.addEventListener('mouseover', e => {
                         if(is_dragging && get_selected_highlight() !== null)
                         {
-                            word_div.style.color = HIGHLIGHT_SELECTED_WORD_COLOR;
-                            highlight_word(i, get_selected_highlight());
+                            update_word(i, word_div);
                         }
                     });
+                }
+
+                function update_word(i, div)
+                {
+                    div.style.color = HIGHLIGHT_SELECTED_WORD_COLOR;
+                    if(get_toggle_value(ERASER_STATE_NAME) !== true)
+                    {
+                        highlight_word(i, get_selected_highlight()); // if the eraser is false, we highlight
+                    }
+                    else 
+                    {
+                        erase_highlight(i, get_selected_highlight()); // if eraser is true, we erase
+                    }
                 }
             });
         });

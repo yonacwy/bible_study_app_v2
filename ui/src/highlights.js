@@ -99,6 +99,17 @@ export async function highlight_word(word_pos, highlight_id)
     }
 }
 
+export async function erase_highlight(word_pos, highlight_id) 
+{
+    if(highlight_id !== null && highlight_id !== undefined)
+    {
+        utils.invoke('remove_highlight_from_current_chapter', {
+            wordPosition: word_pos,
+            highlightId: highlight_id,
+        });
+    }
+}
+
 const SELECTED_HIGHLIGHT_KEY = 'selected-highlight-id';
 
 export function set_selected_highlight(id) 

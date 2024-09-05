@@ -45,6 +45,7 @@ fn main() {
 			set_highlight_category,
 			get_current_chapter_highlights,
 			add_highlight_to_current_chapter,
+			remove_highlight_from_current_chapter,
 		])
 		.run(tauri::generate_context!())
 		.expect("error while running tauri application");

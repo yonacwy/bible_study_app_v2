@@ -3,46 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSS Variable Height Test</title>
+    <title>Image Toggle with Session Storage</title>
     <style>
-        body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh; /* Full viewport height */
-            background-color: #f0f0f0;
+        .image-toggle {
+            cursor: pointer;
+            width: 150px;
+            height: 150px;
         }
 
-        .container {
-            --full-height: 50vh; /* 50% of the viewport height */
-            height: var(--full-height); /* Set container height to 50% of the viewport */
-            width: 50%; /* Width of the container */
-            background-color: #4CAF50;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 10px;
+        .image-toggle img {
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.4s;
         }
 
-        .child {
-            height: var(--full-height); /* Height equal to the container's height */
-            width: calc(var(--full-height) / 2); /* Width is half of the height */
-            background-color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 5px;
-            color: #333;
-            text-align: center;
-            padding: 10px;
-            box-sizing: border-box;
+        /* Styles for ON/OFF states */
+        .image-off {
+            opacity: 0.3; /* Dim the image */
+        }
+
+        .image-on {
+            opacity: 1; /* Normal image */
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="child">I am a child element.</div>
+
+    <h2>Click the image to toggle</h2>
+
+    <!-- Toggle Image -->
+    <div class="image-toggle" id="imageToggle">
+        <img id="toggleImage" src="images/light-eraser.svg" alt="Toggle Image">
     </div>
+
+    <script>
+        // Get the image element
+        const toggleImage = document.getElementById('toggleImage');
+        const imageToggle = document.getElementById('imageToggle');
+
+        // Function to update the image state (dim or normal)
+        function updateImageState(isOn) {
+            if (isOn) {
+                toggleImage.classList.remove('image-off');
+                toggleImage.classList.add('image-on');
+            } else {
+                toggleImage.classList.remove('image-on');
+                toggleImage.classList.add('image-off');
+            }
+        }
+
+        // Load the saved state from session storage
+        const savedState = sessionStorage.getItem('imageToggleState');
+        const isOn = savedState ? JSON.parse(savedState) : false;  // Default is OFF (dimmed)
+        updateImageState(isOn);
+
+        // Add event listener for the image click
+        imageToggle.addEventListener('click', function () {
+            const currentState = toggleImage.classList.contains('image-off'); // Check if it's dimmed
+            sessionStorage.setItem('imageToggleState', JSON.stringify(currentState));
+            updateImageState(currentState);
+        });
+    </script>
+
 </body>
 </html>

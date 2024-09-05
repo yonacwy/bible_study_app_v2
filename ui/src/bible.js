@@ -189,7 +189,7 @@ export async function render_current_chapter()
             let word_color = null;
             let word_highlights = chapter_highlights[word_pos];
             let current_word_highlights = null;
-            if(word_highlights !== undefined && word_highlights !== null)
+            if(word_highlights !== undefined && word_highlights !== null && word_highlights.length > 0)
             {
                 current_word_highlights = word_highlights;
                 let id = get_highest_priority_highlight(word_highlights, catagories);
