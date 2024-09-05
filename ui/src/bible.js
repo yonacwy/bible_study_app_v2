@@ -1,5 +1,5 @@
 import { invoke, debug_print, color_to_hex, inverse_color } from "./utils.js";
-import { get_catagories } from "./highlights.js";
+import { get_catagories, get_chapter_highlights } from "./highlights.js";
 
 export async function load_view()
 {
@@ -77,9 +77,22 @@ export async function create_highlight_selection(on_selected)
 {
     let highlight_data = await get_catagories();
     let container = document.getElementById('highlights-dropdown');
+
+    let highlight_catagories = [];
     for(let id in highlight_data)
     {
-        let highlight = highlight_data[id];
+        highlight_catagories.push(highlight_data[id]);
+    }
+
+    highlight_catagories = highlight_catagories.sort((a, b) => {
+        if (a.name < b.name) return -1;
+        if (a.name > b.name) return 1;
+        return 0;
+    })
+
+    for(let i = 0; i < highlight_catagories.length; i++)
+    {
+        let highlight = highlight_catagories[i];
 
         let highlight_div = document.createElement('div');
         highlight_div.classList.add('dropdown-option');
@@ -149,61 +162,69 @@ export async function render_current_chapter()
 {
     let text_json = await invoke('get_current_chapter_text', {});
     let chapter = JSON.parse(text_json);
-
-    // let notes_json = await invoke('get_current_chapter_notes', {});
-    // let notes = notes_json === null ? null : JSON.parse(notes_json);
+    
+    let catagories = await get_catagories();
+    let chapter_highlights = await get_chapter_highlights();
 
     let html = '<ol>'
 
+    let word_pos = 0;
     for (let verse_index = 0; verse_index < chapter.verses.length; verse_index++)
     {
         let verse = chapter.verses[verse_index];
         let verse_text = '';
         
-        // let last_note_index = -1;
+        let last_word_highlights = null;
         for (let word_index = 0; word_index < verse.words.length; word_index++)
-        {   
+        {
+            let word_color = null;
+            let word_highlights = chapter_highlights[word_pos];
+            let current_word_highlights = null;
+            if(word_highlights !== undefined && word_highlights !== null)
+            {
+                current_word_highlights = word_highlights;
+                let id = get_highest_priority_highlight(word_highlights, catagories);
+                word_color = catagories[id].color;
+            }
+            else 
+            {
+                last_word_highlights = null;
+            }
+
+            
             let word = verse.words[word_index];
             let word_text = bible_word(word.text);
             if (word.italicized)
             {
                 word_text = italicize(word_text);
             }
-
-            // let current_note_index = -1;
                 
-            // if (notes != null)
-            // {
-            //     let note_index = -1;
-            //     for (let i = 0; i < notes.length; i++)
-            //     {
-            //         let note = notes[i];
-            //         let start = note.start;
-            //         let end = note.end;
-
-            //         if (verse_index < start.verse || verse_index > end.verse) { continue; }
-            //         if (verse_index == start.verse && word_index < start.word) { continue; }
-            //         if (verse_index == end.verse && word_index > end.word) { continue; }
-
-            //         word_text = color(word_text, note.color);
-            //         note_index = i;
-            //     }
-            //     current_note_index = note_index;
-            // }
+            if(word_color !== null)
+            {
+                word_text = color(word_text, word_color);
+            }
 
             if (word_index != 0)
             {
                 let spacer = bible_space();
-                // if (current_note_index != -1 && current_note_index == last_note_index)
-                // {
-                //     spacer = color(spacer, notes[current_note_index].color);
-                // }
 
+                if(current_word_highlights != null && last_word_highlights != null)
+                {
+                    let overlap = current_word_highlights.filter(h => last_word_highlights.includes(h));
+
+                    if(overlap.length > 0)
+                    {
+                        let id = get_highest_priority_highlight(overlap, catagories);
+                        let space_color = catagories[id].color;
+                        spacer = color(spacer, space_color);
+                    }
+                }
                 verse_text += spacer
             }
 
             verse_text += word_text;
-            // last_note_index = current_note_index;
+            word_pos++;
+            last_word_highlights = current_word_highlights;
         }
 
         html += `<li>${verse_text}</li>`
@@ -214,23 +235,22 @@ export async function render_current_chapter()
     return html;
 }
 
-export function get_word_index(word_number, view)
+function get_highest_priority_highlight(word_highlights, catagories)
 {
-    for (let i = 0; i < view.verses.length; i++)
+    let max_highlight = word_highlights[0];
+    for(let i = 1; i < word_highlights.length; i++)
     {
-        let verse = view.verses[i];
-        if (verse <= word_number)
+        let priority = catagories[word_highlights[i]].priority;
+        let max_priority = catagories[max_highlight].priority
+
+        if(priority > max_priority)
         {
-            word_number -= verse;
-        }
-        else 
-        {
-            return {
-                verse: i,
-                word: word_number
-            };
-        }
+            max_highlight = word_highlights[i];
+        } 
     }
+
+    if(max_highlight === null) { debug_print('this is a problem'); return null; }
+    return max_highlight;
 }
 
 function bible_space()

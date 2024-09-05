@@ -81,3 +81,39 @@ export function render_catagories(on_delete, on_edit)
         };
     });
 }
+
+export async function get_chapter_highlights()
+{
+    let highlights_json = await utils.invoke('get_current_chapter_highlights');
+    return JSON.parse(highlights_json);
+}
+
+export async function highlight_word(word_pos, highlight_id) 
+{
+    if(highlight_id !== null && highlight_id !== undefined)
+    {
+        utils.invoke('add_highlight_to_current_chapter', {
+            wordPosition: word_pos,
+            highlightId: highlight_id,
+        });
+    }
+}
+
+const SELECTED_HIGHLIGHT_KEY = 'selected-highlight-id';
+
+export function set_selected_highlight(id) 
+{
+    if(id === null)
+    {
+        window.sessionStorage.removeItem(SELECTED_HIGHLIGHT_KEY);
+    }
+    else 
+    {
+        window.sessionStorage.setItem(SELECTED_HIGHLIGHT_KEY, id);
+    }
+}
+
+export function get_selected_highlight()
+{
+    return window.sessionStorage.getItem(SELECTED_HIGHLIGHT_KEY);
+}

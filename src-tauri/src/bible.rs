@@ -82,12 +82,3 @@ pub struct ChapterView
 {
     pub verses: Vec<u32>
 }
-
-#[repr(C)]
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
-#[serde(rename_all = "camelCase")]
-pub struct WordIndex
-{
-    pub verse: u8,
-    pub word: u8,
-}

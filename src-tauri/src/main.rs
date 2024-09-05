@@ -24,8 +24,6 @@ fn main() {
 				.resolve_resource("resources/small_kjv.txt")
 				.expect("Failed to retrieve `kjv.txt` resource");
 
-			println!("{:?}", resource_path);
-
 			let mut file = std::fs::File::open(&resource_path).unwrap();
 
 			let mut text = String::new();
@@ -45,6 +43,8 @@ fn main() {
 			add_highlight_category,
 			remove_highlight_category,
 			set_highlight_category,
+			get_current_chapter_highlights,
+			add_highlight_to_current_chapter,
 		])
 		.run(tauri::generate_context!())
 		.expect("error while running tauri application");

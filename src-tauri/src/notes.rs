@@ -4,7 +4,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{bible::{ChapterIndex, WordIndex}, utils::Color};
+use crate::{bible::ChapterIndex, utils::Color};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -21,7 +21,7 @@ pub struct HighlightCategory
 pub struct Notebook
 {
     pub highlight_catagories: HashMap<String, HighlightCategory>,
-    pub chapter_highlights: HashMap<ChapterIndex, HashMap<WordIndex, Vec<String>>>,
+    pub chapter_highlights: HashMap<ChapterIndex, HashMap<u32, Vec<String>>>,
 }
 
 impl Notebook

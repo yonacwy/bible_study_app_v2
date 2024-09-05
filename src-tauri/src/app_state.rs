@@ -29,7 +29,7 @@ impl AppData
             color: Color::from_hex("#FF0000").unwrap(),
             name: "Red".into(),
             description: "A red highlight".into(),
-            priority: 0,
+            priority: 4,
             id: test_id1.clone(),
         });
 
@@ -38,7 +38,7 @@ impl AppData
             color: Color::from_hex("#00FF00").unwrap(),
             name: "Green".into(),
             description: "A blue highlight".into(),
-            priority: 6,
+            priority: 3,
             id: test_id2.clone(),
         });
 
@@ -47,15 +47,11 @@ impl AppData
             color: Color::from_hex("#0000FF").unwrap(),
             name: "Blue".into(),
             description: "A green highlight".into(),
-            priority: 3,
+            priority: 0,
             id: test_id3.clone(),
         });
 
-        let mut chapter_highlights = HashMap::new();
-
-        let mut highlights = HashMap::new();
-        highlights.insert(WordIndex { verse: 0, word: 0}, vec![test_id1]);
-        chapter_highlights.insert(ChapterIndex { book: 0, number: 0 }, highlights);
+        let chapter_highlights = HashMap::new();
 
         let notebook = Notebook {
             highlight_catagories,
