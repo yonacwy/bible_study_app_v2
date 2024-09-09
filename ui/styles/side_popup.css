@@ -44,7 +44,41 @@
     margin: 5px;
 }
 
+.popup-panel .panel-title {
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
 .popup-panel .close-image img {
     width: 100%;
     height: 100%;
+}
+
+.popup-panel-content .color-square {
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+}
+
+.panel-info {
+    margin: 0;
+    padding: 0;
+}
+
+.panel-info .info-title {
+    align-items: center;
+    padding: 0px;
+    margin: 0px;
+}
+
+.panel-info .info-title h3 {
+    margin: 0;
+    padding: 0;
+}
+
+.panel-info p {
+    margin: 10px 0px 0px 0px;
+    padding: 0;
 }

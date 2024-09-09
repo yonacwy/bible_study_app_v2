@@ -1,21 +1,45 @@
 use std::{cell::{RefCell, RefMut}, collections::HashMap, sync::Mutex};
 
+use serde::{Deserialize, Serialize};
+use tauri::PathResolver;
+
 use crate::{bible::*, notes::*, parsing, utils::Color};
 
 
 static mut DATA: Option<AppData> = None;
+const SAVE_NAME: &str = "save.txt";
 
 pub struct AppData
 {
     pub bible: Bible,
     notebook: Mutex<RefCell<Notebook>>,
     current_chapter: Mutex<RefCell<ChapterIndex>>,
+    resolver: PathResolver,
+}
+
+#[derive(Serialize, Deserialize)]
+struct AppSave
+{
+    highlight_catagories: Vec<(String, HighlightCategory)>,
+    chapter_highlights: Vec<(ChapterIndex, Vec<(u32, Vec<String>)>)>,
+    current_chapter: ChapterIndex,
 }
 
 impl AppData
 {
-    pub fn init(bible_text: &str)
+    pub fn init(bible_text: &str, resolver: PathResolver)
     {
+        let file = resolver.resolve_resource(SAVE_NAME)
+        .and_then(|path| {
+            println!("{}", path.to_str().unwrap());
+            std::fs::read(path).ok()
+        })
+        .and_then(|data| {
+            String::from_utf8(data).ok()
+        });
+
+        println!("{:?}", file);
+
         let bible = parsing::parse_bible(bible_text).unwrap();
         let chapter = ChapterIndex {
             book: 0,
@@ -63,9 +87,19 @@ impl AppData
             DATA = Some(Self {
                 bible,
                 notebook: Mutex::new(RefCell::new(notebook)),
-                current_chapter: Mutex::new(RefCell::new(chapter))
+                current_chapter: Mutex::new(RefCell::new(chapter)),
+                resolver: resolver
             })
         }
+    }
+
+    pub fn save(&self)
+    {
+        let data = self.read_notes(|notebook| {
+            serde_json::to_string(notebook).unwrap()
+        });
+
+        println!("{}", data);
     }
 
     pub fn get() -> &'static Self 

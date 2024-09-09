@@ -28,9 +28,16 @@ fn main() {
 
 			let mut text = String::new();
 			file.read_to_string(&mut text).unwrap();
-			AppData::init(&text);
+			AppData::init(&text, app.path_resolver());
 
 			Ok(())
+		})
+		.on_window_event(|event| match event.event() {
+			tauri::WindowEvent::Destroyed => 
+			{
+				AppData::get().save();
+			}
+			_ => {}
 		})
 		.invoke_handler(tauri::generate_handler![
 			debug_print, 

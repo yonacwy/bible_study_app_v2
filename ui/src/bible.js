@@ -1,4 +1,4 @@
-import { invoke, debug_print, color_to_hex } from "./utils.js";
+import { invoke, debug_print, color_to_hex, trim_string } from "./utils.js";
 import { get_catagories, get_chapter_highlights, get_selected_highlight } from "./highlights.js";
 
 export async function load_view()
@@ -20,6 +20,24 @@ export async function get_chapter()
     let json = await invoke('get_current_chapter', {});
     let chapter = JSON.parse(json);
     return chapter;
+}
+
+export async function get_chapter_words() 
+{
+    let chapter_text = JSON.parse(await invoke('get_current_chapter_text', {}));
+
+    let words = [];
+    for(let v = 0; v < chapter_text.verses.length; v++)
+    {
+        let verse = chapter_text.verses[v];
+        for(let w = 0; w < verse.words.length; w++)
+        {
+            let word = trim_string(verse.words[w].text);
+            words.push(word);
+        }
+    }
+
+    return words;
 }
 
 export function create_books_selection()

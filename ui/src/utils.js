@@ -97,3 +97,9 @@ export function get_toggle_value(save_name)
 {
     return JSON.parse(sessionStorage.getItem(save_name) ?? "false");
 }
+
+export function trim_string(str)
+{
+    str = str.trim();
+    return str.replace(/^[\p{P}\p{S}]+|[\p{P}\p{S}]+$/gu, '');
+}

@@ -34,17 +34,15 @@
         </button>
     </header>
     <main>
-        <button onclick="document.getElementById('popup-panel').classList.toggle('open')">Toggle Side Panel</button>
         <section class="content">
             <div id="chapter-content"></div>
         </section>
         <div id="popup-panel" class="popup-panel">
+            <button class="close-image" onclick="document.getElementById('popup-panel').classList.toggle('open')">
+                <img src="images/light-xmark.svg" alt="Close">
+            </button>
             <div class="resizer"></div>
             <div class="popup-panel-content">
-                <button class="close-image" onclick="document.getElementById('popup-panel').classList.toggle('open')">
-                    <img src="images/light-xmark.svg" alt="Close">
-                </button>
-                <h2>Resizable Extendable Panel</h2>
                 <p>This is a resizable panel that slides out from the right side of the page. You can resize the panel by dragging the left edge.</p>
             </div>
         </div>
@@ -63,8 +61,6 @@
 
         const ERASER_STATE_NAME = "eraser-state";
         init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {});
-
-        side_bar.init_popup_panel('popup-panel');
 
         bible.get_chapter().then((chapter) => {
             bible.load_view().then((view) => {
@@ -109,6 +105,7 @@
             document.getElementById('chapter-content').appendChild(content);
         }).then(() => {
             init_word_popup('word-popup', 'chapter-content');
+            side_bar.init_popup_panel('popup-panel', 'chapter-content');
 
             let word_divs = document.getElementsByClassName('bible-word');
             const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet'
