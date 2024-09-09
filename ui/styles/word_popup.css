@@ -1,0 +1,25 @@
+.word-popup {
+    position: absolute;
+    opacity: 0;
+    transform: scale(0.9);
+    background-color: #333;
+    color: white;
+    padding: 4px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    display: flex;
+}
+
+.word-popup.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.word-popup-content .color-square {
+    width: 10px;
+    height: 10px;
+    border: 1px solid #ccc;
+    margin: 2px;
+}

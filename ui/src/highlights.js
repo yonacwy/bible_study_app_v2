@@ -62,8 +62,8 @@ export function render_catagories(on_delete, on_edit)
                 <p>${description}</p>
                 <p><span>Priority:</span> ${priority}</p>
                 <div class="same-line">
-                    <button class="edit-btn" id="edit-btn-n${category.id}">Edit</button>
-                    <button class="delete-btn" id="delete-btn-n${category.id}">Delete</button>
+                    <button class="edit-btn" id="edit-btn-n${category.id}" title="Edit this highlight category">Edit</button>
+                    <button class="delete-btn" id="delete-btn-n${category.id}" title="Delete this highlight category">Delete</button>
                 </div>
             `;
 

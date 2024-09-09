@@ -38,6 +38,11 @@ export function is_alpha_numeric(str)
     return REGEX.test(str);
 }
 
+export function clamp(min, max, value)
+{
+    return Math.max(min, Math.min(max, value));
+}
+
 export function color_to_hex(color) 
 {
     const { r, g, b } = color;

@@ -5,8 +5,11 @@ body {
     background-color: #f4f4f4;
 }
 
-header {
+:root {
     --header-height: 50px;
+}
+
+header {
     padding: 0px;
     position: relative; /* Keeps the header at the top */
     top: 0;

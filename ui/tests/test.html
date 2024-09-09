@@ -3,59 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Popup Menu with Animation</title>
+    <title>Resizable Extendable Panel</title>
     <style>
-        /* Basic styles for the hover div */
-        .hover-div {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: white;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 50px;
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
         }
-
-        /* Popup styles */
-        .popup-menu {
-            position: absolute;
-            opacity: 0;
-            transform: scale(0.9);
+        .panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 250px;
             background-color: #333;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: #fff;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            overflow: auto;
             z-index: 1000;
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            resize: horizontal;
+            min-width: 200px;
+            max-width: 500px;
         }
-
-        .popup-menu.show {
-            opacity: 1;
-            transform: scale(1);
+        .panel.open {
+            transform: translateX(0);
+        }
+        .panel-content {
+            padding: 20px;
+        }
+        .toggle-btn {
+            position: fixed;
+            left: 0;
+            top: 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .toggle-btn:focus {
+            outline: none;
+        }
+        .resizer {
+            position: absolute;
+            left: -5px;
+            top: 0;
+            width: 10px;
+            height: 100%;
+            cursor: ew-resize;
+            z-index: 1002;
+        }
+        .content {
+            padding: 20px;
+            transition: margin-right 0.3s ease;
+            width: calc(100% - 250px); /* Default width adjustment when panel is open */
+            margin-left: 0;
+        }
+        .content.full {
+            width: 100%; /* Full width when panel is closed */
         }
     </style>
 </head>
 <body>
-    <div class="hover-div">Hover over me</div>
-    <div class="popup-menu" id="popup">This is the popup menu!</div>
+    <button class="toggle-btn" onclick="togglePanel()">☰</button>
+    <div id="panel" class="panel">
+        <div class="resizer" onmousedown="initResize(event)"></div>
+        <div class="panel-content">
+            <h2>Resizable Extendable Panel</h2>
+            <p>This is a resizable panel that slides out from the right side of the page. You can resize the panel by dragging the left edge.</p>
+        </div>
+    </div>
+    <div id="content" class="content">
+        <h1>Main Content</h1>
+        <p>This is the main content area. When the panel opens, the content will shift to the left to make space for it. Resize the panel to see how the layout adjusts.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque at velit sit amet magna feugiat facilisis. Aliquam erat volutpat. Praesent sit amet magna ac enim cursus ullamcorper non nec leo.</p>
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const hoverDiv = document.querySelector('.hover-div');
-            const popup = document.getElementById('popup');
+        function togglePanel() {
+            const panel = document.getElementById('panel');
+            const content = document.getElementById('content');
+            if (panel.classList.contains('open')) {
+                panel.classList.remove('open');
+                content.classList.add('full'); // Full content width when panel is closed
+                content.style.marginRight = '0';
+            } else {
+                panel.classList.add('open');
+                content.classList.remove('full'); // Adjust width when panel is open
+                content.style.marginRight = panel.offsetWidth + 'px';
+            }
+        }
 
-            hoverDiv.addEventListener('mousemove', function(event) {
-                popup.classList.add('show');
-                popup.style.left = event.pageX + 10 + 'px';  // Position the popup 10px to the right of the mouse
-                popup.style.top = event.pageY + 10 + 'px';   // Position the popup 10px below the mouse
-            });
+        let isResizing = false;
 
-            hoverDiv.addEventListener('mouseleave', function() {
-                popup.classList.remove('show');
-            });
-        });
+        function initResize(e) {
+            isResizing = true;
+            document.addEventListener('mousemove', resizePanel);
+            document.addEventListener('mouseup', stopResize);
+            e.preventDefault();
+        }
+
+        function resizePanel(e) {
+            if (isResizing) {
+                const panel = document.getElementById('panel');
+                const content = document.getElementById('content');
+                const newWidth = window.innerWidth - e.clientX;
+                if (newWidth >= 200 && newWidth <= 500) { // Set min and max width limits
+                    panel.style.width = newWidth + 'px';
+                    content.style.marginRight = newWidth + 'px'; // Adjust content margin dynamically
+                }
+            }
+        }
+
+        function stopResize() {
+            isResizing = false;
+            document.removeEventListener('mousemove', resizePanel);
+            document.removeEventListener('mouseup', stopResize);
+        }
     </script>
 </body>
 </html>

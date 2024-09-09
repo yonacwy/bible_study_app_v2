@@ -1,0 +1,50 @@
+.popup-panel {
+    position: fixed;
+    right: 0;
+    top: var(--header-height);
+    height: calc(100% - var(--header-height));
+    overflow: auto;
+    width: 250px;
+    background-color: rgb(101, 101, 101);
+    color: #ffffff;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    overflow: auto;
+    z-index: 1000;
+    min-width: 200px;
+    max-width: 500px;
+}
+
+.popup-panel.open {
+    transform: translateX(0);
+}
+
+.popup-panel-content {
+    padding: 20px;
+}
+
+.resizer {
+    position: absolute;
+    left: -5px;
+    top: 0;
+    width: 10px;
+    height: 100%;
+    cursor: ew-resize;
+    z-index: 1002;
+    background-color: black;
+}
+
+.popup-panel .close-image {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 5px;
+}
+
+.popup-panel .close-image img {
+    width: 100%;
+    height: 100%;
+}

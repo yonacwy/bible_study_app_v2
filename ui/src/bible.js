@@ -1,4 +1,4 @@
-import { invoke, debug_print, color_to_hex, inverse_color } from "./utils.js";
+import { invoke, debug_print, color_to_hex } from "./utils.js";
 import { get_catagories, get_chapter_highlights, get_selected_highlight } from "./highlights.js";
 
 export async function load_view()
@@ -174,16 +174,18 @@ export async function render_current_chapter()
     
     let catagories = await get_catagories();
     let chapter_highlights = await get_chapter_highlights();
-
-    let html = '<ol>'
+    
+    let chapter_ordered_list = document.createElement('ol');
 
     let word_pos = 0;
     for (let verse_index = 0; verse_index < chapter.verses.length; verse_index++)
     {
         let verse = chapter.verses[verse_index];
-        let verse_text = '';
         
         let last_word_highlights = null;
+
+        let verse_list_item = document.createElement('li');
+
         for (let word_index = 0; word_index < verse.words.length; word_index++)
         {
             let word_color = null;
@@ -202,20 +204,20 @@ export async function render_current_chapter()
 
             
             let word = verse.words[word_index];
-            let word_text = bible_word(word.text);
+            let word_node = create_bible_word(word.text);
             if (word.italicized)
             {
-                word_text = italicize(word_text);
+                word_node = italicize(word_node);
             }
                 
             if(word_color !== null)
             {
-                word_text = color(word_text, word_color);
+                word_node = color(word_node, word_color);
             }
 
             if (word_index != 0)
             {
-                let spacer = bible_space();
+                let spacer = create_bible_space();
 
                 if(current_word_highlights != null && last_word_highlights != null)
                 {
@@ -228,20 +230,18 @@ export async function render_current_chapter()
                         spacer = color(spacer, space_color);
                     }
                 }
-                verse_text += spacer
+                verse_list_item.appendChild(spacer);
             }
 
-            verse_text += word_text;
+            verse_list_item.appendChild(word_node);
             word_pos++;
             last_word_highlights = current_word_highlights;
         }
-
-        html += `<li>${verse_text}</li>`
+        
+        chapter_ordered_list.appendChild(verse_list_item);
     }
 
-    html += '</ol>'
-
-    return html;
+    return chapter_ordered_list
 }
 
 function get_highest_priority_highlight(word_highlights, catagories)
@@ -262,22 +262,33 @@ function get_highest_priority_highlight(word_highlights, catagories)
     return max_highlight;
 }
 
-function bible_space()
+function create_bible_space()
 {
-    return `<div class="bible-space">&nbsp;</div>`
+    let space = document.createElement('div');
+    space.innerHTML = "&nbsp;"
+    space.classList.add('bible-space');
+    return space;
 }
 
-function bible_word(t)
+function create_bible_word(t)
 {
-    return `<div class="bible-word">${t}</div>`
+    let word = document.createElement('div');
+    word.innerHTML = t;
+    word.classList.add('bible-word');
+    return word;
 }
 
 function italicize(t)
 {
-    return `<i>${t}</i>`;
+    let i = document.createElement('i');
+    i.appendChild(t);
+    return i;
 }
 
 function color(t, c)
 {
-    return `<span style=\"background-color:rgb(${c.r} ${c.g} ${c.b})\">${t}</span>`;
+    let span = document.createElement('span');
+    span.appendChild(t);
+    span.style.backgroundColor = color_to_hex(c);
+    return span;
 }

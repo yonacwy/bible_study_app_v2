@@ -76,7 +76,7 @@
 }
 
 /* Color square in the dropdown option */
-.color-square {
+.dropdown-option .color-square {
     width: 20px;
     height: 20px;
     border: 1px solid #ccc;

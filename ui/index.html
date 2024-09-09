@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="styles/styles.css">
     <link rel="stylesheet" href="styles/bible.css">
     <link rel="stylesheet" href="styles/dropdown.css">
+    <link rel="stylesheet" href="styles/word_popup.css">
+    <link rel="stylesheet" href="styles/side_popup.css">
 </head>
 <body>
     <header>
@@ -32,24 +34,37 @@
         </button>
     </header>
     <main>
+        <button onclick="document.getElementById('popup-panel').classList.toggle('open')">Toggle Side Panel</button>
         <section class="content">
-            <div class="bible-text">
-                <div id="chapter-content"></div>
+            <div id="chapter-content"></div>
         </section>
+        <div id="popup-panel" class="popup-panel">
+            <div class="resizer"></div>
+            <div class="popup-panel-content">
+                <button class="close-image" onclick="document.getElementById('popup-panel').classList.toggle('open')">
+                    <img src="images/light-xmark.svg" alt="Close">
+                </button>
+                <h2>Resizable Extendable Panel</h2>
+                <p>This is a resizable panel that slides out from the right side of the page. You can resize the panel by dragging the left edge.</p>
+            </div>
+        </div>
+        <div class="word-popup word-popup-content" id="word-popup"></div>
     </main>
     <script type="module">
         import { debug_print, invoke, color_to_hex, init_toggle, get_toggle_value } from './src/utils.js';
         import * as bible from './src/bible.js';
         import { get_catagories, highlight_word, set_selected_highlight, get_selected_highlight, erase_highlight } from './src/highlights.js';
+        import { init_word_popup } from './src/word_popup.js';
+        import * as side_bar from "./src/side_popup.js";
 
         document.getElementById('highlight-settings').addEventListener('click', (_) => {
             window.location.href = "highlight_editor.html";
         });
 
         const ERASER_STATE_NAME = "eraser-state";
-        init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, value => {
-            debug_print(`Value changed to: ${value}`);
-        });
+        init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {});
+
+        side_bar.init_popup_panel('popup-panel');
 
         bible.get_chapter().then((chapter) => {
             bible.load_view().then((view) => {
@@ -91,54 +106,54 @@
         })
 
         bible.render_current_chapter().then((content) => {
-            document.getElementById('chapter-content').innerHTML = content;
+            document.getElementById('chapter-content').appendChild(content);
         }).then(() => {
-            let view = bible.get_chapter_view().then(view => {
-                let word_divs = document.getElementsByClassName('bible-word');
+            init_word_popup('word-popup', 'chapter-content');
 
-                const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet'
-                let is_dragging = false;
+            let word_divs = document.getElementsByClassName('bible-word');
+            const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet'
+            let is_dragging = false;
 
-                document.addEventListener('mouseup', e => {
-                    if(is_dragging && get_selected_highlight() !== null)
+            document.addEventListener('mouseup', e => {
+                if(is_dragging && get_selected_highlight() !== null)
+                {
+                    is_dragging = false;
+                    location.reload();   
+                }
+            });
+
+            for(let i = 0; i < word_divs.length; i++)
+            {
+                let word_div = word_divs[i];
+                word_div.addEventListener('mousedown', e => {
+                    if(get_selected_highlight() !== null)
                     {
-                        is_dragging = false;
-                        location.reload();   
+                        is_dragging = true;
+                        update_word(i, word_div);
                     }
                 });
 
-                for(let i = 0; i < word_divs.length; i++)
-                {
-                    let word_div = word_divs[i];
-                    word_div.addEventListener('mousedown', e => {
-                        if(get_selected_highlight() !== null)
-                        {
-                            is_dragging = true;
-                            update_word(i, word_div);
-                        }
-                    });
-
-                    word_div.addEventListener('mouseover', e => {
-                        if(is_dragging && get_selected_highlight() !== null)
-                        {
-                            update_word(i, word_div);
-                        }
-                    });
-                }
-
-                function update_word(i, div)
-                {
-                    div.style.color = HIGHLIGHT_SELECTED_WORD_COLOR;
-                    if(get_toggle_value(ERASER_STATE_NAME) !== true)
+                word_div.addEventListener('mouseover', e => {
+                    if(is_dragging && get_selected_highlight() !== null)
                     {
-                        highlight_word(i, get_selected_highlight()); // if the eraser is false, we highlight
+                        update_word(i, word_div);
                     }
-                    else 
-                    {
-                        erase_highlight(i, get_selected_highlight()); // if eraser is true, we erase
-                    }
+                    
+                });
+            }
+
+            function update_word(i, div)
+            {
+                div.style.color = HIGHLIGHT_SELECTED_WORD_COLOR;
+                if(get_toggle_value(ERASER_STATE_NAME) !== true)
+                {
+                    highlight_word(i, get_selected_highlight()); // if the eraser is false, we highlight
                 }
-            });
+                else 
+                {
+                    erase_highlight(i, get_selected_highlight()); // if eraser is true, we erase
+                }
+            }
         });
     </script>
 </body>

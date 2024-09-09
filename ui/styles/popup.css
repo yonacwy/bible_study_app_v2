@@ -28,10 +28,12 @@
     border-radius: 3px;
     cursor: pointer;
 }
+
 .popup button.no {
     background-color: #d9534f;
     color: white;
 }
+
 .popup button.yes {
     background-color: #5bc0de;
     color: white;
