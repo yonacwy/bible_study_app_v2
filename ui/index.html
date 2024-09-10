@@ -32,6 +32,7 @@
         <button class="image-btn" id="highlight-settings" title="Edit highlight settings">
             <img src="images/light-paintbrush-pencil.svg">
         </button>
+        <!-- <input type="text"> -->
     </header>
     <main>
         <section class="content">
@@ -49,17 +50,17 @@
         <div class="word-popup word-popup-content" id="word-popup"></div>
     </main>
     <script type="module">
-        import { debug_print, invoke, color_to_hex, init_toggle, get_toggle_value } from './src/utils.js';
+        import { debug_print, color_to_hex, init_toggle } from './src/utils.js';
         import * as bible from './src/bible.js';
-        import { get_catagories, highlight_word, set_selected_highlight, get_selected_highlight, erase_highlight } from './src/highlights.js';
+        import { get_catagories, set_selected_highlight, get_selected_highlight } from './src/highlights.js';
         import { init_word_popup } from './src/word_popup.js';
-        import * as side_bar from "./src/side_popup.js";
+        import { ERASER_STATE_NAME } from "./src/save_states.js";
+        import { render_current_chapter } from "./src/bible_render.js";
 
         document.getElementById('highlight-settings').addEventListener('click', (_) => {
             window.location.href = "highlight_editor.html";
         });
-
-        const ERASER_STATE_NAME = "eraser-state";
+        
         init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {});
 
         bible.get_chapter().then((chapter) => {
@@ -71,6 +72,7 @@
 
         const DEFAULT_BUTTON_COLOR = document.getElementById('highlight-selector-btn').style.backgroundColor;
 
+        render_current_chapter('chapter-content', 'word-popup', 'popup-panel')
         bible.create_books_selection();
         bible.create_chapter_selection();
         bible.create_highlight_selection(id => {
@@ -98,58 +100,6 @@
 
                 let btn = document.getElementById('highlight-selector-btn');
                 btn.style.backgroundColor = color;
-            }
-        })
-
-        bible.render_current_chapter().then((content) => {
-            document.getElementById('chapter-content').appendChild(content);
-        }).then(() => {
-            init_word_popup('word-popup', 'chapter-content');
-            side_bar.init_popup_panel('popup-panel', 'chapter-content');
-
-            let word_divs = document.getElementsByClassName('bible-word');
-            const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet'
-            let is_dragging = false;
-
-            document.addEventListener('mouseup', e => {
-                if(is_dragging && get_selected_highlight() !== null)
-                {
-                    is_dragging = false;
-                    location.reload();   
-                }
-            });
-
-            for(let i = 0; i < word_divs.length; i++)
-            {
-                let word_div = word_divs[i];
-                word_div.addEventListener('mousedown', e => {
-                    if(get_selected_highlight() !== null)
-                    {
-                        is_dragging = true;
-                        update_word(i, word_div);
-                    }
-                });
-
-                word_div.addEventListener('mouseover', e => {
-                    if(is_dragging && get_selected_highlight() !== null)
-                    {
-                        update_word(i, word_div);
-                    }
-                    
-                });
-            }
-
-            function update_word(i, div)
-            {
-                div.style.color = HIGHLIGHT_SELECTED_WORD_COLOR;
-                if(get_toggle_value(ERASER_STATE_NAME) !== true)
-                {
-                    highlight_word(i, get_selected_highlight()); // if the eraser is false, we highlight
-                }
-                else 
-                {
-                    erase_highlight(i, get_selected_highlight()); // if eraser is true, we erase
-                }
             }
         });
     </script>
