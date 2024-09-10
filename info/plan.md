@@ -14,18 +14,18 @@
   - [x] Can create new catagories
   - [x] Can remove old catagories
     - [x] Will have a warning message if any are in use
-- [ ] Highlighting Scripture
+- [x] Highlighting Scripture
   - [x] Highlight Selection
     - [x] Select category
     - [x] Select area
   - [x] Removing Highlights
     - [x] Select category
     - [x] Hover over verses to remove
-- [ ] Save and load highlights
-  - [ ] Test clearing highlights
-- [ ] Hover display description
-  - [ ] Displays little popup with name when hovered over
-  - [ ] When clicked, creates sidebar with all names and description of highlights
+- [x] Save and load highlights
+  - [x] Test clearing highlights
+- [x] Hover display description
+  - [x] Displays little popup with name when hovered over
+  - [x] When clicked, creates sidebar with all names and description of highlights
 
 ### Version 0.3.0: Note Support
 - [ ] Basic Markdown:
