@@ -1,0 +1,13 @@
+.bible-word {
+    user-select: none;
+    display: inline-block;
+}
+
+.bible-space {
+    user-select: none;
+    display: inline-block
+}
+
+.selected {
+    color: blueviolet;
+}

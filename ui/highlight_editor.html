@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Highlight Editor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="styles/styles.css"/>
+    <link rel="stylesheet" href="styles/popup.css"/>
+    <link rel="stylesheet" href="styles/menu.css">
+    <link rel="stylesheet", href="styles/highlights.css">
+</head>
+<body>
+    <header>
+        <button class="image-btn" id="back-btn" title="Back to bible view.">
+            <img src="images/light-backward.svg">
+        </button>
+        <button class="image-btn" id="new-btn" title="Create new highlight">
+            <img src="images/light-plus.svg">
+        </button>
+    </header>
+    <main>
+        <div class="popup" id="confirm-popup">
+            <div class="popup-content">
+                <p>Are you sure you want to delete this highlight?</p>
+                <button id="confirm-btn" class="yes">Confirm</button>
+                <button id="cancel-delete-btn" class="no">Cancel</button>
+            </div>
+        </div>
+        <div class="popup" id="highlight-popup">
+            <div class="popup-content menu">
+                <label for="color-in">Color:</label>
+                <input type="color" id="color-in" value="#FFD700">
+
+                <label for="name-in">Name:</label>
+                <input type="text" id="name-in" placeholder="Enter name">
+                <span id="name-err-msg" style="color: red;"></span>
+
+                <label for="description-in">Description:</label>
+                <textarea id="description-in" placeholder="Enter description"></textarea>
+                <span id="desc-err-msg" style="color: red;"></span>
+
+                <label for="priority-in">Priority:</label>
+                <input type="range" id="priority-in" min="1" max="10">
+
+                <button type="button" class="yes" id="submit-btn">Submit</button>
+                <button type="button" class="no" id="cancel-submit-btn">Cancel</button>
+            </div>
+        </div>
+        <div id="highlights" class="highlight-container"></div>
+    </main>
+    <script type="module">
+        import * as utils from "./src/utils.js";
+        import { render_catagories, create_category, get_catagories, set_category } from "./src/highlights.js";
+
+        let editing_id = null;
+        function on_edit(id)
+        {
+            get_catagories().then(catagories => {
+                let category = catagories[id];
+                let color = utils.color_to_hex(category.color);
+                utils.set_value('color-in', color);
+                utils.set_value('name-in', category.name);
+                utils.set_value('description-in', category.description);
+                utils.set_value('priority-in', category.priority);
+
+                editing_id = category.id;
+                utils.set_display('highlight-popup', 'flex');
+            })
+        }
+
+        let deleting_id = null;
+        function on_delete(id)
+        {
+            deleting_id = id;
+            utils.set_display('confirm-popup', 'flex');
+        }
+
+        render_catagories(on_delete, on_edit);
+        
+        utils.on_click('confirm-btn', (e) => {
+            if (deleting_id != null)
+            {
+                utils.invoke('remove_highlight_category', { id: deleting_id });
+            }
+
+            utils.set_display('confirm-popup', 'none');
+            location.reload();
+        });
+
+        utils.on_click('cancel-delete-btn', (e) => {
+            utils.set_display('confirm-popup', 'none');
+            deleting_id = null;
+        });
+
+        utils.on_click('new-btn', (e) => {
+            utils.set_display('highlight-popup', 'flex');
+        });
+
+        utils.on_click('submit-btn', e => {
+            let color = utils.read_value('color-in');
+            let name = utils.read_value('name-in');
+            let description = utils.read_value('description-in');
+            let priority = utils.read_value('priority-in');
+
+            let was_error = false;
+
+            const NAME_MIN_LENGTH = 3;
+            const NAME_MAX_LENGTH = 20;
+            if(name.length < 3)
+            {
+                was_error = true;
+                utils.set_html('name-err-msg', `Name must be at least ${NAME_MIN_LENGTH} characters long.`);   
+            }
+
+            if(name.length > NAME_MAX_LENGTH)
+            {
+                was_error = true;
+                utils.set_html('name-err-msg', `Cant be longer than ${NAME_MAX_LENGTH} characters long.`);
+            }
+
+            if(!utils.is_alpha_numeric(name))
+            {
+                was_error = true;
+                utils.set_html('name-err-msg', `Name must contain only letters, numbers, and spaces`);
+            }
+
+            if(!was_error)
+            {
+                if(editing_id == null)
+                {
+                    create_category(color, name, description, priority);
+                }
+                else 
+                {
+                    set_category(editing_id, color, name, description, priority);
+                }
+                utils.set_display('highlight-popup', 'none');
+                location.reload();
+                editing_id = null;
+            }
+        });
+
+        utils.on_click('cancel-submit-btn', e => {
+            editing_id = null;
+            utils.set_display('highlight-popup', 'none');
+        });
+
+        utils.on_click('back-btn', e => {
+            window.location.href = "./index"
+        })
+    </script>
+</body>
+</html>

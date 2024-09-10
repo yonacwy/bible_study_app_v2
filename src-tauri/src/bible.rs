@@ -22,6 +22,15 @@ pub struct Chapter
     pub verses: Vec<Verse>
 }
 
+impl Chapter
+{
+    pub fn get_view(&self) -> ChapterView
+    {
+        let verses = self.verses.iter().map(|v| v.words.len() as u32).collect();
+        ChapterView { verses }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Book 
 {
@@ -50,11 +59,12 @@ impl Bible
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[repr(C)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
-pub struct ChapterRef
+pub struct ChapterIndex
 {
-    pub book: String,
+    pub book: u32,
     pub number: u32,
 }
 
@@ -64,4 +74,11 @@ pub struct BookView
 {
     pub name: String,
     pub chapter_count: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChapterView
+{
+    pub verses: Vec<u32>
 }

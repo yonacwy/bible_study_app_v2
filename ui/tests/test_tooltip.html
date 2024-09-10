@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tooltip Examples</title>
+    <style>
+        /* CSS for custom tooltips */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            margin: 20px;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the text */
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* CSS for JavaScript tooltip positioning */
+        #tooltip {
+            display: none;
+            position: absolute;
+            background-color: #555;
+            color: #fff;
+            padding: 5px;
+            border-radius: 3px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Tooltip Examples</h1>
+
+    <h2>1. Simple Tooltip with `title` Attribute</h2>
+    <button title="Click this button to submit the form">Submit</button>
+    <p>Hover over the button to see the tooltip using the `title` attribute.</p>
+
+    <h2>2. Custom Tooltip with CSS</h2>
+    <div class="tooltip">Hover over me
+        <span class="tooltiptext">Custom CSS Tooltip</span>
+    </div>
+    <p>Hover over the text above to see the custom-styled tooltip.</p>
+
+    <h2>3. Tooltip with JavaScript</h2>
+    <button id="myButton">Hover me</button>
+    <div id="tooltip">JavaScript Tooltip</div>
+    <p>Hover over the button to see the tooltip that uses JavaScript for positioning.</p>
+
+    <script>
+        // JavaScript for tooltip positioning
+        var button = document.getElementById('myButton');
+        var tooltip = document.getElementById('tooltip');
+
+        button.addEventListener('mouseover', function(event) {
+            tooltip.style.display = 'block';
+            tooltip.style.left = (event.pageX + 10) + 'px'; // Adjust position as needed
+            tooltip.style.top = (event.pageY + 10) + 'px';
+        });
+
+        button.addEventListener('mouseout', function() {
+            tooltip.style.display = 'none';
+        });
+    </script>
+
+</body>
+</html>
