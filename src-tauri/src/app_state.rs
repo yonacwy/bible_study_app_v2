@@ -1,5 +1,6 @@
-use std::{cell::{RefCell, RefMut}, collections::HashMap, sync::Mutex};
+use std::{cell::RefCell, collections::HashMap, sync::Mutex};
 
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::PathResolver;
 
@@ -88,18 +89,65 @@ impl AppData
                 bible,
                 notebook: Mutex::new(RefCell::new(notebook)),
                 current_chapter: Mutex::new(RefCell::new(chapter)),
-                resolver: resolver
+                resolver
             })
         }
     }
 
     pub fn save(&self)
     {
-        let data = self.read_notes(|notebook| {
-            serde_json::to_string(notebook).unwrap()
+        let current_chapter = self.get_current_chapter();
+
+        let save = self.read_notes(|notebook| { 
+
+            let highlight_catagories = notebook.highlight_catagories.iter()
+                .map(|(id, category)| (id.clone(), category.clone()))
+                .collect_vec();
+
+            let chapter_highlights = notebook.chapter_highlights.iter()
+                .map(|(index, highlights)| {
+                    let highlight_vec = highlights.iter()
+                        .map(|(verse, ids)| (*verse, ids.clone()))
+                        .collect_vec();
+
+                    (index.clone(), highlight_vec)
+                })
+                .collect_vec();
+
+            AppSave
+            {
+                highlight_catagories,
+                chapter_highlights,
+                current_chapter: current_chapter.clone()
+            }
         });
 
-        println!("{}", data);
+        let save_json = serde_json::to_string_pretty(&save).unwrap();
+        let path = self.resolver.resolve_resource(SAVE_NAME).expect("Error getting save path");
+        std::fs::write(path, save_json).expect("Failed to write to save path");
+    }
+
+    fn load(json: &str) -> (Notebook, ChapterIndex)
+    {
+        let save: AppSave = serde_json::from_str(json).unwrap();
+        let highlight_catagories: HashMap<_, _> = save.highlight_catagories.iter()
+            .map(|(id, data)| (id.clone(), data.clone()))
+            .collect();
+
+        let chapter_highlights: HashMap<_, _> = save.chapter_highlights.iter()
+            .map(|(index, highlights)| {
+                let highlights_map: HashMap<_, _> = highlights.iter()
+                    .map(|t| t.clone()).collect();
+
+                (index.clone(), highlights_map)
+            }).collect();
+        
+        let notebook = Notebook {
+            highlight_catagories,
+            chapter_highlights
+        };
+
+        (notebook, save.current_chapter)
     }
 
     pub fn get() -> &'static Self 
