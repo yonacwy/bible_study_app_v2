@@ -27,28 +27,28 @@
   - [x] Displays little popup with name when hovered over
   - [x] When clicked, creates sidebar with all names and description of highlights
 
-### Version 0.3.0: Note Support
-- [ ] Basic Markdown:
-  - [ ] Bold
-  - [ ] Italics
-  - [ ] Lists
-  - [ ] Strikthrough
-  - [ ] Underline
-  - [ ] Cross references
-- [ ] Basic Note: 
-  - [ ] targets a certain section of scripture
-    - [ ] Chapter
-    - [ ] Verse
-    - [ ] Section of verses
-    - [ ] Section of words
-  - [ ] View notes when click
-
-### Version 0.4.0: Insert Support
-
-### Version 0.5.0: Upgraded Visuals
-
-### Version 0.6.0: Multiple Bibles
-
-### Version 0.7.0: Pdf Conversion
-
-### Version 0.8.0: Data Extensions (Strong's/BDB/etc)
+### Version 0.3.0: More Notes
+- [ ] Improve Bible Viewer
+  - [ ] Better book/chapter selection
+  - [ ] Next/previous chapter buttons
+  - [ ] Search-bar
+- [ ] Cross-references
+  - [ ] Can link together two or more sections of scripture
+    - [ ] Selection tool
+    - [ ] Can go to individual words
+  - [ ] Contain a description, like highlights
+  - [ ] Mini-view when hovering on word
+  - [ ] Full view when click on word
+  - [ ] Can click on verses to go there
+  - [ ] Underlined
+- [ ] Section Notes
+  - [ ] Is a single section of notes with a description
+  - [ ] Can view when click on word
+  - [ ] Can be upgraded to a cross-reference
+  - [ ] Underlined
+- [ ] Favorite verses
+  - [ ] Can pick on a verse to favorite it
+  - [ ] Have place to view favorite verses
+- [ ] Way to view all current notes (Highlights, Cross-refs, favorite verses, section notes, etc)
+- [ ] Add Ctrl + Z
+  - [ ] Undo highlights/other notes

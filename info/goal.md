@@ -1,7 +1,7 @@
 # Goal:
 
 ### Core Features:
-- Note taking with markdown, with emendable images and extended syntax??? for charts and verse references
+- Note taking with markdown, with emendable images and extended syntax??? for charts, verse references, and inserts
 - Local: no internet question required
 - Contains multiple bible versions
 - Extra resources: Strong's concordance, Browns Driver's Briggs bible dictionary???
