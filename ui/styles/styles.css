@@ -6,7 +6,9 @@ body {
 }
 
 :root {
-    --header-height: 50px;
+    --header-height: 30px;
+    --button-margin: calc(var(--header-height) * 0.1);
+    --button-size: calc(var(--header-height) - var(--button-margin) * 2);
 }
 
 header {
@@ -33,7 +35,6 @@ header .text-btn {
 }
 
 header .image-btn {
-    --button-margin: 5px;
     padding: 0px;
     display: inline-block;
     
@@ -60,7 +61,6 @@ main {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin: 20px auto;
 }
 
 .content h1 {

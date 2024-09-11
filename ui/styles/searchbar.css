@@ -1,0 +1,23 @@
+
+header .searchbar {
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    height: var(--button-size);
+    width: auto;
+    margin: 0px;
+    padding: 0px;
+}
+
+header .searchbar input {
+    height: var(--button-size);
+    margin: 0px;
+    padding: 0px;
+}
+
+header .searchbar img {
+    height: var(--button-size);
+    aspect-ratio: 1/1;
+    margin: 0px;
+    padding: 0px;
+}

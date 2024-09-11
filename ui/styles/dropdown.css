@@ -11,7 +11,6 @@
 .text-dropdown-btn,
 .image-dropdown-button
 {
-    --button-margin: 5px;
     display: inline-block;
     
     margin: var(--button-margin);

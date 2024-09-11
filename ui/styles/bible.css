@@ -1,6 +1,7 @@
 .bible-word {
     user-select: none;
     display: inline-block;
+    margin-bottom: 5px;
 }
 
 .bible-space {
