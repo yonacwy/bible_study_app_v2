@@ -62,7 +62,6 @@ function update_word(i, div)
 
 async function render_chapter_text()
 {
-    debug_print('got here');
     let text_json = await invoke('get_current_chapter_text', {});
     let chapter = JSON.parse(text_json);
     

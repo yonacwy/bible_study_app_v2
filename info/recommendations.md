@@ -7,3 +7,4 @@
   - Grid for chapters
   - Not one massive dropdown for books/chapters
 - Arrows for going to adjacent chapters
+- Page doesn't reload every time a highlight is edited

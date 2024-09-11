@@ -4,7 +4,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::PathResolver;
 
-use crate::{bible::*, notes::*, parsing, utils::Color};
+use crate::{bible::*, notes::*, bible_parsing, utils::Color};
 
 
 static mut DATA: Option<AppData> = None;
@@ -32,14 +32,13 @@ impl AppData
     {
         let file = resolver.resolve_resource(SAVE_NAME)
         .and_then(|path| {
-            println!("{}", path.to_str().unwrap());
             std::fs::read(path).ok()
         })
         .and_then(|data| {
             String::from_utf8(data).ok()
         });
 
-        let (notebook, chapter) = match file {
+        let (notebook, mut chapter) = match file {
             Some(file) => Self::load(&file),
             None => {
                 let notebook = Notebook {
@@ -54,7 +53,16 @@ impl AppData
             },
         };
 
-        let bible = parsing::parse_bible(bible_text).unwrap();
+        let bible = bible_parsing::parse_bible(bible_text).unwrap();
+
+        if chapter.book >= bible.books.len() as u32 || 
+           chapter.number >= bible.books[chapter.book as usize].chapters.len() as u32
+        {
+            chapter = ChapterIndex {
+                book: 0,
+                number: 0
+            };
+        }
 
         unsafe 
         {

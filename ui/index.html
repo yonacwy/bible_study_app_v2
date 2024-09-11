@@ -14,8 +14,10 @@
 <body>
     <header>
         <div class="searchbar">
-            <input type="text">
-            <img src="images/light-magnifying-glass.svg">
+            <input type="text" id="search-input">
+            <button id="search-btn">
+                <img src="images/light-magnifying-glass.svg">
+            </button>
         </div>
         <div class="dropdown">
             <button class="text-dropdown-btn" id="books-btn" title="Select what book to display">Books</button>
@@ -54,18 +56,25 @@
         <div class="word-popup word-popup-content" id="word-popup"></div>
     </main>
     <script type="module">
-        import { debug_print, color_to_hex, init_toggle } from './src/utils.js';
+        import * as utils from './src/utils.js';
         import * as bible from './src/bible.js';
         import { get_catagories, set_selected_highlight, get_selected_highlight } from './src/highlights.js';
         import { init_word_popup } from './src/word_popup.js';
         import { ERASER_STATE_NAME } from "./src/save_states.js";
         import { render_current_chapter } from "./src/bible_render.js";
 
+        utils.on_click('search-btn', e => {
+            let value = utils.read_value('search-input');
+            utils.invoke('search_bible', { text: value }).then(result => {
+                utils.debug_print(JSON.stringify(result));
+            })
+        })
+
         document.getElementById('highlight-settings').addEventListener('click', (_) => {
             window.location.href = "highlight_editor.html";
         });
         
-        init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {});
+        utils.init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {});
 
         bible.get_chapter().then((chapter) => {
             bible.load_view().then((view) => {
@@ -85,7 +94,7 @@
                 if(id !== null)
                 {
                     let category = catagories[id];
-                    color = color_to_hex(category.color);
+                    color = utils.color_to_hex(category.color);
                 }
                 
                 set_selected_highlight(id);
@@ -100,7 +109,7 @@
             if(id !== null)
             {
                 let category = catagories[id];
-                let color = color_to_hex(category.color);
+                let color = utils.color_to_hex(category.color);
 
                 let btn = document.getElementById('highlight-selector-btn');
                 btn.style.backgroundColor = color;

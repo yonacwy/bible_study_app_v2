@@ -6,11 +6,12 @@ use std::io::Read;
 use app_state::AppData;
 
 pub mod bible;
-pub mod parsing;
+pub mod bible_parsing;
 pub mod commands;
 pub mod app_state;
 pub mod notes;
 pub mod utils;
+mod search_parsing;
 
 use commands::*;
 
@@ -50,6 +51,7 @@ fn main() {
 			get_current_chapter_highlights,
 			add_highlight_to_current_chapter,
 			remove_highlight_from_current_chapter,
+			search_bible,
 		])
 		.run(tauri::generate_context!())
 		.expect("error while running tauri application");
