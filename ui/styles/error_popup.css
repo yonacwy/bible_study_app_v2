@@ -1,0 +1,38 @@
+.error-popup {
+    position: absolute;
+    bottom: -30px; /* Adjusted for arrow */
+    left: 0;
+    background-color: #f44336;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    display: none; /* Hidden by default */
+    opacity: 1; /* For fade-out effect */
+    transition: opacity 0.5s ease; /* Smooth fade-out */
+    z-index: 5000;
+}
+
+.error-popup::after {
+    content: '';
+    position: absolute;
+    bottom: 100%; /* Positioning below the error message */
+    left: 20px; /* Centered under the message */
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #f44336 transparent; /* Arrow pointing up */
+}
+
+/* Shake animation */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+.shake {
+    animation: shake 0.5s;
+}

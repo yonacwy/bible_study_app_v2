@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="styles/word_popup.css">
     <link rel="stylesheet" href="styles/side_popup.css">
     <link rel="stylesheet" href="styles/searchbar.css">
+    <link rel="stylesheet" href="styles/error_popup.css">
 </head>
 <body>
     <header>
@@ -17,7 +18,8 @@
             <input type="text" id="search-input">
             <button id="search-btn">
                 <img src="images/light-magnifying-glass.svg">
-            </button>
+            </button> 
+            <div class="error-popup" id="error-message"></div>
         </div>
         <div class="dropdown">
             <button class="text-dropdown-btn" id="books-btn" title="Select what book to display">Books</button>
@@ -62,11 +64,16 @@
         import { init_word_popup } from './src/word_popup.js';
         import { ERASER_STATE_NAME } from "./src/save_states.js";
         import { render_current_chapter } from "./src/bible_render.js";
+        import { show_error_popup } from "./src/error_popup.js";
 
         utils.on_click('search-btn', e => {
             let value = utils.read_value('search-input');
             utils.invoke('search_bible', { text: value }).then(result => {
                 utils.debug_print(JSON.stringify(result));
+                if(result === null)
+                {
+                    show_error_popup('error-message', true, "Invalid bible section");   
+                }
             })
         })
 
