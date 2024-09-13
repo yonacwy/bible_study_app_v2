@@ -167,10 +167,14 @@
             "Revelation": 22
         }
 
+        let selected_book = null;
+
         function spawn_normal_option(name)
         {
             let option_div = document.createElement('div');
-
+            option_div.classList.add('dropdown-option');
+            option_div.innerHTML = name;
+            return option_div;
         }
 
         function spawn_expanded_option(name, count)
@@ -202,16 +206,46 @@
             return option_div;
         }
 
-        function test_spawn(a, b)
+        function spawn_option(name, count, selected)
         {
-            let test = document.createElement('div');
-            test.classList.add('dropdown-option');
-            test.innerHTML = "Test";
-            return test;
+            if(selected)
+            {
+                return spawn_expanded_option(name, count); 
+            }
+            else 
+            {
+                return spawn_normal_option(name);
+            }
         }
 
-        let dropdown = document.getElementById('test-dropdown');
-        dropdown.appendChild(spawn_expanded_option("Genesis", 50));
+        function build_options()
+        {
+            let dropdown = document.getElementById('test-dropdown');
+            dropdown.replaceChildren();
+
+            for(let name in BOOKS)
+            {
+                let chapter_count = BOOKS[name];
+                let option = spawn_option(name, chapter_count, name === selected_book);
+                
+                option.addEventListener('click', e => {
+                    if(name === selected_book)
+                    {
+                        selected_book = null;
+                        build_options();
+                    }
+                    else 
+                    {
+                        selected_book = name;
+                        build_options();
+                    }
+                })
+
+                dropdown.appendChild(option);
+            }
+        }
+
+        build_options();
     </script>
 </body>
 </html>

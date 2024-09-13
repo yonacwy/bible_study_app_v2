@@ -47,6 +47,8 @@
     margin-top: 0px; /* Smaller gap between button and dropdown */
     transition: opacity 0.3s ease; /* Smooth transition */
     opacity: 0;
+    max-height: 300px;
+    overflow: auto;
 }
 
 /* Show dropdown on button hover */
