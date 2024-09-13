@@ -184,3 +184,11 @@ export async function set_chapter(chapter)
         location.reload();
     });
 }
+
+export async function set_book_and_chapter(book_index, chapter_index) 
+{
+    let chapter_json = JSON.stringify( {book: book_index, number: chapter_index });
+    invoke('set_current_chapter', {chapter: chapter_json}).then(_ => {
+        location.reload();
+    })    
+}

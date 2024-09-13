@@ -3,125 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resizable Extendable Panel</title>
+    <title>Expandable Div with Sliding Text Reveal</title>
     <style>
-        body {
+        * {
             margin: 0;
-            font-family: Arial, sans-serif;
+            padding: 0;
+            box-sizing: border-box;
+            font-size: 10px;
+        }
+
+        body {
             display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
         }
-        .panel {
-            position: fixed;
-            right: 0;
-            top: 0;
-            height: 100%;
-            width: 250px;
-            background-color: #333;
-            color: #fff;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            overflow: auto;
-            z-index: 1000;
-            resize: horizontal;
-            min-width: 200px;
-            max-width: 500px;
-        }
-        .panel.open {
-            transform: translateX(0);
-        }
-        .panel-content {
-            padding: 20px;
-        }
-        .toggle-btn {
-            position: fixed;
-            left: 0;
-            top: 20px;
-            background-color: #333;
-            color: #fff;
-            border: none;
-            padding: 10px;
+
+        .expandable-div {
+            width: 300px;
+            background-color: #3498db;
+            border-radius: 10px;
+            overflow: hidden;
             cursor: pointer;
-            z-index: 1001;
+            transition: max-height 0.3s ease; /* Faster retract */
+            max-height: 120px; /* Initial height */
         }
-        .toggle-btn:focus {
-            outline: none;
+
+        .expandable-div:hover {
+            max-height: 300px; /* Expanded height */
+            transition: max-height 0.8s ease; /* Slower expand */
         }
-        .resizer {
-            position: absolute;
-            left: -5px;
-            top: 0;
-            width: 10px;
-            height: 100%;
-            cursor: ew-resize;
-            z-index: 1002;
-        }
+
         .content {
-            padding: 20px;
-            transition: margin-right 0.3s ease;
-            width: calc(100% - 250px); /* Default width adjustment when panel is open */
-            margin-left: 0;
+            padding: 15px;
+            color: white;
         }
-        .content.full {
-            width: 100%; /* Full width when panel is closed */
+
+        .extra-content {
+            max-height: 0; /* Initially hidden */
+            overflow: hidden;
+            opacity: 0; /* Initially transparent */
+            transition: max-height 0.3s ease, opacity 0.3s ease; /* Faster retract */
+        }
+
+        .expandable-div:hover .extra-content {
+            max-height: 200px; /* Adjust to the height of content */
+            opacity: 1; /* Fade in the content */
+            transition: max-height 0.8s ease, opacity 0.8s ease; /* Slower expand */
         }
     </style>
 </head>
 <body>
-    <button class="toggle-btn" onclick="togglePanel()">☰</button>
-    <div id="panel" class="panel">
-        <div class="resizer" onmousedown="initResize(event)"></div>
-        <div class="panel-content">
-            <h2>Resizable Extendable Panel</h2>
-            <p>This is a resizable panel that slides out from the right side of the page. You can resize the panel by dragging the left edge.</p>
+
+    <div class="expandable-div">
+        <div class="content">
+            <h3>Hover over me!</h3>
+            <div class="extra-content">
+                <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Velit sit pulvinar dis netus, fermentum condimentum tellus sed. Quisque curabitur eu scelerisque porta risus. Risus porta placerat finibus; blandit dictum nisl quam. Fringilla maximus porta dis nascetur elit. Euismod et elit viverra turpis fusce. Penatibus nec maximus orci magnis curabitur dapibus cursus blandit eleifend. Magna dui aptent lobortis ad feugiat torquent enim.</p>
+                <p>Duis mattis ac tristique ligula penatibus. Vitae suspendisse fames torquent ornare fringilla justo pellentesque. Ornare tincidunt curabitur curabitur; scelerisque interdum quis. Eget natoque mollis sociosqu molestie diam sagittis odio ultricies magnis. Himenaeos accumsan orci venenatis pretium aliquet nam mollis. Velit eros elementum integer nostra tristique est. Nibh malesuada lacus sapien dictum nisl facilisi hendrerit molestie. Congue at congue luctus ullamcorper vitae porta condimentum pretium.</p>
+                <p>Vulputate torquent sollicitudin volutpat potenti fringilla adipiscing tortor dignissim. Condimentum cubilia dis himenaeos lacus pretium accumsan. Et mattis nisl neque neque, aptent pharetra non aliquam. Per efficitur vulputate himenaeos, natoque at purus montes. Placerat tincidunt rhoncus facilisis, a aliquet pretium. Faucibus pellentesque felis morbi accumsan laoreet semper. Aliquet leo euismod nunc semper justo. Lacus orci dis est dis a finibus. Ligula venenatis mi efficitur, mi dis tempor.</p>
+                <p>Libero posuere etiam hac torquent, eleifend nisl et. Suscipit mattis aptent hac eget platea semper ultrices. Nisi auctor lacus est gravida lacinia habitant morbi. Sem ex potenti cras dapibus vitae; tristique netus ultrices. Maecenas tincidunt ut vitae facilisis sodales orci fringilla. Magnis bibendum taciti tincidunt accumsan tristique. Diam arcu maximus vivamus et conubia quisque nulla. Nisl dui est metus etiam in cursus etiam porttitor torquent.</p>
+                <p>Massa facilisis aliquam venenatis eget posuere eros euismod massa enim. Mollis convallis enim suspendisse malesuada ullamcorper feugiat elementum at ornare. Montes himenaeos accumsan finibus penatibus faucibus tempor netus ad leo. Efficitur dis natoque elit purus est. Vivamus integer nunc hendrerit etiam gravida interdum pulvinar adipiscing ullamcorper. Conubia ultricies euismod conubia proin nam. Neque feugiat platea eleifend ultrices porta felis aptent lacus efficitur. Turpis justo id odio finibus dictum. Ac feugiat rutrum justo tempor in justo velit porta.</p>
+            </div>
         </div>
     </div>
-    <div id="content" class="content">
-        <h1>Main Content</h1>
-        <p>This is the main content area. When the panel opens, the content will shift to the left to make space for it. Resize the panel to see how the layout adjusts.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque at velit sit amet magna feugiat facilisis. Aliquam erat volutpat. Praesent sit amet magna ac enim cursus ullamcorper non nec leo.</p>
-    </div>
 
-    <script>
-        function togglePanel() {
-            const panel = document.getElementById('panel');
-            const content = document.getElementById('content');
-            if (panel.classList.contains('open')) {
-                panel.classList.remove('open');
-                content.classList.add('full'); // Full content width when panel is closed
-                content.style.marginRight = '0';
-            } else {
-                panel.classList.add('open');
-                content.classList.remove('full'); // Adjust width when panel is open
-                content.style.marginRight = panel.offsetWidth + 'px';
-            }
-        }
-
-        let isResizing = false;
-
-        function initResize(e) {
-            isResizing = true;
-            document.addEventListener('mousemove', resizePanel);
-            document.addEventListener('mouseup', stopResize);
-            e.preventDefault();
-        }
-
-        function resizePanel(e) {
-            if (isResizing) {
-                const panel = document.getElementById('panel');
-                const content = document.getElementById('content');
-                const newWidth = window.innerWidth - e.clientX;
-                if (newWidth >= 200 && newWidth <= 500) { // Set min and max width limits
-                    panel.style.width = newWidth + 'px';
-                    content.style.marginRight = newWidth + 'px'; // Adjust content margin dynamically
-                }
-            }
-        }
-
-        function stopResize() {
-            isResizing = false;
-            document.removeEventListener('mousemove', resizePanel);
-            document.removeEventListener('mouseup', stopResize);
-        }
-    </script>
 </body>
 </html>
