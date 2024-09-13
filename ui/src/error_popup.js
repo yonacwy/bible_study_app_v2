@@ -8,8 +8,6 @@ export function show_error_popup(id, show, message)
         error_message.style.display = 'block';
         error_message.style.opacity = '1';
         error_message.innerHTML = message;
-
-        debug_print('here');
         
         error_message.classList.add('shake');
         setTimeout(() => 

@@ -17,7 +17,7 @@
         <button class="image-btn">
             <img src="images/light-books.svg">
         </button>
-        <div class="searchbar">
+        <div class="searchbar" style="position: relative;">
             <input type="text" id="search-input">
             <button id="search-btn">
                 <img src="images/light-magnifying-glass.svg">
@@ -72,7 +72,6 @@
         utils.on_click('search-btn', e => {
             let value = utils.read_value('search-input');
             utils.invoke('search_bible', { text: value }).then(result => {
-                utils.debug_print(JSON.stringify(result));
                 if(result === null)
                 {
                     show_error_popup('error-message', true, "Invalid bible section");   
