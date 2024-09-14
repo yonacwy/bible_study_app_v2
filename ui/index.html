@@ -14,23 +14,18 @@
 </head>
 <body>
     <header>
-        <button class="image-btn">
-            <img src="images/light-books.svg">
-        </button>
+        <div class="dropdown">
+            <button class="image-btn">
+                <img src="images/light-books.svg">
+            </button>
+            <div class="dropdown-content" id="book-selection-content"></div>
+        </div>
         <div class="searchbar" style="position: relative;">
             <input type="text" id="search-input">
             <button id="search-btn">
                 <img src="images/light-magnifying-glass.svg">
             </button> 
             <div class="error-popup" id="error-message"></div>
-        </div>
-        <div class="dropdown">
-            <button class="text-dropdown-btn" id="books-btn" title="Select what book to display">Books</button>
-            <div class="dropdown-content" id="books-dropdown"></div>
-        </div>
-        <div class="dropdown">
-            <button class="text-dropdown-btn" id="chapters-btn" title="Select what chapter to displays">Chapters</button>
-            <div class="dropdown-content" id="chapters-dropdown"></div>
         </div>
         <div class="dropdown">
             <button class="image-dropdown-button" id="highlight-selector-btn" title="Select a highlight to paint with">
@@ -65,9 +60,10 @@
         import * as bible from './src/bible.js';
         import { get_catagories, set_selected_highlight, get_selected_highlight } from './src/highlights.js';
         import { init_word_popup } from './src/word_popup.js';
-        import { ERASER_STATE_NAME } from "./src/save_states.js";
-        import { render_current_chapter } from "./src/bible_render.js";
-        import { show_error_popup } from "./src/error_popup.js";
+        import { ERASER_STATE_NAME } from './src/save_states.js';
+        import { render_current_chapter } from './src/bible_render.js';
+        import { show_error_popup } from './src/error_popup.js';
+        import { build_chapter_selection_dropdown } from './src/selection.js';
 
         utils.on_click('search-btn', e => {
             let value = utils.read_value('search-input');
@@ -78,7 +74,7 @@
                 }
                 else 
                 {
-                    bible.set_book_and_chapter(result.book, result.chapter);
+                    bible.set_chapter(result.book, result.chapter);
                 }
             })
         })
@@ -98,9 +94,11 @@
 
         const DEFAULT_BUTTON_COLOR = document.getElementById('highlight-selector-btn').style.backgroundColor;
 
-        render_current_chapter('chapter-content', 'word-popup', 'popup-panel')
-        bible.create_books_selection();
-        bible.create_chapter_selection();
+        render_current_chapter('chapter-content', 'word-popup', 'popup-panel');
+        build_chapter_selection_dropdown('book-selection-content', (name, number) => {
+            utils.set_value('search-input', `${name} ${number}`);
+            document.getElementById('search-btn').click();
+        });
         bible.create_highlight_selection(id => {
             get_catagories().then(catagories => {
                 let color = DEFAULT_BUTTON_COLOR;

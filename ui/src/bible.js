@@ -40,57 +40,6 @@ export async function get_chapter_words()
     return words;
 }
 
-export function create_books_selection()
-{
-    load_view().then(view => {
-        let container = document.getElementById('books-dropdown');
-        
-        for (let i = 0; i < view.length; i++)
-        {
-            let book = view[i];
-            
-            let book_div = document.createElement('div');
-            book_div.classList.add('dropdown-option');
-            
-            let span = document.createElement('span');
-            span.innerHTML = book.name;
-            book_div.appendChild(span);
-            
-            book_div.addEventListener('click', e => {
-                set_book(i);
-            });
-
-            container.appendChild(book_div);
-        }
-    });
-}
-
-export async function create_chapter_selection() 
-{
-    let view = await load_view();
-    let current = await get_chapter();
-    
-    let book = view[current.book];
-    let container = document.getElementById('chapters-dropdown');
-    for (let i = 0; i < book.chapterCount; i++)
-    {       
-        let chapter_div = document.createElement('div');
-        chapter_div.classList.add('dropdown-option');
-        
-        let span = document.createElement('span');
-        span.innerHTML = `${i + 1}`;
-        chapter_div.appendChild(span);
-
-        container.appendChild(chapter_div);
-
-        chapter_div.addEventListener('click', e => {
-            set_chapter(i);
-        });
-
-        container.appendChild(chapter_div);
-    }
-}
-
 export async function create_highlight_selection(on_selected) 
 {
     let highlight_data = await get_catagories();
@@ -168,27 +117,10 @@ export async function create_highlight_selection(on_selected)
     container.appendChild(none_div);
 }
 
-export async function set_book(book_index) 
-{
-    let chapter_src = JSON.stringify({book: book_index, number: 0});
-    invoke('set_current_chapter', {chapter: chapter_src}).then((_) => {
-        location.reload();
-    });
-}
-
-export async function set_chapter(chapter) 
-{
-    let current = await get_chapter();
-    let chapter_src = JSON.stringify({book: current.book, number: chapter});
-    invoke('set_current_chapter', {chapter: chapter_src}).then((_) => {
-        location.reload();
-    });
-}
-
-export async function set_book_and_chapter(book_index, chapter_index) 
+export async function set_chapter(book_index, chapter_index) 
 {
     let chapter_json = JSON.stringify( {book: book_index, number: chapter_index });
     invoke('set_current_chapter', {chapter: chapter_json}).then(_ => {
         location.reload();
-    })    
+    })
 }
