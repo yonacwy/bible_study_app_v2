@@ -120,7 +120,41 @@ export async function create_highlight_selection(on_selected)
 export async function set_chapter(book_index, chapter_index) 
 {
     let chapter_json = JSON.stringify( {book: book_index, number: chapter_index });
-    invoke('set_current_chapter', {chapter: chapter_json}).then(_ => {
-        location.reload();
-    })
+    invoke('set_current_chapter', {chapter: chapter_json});
+}
+
+export async function to_next_chapter() 
+{
+    let current_chapter = await get_chapter();
+    let view = await load_view();
+
+    if(current_chapter.number < view[current_chapter.book].chapterCount - 1)
+    {
+        current_chapter.number++;
+    }
+    else if(current_chapter.book < view.length)
+    {
+        current_chapter.book++;
+        current_chapter.number = 0;
+    }
+
+    set_chapter(current_chapter.book, current_chapter.number);
+}
+
+export async function to_previous_chapter() 
+{
+    let current_chapter = await get_chapter();
+    let view = await load_view();
+
+    if(current_chapter.number > 0)
+    {
+        current_chapter.number--;
+    }
+    else if(current_chapter.book > 0)
+    {
+        current_chapter.book--;
+        current_chapter.number = view[current_chapter.book].chapterCount - 1;
+    }
+
+    set_chapter(current_chapter.book, current_chapter.number);
 }

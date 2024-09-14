@@ -27,6 +27,12 @@
             </button> 
             <div class="error-popup" id="error-message"></div>
         </div>
+        <button class="image-btn" id="previous-chapter-btn" title="Next chapter">
+            <img src="images/light-arrow-left.svg">
+        </button>
+        <button class="image-btn" id="next-chapter-btn" title="Previous chapter">
+            <img src="images/light-arrow-right.svg">
+        </button>
         <div class="dropdown">
             <button class="image-dropdown-button" id="highlight-selector-btn" title="Select a highlight to paint with">
                 <img src="images/light-highlighter-line.svg" alt="Dropdown Button">
@@ -42,6 +48,7 @@
     </header>
     <main>
         <section class="content">
+            <h2 id="chapter-name"></h2>
             <div id="chapter-content"></div>
         </section>
         <div id="popup-panel" class="popup-panel">
@@ -75,8 +82,28 @@
                 else 
                 {
                     bible.set_chapter(result.book, result.chapter);
+                    render_chapter()
                 }
             })
+        });
+
+        utils.on_click('previous-chapter-btn', e => {
+            bible.to_previous_chapter().then(() => {
+                render_chapter();
+            })
+        });
+
+        utils.on_click('next-chapter-btn', e => {
+            bible.to_next_chapter().then(() => {
+                render_chapter();
+            })
+        })
+
+        document.getElementById('search-input').addEventListener('keydown', e => {
+            if(e.key === 'Enter')
+            {
+                document.getElementById('search-btn').click();
+            }
         })
 
         document.getElementById('highlight-settings').addEventListener('click', (_) => {
@@ -94,7 +121,7 @@
 
         const DEFAULT_BUTTON_COLOR = document.getElementById('highlight-selector-btn').style.backgroundColor;
 
-        render_current_chapter('chapter-content', 'word-popup', 'popup-panel');
+        render_chapter();
         build_chapter_selection_dropdown('book-selection-content', (name, number) => {
             utils.set_value('search-input', `${name} ${number}`);
             document.getElementById('search-btn').click();
@@ -126,6 +153,19 @@
                 btn.style.backgroundColor = color;
             }
         });
+
+        async function render_chapter()
+        {
+            utils.set_value('search-input', '');
+            let current_chapter = await bible.get_chapter();
+            let view = await bible.load_view();
+
+            let name = view[current_chapter.book].name;
+            let number = current_chapter.number + 1;
+
+            utils.set_html('chapter-name', `${name} ${number}`);
+            render_current_chapter('chapter-content', 'word-popup', 'popup-panel');
+        }
     </script>
 </body>
 </html>

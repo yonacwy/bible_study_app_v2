@@ -8,6 +8,8 @@ const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 
 export async function render_current_chapter(content_id, word_popup_id, popup_panel_id) 
 {
+    document.getElementById(content_id).replaceChildren();
+
     render_chapter_text().then((content) => {
         document.getElementById(content_id).appendChild(content);
     }).then(() => {
@@ -21,7 +23,7 @@ export async function render_current_chapter(content_id, word_popup_id, popup_pa
             if(is_dragging && get_selected_highlight() !== null)
             {
                 is_dragging = false;
-                location.reload();   
+                render_current_chapter(content_id, word_popup_id, popup_panel_id); 
             }
         });
 
