@@ -48,6 +48,11 @@ fn get_section_search(prefix: Option<u32>, book_name: &str, chapter: u32, verse_
 {
     let book_data = get_book_title_data(bible);
 
+    let book_name = match ALTS_MAP.get(book_name) {
+        Some(s) => &s,
+        None => book_name,
+    };
+
     let possible_books = book_data.iter().filter(|b| b.name.starts_with(book_name)).collect_vec();
 
     if possible_books.len() == 0 { return None; }
