@@ -4,7 +4,7 @@ use itertools::Itertools;
 use regex::{Captures, Regex};
 use serde::{Deserialize, Serialize};
 
-use crate::bible::{Bible, VerseRange};
+use crate::bible::{Bible, Verse, VerseRange};
 
 lazy_static::lazy_static! {
     static ref ALTS_MAP: HashMap<&'static str, &'static str> = {
@@ -21,14 +21,41 @@ lazy_static::lazy_static! {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SectionSearch 
+pub struct SectionSearchResult 
 {
-    book: u32,
-    chapter: u32,
-    verse_range: Option<VerseRange>,
+    pub book: u32,
+    pub chapter: u32,
+    pub verse_range: Option<VerseRange>,
 }
 
-pub fn parse_search(text: &str, bible: &Bible) -> Option<SectionSearch>
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WordSearchResult
+{
+    pub book: u32,
+    pub chapter: u32,
+    pub verse: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", tag = "type")]
+pub enum BibleSearchResult
+{
+    Section
+    {
+        result: SectionSearchResult
+    },
+    Word
+    {
+        result: Vec<WordSearchResult>
+    },
+    Error
+    {
+        error: String
+    },
+}
+
+pub fn parse_search(text: &str, bible: &Bible) -> BibleSearchResult
 {
     let search = SEARCH_REGEX.captures(text).and_then(|captures| {
         let prefix: Option<u32> = load_capture(&captures, "prefix");
@@ -38,13 +65,71 @@ pub fn parse_search(text: &str, bible: &Bible) -> Option<SectionSearch>
         let verse_start: Option<u32> = load_capture(&captures, "verse_start");
         let verse_end: Option<u32> = load_capture(&captures, "verse_end");
 
-        get_section_search(prefix, &name, chapter, verse_start, verse_end, bible)
+        Some(get_section_search(prefix, &name, chapter, verse_start, verse_end, bible))
     });
 
-    search
+    match search 
+    {
+        Some(Ok(search)) => BibleSearchResult::Section { result: search },
+        Some(Err(error)) => BibleSearchResult::Error { error },
+        None => 
+        {
+            match get_word_search(text, bible)
+            {
+                Ok(result) => BibleSearchResult::Word { result },
+                Err(error) => BibleSearchResult::Error { error }
+            }
+        }
+    }
 }
 
-fn get_section_search(prefix: Option<u32>, book_name: &str, chapter: u32, verse_start: Option<u32>, verse_end: Option<u32>, bible: &Bible) -> Option<SectionSearch>
+fn get_word_search(text: &str, bible: &Bible) -> Result<Vec<WordSearchResult>, String>
+{
+    if text.contains(|c: char| !(c.is_ascii_alphanumeric() || c.is_whitespace()))
+    {
+        return Err("searched words can only be words or numbers".into());
+    }
+
+    let words = text.split(char::is_whitespace).collect_vec();
+
+    let mut results = vec![];
+    for (book_index, book) in bible.books.iter().enumerate()
+    {
+        for (chapter_index, chapter) in book.chapters.iter().enumerate()
+        {
+            for (verse_index, verse) in chapter.verses.iter().enumerate()
+            {
+                if has_words(&words, verse)
+                {
+                    results.push(WordSearchResult {
+                        book: book_index as u32,
+                        chapter: chapter_index as u32,
+                        verse: verse_index as u32
+                    });
+                }
+            }
+        }
+    }
+
+    Ok(results)
+}
+
+fn has_words(words: &[&str], verse: &Verse) -> bool
+{
+    let mut checker = vec![false; words.len()];
+    for word in verse.words.iter().map(|w| &w.text)
+    {
+        let trimmed = word.trim_matches(|c: char| !c.is_alphanumeric());
+        if let Some(index) = words.iter().position(|w| w.eq_ignore_ascii_case(trimmed))
+        {
+            checker[index] = true;
+        }
+    }
+
+    checker.iter().all(|v| *v)
+}
+
+fn get_section_search(prefix: Option<u32>, book_name: &str, chapter: u32, verse_start: Option<u32>, verse_end: Option<u32>, bible: &Bible) -> Result<SectionSearchResult, String>
 {
     let book_data = get_book_title_data(bible);
 
@@ -55,7 +140,7 @@ fn get_section_search(prefix: Option<u32>, book_name: &str, chapter: u32, verse_
 
     let possible_books = book_data.iter().filter(|b| b.name.starts_with(book_name)).collect_vec();
 
-    if possible_books.len() == 0 { return None; }
+    if possible_books.len() == 0 { return Err(format!("The book of `{}`, does not exist", book_name)); }
     let book = possible_books.iter().find(|b| b.prefix == prefix).or_else(|| {
         possible_books.first()
     }).unwrap();
@@ -67,7 +152,7 @@ fn get_section_search(prefix: Option<u32>, book_name: &str, chapter: u32, verse_
     else 
     {
         // 0 chapter is invalid
-        return Some(SectionSearch { 
+        return Ok(SectionSearchResult { 
             book: book.index, 
             chapter: 0, // default to the first chapter
             verse_range: None
@@ -77,7 +162,7 @@ fn get_section_search(prefix: Option<u32>, book_name: &str, chapter: u32, verse_
     // invalid chapter, too big for the book
     if chapter_index >= bible.books[book.index as usize].chapters.len() as u32 
     {
-        return Some(SectionSearch { 
+        return Ok(SectionSearchResult { 
             book: book.index, 
             chapter: 0, // default to the first chapter
             verse_range: None
@@ -86,7 +171,7 @@ fn get_section_search(prefix: Option<u32>, book_name: &str, chapter: u32, verse_
 
     let chapter = &bible.books[book.index as usize].chapters[chapter_index as usize];
     let Some(verse_range) = get_verse_range(verse_start, verse_end) else {
-        return Some(SectionSearch {
+        return Ok(SectionSearchResult {
             book: book.index, 
             chapter: chapter_index,
             verse_range: None,
@@ -96,14 +181,14 @@ fn get_section_search(prefix: Option<u32>, book_name: &str, chapter: u32, verse_
     // can check just end, as it is guaranteed to be larger than start
     if verse_range.end >= chapter.verses.len() as u32
     {
-        return Some(SectionSearch {
+        return Ok(SectionSearchResult {
             book: book.index,
             chapter: chapter_index,
             verse_range: None,
         });
     }
 
-    Some(SectionSearch {
+    Ok(SectionSearchResult {
         book: book.index,
         chapter: chapter_index,
         verse_range: Some(verse_range)

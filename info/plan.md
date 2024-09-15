@@ -27,11 +27,23 @@
   - [x] Displays little popup with name when hovered over
   - [x] When clicked, creates sidebar with all names and description of highlights
 
-### Version 0.3.0: More Notes
+### Version 0.3.0: Searching
 - [ ] Improve Bible Viewer
-  - [ ] Better book/chapter selection
-  - [ ] Next/previous chapter buttons
-  - [ ] Search-bar
+  - [x] Better book/chapter selection
+  - [x] Next/previous chapter buttons
+  - [ ] Search bar
+- [ ] Search-bar
+  - [ ] Word searches
+    - [ ] Returns result of all verses with words
+    - [ ] Has a priority system
+    - [ ] Closer to phrases better
+  - [ ] Section searches
+    - [x] Parses searches similar to blue letter bible
+    - [ ] Goes to first verse when verse section selected
+      - [ ] Only display selected verses???
+
+
+### Version 0.4.0: More Notes
 - [ ] Cross-references
   - [ ] Can link together two or more sections of scripture
     - [ ] Selection tool

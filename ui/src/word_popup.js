@@ -16,7 +16,7 @@ export async function init_word_popup(popup_id, content_id)
         let word_div = word_divs[i];
 
         let word_highlights = chapter_highlights[i];
-        if(word_highlights === undefined || word_highlights === null) { continue; }
+        if(word_highlights === undefined || word_highlights === null || word_highlights.length === 0) { continue; }
 
         word_div.addEventListener('mouseenter', _ => {
             popup.replaceChildren();

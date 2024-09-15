@@ -75,14 +75,22 @@
         utils.on_click('search-btn', e => {
             let value = utils.read_value('search-input');
             utils.invoke('search_bible', { text: value }).then(result => {
-                if(result === null)
+                if(result.type === 'error')
                 {
-                    show_error_popup('error-message', true, "Invalid bible section");   
+                    show_error_popup('error-message', true, result.error);   
+                }
+                else if(result.type === 'word')
+                {
+                    utils.debug_print(JSON.stringify(result));
+                }
+                else if (result.type === 'section')
+                {
+                    bible.set_chapter(result.result.book, result.result.chapter);
+                    render_chapter()
                 }
                 else 
                 {
-                    bible.set_chapter(result.book, result.chapter);
-                    render_chapter()
+                    show_error_popup('error-message', true, `Search type ${result.type} unsupported on the front end`)
                 }
             })
         });

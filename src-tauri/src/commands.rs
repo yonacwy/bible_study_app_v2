@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 
-use crate::{app_state::AppData, bible::ChapterIndex, notes::HighlightCategory, search_parsing::{self, SectionSearch}, utils::{get_hash_code, Color}};
+use crate::{app_state::AppData, bible::ChapterIndex, notes::HighlightCategory, search_parsing::{self, BibleSearchResult, SectionSearchResult}, utils::{get_hash_code, Color}};
 
 #[tauri::command]
 pub fn debug_print(message: &str)
@@ -174,7 +174,7 @@ pub fn remove_highlight_from_current_chapter(word_position: u32, highlight_id: &
 }
 
 #[tauri::command]
-pub fn search_bible(text: &str) -> Option<SectionSearch>
+pub fn search_bible(text: &str) -> BibleSearchResult
 {
 	let bible = &AppData::get().bible;
 	search_parsing::parse_search(text, bible)
