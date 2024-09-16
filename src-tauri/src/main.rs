@@ -43,6 +43,8 @@ fn main() {
 			get_current_chapter, 
 			set_current_chapter,
 			get_current_chapter_text,
+			get_verse,
+			get_book_name,
 			get_current_chapter_view,
 			get_highlight_catagories,
 			add_highlight_category,

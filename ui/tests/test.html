@@ -3,72 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expandable Div with Sliding Text Reveal</title>
+    <title>Bible Verse Search</title>
     <style>
-        * {
+        body {
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-size: 10px;
+            background-color: #f4f4f9;
+            color: #333;
         }
 
-        body {
+        /* Header */
+        header {
+            background-color: #4a90e2;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        /* Search Box */
+        .search-box {
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            margin-bottom: 20px;
         }
 
-        .expandable-div {
-            width: 300px;
-            background-color: #3498db;
-            border-radius: 10px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: max-height 0.3s ease; /* Faster retract */
-            max-height: 120px; /* Initial height */
+        .search-box input[type="text"] {
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
-        .expandable-div:hover {
-            max-height: 300px; /* Expanded height */
-            transition: max-height 0.8s ease; /* Slower expand */
-        }
-
-        .content {
-            padding: 15px;
+        .search-box button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            font-size: 16px;
+            border: none;
+            background-color: #4a90e2;
             color: white;
+            cursor: pointer;
+            border-radius: 4px;
         }
 
-        .extra-content {
-            max-height: 0; /* Initially hidden */
-            overflow: hidden;
-            opacity: 0; /* Initially transparent */
-            transition: max-height 0.3s ease, opacity 0.3s ease; /* Faster retract */
+        .search-box button:hover {
+            background-color: #357ab7;
         }
 
-        .expandable-div:hover .extra-content {
-            max-height: 200px; /* Adjust to the height of content */
-            opacity: 1; /* Fade in the content */
-            transition: max-height 0.8s ease, opacity 0.8s ease; /* Slower expand */
+        /* Search Results */
+        .results {
+            margin-top: 30px;
+        }
+
+        .verse {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .verse p {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .verse .reference {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #4a90e2;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #4a90e2;
+            color: #fff;
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
 
-    <div class="expandable-div">
-        <div class="content">
-            <h3>Hover over me!</h3>
-            <div class="extra-content">
-                <p>Lorem ipsum odor amet, consectetuer adipiscing elit. Velit sit pulvinar dis netus, fermentum condimentum tellus sed. Quisque curabitur eu scelerisque porta risus. Risus porta placerat finibus; blandit dictum nisl quam. Fringilla maximus porta dis nascetur elit. Euismod et elit viverra turpis fusce. Penatibus nec maximus orci magnis curabitur dapibus cursus blandit eleifend. Magna dui aptent lobortis ad feugiat torquent enim.</p>
-                <p>Duis mattis ac tristique ligula penatibus. Vitae suspendisse fames torquent ornare fringilla justo pellentesque. Ornare tincidunt curabitur curabitur; scelerisque interdum quis. Eget natoque mollis sociosqu molestie diam sagittis odio ultricies magnis. Himenaeos accumsan orci venenatis pretium aliquet nam mollis. Velit eros elementum integer nostra tristique est. Nibh malesuada lacus sapien dictum nisl facilisi hendrerit molestie. Congue at congue luctus ullamcorper vitae porta condimentum pretium.</p>
-                <p>Vulputate torquent sollicitudin volutpat potenti fringilla adipiscing tortor dignissim. Condimentum cubilia dis himenaeos lacus pretium accumsan. Et mattis nisl neque neque, aptent pharetra non aliquam. Per efficitur vulputate himenaeos, natoque at purus montes. Placerat tincidunt rhoncus facilisis, a aliquet pretium. Faucibus pellentesque felis morbi accumsan laoreet semper. Aliquet leo euismod nunc semper justo. Lacus orci dis est dis a finibus. Ligula venenatis mi efficitur, mi dis tempor.</p>
-                <p>Libero posuere etiam hac torquent, eleifend nisl et. Suscipit mattis aptent hac eget platea semper ultrices. Nisi auctor lacus est gravida lacinia habitant morbi. Sem ex potenti cras dapibus vitae; tristique netus ultrices. Maecenas tincidunt ut vitae facilisis sodales orci fringilla. Magnis bibendum taciti tincidunt accumsan tristique. Diam arcu maximus vivamus et conubia quisque nulla. Nisl dui est metus etiam in cursus etiam porttitor torquent.</p>
-                <p>Massa facilisis aliquam venenatis eget posuere eros euismod massa enim. Mollis convallis enim suspendisse malesuada ullamcorper feugiat elementum at ornare. Montes himenaeos accumsan finibus penatibus faucibus tempor netus ad leo. Efficitur dis natoque elit purus est. Vivamus integer nunc hendrerit etiam gravida interdum pulvinar adipiscing ullamcorper. Conubia ultricies euismod conubia proin nam. Neque feugiat platea eleifend ultrices porta felis aptent lacus efficitur. Turpis justo id odio finibus dictum. Ac feugiat rutrum justo tempor in justo velit porta.</p>
-            </div>
+    <!-- Header -->
+    <header>
+        <h1>Bible Verse Search</h1>
+        <p>Search for Bible verses based on keywords</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        
+        <!-- Search Box -->
+        <div class="search-box">
+            <input type="text" placeholder="Enter keywords (e.g., love, faith, hope)">
+            <button>Search</button>
         </div>
+
+        <!-- Search Results -->
+        <div class="results">
+            <div class="verse">
+                <p>"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life."</p>
+                <p class="reference">John 3:16</p>
+            </div>
+
+            <div class="verse">
+                <p>"Now faith is the substance of things hoped for, the evidence of things not seen."</p>
+                <p class="reference">Hebrews 11:1</p>
+            </div>
+
+            <div class="verse">
+                <p>"And now these three remain: faith, hope and love. But the greatest of these is love."</p>
+                <p class="reference">1 Corinthians 13:13</p>
+            </div>
+
+            <!-- Additional search results can go here -->
+        </div>
+
     </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Bible Search. All rights reserved.</p>
+    </footer>
 
 </body>
 </html>

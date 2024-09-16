@@ -10,7 +10,7 @@ export async function render_current_chapter(content_id, word_popup_id, popup_pa
 {
     document.getElementById(content_id).replaceChildren();
 
-    render_chapter_text().then((content) => {
+    return render_chapter_text().then((content) => {
         document.getElementById(content_id).appendChild(content);
     }).then(() => {
         init_word_popup(word_popup_id, content_id);
@@ -80,6 +80,7 @@ async function render_chapter_text()
         let last_word_highlights = null;
 
         let verse_list_item = document.createElement('li');
+        verse_list_item.id = `verse-index-${verse_index}`;
 
         for (let word_index = 0; word_index < verse.words.length; word_index++)
         {
@@ -157,7 +158,7 @@ function get_highest_priority_highlight(word_highlights, catagories)
     return max_highlight;
 }
 
-function create_bible_space()
+export function create_bible_space()
 {
     let space = document.createElement('div');
     space.innerHTML = "&nbsp;"
@@ -165,7 +166,7 @@ function create_bible_space()
     return space;
 }
 
-function create_bible_word(t)
+export function create_bible_word(t)
 {
     let word = document.createElement('div');
     word.innerHTML = t;
@@ -173,7 +174,7 @@ function create_bible_word(t)
     return word;
 }
 
-function italicize(t)
+export function italicize(t)
 {
     let i = document.createElement('i');
     i.appendChild(t);

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 
-use crate::{app_state::AppData, bible::ChapterIndex, notes::HighlightCategory, search_parsing::{self, BibleSearchResult, SectionSearchResult}, utils::{get_hash_code, Color}};
+use crate::{app_state::AppData, bible::{ChapterIndex, Verse}, notes::HighlightCategory, search_parsing::{self, BibleSearchResult, SectionSearchResult}, utils::{get_hash_code, Color}};
 
 #[tauri::command]
 pub fn debug_print(message: &str)
@@ -37,6 +37,18 @@ pub fn get_current_chapter_text() -> String
 	let current = AppData::get().get_current_chapter();
 	let chapter = &AppData::get().bible.books[current.book as usize].chapters[current.number as usize];
 	serde_json::to_string(chapter).unwrap()
+}
+
+#[tauri::command]
+pub fn get_verse(book: u32, chapter: u32, verse: u32) -> Verse
+{
+	AppData::get().bible.books[book as usize].chapters[chapter as usize].verses[verse as usize].clone()
+}
+
+#[tauri::command]
+pub fn get_book_name(book: u32) -> String 
+{
+	AppData::get().bible.books[book as usize].name.clone()
 }
 
 #[tauri::command]

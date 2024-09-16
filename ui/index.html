@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="styles/side_popup.css">
     <link rel="stylesheet" href="styles/searchbar.css">
     <link rel="stylesheet" href="styles/error_popup.css">
+    <link rel="stylesheet" href="styles/search_result.css">
 </head>
 <body>
     <header>
@@ -47,9 +48,27 @@
         </button>
     </header>
     <main>
-        <section class="content">
+        <section class="content" id="chapter-content">
             <h2 id="chapter-name"></h2>
-            <div id="chapter-content"></div>
+            <div id="chapter-text-content"></div>
+        </section>
+        <section class="results" id="word-search-content" style="display: none;">
+            <div class="verse">
+                <p>"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life."</p>
+                <p class="reference">John 3:16</p>
+            </div>
+
+            <div class="verse">
+                <p>"Now faith is the substance of things hoped for, the evidence of things not seen."</p>
+                <p class="reference">Hebrews 11:1</p>
+            </div>
+
+            <div class="verse">
+                <p>"And now these three remain: faith, hope and love. But the greatest of these is love."</p>
+                <p class="reference">1 Corinthians 13:13</p>
+            </div>
+
+            <!-- Additional search results can go here -->
         </section>
         <div id="popup-panel" class="popup-panel">
             <button class="close-image" onclick="document.getElementById('popup-panel').classList.toggle('open')">
@@ -71,22 +90,38 @@
         import { render_current_chapter } from './src/bible_render.js';
         import { show_error_popup } from './src/error_popup.js';
         import { build_chapter_selection_dropdown } from './src/selection.js';
+        import { render_search_result } from './src/word_search.js';
 
         utils.on_click('search-btn', e => {
             let value = utils.read_value('search-input');
             utils.invoke('search_bible', { text: value }).then(result => {
                 if(result.type === 'error')
                 {
-                    show_error_popup('error-message', true, result.error);   
+                    show_error_popup('error-message', true, result.error);
                 }
                 else if(result.type === 'word')
                 {
-                    utils.debug_print(JSON.stringify(result));
+                    render_search_result(result, 'word-search-content', msg => {
+                        utils.set_value('search-input', msg);
+                        document.getElementById('search-btn').click();
+                    });
+                    utils.set_display('chapter-content', 'none');
+                    utils.set_display('word-search-content', 'block');
                 }
                 else if (result.type === 'section')
                 {
                     bible.set_chapter(result.result.book, result.result.chapter);
-                    render_chapter()
+                    render_chapter().then(() => {
+                        utils.set_display('chapter-content', 'block');
+                        utils.set_display('word-search-content', 'none');
+                        if(result.result.verseRange !== null)
+                        {
+                            let start = result.result.verseRange.start;
+                            let element = document.getElementById(`verse-index-${start}`);
+                            element.scrollIntoView();
+                            window.scrollBy(0, -25);
+                        }
+                    })
                 }
                 else 
                 {
@@ -172,7 +207,7 @@
             let number = current_chapter.number + 1;
 
             utils.set_html('chapter-name', `${name} ${number}`);
-            render_current_chapter('chapter-content', 'word-popup', 'popup-panel');
+            return render_current_chapter('chapter-text-content', 'word-popup', 'popup-panel');
         }
     </script>
 </body>
