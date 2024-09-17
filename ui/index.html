@@ -85,7 +85,6 @@
         import * as utils from './src/utils.js';
         import * as bible from './src/bible.js';
         import { get_catagories, set_selected_highlight, get_selected_highlight } from './src/highlights.js';
-        import { init_word_popup } from './src/word_popup.js';
         import { ERASER_STATE_NAME } from './src/save_states.js';
         import { render_current_chapter } from './src/bible_render.js';
         import { show_error_popup } from './src/error_popup.js';
@@ -104,7 +103,7 @@
                     render_search_result(result, 'word-search-content', msg => {
                         utils.set_value('search-input', msg);
                         document.getElementById('search-btn').click();
-                    }, value.split(/\s+/));
+                    }, value.split(/\s+/), 'word-popup');
                     utils.set_display('chapter-content', 'none');
                     utils.set_display('word-search-content', 'block');
                 }

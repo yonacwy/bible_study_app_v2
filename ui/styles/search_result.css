@@ -9,11 +9,19 @@
 
 .results .verse p {
     margin: 0;
-    font-size: 18px;
 }
 
 .results .verse .reference {
     margin-top: 10px;
     font-weight: bold;
+    max-width: fit-content;
+    text-decoration: underline;
     cursor: pointer;
+    background-color: inherit;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.results .verse .reference:hover {
+    background-color: #ebebeb;
 }

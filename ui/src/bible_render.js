@@ -1,6 +1,6 @@
 import { get_selected_highlight, highlight_word, get_catagories, get_chapter_highlights, erase_highlight } from "./highlights.js";
 import { debug_print, get_toggle_value, invoke, color_to_hex } from "./utils.js";
-import { init_word_popup } from "./word_popup.js";
+import { init_word_popup_for_chapter } from "./word_popup.js";
 import { init_popup_panel } from "./side_popup.js"
 import { ERASER_STATE_NAME } from "./save_states.js";
 
@@ -13,7 +13,7 @@ export async function render_current_chapter(content_id, word_popup_id, popup_pa
     return render_chapter_text().then((content) => {
         document.getElementById(content_id).appendChild(content);
     }).then(() => {
-        init_word_popup(word_popup_id, content_id);
+        init_word_popup_for_chapter(word_popup_id, content_id);
         init_popup_panel(popup_panel_id, content_id);
 
         let word_divs = document.getElementsByClassName('bible-word');

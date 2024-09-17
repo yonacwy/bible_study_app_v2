@@ -108,3 +108,8 @@ export function trim_string(str)
     str = str.trim();
     return str.replace(/^[\p{P}\p{S}]+|[\p{P}\p{S}]+$/gu, '');
 }
+
+export function overlap(a, b)
+{
+    return a.filter(i => b.includes(i))
+}
