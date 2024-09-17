@@ -4,7 +4,7 @@ import * as bible from "./bible.js";
 import * as word_popup from "./word_popup.js";
 import { get_catagories } from "./highlights.js";
 
-export async function render_search_result(result, results_id, on_search, searched, popup_id) 
+export async function render_search_result(result, results_id, on_search, searched, popup_id)
 {
     const popup = document.getElementById(popup_id);
     const catagories = await get_catagories();

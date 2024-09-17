@@ -90,7 +90,7 @@ fn get_word_search(text: &str, bible: &Bible) -> Result<Vec<WordSearchResult>, S
         return Err("searched words can only be words or numbers".into());
     }
 
-    let words = text.split(char::is_whitespace).collect_vec();
+    let words = text.split(char::is_whitespace).map(|s| s.trim()).filter(|s| s.len() > 0).collect_vec();
 
     let mut results = vec![];
     for (book_index, book) in bible.books.iter().enumerate()
