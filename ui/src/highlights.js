@@ -1,3 +1,4 @@
+import { get_chapter } from "./bible.js";
 import * as utils from "./utils.js";
 
 export function create_category(color, name, description, priority)
@@ -84,7 +85,8 @@ export function render_catagories(on_delete, on_edit)
 
 export async function get_chapter_highlights()
 {
-    let highlights_json = await utils.invoke('get_current_chapter_highlights');
+    let chapter = await get_chapter();
+    let highlights_json = await utils.invoke('get_chapter_highlights', { chapter: chapter });
     return JSON.parse(highlights_json);
 }
 

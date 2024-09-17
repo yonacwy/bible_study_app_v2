@@ -10,7 +10,8 @@ export async function load_view()
 
 export async function get_chapter_view() 
 {
-    let str = await invoke('get_current_chapter_view', {});
+    let current = get_chapter();
+    let str = await invoke('get_chapter_view', { chapter: current });
     let view = JSON.parse(str);
     return view;
 }
@@ -157,4 +158,20 @@ export async function to_previous_chapter()
     }
 
     set_chapter(current_chapter.book, current_chapter.number);
+}
+
+export async function get_verse_word_offset(book, chapter, verse_index)
+{
+    let view = JSON.parse(await invoke('get_chapter_view', { chapter: {
+        book: book,
+        number: chapter,
+    }}));
+
+    let offset = 0;
+    for(let i = 0; i < verse_index; i++)
+    {
+        offset += view.verses[i];
+    }
+
+    return offset;
 }

@@ -52,9 +52,8 @@ pub fn get_book_name(book: u32) -> String
 }
 
 #[tauri::command]
-pub fn get_current_chapter_view() -> String 
+pub fn get_chapter_view(chapter: ChapterIndex) -> String 
 {
-	let chapter = AppData::get().get_current_chapter();
 	let view = AppData::get().bible.books[chapter.book as usize].chapters[chapter.number as usize].get_view();
 	serde_json::to_string(&view).unwrap()
 }
@@ -120,9 +119,8 @@ pub fn set_highlight_category(id: &str, color: &str, name: &str, description: &s
 }
 
 #[tauri::command]
-pub fn get_current_chapter_highlights() -> String
+pub fn get_chapter_highlights(chapter: ChapterIndex) -> String
 {
-	let chapter = AppData::get().get_current_chapter();
 	AppData::get().read_notes(|notebook| {
 		if let Some(highlights) = notebook.chapter_highlights.get(&chapter)
 		{

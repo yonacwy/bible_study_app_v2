@@ -104,7 +104,7 @@
                     render_search_result(result, 'word-search-content', msg => {
                         utils.set_value('search-input', msg);
                         document.getElementById('search-btn').click();
-                    });
+                    }, value.split(/\s+/));
                     utils.set_display('chapter-content', 'none');
                     utils.set_display('word-search-content', 'block');
                 }

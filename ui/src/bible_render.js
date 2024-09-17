@@ -140,7 +140,7 @@ async function render_chapter_text()
     return chapter_ordered_list
 }
 
-function get_highest_priority_highlight(word_highlights, catagories)
+export function get_highest_priority_highlight(word_highlights, catagories)
 {
     let max_highlight = word_highlights[0];
     for(let i = 1; i < word_highlights.length; i++)
@@ -181,7 +181,14 @@ export function italicize(t)
     return i;
 }
 
-function color(t, c)
+export function bold(t)
+{
+    let b = document.createElement('strong');
+    b.appendChild(t);
+    return b;
+}
+
+export function color(t, c)
 {
     let span = document.createElement('span');
     span.appendChild(t);
