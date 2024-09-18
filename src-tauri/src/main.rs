@@ -51,8 +51,8 @@ fn main() {
 			remove_highlight_category,
 			set_highlight_category,
 			get_chapter_highlights,
-			add_highlight_to_current_chapter,
-			remove_highlight_from_current_chapter,
+			highlight_word,
+			erase_highlight,
 			search_bible,
 		])
 		.run(tauri::generate_context!())

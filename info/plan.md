@@ -28,19 +28,19 @@
   - [x] When clicked, creates sidebar with all names and description of highlights
 
 ### Version 0.3.0: Searching
-- [ ] Improve Bible Viewer
+- [x] Improve Bible Viewer
   - [x] Better book/chapter selection
   - [x] Next/previous chapter buttons
   - [ ] Search bar
 - [ ] Search-bar
-  - [ ] Word searches
-    - [ ] Returns result of all verses with words
-    - [ ] Has a priority system
-    - [ ] Closer to phrases better
-  - [ ] Section searches
+  - [x] Word searches
+    - [x] Returns result of all verses with words
+    - [ ] ~~Has a priority system~~
+    - [ ] ~~Closer to phrases better~~
+  - [x] Section searches
     - [x] Parses searches similar to blue letter bible
-    - [ ] Goes to first verse when verse section selected
-      - [ ] Only display selected verses???
+    - [x] Goes to first verse when verse section selected
+      - [ ] ~~Only display selected verses???~~
 
 
 ### Version 0.4.0: More Notes

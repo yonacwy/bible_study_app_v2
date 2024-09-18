@@ -50,34 +50,15 @@
     <main>
         <section class="content" id="chapter-content">
             <h2 id="chapter-name"></h2>
-            <div id="chapter-text-content"></div>
+            <div id="chapter-text-content" class="bible-chapter"></div>
         </section>
-        <section class="results" id="word-search-content" style="display: none;">
-            <div class="verse">
-                <p>"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life."</p>
-                <p class="reference">John 3:16</p>
-            </div>
-
-            <div class="verse">
-                <p>"Now faith is the substance of things hoped for, the evidence of things not seen."</p>
-                <p class="reference">Hebrews 11:1</p>
-            </div>
-
-            <div class="verse">
-                <p>"And now these three remain: faith, hope and love. But the greatest of these is love."</p>
-                <p class="reference">1 Corinthians 13:13</p>
-            </div>
-
-            <!-- Additional search results can go here -->
-        </section>
+        <section class="results" id="word-search-content" style="display: none;"></section>
         <div id="popup-panel" class="popup-panel">
             <button class="close-image" onclick="document.getElementById('popup-panel').classList.toggle('open')">
                 <img src="images/light-xmark.svg" alt="Close">
             </button>
             <div class="resizer"></div>
-            <div class="popup-panel-content">
-                <p>This is a resizable panel that slides out from the right side of the page. You can resize the panel by dragging the left edge.</p>
-            </div>
+            <div class="popup-panel-content" id="popup-panel-content"></div>
         </div>
         <div class="word-popup word-popup-content" id="word-popup"></div>
     </main>
@@ -100,10 +81,13 @@
                 }
                 else if(result.type === 'word')
                 {
-                    render_search_result(result, 'word-search-content', msg => {
+                    const word_popup = document.getElementById('word-popup');
+                    const side_popup = document.getElementById('popup-panel');
+                    const side_popup_content = document.getElementById('popup-panel-content');
+                    render_search_result(result, 'word-search-content', value.split(/\s+/), word_popup, side_popup, side_popup_content, msg => {
                         utils.set_value('search-input', msg);
                         document.getElementById('search-btn').click();
-                    }, value.split(/\s+/), 'word-popup');
+                    });
                     utils.set_display('chapter-content', 'none');
                     utils.set_display('word-search-content', 'block');
                 }

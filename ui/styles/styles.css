@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
+    font-size: 20px;
 }
 
 :root {
@@ -14,7 +15,7 @@ body {
 header {
     margin: 0px;
     padding: 0px;
-    position: relative; /* Keeps the header at the top */
+    position: fixed; /* Keeps the header at the top */
     top: 0;
     left: 0;
     width: 100%;
@@ -58,6 +59,7 @@ main {
 }
 
 .content {
+    margin-top: var(--header-height);
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -67,20 +69,4 @@ main {
 .content h1 {
     font-size: 24px;
     margin-top: 0;
-}
-
-.bible-text {
-    margin-top: 20px;
-}
-
-.bible-text h2 {
-    font-size: 20px;
-    color: #333;
-    margin: 0;
-}
-
-.bible-text p {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #555;
 }

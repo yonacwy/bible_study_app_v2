@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ops::RangeInclusive, str::FromStr};
+use std::{collections::HashMap, str::FromStr};
 
 use itertools::Itertools;
 use regex::{Captures, Regex};
@@ -8,10 +8,33 @@ use crate::bible::{Bible, Verse, VerseRange};
 
 lazy_static::lazy_static! {
     static ref ALTS_MAP: HashMap<&'static str, &'static str> = {
-        let mut map = HashMap::new();
-        map.insert("jn", "john");
-        map.insert("obd", "obadiah");
-        map.insert("sos", "song of solomon");
+        let map = HashMap::from([
+            ("nm", "numbers"),
+            ("dt", "deuteronomy"),
+            ("jsh", "joshua"),
+            ("jdg", "judges"),
+            ("jdgs", "judges"),
+            ("sm", "samuel"),
+            ("jb", "job"),
+            ("pss", "psalm"),
+            ("psalms", "psalm"),
+            ("prv", "proverbs"),
+            ("sg", "song of solomon"),
+            ("ss", "song of solomon"),
+            ("sg", "song of solomon"),
+            ("da", "daniel"),
+            ("jl", "joel"),
+            ("obd", "obadiah"),
+            ("hb", "habakkuk"),
+            ("hg", "haggai"),
+            ("ml", "malachi"),
+            ("mt", "matthew"),
+            ("mk", "mark"),
+            ("lk", "luke"),
+            ("jn", "john"),
+            ("php", "philippians"),
+            ("phm", "philemon"),
+        ]);
         map
     };
 

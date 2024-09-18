@@ -6,6 +6,7 @@
         "Divs",
         "Hasher",
         "itertools",
+        "jdgs",
         "repr",
         "resizer",
         "searchbar",

@@ -1,22 +1,54 @@
 import * as utils from "./utils.js";
 import * as render from "./bible_render.js"
 import * as bible from "./bible.js";
-import * as word_popup from "./word_popup.js";
-import { get_catagories } from "./highlights.js";
+import * as wp from "./word_popup.js";
+import * as sp from "./side_popup.js"
+import { erase_highlight, get_catagories, get_selected_highlight, highlight_word } from "./highlights.js";
+import { ERASER_STATE_NAME } from "./save_states.js";
 
-export async function render_search_result(result, results_id, on_search, searched, popup_id)
+let old_event_handler = null;
+
+export async function render_search_result(result, results_id, searched, word_popup, side_popup, side_popup_content, on_search)
 {
-    const popup = document.getElementById(popup_id);
     const catagories = await get_catagories();
     const results_node = document.getElementById(results_id);
     results_node.replaceChildren();
+
+    let result_count = result.result.length;
+    if(result_count === 0)
+    {
+        let results_title = document.createElement('h2');
+        results_title.innerHTML = `No results found`;
+        results_node.appendChild(results_title);
+    }
+    else if(result_count === 1)
+    {
+        let results_title = document.createElement('h2');
+        results_title.innerHTML = `Found a result for "${searched.join(' ')}"`
+        results_node.appendChild(results_title);
+    }
+    else 
+    {
+        let results_title = document.createElement('h2');
+        results_title.innerHTML = `Found ${result_count} results for "${searched.join(' ')}"`
+        results_node.appendChild(results_title);
+    }
+
+    let event_handler = _e => on_stop_dragging(result, results_id, searched, word_popup, side_popup, side_popup_content, on_search)
+
+    if(old_event_handler !== null)
+    {
+        document.removeEventListener('mouseup', old_event_handler);
+    }
+    document.addEventListener('mouseup', event_handler);
+    old_event_handler = event_handler;
     
     for(let i = 0; i < result.result.length; i++)
     {
         let result_data = result.result[i];
         let verse_data = await utils.invoke('get_verse', { book: result_data.book, chapter: result_data.chapter, verse: result_data.verse });
         
-        let verse_node = await spawn_verse(verse_data.words, searched, result_data, catagories, popup);
+        let verse_node = await spawn_verse(verse_data.words, searched, result_data, catagories, word_popup, side_popup, side_popup_content);
         let reference_node = await spawn_reference(result_data.book, result_data.chapter, result_data.verse, on_search);
 
         let result_node = document.createElement('div');
@@ -27,7 +59,7 @@ export async function render_search_result(result, results_id, on_search, search
     }
 }
 
-async function spawn_verse(words, searched, position, catagories, popup)
+async function spawn_verse(words, searched, position, catagories, word_popup, side_popup, side_popup_content)
 {
     searched = searched.map(s => s.toLocaleLowerCase());
     let verse_node = document.createElement('p');
@@ -36,7 +68,6 @@ async function spawn_verse(words, searched, position, catagories, popup)
         book: position.book,
         number: position.chapter,
     }}));
-    
     
     let last_word_highlights = null;
     for(let i = 0; i < words.length; i++)
@@ -76,12 +107,76 @@ async function spawn_verse(words, searched, position, catagories, popup)
         let word_node = render_word(words[i], searched, color);
         if(word_highlights !== null && word_highlights !== undefined && word_highlights.length !== 0)
         {
-            word_popup.display_on_div(word_node, word_highlights.map(h => catagories[h].color), popup);
+            wp.display_on_div(word_node, word_highlights.map(h => catagories[h].color), word_popup);
+
+            let word = utils.trim_string(words[i].text);
+            sp.display_on_div(word_node, word, word_highlights, catagories, side_popup, side_popup_content);
         }
+
+        let chapter = {
+            book: position.book,
+            number: position.chapter,
+        }
+
+        word_node.addEventListener('mousedown', e => {
+            on_start_dragging(chapter, offset + i, word_node);
+        });
+
+        word_node.addEventListener('mouseover', e => {
+            on_over_dragging(chapter, offset + i, word_node);
+        });
+
         verse_node.appendChild(word_node);
     }
     
     return verse_node;
+}
+
+let is_dragging = false;
+async function on_start_dragging(chapter, word_index, word_div) 
+{
+    if(get_selected_highlight() !== null)
+    {
+        is_dragging = true;
+        update_word(chapter, word_index, word_div);
+    }
+}
+
+async function on_over_dragging(chapter, word_index, word_div) 
+{
+    if(is_dragging && get_selected_highlight() !== null)
+    {
+        update_word(chapter, word_index, word_div);
+    }
+}
+
+async function on_stop_dragging(result, results_id, searched, word_popup, side_popup, side_popup_content, on_search) 
+{
+    if(is_dragging && get_selected_highlight() !== null)
+    {
+        is_dragging = false;
+        word_popup.classList.remove('show');
+
+        let scroll = window.scrollY;
+
+        render_search_result(result, results_id, searched, word_popup, side_popup, side_popup_content, on_search).then(() => {
+            window.scrollTo(window.scrollX, scroll);
+        });
+    }
+}
+
+function update_word(chapter, word, div)
+{
+    div.style.color = render.HIGHLIGHT_SELECTED_WORD_COLOR;
+    if(utils.get_toggle_value(ERASER_STATE_NAME) !== true)
+    {
+        highlight_word(chapter, word, get_selected_highlight());
+    }
+    else 
+    {
+        utils.debug_print('erasing word');
+        erase_highlight(chapter, word, get_selected_highlight());
+    }
 }
 
 async function spawn_reference(book, chapter, verse, on_search)

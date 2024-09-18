@@ -134,9 +134,8 @@ pub fn get_chapter_highlights(chapter: ChapterIndex) -> String
 }
 
 #[tauri::command]
-pub fn add_highlight_to_current_chapter(word_position: u32, highlight_id: &str)
+pub fn highlight_word(chapter: ChapterIndex, word_position: u32, highlight_id: &str)
 {
-	let chapter = AppData::get().get_current_chapter();
 	AppData::get().read_notes(|notebook| {
 		let chapter_highlights = match notebook.chapter_highlights.get_mut(&chapter) 
 		{
@@ -167,9 +166,8 @@ pub fn add_highlight_to_current_chapter(word_position: u32, highlight_id: &str)
 }
 
 #[tauri::command]
-pub fn remove_highlight_from_current_chapter(word_position: u32, highlight_id: &str)
+pub fn erase_highlight(chapter: ChapterIndex, word_position: u32, highlight_id: &str)
 {
-	let chapter = AppData::get().get_current_chapter();
 	AppData::get().read_notes(|notebook| {
 		let Some(chapter_highlights) = notebook.chapter_highlights.get_mut(&chapter) else {
 			return;

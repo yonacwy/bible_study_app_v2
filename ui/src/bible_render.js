@@ -1,10 +1,10 @@
-import { get_selected_highlight, highlight_word, get_catagories, get_chapter_highlights, erase_highlight } from "./highlights.js";
+import { get_selected_highlight, highlight_chapter_word, get_catagories, get_chapter_highlights, erase_chapter_highlight } from "./highlights.js";
 import { debug_print, get_toggle_value, invoke, color_to_hex } from "./utils.js";
 import { init_word_popup_for_chapter } from "./word_popup.js";
-import { init_popup_panel } from "./side_popup.js"
+import { init_popup_panel_for_chapter } from "./side_popup.js"
 import { ERASER_STATE_NAME } from "./save_states.js";
 
-const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
+export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 
 export async function render_current_chapter(content_id, word_popup_id, popup_panel_id) 
 {
@@ -14,7 +14,7 @@ export async function render_current_chapter(content_id, word_popup_id, popup_pa
         document.getElementById(content_id).appendChild(content);
     }).then(() => {
         init_word_popup_for_chapter(word_popup_id, content_id);
-        init_popup_panel(popup_panel_id, content_id);
+        init_popup_panel_for_chapter(popup_panel_id, content_id);
 
         let word_divs = document.getElementsByClassName('bible-word');
         let is_dragging = false;
@@ -23,7 +23,11 @@ export async function render_current_chapter(content_id, word_popup_id, popup_pa
             if(is_dragging && get_selected_highlight() !== null)
             {
                 is_dragging = false;
-                render_current_chapter(content_id, word_popup_id, popup_panel_id); 
+                let scroll = window.scrollY;
+                render_current_chapter(content_id, word_popup_id, popup_panel_id).then(() => {
+                    window.scrollTo(window.scrollX, scroll);
+                }); 
+                document.getElementById(word_popup_id).classList.remove('show');
             }
         });
 
@@ -43,7 +47,6 @@ export async function render_current_chapter(content_id, word_popup_id, popup_pa
                 {
                     update_word(i, word_div);
                 }
-                
             });
         }
     });    
@@ -54,11 +57,11 @@ function update_word(i, div)
     div.style.color = HIGHLIGHT_SELECTED_WORD_COLOR;
     if(get_toggle_value(ERASER_STATE_NAME) !== true)
     {
-        highlight_word(i, get_selected_highlight()); // if the eraser is false, we highlight
+        highlight_chapter_word(i, get_selected_highlight()); // if the eraser is false, we highlight
     }
     else 
     {
-        erase_highlight(i, get_selected_highlight()); // if eraser is true, we erase
+        erase_chapter_highlight(i, get_selected_highlight()); // if eraser is true, we erase
     }
 }
 

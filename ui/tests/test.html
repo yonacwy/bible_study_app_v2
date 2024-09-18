@@ -3,144 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bible Verse Search</title>
+    <title>Freeze Rendering Example</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
+            box-sizing: border-box;
+        }
+
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .freeze-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .freeze-overlay p {
+            font-size: 24px;
             color: #333;
         }
 
-        /* Header */
-        header {
-            background-color: #4a90e2;
-            color: #fff;
-            padding: 20px;
-            text-align: center;
-        }
-
-        header h1 {
-            margin: 0;
-        }
-
-        /* Main Content */
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-
-        /* Search Box */
-        .search-box {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .search-box input[type="text"] {
-            width: 100%;
-            max-width: 600px;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .search-box button {
+        /* Optional styling for the button */
+        button {
             padding: 10px 20px;
-            margin-left: 10px;
-            font-size: 16px;
-            border: none;
-            background-color: #4a90e2;
-            color: white;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .search-box button:hover {
-            background-color: #357ab7;
-        }
-
-        /* Search Results */
-        .results {
-            margin-top: 30px;
-        }
-
-        .verse {
-            background-color: #fff;
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .verse p {
-            margin: 0;
             font-size: 18px;
-        }
-
-        .verse .reference {
-            margin-top: 10px;
-            font-weight: bold;
-            color: #4a90e2;
-        }
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #4a90e2;
-            color: #fff;
-            margin-top: 30px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header>
-        <h1>Bible Verse Search</h1>
-        <p>Search for Bible verses based on keywords</p>
-    </header>
-
-    <!-- Main Content -->
-    <div class="container">
-        
-        <!-- Search Box -->
-        <div class="search-box">
-            <input type="text" placeholder="Enter keywords (e.g., love, faith, hope)">
-            <button>Search</button>
-        </div>
-
-        <!-- Search Results -->
-        <div class="results">
-            <div class="verse">
-                <p>"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life."</p>
-                <p class="reference">John 3:16</p>
-            </div>
-
-            <div class="verse">
-                <p>"Now faith is the substance of things hoped for, the evidence of things not seen."</p>
-                <p class="reference">Hebrews 11:1</p>
-            </div>
-
-            <div class="verse">
-                <p>"And now these three remain: faith, hope and love. But the greatest of these is love."</p>
-                <p class="reference">1 Corinthians 13:13</p>
-            </div>
-
-            <!-- Additional search results can go here -->
-        </div>
-
+    <div class="freeze-overlay">
+        <p>Loading, please wait...</p>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2024 Bible Search. All rights reserved.</p>
-    </footer>
+    <div class="content">
+        <h1>Page Content</h1>
+        <p>This is the content of the page. Click the button below to simulate changes and show the overlay.</p>
+        <button onclick="simulateChanges()">Make Changes</button>
+    </div>
+
+    <script>
+        function showOverlay() {
+            const overlay = document.querySelector('.freeze-overlay');
+            overlay.style.display = 'flex';  // Show overlay
+        }
+
+        function hideOverlay() {
+            const overlay = document.querySelector('.freeze-overlay');
+            overlay.style.display = 'none';  // Hide overlay
+        }
+
+        function simulateChanges() {
+            showOverlay();  // Show overlay before changes
+            console.log("Starting changes...");
+
+            // Simulate some changes (e.g., DOM updates, AJAX request, etc.)
+            setTimeout(() => {
+                console.log("Changes completed.");
+                hideOverlay();  // Hide overlay when changes are done
+            }, 3000);  // Simulate 3 seconds delay to mimic a process
+        }
+    </script>
 
 </body>
 </html>
