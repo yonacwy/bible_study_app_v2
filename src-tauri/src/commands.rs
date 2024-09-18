@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 
-use crate::{app_state::AppData, bible::ChapterIndex, notes::HighlightCategory, utils::{get_hash_code, Color}};
+use crate::{app_state::AppData, bible::{ChapterIndex, Verse}, notes::HighlightCategory, search_parsing::{self, BibleSearchResult, SectionSearchResult}, utils::{get_hash_code, Color}};
 
 #[tauri::command]
 pub fn debug_print(message: &str)
@@ -40,9 +40,20 @@ pub fn get_current_chapter_text() -> String
 }
 
 #[tauri::command]
-pub fn get_current_chapter_view() -> String 
+pub fn get_verse(book: u32, chapter: u32, verse: u32) -> Verse
 {
-	let chapter = AppData::get().get_current_chapter();
+	AppData::get().bible.books[book as usize].chapters[chapter as usize].verses[verse as usize].clone()
+}
+
+#[tauri::command]
+pub fn get_book_name(book: u32) -> String 
+{
+	AppData::get().bible.books[book as usize].name.clone()
+}
+
+#[tauri::command]
+pub fn get_chapter_view(chapter: ChapterIndex) -> String 
+{
 	let view = AppData::get().bible.books[chapter.book as usize].chapters[chapter.number as usize].get_view();
 	serde_json::to_string(&view).unwrap()
 }
@@ -108,9 +119,8 @@ pub fn set_highlight_category(id: &str, color: &str, name: &str, description: &s
 }
 
 #[tauri::command]
-pub fn get_current_chapter_highlights() -> String
+pub fn get_chapter_highlights(chapter: ChapterIndex) -> String
 {
-	let chapter = AppData::get().get_current_chapter();
 	AppData::get().read_notes(|notebook| {
 		if let Some(highlights) = notebook.chapter_highlights.get(&chapter)
 		{
@@ -124,9 +134,8 @@ pub fn get_current_chapter_highlights() -> String
 }
 
 #[tauri::command]
-pub fn add_highlight_to_current_chapter(word_position: u32, highlight_id: &str)
+pub fn highlight_word(chapter: ChapterIndex, word_position: u32, highlight_id: &str)
 {
-	let chapter = AppData::get().get_current_chapter();
 	AppData::get().read_notes(|notebook| {
 		let chapter_highlights = match notebook.chapter_highlights.get_mut(&chapter) 
 		{
@@ -157,9 +166,8 @@ pub fn add_highlight_to_current_chapter(word_position: u32, highlight_id: &str)
 }
 
 #[tauri::command]
-pub fn remove_highlight_from_current_chapter(word_position: u32, highlight_id: &str)
+pub fn erase_highlight(chapter: ChapterIndex, word_position: u32, highlight_id: &str)
 {
-	let chapter = AppData::get().get_current_chapter();
 	AppData::get().read_notes(|notebook| {
 		let Some(chapter_highlights) = notebook.chapter_highlights.get_mut(&chapter) else {
 			return;
@@ -171,4 +179,11 @@ pub fn remove_highlight_from_current_chapter(word_position: u32, highlight_id: &
 
 		word_highlights.retain(|h| h != highlight_id);
 	});
+}
+
+#[tauri::command]
+pub fn search_bible(text: &str) -> BibleSearchResult
+{
+	let bible = &AppData::get().bible;
+	search_parsing::parse_search(text, bible)
 }

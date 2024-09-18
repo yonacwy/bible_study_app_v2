@@ -82,3 +82,11 @@ pub struct ChapterView
 {
     pub verses: Vec<u32>
 }
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct VerseRange 
+{
+    pub start: u32,
+    pub end: u32,
+}

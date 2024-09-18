@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="styles/styles.css"/>
     <link rel="stylesheet" href="styles/popup.css"/>
     <link rel="stylesheet" href="styles/menu.css">
-    <link rel="stylesheet", href="styles/highlights.css">
+    <link rel="stylesheet" href="styles/highlights.css">
+    <link rel="stylesheet" href="styles/error_popup.css">
 </head>
 <body>
     <header>
@@ -31,13 +32,17 @@
                 <label for="color-in">Color:</label>
                 <input type="color" id="color-in" value="#FFD700">
 
-                <label for="name-in">Name:</label>
-                <input type="text" id="name-in" placeholder="Enter name">
-                <span id="name-err-msg" style="color: red;"></span>
+                <div style="position: relative;"> <!--Needs to be relative for the error message-->
+                    <label for="name-in">Name:</label>
+                    <input type="text" id="name-in" placeholder="Enter name">
+                    <div class="error-popup" id="name-err-msg"></div>
+                </div>
 
-                <label for="description-in">Description:</label>
-                <textarea id="description-in" placeholder="Enter description"></textarea>
-                <span id="desc-err-msg" style="color: red;"></span>
+                <div style="position: relative;"> <!--Needs to be relative for the error message-->
+                    <label for="description-in">Description:</label>
+                    <textarea id="description-in" placeholder="Enter description"></textarea>
+                    <div class="error-popup" id="desc-err-msg"></div>
+                </div>
 
                 <label for="priority-in">Priority:</label>
                 <input type="range" id="priority-in" min="1" max="10">
@@ -50,6 +55,7 @@
     </main>
     <script type="module">
         import * as utils from "./src/utils.js";
+        import { show_error_popup } from "./src/error_popup.js";
         import { render_catagories, create_category, get_catagories, set_category } from "./src/highlights.js";
 
         let editing_id = null;
@@ -109,19 +115,17 @@
             if(name.length < 3)
             {
                 was_error = true;
-                utils.set_html('name-err-msg', `Name must be at least ${NAME_MIN_LENGTH} characters long.`);   
+                show_error_popup('name-err-msg', true, `Name must be at least ${NAME_MIN_LENGTH} characters long.`);   
             }
-
-            if(name.length > NAME_MAX_LENGTH)
+            else if(name.length > NAME_MAX_LENGTH)
             {
                 was_error = true;
-                utils.set_html('name-err-msg', `Cant be longer than ${NAME_MAX_LENGTH} characters long.`);
+                show_error_popup('name-err-msg', true, `Cant be longer than ${NAME_MAX_LENGTH} characters long.`);
             }
-
-            if(!utils.is_alpha_numeric(name))
+            else if(!utils.is_alpha_numeric(name))
             {
                 was_error = true;
-                utils.set_html('name-err-msg', `Name must contain only letters, numbers, and spaces`);
+                show_error_popup('name-err-msg', true, `Name must contain only letters, numbers, and spaces`);
             }
 
             if(!was_error)

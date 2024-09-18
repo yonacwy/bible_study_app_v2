@@ -1,3 +1,13 @@
+.bible-chapter li {
+    margin: 5px;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.bible-chapter li:hover {
+    background-color: rgb(229, 229, 229);
+}
+
 .bible-word {
     user-select: none;
     display: inline-block;

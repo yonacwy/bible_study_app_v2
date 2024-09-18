@@ -1,3 +1,4 @@
+import { get_chapter } from "./bible.js";
 import * as utils from "./utils.js";
 
 export function create_category(color, name, description, priority)
@@ -84,26 +85,55 @@ export function render_catagories(on_delete, on_edit)
 
 export async function get_chapter_highlights()
 {
-    let highlights_json = await utils.invoke('get_current_chapter_highlights');
+    let chapter = await get_chapter();
+    let highlights_json = await utils.invoke('get_chapter_highlights', { chapter: chapter });
     return JSON.parse(highlights_json);
 }
 
-export async function highlight_word(word_pos, highlight_id) 
+export async function highlight_word(chapter, word_pos, highlight_id) 
 {
     if(highlight_id !== null && highlight_id !== undefined)
     {
-        utils.invoke('add_highlight_to_current_chapter', {
+        utils.invoke('highlight_word', {
+            chapter: chapter,
             wordPosition: word_pos,
             highlightId: highlight_id,
         });
     }
 }
 
-export async function erase_highlight(word_pos, highlight_id) 
+export async function highlight_chapter_word(word_pos, highlight_id) 
+{
+    let chapter = await get_chapter();
+    if(highlight_id !== null && highlight_id !== undefined)
+    {
+        utils.invoke('highlight_word', {
+            chapter: chapter,
+            wordPosition: word_pos,
+            highlightId: highlight_id,
+        });
+    }
+}
+
+export async function erase_highlight(chapter, word_index, highlight_id) 
 {
     if(highlight_id !== null && highlight_id !== undefined)
     {
-        utils.invoke('remove_highlight_from_current_chapter', {
+        utils.invoke('erase_highlight', {
+            chapter: chapter,
+            wordPosition: word_index,
+            highlightId: highlight_id,
+        });
+    }
+}
+
+export async function erase_chapter_highlight(word_pos, highlight_id) 
+{
+    let chapter = await get_chapter();
+    if(highlight_id !== null && highlight_id !== undefined)
+    {
+        utils.invoke('erase_highlight', {
+            chapter: chapter,
             wordPosition: word_pos,
             highlightId: highlight_id,
         });

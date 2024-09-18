@@ -98,8 +98,18 @@ export function get_toggle_value(save_name)
     return JSON.parse(sessionStorage.getItem(save_name) ?? "false");
 }
 
+/** 
+ * Trims all non alphanumeric characters from the beginning and end of the input string
+ * @param {string} str the input string
+ * @returns {string} the trimmed string
+ * */ 
 export function trim_string(str)
 {
     str = str.trim();
     return str.replace(/^[\p{P}\p{S}]+|[\p{P}\p{S}]+$/gu, '');
+}
+
+export function overlap(a, b)
+{
+    return a.filter(i => b.includes(i))
 }

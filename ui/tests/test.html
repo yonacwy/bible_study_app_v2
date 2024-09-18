@@ -3,125 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resizable Extendable Panel</title>
+    <title>Freeze Rendering Example</title>
     <style>
         body {
-            margin: 0;
             font-family: Arial, sans-serif;
-            display: flex;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .panel {
-            position: fixed;
-            right: 0;
-            top: 0;
-            height: 100%;
-            width: 250px;
-            background-color: #333;
-            color: #fff;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            overflow: auto;
-            z-index: 1000;
-            resize: horizontal;
-            min-width: 200px;
-            max-width: 500px;
-        }
-        .panel.open {
-            transform: translateX(0);
-        }
-        .panel-content {
-            padding: 20px;
-        }
-        .toggle-btn {
-            position: fixed;
-            left: 0;
-            top: 20px;
-            background-color: #333;
-            color: #fff;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            z-index: 1001;
-        }
-        .toggle-btn:focus {
-            outline: none;
-        }
-        .resizer {
-            position: absolute;
-            left: -5px;
-            top: 0;
-            width: 10px;
-            height: 100%;
-            cursor: ew-resize;
-            z-index: 1002;
-        }
+
         .content {
             padding: 20px;
-            transition: margin-right 0.3s ease;
-            width: calc(100% - 250px); /* Default width adjustment when panel is open */
-            margin-left: 0;
+            text-align: center;
         }
-        .content.full {
-            width: 100%; /* Full width when panel is closed */
+
+        .freeze-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .freeze-overlay p {
+            font-size: 24px;
+            color: #333;
+        }
+
+        /* Optional styling for the button */
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <button class="toggle-btn" onclick="togglePanel()">☰</button>
-    <div id="panel" class="panel">
-        <div class="resizer" onmousedown="initResize(event)"></div>
-        <div class="panel-content">
-            <h2>Resizable Extendable Panel</h2>
-            <p>This is a resizable panel that slides out from the right side of the page. You can resize the panel by dragging the left edge.</p>
-        </div>
+
+    <div class="freeze-overlay">
+        <p>Loading, please wait...</p>
     </div>
-    <div id="content" class="content">
-        <h1>Main Content</h1>
-        <p>This is the main content area. When the panel opens, the content will shift to the left to make space for it. Resize the panel to see how the layout adjusts.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque at velit sit amet magna feugiat facilisis. Aliquam erat volutpat. Praesent sit amet magna ac enim cursus ullamcorper non nec leo.</p>
+
+    <div class="content">
+        <h1>Page Content</h1>
+        <p>This is the content of the page. Click the button below to simulate changes and show the overlay.</p>
+        <button onclick="simulateChanges()">Make Changes</button>
     </div>
 
     <script>
-        function togglePanel() {
-            const panel = document.getElementById('panel');
-            const content = document.getElementById('content');
-            if (panel.classList.contains('open')) {
-                panel.classList.remove('open');
-                content.classList.add('full'); // Full content width when panel is closed
-                content.style.marginRight = '0';
-            } else {
-                panel.classList.add('open');
-                content.classList.remove('full'); // Adjust width when panel is open
-                content.style.marginRight = panel.offsetWidth + 'px';
-            }
+        function showOverlay() {
+            const overlay = document.querySelector('.freeze-overlay');
+            overlay.style.display = 'flex';  // Show overlay
         }
 
-        let isResizing = false;
-
-        function initResize(e) {
-            isResizing = true;
-            document.addEventListener('mousemove', resizePanel);
-            document.addEventListener('mouseup', stopResize);
-            e.preventDefault();
+        function hideOverlay() {
+            const overlay = document.querySelector('.freeze-overlay');
+            overlay.style.display = 'none';  // Hide overlay
         }
 
-        function resizePanel(e) {
-            if (isResizing) {
-                const panel = document.getElementById('panel');
-                const content = document.getElementById('content');
-                const newWidth = window.innerWidth - e.clientX;
-                if (newWidth >= 200 && newWidth <= 500) { // Set min and max width limits
-                    panel.style.width = newWidth + 'px';
-                    content.style.marginRight = newWidth + 'px'; // Adjust content margin dynamically
-                }
-            }
-        }
+        function simulateChanges() {
+            showOverlay();  // Show overlay before changes
+            console.log("Starting changes...");
 
-        function stopResize() {
-            isResizing = false;
-            document.removeEventListener('mousemove', resizePanel);
-            document.removeEventListener('mouseup', stopResize);
+            // Simulate some changes (e.g., DOM updates, AJAX request, etc.)
+            setTimeout(() => {
+                console.log("Changes completed.");
+                hideOverlay();  // Hide overlay when changes are done
+            }, 3000);  // Simulate 3 seconds delay to mimic a process
         }
     </script>
+
 </body>
 </html>
