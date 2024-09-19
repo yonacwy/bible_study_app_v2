@@ -84,7 +84,7 @@
                     const word_popup = document.getElementById('word-popup');
                     const side_popup = document.getElementById('popup-panel');
                     const side_popup_content = document.getElementById('popup-panel-content');
-                    render_search_result(result, 'word-search-content', value.split(/\s+/), word_popup, side_popup, side_popup_content, msg => {
+                    render_search_result(result, 'word-search-content', value.split(/\s+/), word_popup, side_popup, side_popup_content, 0, msg => {
                         utils.set_value('search-input', msg);
                         document.getElementById('search-btn').click();
                     });

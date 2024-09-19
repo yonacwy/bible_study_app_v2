@@ -7,34 +7,37 @@ import { erase_highlight, get_catagories, get_selected_highlight, highlight_word
 import { ERASER_STATE_NAME } from "./save_states.js";
 
 let old_event_handler = null;
+const MAX_DISPLAY = 100;
 
-export async function render_search_result(result, results_id, searched, word_popup, side_popup, side_popup_content, on_search)
+export async function render_search_result(result, results_id, searched, word_popup, side_popup, side_popup_content, display_index, on_search)
 {
     const catagories = await get_catagories();
     const results_node = document.getElementById(results_id);
-    results_node.replaceChildren();
 
     let result_count = result.result.length;
+
+    let new_children = [];
+
     if(result_count === 0)
     {
         let results_title = document.createElement('h2');
         results_title.innerHTML = `No results found`;
-        results_node.appendChild(results_title);
+        new_children.push(results_title);
     }
     else if(result_count === 1)
     {
         let results_title = document.createElement('h2');
         results_title.innerHTML = `Found a result for "${searched.join(' ')}"`
-        results_node.appendChild(results_title);
+        new_children.push(results_title);
     }
     else 
     {
         let results_title = document.createElement('h2');
         results_title.innerHTML = `Found ${result_count} results for "${searched.join(' ')}"`
-        results_node.appendChild(results_title);
+        new_children.push(results_title);
     }
 
-    let event_handler = _e => on_stop_dragging(result, results_id, searched, word_popup, side_popup, side_popup_content, on_search)
+    let event_handler = _e => on_stop_dragging(result, results_id, searched, word_popup, side_popup, side_popup_content, display_index, on_search)
 
     if(old_event_handler !== null)
     {
@@ -42,8 +45,30 @@ export async function render_search_result(result, results_id, searched, word_po
     }
     document.addEventListener('mouseup', event_handler);
     old_event_handler = event_handler;
+
     
-    for(let i = 0; i < result.result.length; i++)
+    let section_count = Math.ceil(result_count / MAX_DISPLAY);
+    for(let i = 0; i < section_count; i++)
+    {
+        let name = `${i * MAX_DISPLAY + 1}-${(i + 1) * MAX_DISPLAY}`;
+        let button = document.createElement('button');
+        button.innerHTML = name;
+        button.addEventListener('click', e => {
+            render_search_result(result, results_id, searched, word_popup, side_popup, side_popup_content, i, on_search);
+        });
+
+        if(display_index === i)
+        {
+            button.style.border = "2px solid black";
+        }
+
+        new_children.push(button);
+    }
+
+    let start = display_index * MAX_DISPLAY;
+    let end = Math.min(result_count, MAX_DISPLAY + start);
+
+    for(let i = start; i < end; i++)
     {
         let result_data = result.result[i];
         let verse_data = await utils.invoke('get_verse', { book: result_data.book, chapter: result_data.chapter, verse: result_data.verse });
@@ -55,8 +80,10 @@ export async function render_search_result(result, results_id, searched, word_po
         result_node.classList.add('verse');
         result_node.appendChild(verse_node);
         result_node.appendChild(reference_node);
-        results_node.appendChild(result_node);
+        new_children.push(result_node);
     }
+
+    results_node.replaceChildren(...new_children);
 }
 
 async function spawn_verse(words, searched, position, catagories, word_popup, side_popup, side_popup_content)
@@ -150,7 +177,7 @@ async function on_over_dragging(chapter, word_index, word_div)
     }
 }
 
-async function on_stop_dragging(result, results_id, searched, word_popup, side_popup, side_popup_content, on_search) 
+async function on_stop_dragging(result, results_id, searched, word_popup, side_popup, side_popup_content, display_index, on_search) 
 {
     if(is_dragging && get_selected_highlight() !== null)
     {
@@ -159,7 +186,7 @@ async function on_stop_dragging(result, results_id, searched, word_popup, side_p
 
         let scroll = window.scrollY;
 
-        render_search_result(result, results_id, searched, word_popup, side_popup, side_popup_content, on_search).then(() => {
+        render_search_result(result, results_id, searched, word_popup, side_popup, side_popup_content, display_index, on_search).then(() => {
             window.scrollTo(window.scrollX, scroll);
         });
     }
