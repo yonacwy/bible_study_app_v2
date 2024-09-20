@@ -42,25 +42,31 @@
     - [x] Goes to first verse when verse section selected
       - [ ] ~~Only display selected verses???~~
 
+### Version 0.3.1: Hotfix 
+- [x] Bug with large number of searched word verses
+- [x] Word search large section selection
+
+### Version 0.3.2: General Fixes
+- [ ] More text alternates for buttons
+- [ ] Bugs:
+  - [ ] Searching for spaces is allowed
+  - [ ] Punctuation in highlight names
+  - [ ] Reset scroll
+- [ ] Back to current chapter button when doing word searches
+- [ ] Chapter History?
+- [ ] Better section display for large word searches
+  - [ ] Make buttons look better
+  - [ ] Show chapter sections (ei: 1 Sam 4:4 -  Job 32:7), etc
+  - [ ] Need way to display short chapter names (first four letters?)
 
 ### Version 0.4.0: More Notes
-- [ ] Cross-references
-  - [ ] Can link together two or more sections of scripture
-    - [ ] Selection tool
-    - [ ] Can go to individual words
-  - [ ] Contain a description, like highlights
-  - [ ] Mini-view when hovering on word
-  - [ ] Full view when click on word
-  - [ ] Can click on verses to go there
-  - [ ] Underlined
-- [ ] Section Notes
-  - [ ] Is a single section of notes with a description
-  - [ ] Can view when click on word
-  - [ ] Can be upgraded to a cross-reference
-  - [ ] Underlined
+- [ ] Verse notes
+  - [ ] Cross references
+  - [ ] Editor
+  - [ ] Links to other sections in scripture
 - [ ] Favorite verses
-  - [ ] Can pick on a verse to favorite it
-  - [ ] Have place to view favorite verses
-- [ ] Way to view all current notes (Highlights, Cross-refs, favorite verses, section notes, etc)
-- [ ] Add Ctrl + Z
-  - [ ] Undo highlights/other notes
+- [ ] Section headings
+- [ ] Viewer overhaul
+  - [ ] Make viewer look nicer
+  - [ ] Allow for quick edits
+  - [ ] Viewer for word and verses

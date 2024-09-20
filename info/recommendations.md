@@ -4,4 +4,8 @@
 - Cross-references
 - Resizing text
 - Can copy and paste sections of the verses
-- Add more short form chapter names (lk, mk, ...)
+- Time autosave
+- Daily readings
+- Search in section for words
+- Multi chapter tabs need to look better
+- Make top bar a bit bigger
