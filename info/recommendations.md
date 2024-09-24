@@ -9,3 +9,8 @@
 - Search in section for words
 - Multi chapter tabs need to look better
 - Make top bar a bit bigger
+- Highlight all instances of a word in a section
+- Specific phrase searches
+- Approximate searches
+- Multiple windows
+- Multiple tabs

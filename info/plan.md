@@ -52,12 +52,14 @@
   - [ ] Searching for spaces is allowed
   - [ ] Punctuation in highlight names
   - [ ] Reset scroll
-- [ ] Back to current chapter button when doing word searches
-- [ ] Chapter History?
+- [ ] Chapter History
 - [ ] Better section display for large word searches
   - [ ] Make buttons look better
   - [ ] Show chapter sections (ei: 1 Sam 4:4 -  Job 32:7), etc
   - [ ] Need way to display short chapter names (first four letters?)
+- [ ] Top bar
+  - [ ] Make bigger
+  - [ ] Make buttons not shrink when make window smaller
 
 ### Version 0.4.0: More Notes
 - [ ] Verse notes
