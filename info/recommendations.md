@@ -14,3 +14,4 @@
 - Approximate searches
 - Multiple windows
 - Multiple tabs
+- F11 fullscreen support

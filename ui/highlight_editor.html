@@ -122,7 +122,7 @@
                 was_error = true;
                 show_error_popup('name-err-msg', true, `Cant be longer than ${NAME_MAX_LENGTH} characters long.`);
             }
-            else if(!utils.is_alpha_numeric(name))
+            else if(!utils.is_valid_title(name))
             {
                 was_error = true;
                 show_error_popup('name-err-msg', true, `Name must contain only letters, numbers, and spaces`);

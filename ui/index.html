@@ -28,11 +28,11 @@
             </button> 
             <div class="error-popup" id="error-message"></div>
         </div>
-        <button class="image-btn" id="previous-chapter-btn" title="Next chapter">
-            <img src="images/light-arrow-left.svg">
+        <button class="image-btn" title="Next chapter">
+            <img src="images/light-arrow-turn-left.svg">
         </button>
-        <button class="image-btn" id="next-chapter-btn" title="Previous chapter">
-            <img src="images/light-arrow-right.svg">
+        <button class="image-btn" title="Previous chapter">
+            <img src="images/light-arrow-turn-right.svg">
         </button>
         <div class="dropdown">
             <button class="image-dropdown-button" id="highlight-selector-btn" title="Select a highlight to paint with">
@@ -61,6 +61,12 @@
             <div class="popup-panel-content" id="popup-panel-content"></div>
         </div>
         <div class="word-popup word-popup-content" id="word-popup"></div>
+        <button class="chapter-button next" id="next-chapter-btn">
+            <img src="images/light-arrow-right.svg">
+        </button>
+        <button class="chapter-button previous" id="previous-chapter-btn">
+            <img src="images/light-arrow-left.svg">
+        </button>
     </main>
     <script type="module">
         import * as utils from './src/utils.js';
@@ -115,12 +121,14 @@
 
         utils.on_click('previous-chapter-btn', e => {
             bible.to_previous_chapter().then(() => {
+                utils.reset_scroll();
                 render_chapter();
             })
         });
 
         utils.on_click('next-chapter-btn', e => {
             bible.to_next_chapter().then(() => {
+                utils.reset_scroll();
                 render_chapter();
             })
         })

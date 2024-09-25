@@ -49,8 +49,8 @@
 ### Version 0.3.2: General Fixes
 - [ ] More text alternates for buttons
 - [ ] Bugs:
-  - [ ] Searching for spaces is allowed
-  - [ ] Punctuation in highlight names
+  - [x] Searching for spaces is allowed
+  - [x] Punctuation in highlight names
   - [ ] Reset scroll
 - [ ] Chapter History
 - [ ] Better section display for large word searches

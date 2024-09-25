@@ -21,3 +21,26 @@
 .selected {
     color: blueviolet;
 }
+
+.chapter-button {
+    display: block;
+    position: fixed;
+    width: calc(20px + var(--content-margin) - 10px);
+    height: 30vh;
+    top: calc(50vh - 15vh);
+    padding: 0px;
+}
+
+.chapter-button.previous {
+    left: 5px;
+}
+
+.chapter-button.next {
+    right: 5px;
+}
+
+.chapter-button img {
+    width: calc(100% - 2px);
+    aspect-ratio: 1 / 1;
+    margin: 0px;
+}

@@ -38,6 +38,12 @@ export function is_alpha_numeric(str)
     return REGEX.test(str);
 }
 
+export function is_valid_title(str)
+{
+    const REGEX = /^[a-zA-Z0-9 \'\"\?\!\:\;\,\.\+\-]+$/;
+    return REGEX.test(str);
+}
+
 export function clamp(min, max, value)
 {
     return Math.max(min, Math.min(max, value));
@@ -112,4 +118,9 @@ export function trim_string(str)
 export function overlap(a, b)
 {
     return a.filter(i => b.includes(i))
+}
+
+export function reset_scroll()
+{
+    window.scrollTo(0, 0);
 }

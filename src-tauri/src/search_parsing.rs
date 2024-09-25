@@ -80,6 +80,16 @@ pub enum BibleSearchResult
 
 pub fn parse_search(text: &str, bible: &Bible) -> BibleSearchResult
 {
+    if text.chars().all(char::is_whitespace)
+    {
+        return BibleSearchResult::Error { error: "Search must contain a word".into() }
+    }
+
+    if text.is_empty()
+    {
+        return BibleSearchResult::Error { error: "Search must contain a word".into() }
+    }
+
     let search = SEARCH_REGEX.captures(text).and_then(|captures| {
         let prefix: Option<u32> = load_capture(&captures, "prefix");
 
@@ -108,7 +118,7 @@ pub fn parse_search(text: &str, bible: &Bible) -> BibleSearchResult
 
 fn get_word_search(text: &str, bible: &Bible) -> Result<Vec<WordSearchResult>, String>
 {
-    if text.contains(|c: char| !(c.is_ascii_alphanumeric() || c.is_whitespace()))
+    if text.contains(|c: char| !(c.is_ascii_alphanumeric() || c.is_whitespace() || c == '\''))
     {
         return Err("searched words can only be words or numbers".into());
     }
