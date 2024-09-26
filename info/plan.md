@@ -31,8 +31,8 @@
 - [x] Improve Bible Viewer
   - [x] Better book/chapter selection
   - [x] Next/previous chapter buttons
-  - [ ] Search bar
-- [ ] Search-bar
+  - [x] Search bar
+- [x] Search-bar
   - [x] Word searches
     - [x] Returns result of all verses with words
     - [ ] ~~Has a priority system~~

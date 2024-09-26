@@ -54,8 +54,9 @@ impl AppData
                     ViewState::Chapter { 
                         chapter: ChapterIndex { 
                             book: 0, 
-                            number: 0 
+                            number: 0,
                         },
+                        verse_range: None,
                         scroll: 0.0,
                     }
                 ];
@@ -71,10 +72,11 @@ impl AppData
             view_state_index = view_states.len() - 1;
         }
 
-        if let ViewState::Chapter { chapter, scroll: _ } = &mut view_states[view_state_index]
+        if let ViewState::Chapter { chapter, scroll: _ , verse_range} = &mut view_states[view_state_index]
         {
             if chapter.book >= bible.books.len() as u32 || 
-               chapter.number >= bible.books[chapter.book as usize].chapters.len() as u32
+               chapter.number >= bible.books[chapter.book as usize].chapters.len() as u32 ||
+               verse_range.map_or(false, |r| r.end >= bible.books[chapter.book as usize].chapters[chapter.number as usize].verses.len() as u32)
             {
                 chapter.book = 0;
                 chapter.number = 0;
@@ -203,10 +205,10 @@ impl AppData
 #[serde(rename_all = "camelCase", tag = "type")]
 pub enum ViewState
 {
-    Highlights,
     Chapter
     {
         chapter: ChapterIndex,
+        verse_range: Option<VerseRange>,
         scroll: f32,
     },
     Search

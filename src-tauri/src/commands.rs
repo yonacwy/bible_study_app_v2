@@ -45,7 +45,7 @@ pub fn push_view_state(view_state: ViewState)
 }
 
 #[tauri::command]
-pub fn get_view_state_length() -> u32 
+pub fn get_view_state_count() -> u32 
 {
 	AppData::get().read_view_states(|states| {
 		states.len() as u32
@@ -62,7 +62,7 @@ pub fn get_view_state_index() -> u32
 pub fn to_next_view_state()
 {
 	let current = get_view_state_index();
-	let max = get_view_state_length() - 1;
+	let max = get_view_state_count() - 1;
 
 	if current < max {
 		AppData::get().set_view_state_index(current as usize + 1);
@@ -80,17 +80,10 @@ pub fn go_previous_view_state()
 }
 
 #[tauri::command]
-pub fn get_current_chapter_text() -> Option<String> 
+pub fn get_chapter_text(chapter: ChapterIndex) -> String
 {
-	if let ViewState::Chapter { chapter, scroll: _ } = get_current_view_state()
-	{
-		let chapter = &AppData::get().bible.books[chapter.book as usize].chapters[chapter.number as usize];
-		serde_json::to_string(chapter).ok()
-	}
-	else 
-	{
-		None	
-	}
+	let chapter = &AppData::get().bible.books[chapter.book as usize].chapters[chapter.number as usize];
+	serde_json::to_string(chapter).unwrap()
 }
 
 #[tauri::command]

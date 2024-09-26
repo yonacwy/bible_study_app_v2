@@ -31,7 +31,8 @@ export async function get_chapter()
 
 export async function get_chapter_words() 
 {
-    let chapter_text = JSON.parse(await invoke('get_current_chapter_text', {}));
+    let chapter = await get_chapter();
+    let chapter_text = JSON.parse(await invoke('get_chapter_text', { chapter: chapter }));
 
     let words = [];
     for(let v = 0; v < chapter_text.verses.length; v++)

@@ -1,22 +1,25 @@
 import * as utils from "./utils.js";
 
-export async function push_chapter(chapter)
+export async function is_last_view_state()
 {
-    utils.debug_print(JSON.stringify(chapter));
-    let value = await utils.invoke('push_view_state', { viewState: {
-        type: 'chapter',
-        chapter: chapter,
-        scroll: 0.0
-    }});
-
-    utils.debug_print('got here');
-    return value;
+    let count = await utils.invoke('get_view_state_count');
+    let current = await utils.invoke('get_view_state_index');
+    return current >= count;
 }
 
-export async function push_highlights()
+export async function is_first_view_state() 
 {
-    return await utils.invoke('push_view_state', { view_state: {
-        type: 'highlights'
+    let current = await utils.invoke('get_view_state_index');
+    return current <= 0;
+}
+
+export async function push_chapter(chapter, verse_range = null)
+{
+    return await utils.invoke('push_view_state', { viewState: {
+        type: 'chapter',
+        chapter: chapter,
+        verse_range: verse_range,
+        scroll: 0.0
     }});
 }
 

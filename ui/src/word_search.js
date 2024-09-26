@@ -201,7 +201,6 @@ function update_word(chapter, word, div)
     }
     else 
     {
-        utils.debug_print('erasing word');
         erase_highlight(chapter, word, get_selected_highlight());
     }
 }
