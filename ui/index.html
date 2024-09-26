@@ -28,10 +28,10 @@
             </button> 
             <div class="error-popup" id="error-message"></div>
         </div>
-        <button class="image-btn" title="Next chapter">
+        <button class="image-btn" id="back-btn" title="Go back">
             <img src="images/light-arrow-turn-left.svg">
         </button>
-        <button class="image-btn" title="Previous chapter">
+        <button class="image-btn" id="forward-btn" title="Go forward">
             <img src="images/light-arrow-turn-right.svg">
         </button>
         <div class="dropdown">
@@ -61,16 +61,17 @@
             <div class="popup-panel-content" id="popup-panel-content"></div>
         </div>
         <div class="word-popup word-popup-content" id="word-popup"></div>
-        <button class="chapter-button next" id="next-chapter-btn">
+        <button class="chapter-button next" id="next-chapter-btn" title="Next chapter">
             <img src="images/light-arrow-right.svg">
         </button>
-        <button class="chapter-button previous" id="previous-chapter-btn">
+        <button class="chapter-button previous" id="previous-chapter-btn" title="Previous chapter">
             <img src="images/light-arrow-left.svg">
         </button>
     </main>
     <script type="module">
         import * as utils from './src/utils.js';
         import * as bible from './src/bible.js';
+        import * as view_states from './src/view_states.js';
         import { get_catagories, set_selected_highlight, get_selected_highlight } from './src/highlights.js';
         import { ERASER_STATE_NAME } from './src/save_states.js';
         import { render_current_chapter } from './src/bible_render.js';
@@ -90,6 +91,7 @@
                     const word_popup = document.getElementById('word-popup');
                     const side_popup = document.getElementById('popup-panel');
                     const side_popup_content = document.getElementById('popup-panel-content');
+                    view_states.push_search(value);
                     render_search_result(result, 'word-search-content', value.split(/\s+/), word_popup, side_popup, side_popup_content, 0, msg => {
                         utils.set_value('search-input', msg);
                         document.getElementById('search-btn').click();
@@ -99,7 +101,7 @@
                 }
                 else if (result.type === 'section')
                 {
-                    bible.set_chapter(result.result.book, result.result.chapter);
+                    view_states.push_chapter(result.result);
                     render_chapter().then(() => {
                         utils.set_display('chapter-content', 'block');
                         utils.set_display('word-search-content', 'none');
@@ -145,13 +147,6 @@
         });
         
         utils.init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {});
-
-        bible.get_chapter().then((chapter) => {
-            bible.load_view().then((view) => {
-                document.getElementById('books-btn').innerHTML = view[chapter.book].name;
-                document.getElementById('chapters-btn').innerHTML = `${chapter.number + 1}`;
-            })
-        });
 
         const DEFAULT_BUTTON_COLOR = document.getElementById('highlight-selector-btn').style.backgroundColor;
 

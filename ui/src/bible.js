@@ -1,5 +1,6 @@
 import { invoke, debug_print, color_to_hex, trim_string } from "./utils.js";
 import { get_catagories, get_chapter_highlights, get_selected_highlight } from "./highlights.js";
+import { push_chapter, get_current_view_state } from "./view_states.js";
 
 export async function load_view()
 {
@@ -18,9 +19,14 @@ export async function get_chapter_view()
 
 export async function get_chapter()
 {
-    let json = await invoke('get_current_chapter', {});
-    let chapter = JSON.parse(json);
-    return chapter;
+    let view_state = await get_current_view_state();
+    if(view_state.type !== 'chapter')
+    {
+        debug_print('tried to get non chapter view state');
+        return null;
+    }
+
+    return view_state.chapter;
 }
 
 export async function get_chapter_words() 
@@ -118,12 +124,6 @@ export async function create_highlight_selection(on_selected)
     container.appendChild(none_div);
 }
 
-export async function set_chapter(book_index, chapter_index) 
-{
-    let chapter_json = JSON.stringify( {book: book_index, number: chapter_index });
-    invoke('set_current_chapter', {chapter: chapter_json});
-}
-
 export async function to_next_chapter() 
 {
     let current_chapter = await get_chapter();
@@ -139,7 +139,7 @@ export async function to_next_chapter()
         current_chapter.number = 0;
     }
 
-    set_chapter(current_chapter.book, current_chapter.number);
+    push_chapter(current_chapter);
 }
 
 export async function to_previous_chapter() 
@@ -157,7 +157,7 @@ export async function to_previous_chapter()
         current_chapter.number = view[current_chapter.book].chapterCount - 1;
     }
 
-    set_chapter(current_chapter.book, current_chapter.number);
+    push_chapter(current_chapter);
 }
 
 export async function get_verse_word_offset(book, chapter, verse_index)

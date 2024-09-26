@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 
-use crate::{app_state::AppData, bible::{ChapterIndex, Verse}, notes::HighlightCategory, search_parsing::{self, BibleSearchResult, SectionSearchResult}, utils::{get_hash_code, Color}};
+use crate::{app_state::{AppData, ViewState}, bible::{ChapterIndex, Verse}, notes::HighlightCategory, search_parsing::{self, BibleSearchResult, SectionSearchResult}, utils::{get_hash_code, Color}};
 
 #[tauri::command]
 pub fn debug_print(message: &str)
@@ -17,26 +17,80 @@ pub fn get_bible_view() -> String
 	serde_json::to_string(&view).unwrap()
 }
 
+
 #[tauri::command]
-pub fn get_current_chapter() -> String
+pub fn get_current_view_state() -> ViewState
 {
-	let chapter = AppData::get().get_current_chapter();
-	serde_json::to_string(&chapter).unwrap()
+	let index = AppData::get().get_view_state_index();
+	AppData::get().read_view_states(|states| {
+		states[index].clone()
+	})
 }
 
 #[tauri::command]
-pub fn set_current_chapter(chapter: &str)
+pub fn push_view_state(view_state: ViewState)
 {
-	let chapter: ChapterIndex = serde_json::from_str(chapter).unwrap();
-	AppData::get().set_current_chapter(chapter);
+	let index = get_view_state_index();
+	AppData::get().read_view_states(|states| {
+		let next = (index + 1) as usize;
+		if next != states.len()
+		{
+			states.drain(next..states.len());
+		}
+
+		states.push(view_state.clone());
+	});
+
+	to_next_view_state();
 }
 
 #[tauri::command]
-pub fn get_current_chapter_text() -> String 
+pub fn get_view_state_length() -> u32 
 {
-	let current = AppData::get().get_current_chapter();
-	let chapter = &AppData::get().bible.books[current.book as usize].chapters[current.number as usize];
-	serde_json::to_string(chapter).unwrap()
+	AppData::get().read_view_states(|states| {
+		states.len() as u32
+	})
+}
+
+#[tauri::command]
+pub fn get_view_state_index() -> u32 
+{
+	AppData::get().get_view_state_index() as u32
+}
+
+#[tauri::command]
+pub fn to_next_view_state()
+{
+	let current = get_view_state_index();
+	let max = get_view_state_length() - 1;
+
+	if current < max {
+		AppData::get().set_view_state_index(current as usize + 1);
+	}
+}
+
+#[tauri::command]
+pub fn go_previous_view_state()
+{
+	let current = get_view_state_index();
+	if current > 0
+	{
+		AppData::get().set_view_state_index(current as usize - 1);
+	}
+}
+
+#[tauri::command]
+pub fn get_current_chapter_text() -> Option<String> 
+{
+	if let ViewState::Chapter { chapter, scroll: _ } = get_current_view_state()
+	{
+		let chapter = &AppData::get().bible.books[chapter.book as usize].chapters[chapter.number as usize];
+		serde_json::to_string(chapter).ok()
+	}
+	else 
+	{
+		None	
+	}
 }
 
 #[tauri::command]

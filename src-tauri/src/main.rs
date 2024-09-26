@@ -39,9 +39,12 @@ fn main() {
 		})
 		.invoke_handler(tauri::generate_handler![
 			debug_print, 
-			get_bible_view, 
-			get_current_chapter, 
-			set_current_chapter,
+			get_bible_view,
+			get_current_view_state,
+			push_view_state,
+			get_view_state_length,
+			to_next_view_state,
+			go_previous_view_state,
 			get_current_chapter_text,
 			get_verse,
 			get_book_name,
