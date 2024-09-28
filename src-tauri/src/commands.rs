@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 
-use crate::{app_state::{AppData, ViewState}, bible::{ChapterIndex, Verse}, notes::HighlightCategory, search_parsing::{self, BibleSearchResult, SectionSearchResult}, utils::{get_hash_code, Color}};
+use crate::{app_state::{AppData, ViewState}, bible::{ChapterIndex, Verse}, notes::HighlightCategory, search_parsing::*, utils::{get_hash_code, Color}};
 
 #[tauri::command]
 pub fn debug_print(message: &str)
@@ -32,6 +32,11 @@ pub fn push_view_state(view_state: ViewState)
 {
 	let index = get_view_state_index();
 	AppData::get().read_view_states(|states| {
+		if states.last().is_some_and(|s| *s == view_state)
+		{
+			return;
+		}
+
 		let next = (index + 1) as usize;
 		if next != states.len()
 		{
@@ -70,7 +75,7 @@ pub fn to_next_view_state()
 }
 
 #[tauri::command]
-pub fn go_previous_view_state()
+pub fn to_previous_view_state()
 {
 	let current = get_view_state_index();
 	if current > 0
@@ -229,8 +234,16 @@ pub fn erase_highlight(chapter: ChapterIndex, word_position: u32, highlight_id: 
 }
 
 #[tauri::command]
-pub fn search_bible(text: &str) -> BibleSearchResult
+pub fn parse_bible_search(text: &str) -> ParsedSearchResult
 {
 	let bible = &AppData::get().bible;
-	search_parsing::parse_search(text, bible)
+	parse_search(text, bible)
+}
+
+#[tauri::command]
+pub fn run_word_search(words: Vec<String>) -> Vec<WordSearchResult>
+{
+	let bible = &AppData::get().bible;
+	let words = words.iter().map(|w| w.as_str()).collect_vec();
+	search_bible(&words, bible)
 }

@@ -15,3 +15,5 @@
 - Multiple windows
 - Multiple tabs
 - F11 fullscreen support
+- Backwards compatibility with older notes
+- Bug with Ctrl + F

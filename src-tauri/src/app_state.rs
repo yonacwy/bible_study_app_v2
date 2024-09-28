@@ -213,7 +213,7 @@ pub enum ViewState
     },
     Search
     {
-        text: String,
+        words: Vec<String>,
         scroll: f32,
     }
 }

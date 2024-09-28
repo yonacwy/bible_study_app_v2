@@ -9,12 +9,12 @@ import { ERASER_STATE_NAME } from "./save_states.js";
 let old_event_handler = null;
 const MAX_DISPLAY = 100;
 
-export async function render_search_result(result, results_id, searched, word_popup, side_popup, side_popup_content, display_index, on_search)
+export async function render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_search)
 {
     const catagories = await get_catagories();
     const results_node = document.getElementById(results_id);
 
-    let result_count = result.result.length;
+    let result_count = result.length;
 
     let new_children = [];
 
@@ -37,7 +37,7 @@ export async function render_search_result(result, results_id, searched, word_po
         new_children.push(results_title);
     }
 
-    let event_handler = _e => on_stop_dragging(result, results_id, searched, word_popup, side_popup, side_popup_content, display_index, on_search)
+    let event_handler = _e => on_stop_dragging(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_search)
 
     if(old_event_handler !== null)
     {
@@ -54,7 +54,7 @@ export async function render_search_result(result, results_id, searched, word_po
         let button = document.createElement('button');
         button.innerHTML = name;
         button.addEventListener('click', e => {
-            render_search_result(result, results_id, searched, word_popup, side_popup, side_popup_content, i, on_search);
+            render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, i, on_search);
         });
 
         if(display_index === i)
@@ -70,7 +70,7 @@ export async function render_search_result(result, results_id, searched, word_po
 
     for(let i = start; i < end; i++)
     {
-        let result_data = result.result[i];
+        let result_data = result[i];
         let verse_data = await utils.invoke('get_verse', { book: result_data.book, chapter: result_data.chapter, verse: result_data.verse });
         
         let verse_node = await spawn_verse(verse_data.words, searched, result_data, catagories, word_popup, side_popup, side_popup_content);

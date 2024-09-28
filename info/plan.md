@@ -51,15 +51,17 @@
 - [ ] Bugs:
   - [x] Searching for spaces is allowed
   - [x] Punctuation in highlight names
-  - [ ] Reset scroll
-- [ ] Chapter History
+  - [x] Reset scroll
+  - [ ] Duplicate words in searches break
+- [x] Chapter History
 - [ ] Better section display for large word searches
   - [ ] Make buttons look better
   - [ ] Show chapter sections (ei: 1 Sam 4:4 -  Job 32:7), etc
   - [ ] Need way to display short chapter names (first four letters?)
 - [ ] Top bar
-  - [ ] Make bigger
+  - [x] Make bigger
   - [ ] Make buttons not shrink when make window smaller
+- [ ] Figure out name
 
 ### Version 0.4.0: More Notes
 - [ ] Verse notes

@@ -22,7 +22,7 @@ lazy_static::lazy_static! {
             ("sg", "song of solomon"),
             ("ss", "song of solomon"),
             ("sg", "song of solomon"),
-            ("da", "daniel"),
+            ("sos", "song of solomon"),
             ("jl", "joel"),
             ("obd", "obadiah"),
             ("hb", "habakkuk"),
@@ -62,32 +62,32 @@ pub struct WordSearchResult
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "type")]
-pub enum BibleSearchResult
+pub enum ParsedSearchResult
 {
-    Section
+    Section 
     {
-        result: SectionSearchResult
+        section: SectionSearchResult
     },
-    Word
+    Word 
     {
-        result: Vec<WordSearchResult>
+        words: Vec<String>
     },
-    Error
+    Error 
     {
         error: String
-    },
+    }
 }
 
-pub fn parse_search(text: &str, bible: &Bible) -> BibleSearchResult
+pub fn parse_search(text: &str, bible: &Bible) -> ParsedSearchResult
 {
     if text.chars().all(char::is_whitespace)
     {
-        return BibleSearchResult::Error { error: "Search must contain a word".into() }
+        return ParsedSearchResult::Error { error: "Search must contain a word".into() }
     }
 
     if text.is_empty()
     {
-        return BibleSearchResult::Error { error: "Search must contain a word".into() }
+        return ParsedSearchResult::Error { error: "Search must contain a word".into() }
     }
 
     let search = SEARCH_REGEX.captures(text).and_then(|captures| {
@@ -103,28 +103,37 @@ pub fn parse_search(text: &str, bible: &Bible) -> BibleSearchResult
 
     match search 
     {
-        Some(Ok(search)) => BibleSearchResult::Section { result: search },
-        Some(Err(error)) => BibleSearchResult::Error { error },
+        Some(Ok(section)) => ParsedSearchResult::Section { section },
+        Some(Err(error)) => ParsedSearchResult::Error { error },
         None => 
         {
-            match get_word_search(text, bible)
+            match check_word_search(text)
             {
-                Ok(result) => BibleSearchResult::Word { result },
-                Err(error) => BibleSearchResult::Error { error }
+                Ok(words) => ParsedSearchResult::Word { words },
+                Err(error) => ParsedSearchResult::Error { error }
             }
         }
     }
 }
 
-fn get_word_search(text: &str, bible: &Bible) -> Result<Vec<WordSearchResult>, String>
+fn check_word_search(text: &str) -> Result<Vec<String>, String>
 {
     if text.contains(|c: char| !(c.is_ascii_alphanumeric() || c.is_whitespace() || c == '\''))
     {
         return Err("searched words can only be words or numbers".into());
     }
 
-    let words = text.split(char::is_whitespace).map(|s| s.trim()).filter(|s| s.len() > 0).collect_vec();
+    let words = text.split(char::is_whitespace)
+        .map(|s| s.trim())
+        .filter(|s| s.len() > 0)
+        .map(|s| s.to_string())
+        .collect_vec();
 
+    Ok(words)
+}
+
+pub fn search_bible(words: &[&str], bible: &Bible) -> Vec<WordSearchResult>
+{
     let mut results = vec![];
     for (book_index, book) in bible.books.iter().enumerate()
     {
@@ -143,8 +152,8 @@ fn get_word_search(text: &str, bible: &Bible) -> Result<Vec<WordSearchResult>, S
             }
         }
     }
-
-    Ok(results)
+    
+    results
 }
 
 fn has_words(words: &[&str], verse: &Verse) -> bool
