@@ -23,32 +23,32 @@
         <div class="popup" id="confirm-popup">
             <div class="popup-content">
                 <p>Are you sure you want to delete this highlight?</p>
-                <button id="confirm-btn" class="yes">Confirm</button>
-                <button id="cancel-delete-btn" class="no">Cancel</button>
+                <button id="confirm-btn" class="yes" title="Confirm delete popup">Confirm</button>
+                <button id="cancel-delete-btn" class="no" title="Cancel deleting popup">Cancel</button>
             </div>
         </div>
         <div class="popup" id="highlight-popup">
             <div class="popup-content menu">
-                <label for="color-in">Color:</label>
+                <label for="color-in" title="Highlight color">Color:</label>
                 <input type="color" id="color-in" value="#FFD700">
 
                 <div style="position: relative;"> <!--Needs to be relative for the error message-->
-                    <label for="name-in">Name:</label>
+                    <label for="name-in" title="Highlight name">Name:</label>
                     <input type="text" id="name-in" placeholder="Enter name">
                     <div class="error-popup" id="name-err-msg"></div>
                 </div>
 
                 <div style="position: relative;"> <!--Needs to be relative for the error message-->
-                    <label for="description-in">Description:</label>
+                    <label for="description-in" title="Highlight description">Description:</label>
                     <textarea id="description-in" placeholder="Enter description"></textarea>
                     <div class="error-popup" id="desc-err-msg"></div>
                 </div>
 
-                <label for="priority-in">Priority:</label>
-                <input type="range" id="priority-in" min="1" max="10">
+                <label for="priority-in" title="Priority for how highlights appear">Priority:</label>
+                <input type="range" id="priority-in" min="1" max="10" value="1">
 
-                <button type="button" class="yes" id="submit-btn">Submit</button>
-                <button type="button" class="no" id="cancel-submit-btn">Cancel</button>
+                <button type="button" class="yes" id="submit-btn" title="Submit new highlight">Submit</button>
+                <button type="button" class="no" id="cancel-submit-btn" title="Cancel new highlight">Cancel</button>
             </div>
         </div>
         <div id="highlights" class="highlight-container"></div>

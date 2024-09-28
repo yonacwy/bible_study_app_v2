@@ -16,14 +16,14 @@
 <body>
     <header>
         <div class="dropdown">
-            <button class="image-btn">
+            <button class="image-btn" title="Bible chapter selection">
                 <img src="images/light-books.svg">
             </button>
             <div class="dropdown-content" id="book-selection-content"></div>
         </div>
         <div class="searchbar" style="position: relative;">
             <input type="text" id="search-input">
-            <button id="search-btn">
+            <button id="search-btn" title="Search the bible">
                 <img src="images/light-magnifying-glass.svg">
             </button> 
             <div class="error-popup" id="error-message"></div>
@@ -54,7 +54,7 @@
         </section>
         <section class="results" id="word-search-content" style="display: none;"></section>
         <div id="popup-panel" class="popup-panel">
-            <button class="close-image" onclick="document.getElementById('popup-panel').classList.toggle('open')">
+            <button class="close-image" onclick="document.getElementById('popup-panel').classList.toggle('open')" title="Close popup">
                 <img src="images/light-xmark.svg" alt="Close">
             </button>
             <div class="resizer"></div>

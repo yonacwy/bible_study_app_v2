@@ -213,6 +213,7 @@ async function spawn_reference(book, chapter, verse, on_search)
     let reference = document.createElement('div');
     reference.classList.add('reference');
     reference.innerHTML = verse_reference_text;
+    reference.title = `Go to ${verse_reference_text}`;
     reference.addEventListener('click', e => {
         on_search(verse_reference_text);
     });

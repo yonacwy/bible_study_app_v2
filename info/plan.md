@@ -48,7 +48,7 @@
 
 ### Version 0.3.2: General Fixes
 - [ ] More text alternates for buttons
-- [ ] Bugs:
+- [x] Bugs:
   - [x] Searching for spaces is allowed
   - [x] Punctuation in highlight names
   - [x] Reset scroll
