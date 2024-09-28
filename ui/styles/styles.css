@@ -34,7 +34,7 @@ header .image-btn {
     
     margin: var(--button-margin);
     height: calc(var(--header-height) - var(--button-margin) * 2);
-    width: calc(var(--header-height) - var(--button-margin) * 2);
+    min-width: calc(var(--header-height) - var(--button-margin) * 2);
 
     box-sizing: border-box;
     margin-right: calc(var(--button-margin) / 2);
