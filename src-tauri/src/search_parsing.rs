@@ -134,6 +134,13 @@ fn check_word_search(text: &str) -> Result<Vec<String>, String>
 
 pub fn search_bible(words: &[&str], bible: &Bible) -> Vec<WordSearchResult>
 {
+    let word_frequencies = words.iter()
+        .map(|w| w.to_ascii_lowercase())
+        .counts()
+        .into_iter()
+        .map(|(word, frequency)| WordFrequency { word, frequency: frequency as u32})
+        .collect_vec();
+
     let mut results = vec![];
     for (book_index, book) in bible.books.iter().enumerate()
     {
@@ -141,7 +148,7 @@ pub fn search_bible(words: &[&str], bible: &Bible) -> Vec<WordSearchResult>
         {
             for (verse_index, verse) in chapter.verses.iter().enumerate()
             {
-                if has_words(&words, verse)
+                if has_words(&word_frequencies, verse)
                 {
                     results.push(WordSearchResult {
                         book: book_index as u32,
@@ -156,19 +163,25 @@ pub fn search_bible(words: &[&str], bible: &Bible) -> Vec<WordSearchResult>
     results
 }
 
-fn has_words(words: &[&str], verse: &Verse) -> bool
+struct WordFrequency
 {
-    let mut checker = vec![false; words.len()];
+    word: String,
+    frequency: u32,
+}
+
+fn has_words(words: &[WordFrequency], verse: &Verse) -> bool
+{
+    let mut checker = vec![0; words.len()];
     for word in verse.words.iter().map(|w| &w.text)
     {
         let trimmed = word.trim_matches(|c: char| !c.is_alphanumeric());
-        if let Some(index) = words.iter().position(|w| w.eq_ignore_ascii_case(trimmed))
+        if let Some(index) = words.iter().position(|w| w.word.eq_ignore_ascii_case(trimmed))
         {
-            checker[index] = true;
+            checker[index] += 1;
         }
     }
 
-    checker.iter().all(|v| *v)
+    checker.iter().zip(words.iter()).all(|(v, f)| *v >= f.frequency)
 }
 
 fn get_section_search(prefix: Option<u32>, book_name: &str, chapter: u32, verse_start: Option<u32>, verse_end: Option<u32>, bible: &Bible) -> Result<SectionSearchResult, String>
