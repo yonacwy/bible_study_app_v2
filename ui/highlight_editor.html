@@ -23,32 +23,32 @@
         <div class="popup" id="confirm-popup">
             <div class="popup-content">
                 <p>Are you sure you want to delete this highlight?</p>
-                <button id="confirm-btn" class="yes">Confirm</button>
-                <button id="cancel-delete-btn" class="no">Cancel</button>
+                <button id="confirm-btn" class="yes" title="Confirm delete popup">Confirm</button>
+                <button id="cancel-delete-btn" class="no" title="Cancel deleting popup">Cancel</button>
             </div>
         </div>
         <div class="popup" id="highlight-popup">
             <div class="popup-content menu">
-                <label for="color-in">Color:</label>
+                <label for="color-in" title="Highlight color">Color:</label>
                 <input type="color" id="color-in" value="#FFD700">
 
                 <div style="position: relative;"> <!--Needs to be relative for the error message-->
-                    <label for="name-in">Name:</label>
+                    <label for="name-in" title="Highlight name">Name:</label>
                     <input type="text" id="name-in" placeholder="Enter name">
                     <div class="error-popup" id="name-err-msg"></div>
                 </div>
 
                 <div style="position: relative;"> <!--Needs to be relative for the error message-->
-                    <label for="description-in">Description:</label>
+                    <label for="description-in" title="Highlight description">Description:</label>
                     <textarea id="description-in" placeholder="Enter description"></textarea>
                     <div class="error-popup" id="desc-err-msg"></div>
                 </div>
 
-                <label for="priority-in">Priority:</label>
-                <input type="range" id="priority-in" min="1" max="10">
+                <label for="priority-in" title="Priority for how highlights appear">Priority:</label>
+                <input type="range" id="priority-in" min="1" max="10" value="1">
 
-                <button type="button" class="yes" id="submit-btn">Submit</button>
-                <button type="button" class="no" id="cancel-submit-btn">Cancel</button>
+                <button type="button" class="yes" id="submit-btn" title="Submit new highlight">Submit</button>
+                <button type="button" class="no" id="cancel-submit-btn" title="Cancel new highlight">Cancel</button>
             </div>
         </div>
         <div id="highlights" class="highlight-container"></div>
@@ -56,12 +56,12 @@
     <script type="module">
         import * as utils from "./src/utils.js";
         import { show_error_popup } from "./src/error_popup.js";
-        import { render_catagories, create_category, get_catagories, set_category } from "./src/highlights.js";
+        import * as highlights from "./src/highlights.js";
 
         let editing_id = null;
         function on_edit(id)
         {
-            get_catagories().then(catagories => {
+            highlights.get_catagories().then(catagories => {
                 let category = catagories[id];
                 let color = utils.color_to_hex(category.color);
                 utils.set_value('color-in', color);
@@ -81,12 +81,16 @@
             utils.set_display('confirm-popup', 'flex');
         }
 
-        render_catagories(on_delete, on_edit);
+        highlights.render_catagories(on_delete, on_edit);
         
         utils.on_click('confirm-btn', (e) => {
             if (deleting_id != null)
             {
                 utils.invoke('remove_highlight_category', { id: deleting_id });
+                if(highlights.get_selected_highlight() === deleting_id)
+                {
+                    highlights.set_selected_highlight(null);   
+                }
             }
 
             utils.set_display('confirm-popup', 'none');
@@ -122,7 +126,7 @@
                 was_error = true;
                 show_error_popup('name-err-msg', true, `Cant be longer than ${NAME_MAX_LENGTH} characters long.`);
             }
-            else if(!utils.is_alpha_numeric(name))
+            else if(!utils.is_valid_title(name))
             {
                 was_error = true;
                 show_error_popup('name-err-msg', true, `Name must contain only letters, numbers, and spaces`);
@@ -132,11 +136,11 @@
             {
                 if(editing_id == null)
                 {
-                    create_category(color, name, description, priority);
+                    highlights.create_category(color, name, description, priority);
                 }
                 else 
                 {
-                    set_category(editing_id, color, name, description, priority);
+                    highlights.set_category(editing_id, color, name, description, priority);
                 }
                 utils.set_display('highlight-popup', 'none');
                 location.reload();

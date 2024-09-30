@@ -22,7 +22,7 @@ lazy_static::lazy_static! {
             ("sg", "song of solomon"),
             ("ss", "song of solomon"),
             ("sg", "song of solomon"),
-            ("da", "daniel"),
+            ("sos", "song of solomon"),
             ("jl", "joel"),
             ("obd", "obadiah"),
             ("hb", "habakkuk"),
@@ -62,24 +62,34 @@ pub struct WordSearchResult
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "type")]
-pub enum BibleSearchResult
+pub enum ParsedSearchResult
 {
-    Section
+    Section 
     {
-        result: SectionSearchResult
+        section: SectionSearchResult
     },
-    Word
+    Word 
     {
-        result: Vec<WordSearchResult>
+        words: Vec<String>
     },
-    Error
+    Error 
     {
         error: String
-    },
+    }
 }
 
-pub fn parse_search(text: &str, bible: &Bible) -> BibleSearchResult
+pub fn parse_search(text: &str, bible: &Bible) -> ParsedSearchResult
 {
+    if text.chars().all(char::is_whitespace)
+    {
+        return ParsedSearchResult::Error { error: "Search must contain a word".into() }
+    }
+
+    if text.is_empty()
+    {
+        return ParsedSearchResult::Error { error: "Search must contain a word".into() }
+    }
+
     let search = SEARCH_REGEX.captures(text).and_then(|captures| {
         let prefix: Option<u32> = load_capture(&captures, "prefix");
 
@@ -93,27 +103,43 @@ pub fn parse_search(text: &str, bible: &Bible) -> BibleSearchResult
 
     match search 
     {
-        Some(Ok(search)) => BibleSearchResult::Section { result: search },
-        Some(Err(error)) => BibleSearchResult::Error { error },
+        Some(Ok(section)) => ParsedSearchResult::Section { section },
+        Some(Err(error)) => ParsedSearchResult::Error { error },
         None => 
         {
-            match get_word_search(text, bible)
+            match check_word_search(text)
             {
-                Ok(result) => BibleSearchResult::Word { result },
-                Err(error) => BibleSearchResult::Error { error }
+                Ok(words) => ParsedSearchResult::Word { words },
+                Err(error) => ParsedSearchResult::Error { error }
             }
         }
     }
 }
 
-fn get_word_search(text: &str, bible: &Bible) -> Result<Vec<WordSearchResult>, String>
+fn check_word_search(text: &str) -> Result<Vec<String>, String>
 {
-    if text.contains(|c: char| !(c.is_ascii_alphanumeric() || c.is_whitespace()))
+    if text.contains(|c: char| !(c.is_ascii_alphanumeric() || c.is_whitespace() || c == '\''))
     {
         return Err("searched words can only be words or numbers".into());
     }
 
-    let words = text.split(char::is_whitespace).map(|s| s.trim()).filter(|s| s.len() > 0).collect_vec();
+    let words = text.split(char::is_whitespace)
+        .map(|s| s.trim())
+        .filter(|s| s.len() > 0)
+        .map(|s| s.to_string())
+        .collect_vec();
+
+    Ok(words)
+}
+
+pub fn search_bible(words: &[&str], bible: &Bible) -> Vec<WordSearchResult>
+{
+    let word_frequencies = words.iter()
+        .map(|w| w.to_ascii_lowercase())
+        .counts()
+        .into_iter()
+        .map(|(word, frequency)| WordFrequency { word, frequency: frequency as u32})
+        .collect_vec();
 
     let mut results = vec![];
     for (book_index, book) in bible.books.iter().enumerate()
@@ -122,7 +148,7 @@ fn get_word_search(text: &str, bible: &Bible) -> Result<Vec<WordSearchResult>, S
         {
             for (verse_index, verse) in chapter.verses.iter().enumerate()
             {
-                if has_words(&words, verse)
+                if has_words(&word_frequencies, verse)
                 {
                     results.push(WordSearchResult {
                         book: book_index as u32,
@@ -133,23 +159,29 @@ fn get_word_search(text: &str, bible: &Bible) -> Result<Vec<WordSearchResult>, S
             }
         }
     }
-
-    Ok(results)
+    
+    results
 }
 
-fn has_words(words: &[&str], verse: &Verse) -> bool
+struct WordFrequency
 {
-    let mut checker = vec![false; words.len()];
+    word: String,
+    frequency: u32,
+}
+
+fn has_words(words: &[WordFrequency], verse: &Verse) -> bool
+{
+    let mut checker = vec![0; words.len()];
     for word in verse.words.iter().map(|w| &w.text)
     {
         let trimmed = word.trim_matches(|c: char| !c.is_alphanumeric());
-        if let Some(index) = words.iter().position(|w| w.eq_ignore_ascii_case(trimmed))
+        if let Some(index) = words.iter().position(|w| w.word.eq_ignore_ascii_case(trimmed))
         {
-            checker[index] = true;
+            checker[index] += 1;
         }
     }
 
-    checker.iter().all(|v| *v)
+    checker.iter().zip(words.iter()).all(|(v, f)| *v >= f.frequency)
 }
 
 fn get_section_search(prefix: Option<u32>, book_name: &str, chapter: u32, verse_start: Option<u32>, verse_end: Option<u32>, bible: &Bible) -> Result<SectionSearchResult, String>

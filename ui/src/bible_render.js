@@ -3,10 +3,11 @@ import { debug_print, get_toggle_value, invoke, color_to_hex } from "./utils.js"
 import { init_word_popup_for_chapter } from "./word_popup.js";
 import { init_popup_panel_for_chapter } from "./side_popup.js"
 import { ERASER_STATE_NAME } from "./save_states.js";
+import { get_chapter } from "./bible.js";
 
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 
-export async function render_current_chapter(content_id, word_popup_id, popup_panel_id) 
+export async function render_current_chapter(content_id, word_popup_id, popup_panel_id, on_render) 
 {
     document.getElementById(content_id).replaceChildren();
 
@@ -49,7 +50,9 @@ export async function render_current_chapter(content_id, word_popup_id, popup_pa
                 }
             });
         }
-    });    
+
+        on_render();
+    });
 }
 
 function update_word(i, div)
@@ -67,7 +70,8 @@ function update_word(i, div)
 
 async function render_chapter_text()
 {
-    let text_json = await invoke('get_current_chapter_text', {});
+    let current_chapter_index = await get_chapter();
+    let text_json = await invoke('get_chapter_text', { chapter: current_chapter_index });
     let chapter = JSON.parse(text_json);
     
     let catagories = await get_catagories();

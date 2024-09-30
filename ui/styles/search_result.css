@@ -25,3 +25,13 @@
 .results .verse .reference:hover {
     background-color: #ebebeb;
 }
+
+.selection-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 5px;
+}
+
+.selected-button {
+    border: 2px solid black;
+}

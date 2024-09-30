@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 
-use crate::{app_state::AppData, bible::{ChapterIndex, Verse}, notes::HighlightCategory, search_parsing::{self, BibleSearchResult, SectionSearchResult}, utils::{get_hash_code, Color}};
+use crate::{app_state::{AppData, ViewState}, bible::{ChapterIndex, Verse}, notes::HighlightCategory, search_parsing::*, utils::{get_hash_code, Color}};
 
 #[tauri::command]
 pub fn debug_print(message: &str)
@@ -17,25 +17,77 @@ pub fn get_bible_view() -> String
 	serde_json::to_string(&view).unwrap()
 }
 
+
 #[tauri::command]
-pub fn get_current_chapter() -> String
+pub fn get_current_view_state() -> ViewState
 {
-	let chapter = AppData::get().get_current_chapter();
-	serde_json::to_string(&chapter).unwrap()
+	let index = AppData::get().get_view_state_index();
+	AppData::get().read_view_states(|states| {
+		states[index].clone()
+	})
 }
 
 #[tauri::command]
-pub fn set_current_chapter(chapter: &str)
+pub fn push_view_state(view_state: ViewState)
 {
-	let chapter: ChapterIndex = serde_json::from_str(chapter).unwrap();
-	AppData::get().set_current_chapter(chapter);
+	let index = get_view_state_index();
+	AppData::get().read_view_states(|states| {
+		if states.last().is_some_and(|s| *s == view_state)
+		{
+			return;
+		}
+
+		let next = (index + 1) as usize;
+		if next != states.len()
+		{
+			states.drain(next..states.len());
+		}
+
+		states.push(view_state.clone());
+	});
+
+	to_next_view_state();
 }
 
 #[tauri::command]
-pub fn get_current_chapter_text() -> String 
+pub fn get_view_state_count() -> u32 
 {
-	let current = AppData::get().get_current_chapter();
-	let chapter = &AppData::get().bible.books[current.book as usize].chapters[current.number as usize];
+	AppData::get().read_view_states(|states| {
+		states.len() as u32
+	})
+}
+
+#[tauri::command]
+pub fn get_view_state_index() -> u32 
+{
+	AppData::get().get_view_state_index() as u32
+}
+
+#[tauri::command]
+pub fn to_next_view_state()
+{
+	let current = get_view_state_index();
+	let max = get_view_state_count() - 1;
+
+	if current < max {
+		AppData::get().set_view_state_index(current as usize + 1);
+	}
+}
+
+#[tauri::command]
+pub fn to_previous_view_state()
+{
+	let current = get_view_state_index();
+	if current > 0
+	{
+		AppData::get().set_view_state_index(current as usize - 1);
+	}
+}
+
+#[tauri::command]
+pub fn get_chapter_text(chapter: ChapterIndex) -> String
+{
+	let chapter = &AppData::get().bible.books[chapter.book as usize].chapters[chapter.number as usize];
 	serde_json::to_string(chapter).unwrap()
 }
 
@@ -182,8 +234,16 @@ pub fn erase_highlight(chapter: ChapterIndex, word_position: u32, highlight_id: 
 }
 
 #[tauri::command]
-pub fn search_bible(text: &str) -> BibleSearchResult
+pub fn parse_bible_search(text: &str) -> ParsedSearchResult
 {
 	let bible = &AppData::get().bible;
-	search_parsing::parse_search(text, bible)
+	parse_search(text, bible)
+}
+
+#[tauri::command]
+pub fn run_word_search(words: Vec<String>) -> Vec<WordSearchResult>
+{
+	let bible = &AppData::get().bible;
+	let words = words.iter().map(|w| w.as_str()).collect_vec();
+	search_bible(&words, bible)
 }

@@ -7,8 +7,8 @@
     "withGlobalTauri": true
   },
   "package": {
-    "productName": "Bible Study App",
-    "version": "0.3.1"
+    "productName": "Ascribe",
+    "version": "0.3.2"
   },
   "tauri": {
     "allowlist": {
@@ -67,7 +67,7 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "title": "Bible Study App",
+        "title": "Ascribe",
         "width": 800
       }
     ]

@@ -1,5 +1,6 @@
-import { invoke, debug_print, color_to_hex, trim_string } from "./utils.js";
+import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils.js";
 import { get_catagories, get_chapter_highlights, get_selected_highlight } from "./highlights.js";
+import { push_chapter, get_current_view_state } from "./view_states.js";
 
 export async function load_view()
 {
@@ -18,14 +19,20 @@ export async function get_chapter_view()
 
 export async function get_chapter()
 {
-    let json = await invoke('get_current_chapter', {});
-    let chapter = JSON.parse(json);
-    return chapter;
+    let view_state = await get_current_view_state();
+    if(view_state.type !== 'chapter')
+    {
+        debug_print('tried to get non chapter view state');
+        return null;
+    }
+
+    return view_state.chapter;
 }
 
 export async function get_chapter_words() 
 {
-    let chapter_text = JSON.parse(await invoke('get_current_chapter_text', {}));
+    let chapter = await get_chapter();
+    let chapter_text = JSON.parse(await invoke('get_chapter_text', { chapter: chapter }));
 
     let words = [];
     for(let v = 0; v < chapter_text.verses.length; v++)
@@ -116,12 +123,7 @@ export async function create_highlight_selection(on_selected)
     });
 
     container.appendChild(none_div);
-}
-
-export async function set_chapter(book_index, chapter_index) 
-{
-    let chapter_json = JSON.stringify( {book: book_index, number: chapter_index });
-    invoke('set_current_chapter', {chapter: chapter_json});
+    on_selected(null);
 }
 
 export async function to_next_chapter() 
@@ -139,7 +141,7 @@ export async function to_next_chapter()
         current_chapter.number = 0;
     }
 
-    set_chapter(current_chapter.book, current_chapter.number);
+    push_chapter(current_chapter);
 }
 
 export async function to_previous_chapter() 
@@ -157,7 +159,7 @@ export async function to_previous_chapter()
         current_chapter.number = view[current_chapter.book].chapterCount - 1;
     }
 
-    set_chapter(current_chapter.book, current_chapter.number);
+    push_chapter(current_chapter);
 }
 
 export async function get_verse_word_offset(book, chapter, verse_index)
@@ -174,4 +176,34 @@ export async function get_verse_word_offset(book, chapter, verse_index)
     }
 
     return offset;
+}
+
+const SHORTENED_BOOK_NAME_LENGTH = 3;
+export function shorten_book_name(name)
+{
+    const regex = /(?<prefix>\d+)?\s*(?<suffix>\w+)/;
+    const match = name.match(regex);
+    let prefix = '';
+    if(match.groups.prefix !== undefined)
+    {
+        prefix = `${match.groups.prefix} `;
+    }
+
+    let suffix = match.groups.suffix.toLowerCase();
+
+    name = suffix;
+    if(name === 'exodus')
+    {
+        name = 'ex'
+    }
+    else if(name === 'john')
+    {
+        name = 'jn';
+    }
+
+    name = name = name.length > SHORTENED_BOOK_NAME_LENGTH
+        ? name.slice(0, SHORTENED_BOOK_NAME_LENGTH)
+        : name;
+
+    return prefix + capitalize_first_char(name);
 }

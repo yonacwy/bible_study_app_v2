@@ -38,6 +38,12 @@ export function is_alpha_numeric(str)
     return REGEX.test(str);
 }
 
+export function is_valid_title(str)
+{
+    const REGEX = /^[a-zA-Z0-9 \'\"\?\!\:\;\,\.\+\-]+$/;
+    return REGEX.test(str);
+}
+
 export function clamp(min, max, value)
 {
     return Math.max(min, Math.min(max, value));
@@ -113,3 +119,39 @@ export function overlap(a, b)
 {
     return a.filter(i => b.includes(i))
 }
+
+export function reset_scroll()
+{
+    window.scrollTo(0, 0);
+}
+
+export function set_opacity(id, opacity)
+{
+    document.getElementById(id).style.opacity = opacity;
+}
+
+let copy_event_listener = null;
+export function init_format_copy_event_listener()
+{
+    if(copy_event_listener !== null)
+    {
+        document.removeEventListener('copy', copy_event_listener);
+    }
+
+    let listener = event => {
+        let selectedText = window.getSelection().toString();
+        selectedText = selectedText.replace(/\u00A0/g, ' '); // Replace non-breaking spaces
+        event.clipboardData.setData('text/plain', selectedText);
+        event.preventDefault(); // Prevent the default copy action
+    }
+
+    document.addEventListener('copy', listener);
+    copy_event_listener = listener;
+}
+
+export function capitalize_first_char(str) 
+{
+    if (!str) return str;
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+

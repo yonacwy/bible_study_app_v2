@@ -31,8 +31,8 @@
 - [x] Improve Bible Viewer
   - [x] Better book/chapter selection
   - [x] Next/previous chapter buttons
-  - [ ] Search bar
-- [ ] Search-bar
+  - [x] Search bar
+- [x] Search-bar
   - [x] Word searches
     - [x] Returns result of all verses with words
     - [ ] ~~Has a priority system~~
@@ -47,17 +47,24 @@
 - [x] Word search large section selection
 
 ### Version 0.3.2: General Fixes
-- [ ] More text alternates for buttons
-- [ ] Bugs:
-  - [ ] Searching for spaces is allowed
-  - [ ] Punctuation in highlight names
-  - [ ] Reset scroll
-- [ ] Back to current chapter button when doing word searches
-- [ ] Chapter History?
+- [x] More text alternates for buttons
+- [x] Bugs:
+  - [x] Searching for spaces is allowed
+  - [x] Punctuation in highlight names
+  - [x] Reset scroll
+  - [x] Duplicate words in searches break
+- [x] Chapter History
 - [ ] Better section display for large word searches
   - [ ] Make buttons look better
-  - [ ] Show chapter sections (ei: 1 Sam 4:4 -  Job 32:7), etc
-  - [ ] Need way to display short chapter names (first four letters?)
+  - [x] Show chapter sections (ei: 1 Sam 4:4 -  Job 32:7), etc
+  - [x] Need way to display short chapter names (first four letters?)
+- [x] Can check for multiple of teh same words
+  - [x] Will check frequency of those words
+- [x] Top bar
+  - [x] Make bigger
+  - [x] Make buttons not shrink when make window smaller
+- [x] Figure out name
+- [x] Allow copy paste text
 
 ### Version 0.4.0: More Notes
 - [ ] Verse notes

@@ -39,10 +39,14 @@ fn main() {
 		})
 		.invoke_handler(tauri::generate_handler![
 			debug_print, 
-			get_bible_view, 
-			get_current_chapter, 
-			set_current_chapter,
-			get_current_chapter_text,
+			get_bible_view,
+			get_current_view_state,
+			get_view_state_index,
+			push_view_state,
+			get_view_state_count,
+			to_next_view_state,
+			to_previous_view_state,
+			get_chapter_text,
 			get_verse,
 			get_book_name,
 			get_chapter_view,
@@ -53,7 +57,8 @@ fn main() {
 			get_chapter_highlights,
 			highlight_word,
 			erase_highlight,
-			search_bible,
+			parse_bible_search,
+			run_word_search,
 		])
 		.run(tauri::generate_context!())
 		.expect("error while running tauri application");
