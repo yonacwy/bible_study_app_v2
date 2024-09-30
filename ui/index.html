@@ -92,7 +92,7 @@
                 }
                 else if(result.type === 'word')
                 {
-                    view_states.push_search(result.words).then(() => {
+                    view_states.push_search(result.words, 0).then(() => {
                         render_current_view();
                     });
                 }
@@ -230,10 +230,16 @@
                 
                 utils.set_value('search-input', view_state.words.join(" "));
 
-                render_search_result(search_result, view_state.words, 'word-search-content', word_popup, side_popup, side_popup_content, 0, update_word_selection, msg => {
-                    utils.set_value('search-input', msg);
-                    document.getElementById('search-btn').click();
-                });
+                render_search_result(search_result, view_state.words, 'word-search-content', word_popup, side_popup, side_popup_content, view_state.displayIndex, 
+                    () => {
+                        update_nav_buttons_opacity();
+                        update_word_selection();
+                    }, 
+                    msg => {
+                        utils.set_value('search-input', msg);
+                        document.getElementById('search-btn').click();
+                    }
+                );
                 utils.set_display('chapter-content', 'none');
                 utils.set_display('next-chapter-btn', 'none');
                 utils.set_display('previous-chapter-btn', 'none');
@@ -243,7 +249,12 @@
             {
                 show_error_popup('error-message', true, `Search type ${result.type} unsupported on the front end`)
             }
-            
+
+            update_nav_buttons_opacity();
+        }
+
+        function update_nav_buttons_opacity() 
+        {
             const INACTIVE_OPACITY = 0.3;
             view_states.is_last_view_state().then(is_last => {
                 if(is_last)

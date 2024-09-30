@@ -149,3 +149,9 @@ export function init_format_copy_event_listener()
     copy_event_listener = listener;
 }
 
+export function capitalize_first_char(str) 
+{
+    if (!str) return str;
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+

@@ -5,6 +5,7 @@ import * as wp from "./word_popup.js";
 import * as sp from "./side_popup.js"
 import { erase_highlight, get_catagories, get_selected_highlight, highlight_word } from "./highlights.js";
 import { ERASER_STATE_NAME } from "./save_states.js";
+import { push_search } from "./view_states.js";
 
 let old_event_handler = null;
 const MAX_DISPLAY = 50;
@@ -27,10 +28,6 @@ export async function render_search_result(result, searched, results_id, word_po
     document.addEventListener('mouseup', event_handler);
     old_event_handler = event_handler;
 
-    let render_section = (i) => render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, i, on_rendered, on_search);
-
-    append_section_buttons(result, render_section, display_index, new_children);
-
     let start = display_index * MAX_DISPLAY;
     let end = Math.min(result_count, MAX_DISPLAY + start);
 
@@ -48,6 +45,10 @@ export async function render_search_result(result, searched, results_id, word_po
         result_node.appendChild(reference_node);
         new_children.push(result_node);
     }
+
+    let render_section = (i) => render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, i, on_rendered, on_search);
+    let buttons = await generate_section_buttons(result, render_section, display_index, searched);
+    new_children.push(buttons);
 
     results_node.replaceChildren(...new_children);
     on_rendered();
@@ -75,40 +76,46 @@ function append_search_header(result_count, new_children, searched)
     }
 }
 
-function append_section_buttons(search_results, render_section, display_index, new_children) 
+async function generate_section_buttons(search_results, render_section, display_index, searched) 
 {
-    bible.load_view().then(view => {
-        let section_count = Math.ceil(search_results.length / MAX_DISPLAY);
-        if(section_count <= 1)
-        {
-            return;
+    let view = await bible.load_view();
+
+    let section_count = Math.ceil(search_results.length / MAX_DISPLAY);
+    if(section_count <= 1)
+    {
+        return;
+    }
+
+    let parent = document.createElement('div');
+    parent.classList.add('selection-buttons')
+
+    for (let i = 0; i < section_count; i++) 
+    {
+        let start_index = i * MAX_DISPLAY;
+        let start_result = search_results[start_index];
+        let start_text = `${bible.shorten_book_name(view[start_result.book].name)} ${start_result.chapter + 1}:${start_result.verse + 1}`;
+        
+        let end_index = Math.min(search_results.length - 1, MAX_DISPLAY + start_index - 1);
+        let end_result = search_results[end_index];
+        let end_text = `${bible.shorten_book_name(view[end_result.book].name)} ${end_result.chapter + 1}:${end_result.verse + 1}`;
+        
+        
+        let name = `${start_text} - ${end_text}`;
+        let button = document.createElement('button');
+        button.innerHTML = name;
+        button.addEventListener('click', e => {
+            push_search(searched, i);
+            render_section(i);
+        });
+
+        if (display_index === i) {
+            button.classList.add('selected-button')
         }
 
-        for (let i = 0; i < section_count; i++) 
-        {
-            let start_index = i * MAX_DISPLAY;
-            let start_result = search_results[start_index];
-            let start_text = `${bible.shorten_book_name(view[start_result.book].name)} ${start_result.chapter + 1}:${start_result.verse + 1}`;
-            
-            let end_index = Math.min(search_results.length - 1, MAX_DISPLAY + start_index - 1);
-            let end_result = search_results[end_index];
-            let end_text = `${bible.shorten_book_name(view[end_result.book].name)} ${end_result.chapter + 1}:${end_result.verse + 1}`;
-            
-            
-            let name = `${start_text} - ${end_text}`;
-            let button = document.createElement('button');
-            button.innerHTML = name;
-            button.addEventListener('click', e => {
-                render_section(i);
-            });
+        parent.appendChild(button);
+    }
 
-            if (display_index === i) {
-                button.style.border = "2px solid black";
-            }
-
-            new_children.push(button);
-        }
-    })
+    return parent;
 }
 
 async function spawn_verse(words, searched, position, catagories, word_popup, side_popup, side_popup_content)

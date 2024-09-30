@@ -18,16 +18,17 @@ export async function push_chapter(chapter, verse_range = null)
     return await utils.invoke('push_view_state', { viewState: {
         type: 'chapter',
         chapter: chapter,
-        verse_range: verse_range,
+        verseRange: verse_range,
         scroll: 0.0
     }});
 }
 
-export async function push_search(words)
+export async function push_search(words, display_index)
 {
     return await utils.invoke('push_view_state', { viewState: {
         type: 'search',
         words: words,
+        displayIndex: display_index,
         scroll: 0.0
     }});
 }

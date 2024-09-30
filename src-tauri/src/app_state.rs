@@ -215,6 +215,8 @@ pub enum ViewState
     Search
     {
         words: Vec<String>,
+        #[serde(rename = "displayIndex")]
+        display_index: u32,
         scroll: f32,
     }
 }
