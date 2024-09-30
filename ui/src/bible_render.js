@@ -7,7 +7,7 @@ import { get_chapter } from "./bible.js";
 
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 
-export async function render_current_chapter(content_id, word_popup_id, popup_panel_id) 
+export async function render_current_chapter(content_id, word_popup_id, popup_panel_id, on_render) 
 {
     document.getElementById(content_id).replaceChildren();
 
@@ -50,7 +50,9 @@ export async function render_current_chapter(content_id, word_popup_id, popup_pa
                 }
             });
         }
-    });    
+
+        on_render();
+    });
 }
 
 function update_word(i, div)

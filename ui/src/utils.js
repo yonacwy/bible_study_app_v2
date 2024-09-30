@@ -130,3 +130,22 @@ export function set_opacity(id, opacity)
     document.getElementById(id).style.opacity = opacity;
 }
 
+let copy_event_listener = null;
+export function init_format_copy_event_listener()
+{
+    if(copy_event_listener !== null)
+    {
+        document.removeEventListener('copy', copy_event_listener);
+    }
+
+    let listener = event => {
+        let selectedText = window.getSelection().toString();
+        selectedText = selectedText.replace(/\u00A0/g, ' '); // Replace non-breaking spaces
+        event.clipboardData.setData('text/plain', selectedText);
+        event.preventDefault(); // Prevent the default copy action
+    }
+
+    document.addEventListener('copy', listener);
+    copy_event_listener = listener;
+}
+

@@ -79,6 +79,8 @@
         import { build_chapter_selection_dropdown } from './src/selection.js';
         import { render_search_result } from './src/word_search.js';
 
+        utils.init_format_copy_event_listener();
+
         utils.on_click('search-btn', e => {
             let value = utils.read_value('search-input');
             utils.invoke('parse_bible_search', { text: value }).then(result => {
@@ -155,19 +157,24 @@
             utils.set_value('search-input', `${name} ${number}`);
             document.getElementById('search-btn').click();
         });
+
         bible.create_highlight_selection(id => {
             get_catagories().then(catagories => {
                 let color = DEFAULT_BUTTON_COLOR;
+                let opacity = 0.3;
                 if(id !== null)
                 {
                     let category = catagories[id];
                     color = utils.color_to_hex(category.color);
+                    opacity = 1.0;
                 }
                 
                 set_selected_highlight(id);
 
                 let btn = document.getElementById('highlight-selector-btn');
                 btn.style.backgroundColor = color;
+                btn.style.opacity = opacity;
+                update_word_selection()
             });
         });
 
@@ -196,11 +203,12 @@
                 
                 utils.set_value('search-input', `${name} ${number}`);
                 utils.set_html('chapter-name', `${name} ${number}`);
-                render_current_chapter('chapter-text-content', 'word-popup', 'popup-panel').then(() => {
+                render_current_chapter('chapter-text-content', 'word-popup', 'popup-panel', update_word_selection).then(() => {
                     utils.set_display('chapter-content', 'block');
                     utils.set_display('next-chapter-btn', 'block');
                     utils.set_display('previous-chapter-btn', 'block');
                     utils.set_display('word-search-content', 'none');
+
                     if(view_state.verseRange !== null)
                     {
                         let start = view_state.verseRange.start;
@@ -208,7 +216,9 @@
                         element.scrollIntoView();
                         window.scrollBy(0, -25);
                     }
-                })
+
+                    update_word_selection();
+                });
             }
             else if(view_state.type === 'search')
             {
@@ -220,7 +230,7 @@
                 
                 utils.set_value('search-input', view_state.words.join(" "));
 
-                render_search_result(search_result, view_state.words, 'word-search-content', word_popup, side_popup, side_popup_content, 0, msg => {
+                render_search_result(search_result, view_state.words, 'word-search-content', word_popup, side_popup, side_popup_content, 0, update_word_selection, msg => {
                     utils.set_value('search-input', msg);
                     document.getElementById('search-btn').click();
                 });
@@ -256,6 +266,24 @@
                     utils.set_opacity('back-btn', 1.0);
                 }
             })
+        }
+
+        function update_word_selection()
+        {
+            if(get_selected_highlight() !== null)
+            {
+                document.querySelectorAll('.bible-word, .bible-space').forEach(w => {
+                    w.style.userSelect = 'none';
+                    w.style.cursor = 'pointer';
+                });
+            }
+            else 
+            {
+                document.querySelectorAll('.bible-word, .bible-space').forEach(w => {
+                    w.style.userSelect = 'text';
+                    w.style.cursor = 'default';
+                });
+            }
         }
     </script>
 </body>

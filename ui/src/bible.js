@@ -123,6 +123,7 @@ export async function create_highlight_selection(on_selected)
     });
 
     container.appendChild(none_div);
+    on_selected(null);
 }
 
 export async function to_next_chapter() 
@@ -175,4 +176,34 @@ export async function get_verse_word_offset(book, chapter, verse_index)
     }
 
     return offset;
+}
+
+const SHORTENED_BOOK_NAME_LENGTH = 3;
+export function shorten_book_name(name)
+{
+    const regex = /(?<prefix>\d+)?\s*(?<suffix>\w+)/;
+    const match = name.match(regex);
+    let prefix = '';
+    if(match.groups.prefix !== undefined)
+    {
+        prefix = `${match.groups.prefix} `;
+    }
+
+    let suffix = match.groups.suffix.toLowerCase();
+
+    name = suffix;
+    if(name === 'exodus')
+    {
+        name = 'ex'
+    }
+    else if(name === 'john')
+    {
+        name = 'jn';
+    }
+
+    name = name = name.length > SHORTENED_BOOK_NAME_LENGTH
+        ? name.slice(0, SHORTENED_BOOK_NAME_LENGTH)
+        : name;
+
+    return prefix + name;
 }

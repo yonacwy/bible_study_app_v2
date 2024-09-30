@@ -208,6 +208,7 @@ pub enum ViewState
     Chapter
     {
         chapter: ChapterIndex,
+        #[serde(rename = "verseRange")]
         verse_range: Option<VerseRange>,
         scroll: f32,
     },

@@ -17,3 +17,4 @@
 - F11 fullscreen support
 - Backwards compatibility with older notes
 - Bug with Ctrl + F
+- Add dark mode/different themes

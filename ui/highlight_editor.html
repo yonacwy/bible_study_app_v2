@@ -56,12 +56,12 @@
     <script type="module">
         import * as utils from "./src/utils.js";
         import { show_error_popup } from "./src/error_popup.js";
-        import { render_catagories, create_category, get_catagories, set_category } from "./src/highlights.js";
+        import * as highlights from "./src/highlights.js";
 
         let editing_id = null;
         function on_edit(id)
         {
-            get_catagories().then(catagories => {
+            highlights.get_catagories().then(catagories => {
                 let category = catagories[id];
                 let color = utils.color_to_hex(category.color);
                 utils.set_value('color-in', color);
@@ -81,12 +81,16 @@
             utils.set_display('confirm-popup', 'flex');
         }
 
-        render_catagories(on_delete, on_edit);
+        highlights.render_catagories(on_delete, on_edit);
         
         utils.on_click('confirm-btn', (e) => {
             if (deleting_id != null)
             {
                 utils.invoke('remove_highlight_category', { id: deleting_id });
+                if(highlights.get_selected_highlight() === deleting_id)
+                {
+                    highlights.set_selected_highlight(null);   
+                }
             }
 
             utils.set_display('confirm-popup', 'none');
@@ -132,11 +136,11 @@
             {
                 if(editing_id == null)
                 {
-                    create_category(color, name, description, priority);
+                    highlights.create_category(color, name, description, priority);
                 }
                 else 
                 {
-                    set_category(editing_id, color, name, description, priority);
+                    highlights.set_category(editing_id, color, name, description, priority);
                 }
                 utils.set_display('highlight-popup', 'none');
                 location.reload();

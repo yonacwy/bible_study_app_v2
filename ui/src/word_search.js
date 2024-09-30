@@ -7,38 +7,19 @@ import { erase_highlight, get_catagories, get_selected_highlight, highlight_word
 import { ERASER_STATE_NAME } from "./save_states.js";
 
 let old_event_handler = null;
-const MAX_DISPLAY = 100;
+const MAX_DISPLAY = 50;
 
-export async function render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_search)
+export async function render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_rendered, on_search)
 {
     const catagories = await get_catagories();
     const results_node = document.getElementById(results_id);
 
     let result_count = result.length;
-
     let new_children = [];
 
-    if(result_count === 0)
-    {
-        let results_title = document.createElement('h2');
-        results_title.innerHTML = `No results found`;
-        new_children.push(results_title);
-    }
-    else if(result_count === 1)
-    {
-        let results_title = document.createElement('h2');
-        results_title.innerHTML = `Found a result for "${searched.join(' ')}"`
-        new_children.push(results_title);
-    }
-    else 
-    {
-        let results_title = document.createElement('h2');
-        results_title.innerHTML = `Found ${result_count} results for "${searched.join(' ')}"`
-        new_children.push(results_title);
-    }
+    append_search_header(result_count, new_children, searched);
 
-    let event_handler = _e => on_stop_dragging(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_search)
-
+    let event_handler = _e => on_stop_dragging(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_rendered, on_search)
     if(old_event_handler !== null)
     {
         document.removeEventListener('mouseup', old_event_handler);
@@ -46,24 +27,9 @@ export async function render_search_result(result, searched, results_id, word_po
     document.addEventListener('mouseup', event_handler);
     old_event_handler = event_handler;
 
-    
-    let section_count = Math.ceil(result_count / MAX_DISPLAY);
-    for(let i = 0; i < section_count; i++)
-    {
-        let name = `${i * MAX_DISPLAY + 1}-${(i + 1) * MAX_DISPLAY}`;
-        let button = document.createElement('button');
-        button.innerHTML = name;
-        button.addEventListener('click', e => {
-            render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, i, on_search);
-        });
+    let render_section = (i) => render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, i, on_rendered, on_search);
 
-        if(display_index === i)
-        {
-            button.style.border = "2px solid black";
-        }
-
-        new_children.push(button);
-    }
+    append_section_buttons(result, render_section, display_index, new_children);
 
     let start = display_index * MAX_DISPLAY;
     let end = Math.min(result_count, MAX_DISPLAY + start);
@@ -84,6 +50,65 @@ export async function render_search_result(result, searched, results_id, word_po
     }
 
     results_node.replaceChildren(...new_children);
+    on_rendered();
+}
+
+function append_search_header(result_count, new_children, searched) 
+{
+    if (result_count === 0) 
+    {
+        let results_title = document.createElement('h2');
+        results_title.innerHTML = `No results found`;
+        new_children.push(results_title);
+    }
+    else if (result_count === 1) 
+    {
+        let results_title = document.createElement('h2');
+        results_title.innerHTML = `Found a result for "${searched.join(' ')}"`;
+        new_children.push(results_title);
+    }
+    else 
+    {
+        let results_title = document.createElement('h2');
+        results_title.innerHTML = `Found ${result_count} results for "${searched.join(' ')}"`;
+        new_children.push(results_title);
+    }
+}
+
+function append_section_buttons(search_results, render_section, display_index, new_children) 
+{
+    bible.load_view().then(view => {
+        let section_count = Math.ceil(search_results.length / MAX_DISPLAY);
+        if(section_count <= 1)
+        {
+            return;
+        }
+
+        for (let i = 0; i < section_count; i++) 
+        {
+            let start_index = i * MAX_DISPLAY;
+            let start_result = search_results[start_index];
+            let start_text = `${bible.shorten_book_name(view[start_result.book].name)} ${start_result.chapter + 1}:${start_result.verse + 1}`;
+            
+            let end_index = Math.min(search_results.length - 1, MAX_DISPLAY + start_index - 1);
+            let end_result = search_results[end_index];
+            let end_text = `${bible.shorten_book_name(view[end_result.book].name)} ${end_result.chapter + 1}:${end_result.verse + 1}`;
+            
+            
+            let name = `${start_text} - ${end_text}`;
+            let button = document.createElement('button');
+            button.innerHTML = name;
+            button.addEventListener('click', e => {
+                render_section(i);
+            });
+
+            if (display_index === i) {
+                button.style.border = "2px solid black";
+            }
+
+            new_children.push(button);
+        }
+    })
 }
 
 async function spawn_verse(words, searched, position, catagories, word_popup, side_popup, side_popup_content)
