@@ -3,6 +3,7 @@ use std::{cell::RefCell, collections::HashMap, sync::Mutex};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use tauri::PathResolver;
+use serde_with::serde_as;
 
 use crate::{bible::*, notes::*, bible_parsing, utils::Color};
 
@@ -24,8 +25,7 @@ pub struct AppData
 #[derive(Serialize, Deserialize)]
 struct AppSave
 {
-    highlight_catagories: Vec<(String, HighlightCategory)>,
-    chapter_highlights: Vec<(ChapterIndex, Vec<(u32, Vec<String>)>)>,
+    notebook: Notebook,
     view_state_index: usize,
     view_states: Vec<ViewState>
 }
@@ -47,7 +47,10 @@ impl AppData
             None => {
                 let notebook = Notebook {
                     highlight_catagories: HashMap::new(),
-                    chapter_highlights: HashMap::new()
+                    notes: HashMap::new(),
+                    favorite_verses: HashMap::new(),
+                    section_headings: HashMap::new(),
+                    annotations: HashMap::new(),
                 };
                 
                 let view_states = vec![
@@ -99,30 +102,11 @@ impl AppData
     {
         let view_state_index = self.get_view_state_index();
 
-        let (highlight_catagories, chapter_highlights) = self.read_notes(|notebook| { 
-
-            let highlight_catagories = notebook.highlight_catagories.iter()
-                .map(|(id, category)| (id.clone(), category.clone()))
-                .collect_vec();
-
-            let chapter_highlights = notebook.chapter_highlights.iter()
-                .map(|(index, highlights)| {
-                    let highlight_vec = highlights.iter()
-                        .map(|(verse, ids)| (*verse, ids.clone()))
-                        .collect_vec();
-
-                    (index.clone(), highlight_vec)
-                })
-                .collect_vec();
-
-            (highlight_catagories, chapter_highlights)
-        });
-
         let view_states = self.view_states.lock().unwrap().borrow().clone();
+        let notebook = self.notebook.lock().unwrap().borrow().clone();
 
         let save = AppSave {
-            highlight_catagories,
-            chapter_highlights,
+            notebook,
             view_state_index,
             view_states
         };
@@ -135,29 +119,7 @@ impl AppData
     fn load(json: &str) -> (Notebook, usize, Vec<ViewState>)
     {
         let save: AppSave = serde_json::from_str(json).unwrap();
-
-        let highlight_catagories: HashMap<_, _> = save.highlight_catagories.iter()
-            .map(|(id, data)| (id.clone(), data.clone()))
-            .collect();
-
-        let chapter_highlights: HashMap<_, _> = save.chapter_highlights.iter()
-            .map(|(index, highlights)| {
-                let highlights_map: HashMap<_, _> = highlights.iter()
-                    .map(|(word, highlights)| {
-                        let mut highlights = highlights.clone();
-                        highlights.retain(|h| highlight_catagories.contains_key(h));
-                        (word.clone(), highlights)
-                    }).collect();
-
-                (index.clone(), highlights_map)
-            }).collect();
-        
-        let notebook = Notebook {
-            highlight_catagories,
-            chapter_highlights
-        };
-
-        (notebook, save.view_state_index, save.view_states.clone())
+        (save.notebook, save.view_state_index, save.view_states)
     }
 
     pub fn get() -> &'static Self 

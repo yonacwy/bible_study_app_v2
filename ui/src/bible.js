@@ -1,5 +1,5 @@
 import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils.js";
-import { get_catagories, get_chapter_highlights, get_selected_highlight } from "./highlights.js";
+import { get_catagories, get_selected_highlight } from "./highlights.js";
 import { push_chapter, get_current_view_state } from "./view_states.js";
 
 export async function load_view()

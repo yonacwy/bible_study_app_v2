@@ -54,7 +54,7 @@ fn main() {
 			add_highlight_category,
 			remove_highlight_category,
 			set_highlight_category,
-			get_chapter_highlights,
+			get_chapter_annotations,
 			highlight_word,
 			erase_highlight,
 			parse_bible_search,

@@ -1,4 +1,4 @@
-import { get_catagories, get_chapter_highlights } from "./highlights.js";
+import { get_catagories, get_chapter_annotations } from "./highlights.js";
 import { color_to_hex, debug_print } from "./utils.js";
 
 export function display_on_div(div, colors, popup) 
@@ -27,7 +27,7 @@ export function display_on_div(div, colors, popup)
 export async function init_word_popup_for_chapter(popup_id, content_id) 
 {
     let highlight_catagories = await get_catagories();
-    let chapter_highlights = await get_chapter_highlights();
+    let chapter_highlights = await get_chapter_annotations();
 
     let chapter_content = document.getElementById(content_id);
     let word_divs = chapter_content.getElementsByClassName('bible-word');
@@ -38,10 +38,10 @@ export async function init_word_popup_for_chapter(popup_id, content_id)
     {
         let word_div = word_divs[i];
 
-        let word_highlights = chapter_highlights[i];
-        if(word_highlights === undefined || word_highlights === null || word_highlights.length === 0) { continue; }
+        let word_annotations = chapter_highlights[i];
+        if(word_annotations === undefined || word_annotations === null || word_annotations.highlights.length === 0) { continue; }
 
-        let colors = word_highlights.map(h => highlight_catagories[h].color);
+        let colors = word_annotations.highlights.map(h => highlight_catagories[h].color);
         display_on_div(word_div, colors, popup);
     }
 }

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 
-use crate::{app_state::{AppData, ViewState}, bible::{ChapterIndex, Verse}, notes::HighlightCategory, search_parsing::*, utils::{get_hash_code, Color}};
+use crate::{app_state::{AppData, ViewState}, bible::{ChapterIndex, Verse}, notes::{HighlightCategory, WordAnnotations}, search_parsing::*, utils::{get_hash_code, Color}};
 
 #[tauri::command]
 pub fn debug_print(message: &str)
@@ -171,10 +171,10 @@ pub fn set_highlight_category(id: &str, color: &str, name: &str, description: &s
 }
 
 #[tauri::command]
-pub fn get_chapter_highlights(chapter: ChapterIndex) -> String
+pub fn get_chapter_annotations(chapter: ChapterIndex) -> String
 {
 	AppData::get().read_notes(|notebook| {
-		if let Some(highlights) = notebook.chapter_highlights.get(&chapter)
+		if let Some(highlights) = notebook.annotations.get(&chapter)
 		{
 			serde_json::to_string(highlights).unwrap()
 		}
@@ -189,30 +189,33 @@ pub fn get_chapter_highlights(chapter: ChapterIndex) -> String
 pub fn highlight_word(chapter: ChapterIndex, word_position: u32, highlight_id: &str)
 {
 	AppData::get().read_notes(|notebook| {
-		let chapter_highlights = match notebook.chapter_highlights.get_mut(&chapter) 
+		let chapter_annotations = match notebook.annotations.get_mut(&chapter) 
 		{
 			Some(highlights) => highlights,
 			None => 
 			{	
-				notebook.chapter_highlights.insert(chapter.clone(), HashMap::new());
-				notebook.chapter_highlights.get_mut(&chapter).unwrap()
+				notebook.annotations.insert(chapter.clone(), HashMap::new());
+				notebook.annotations.get_mut(&chapter).unwrap()
 			}
 		};
 
-		let word_highlights = match chapter_highlights.get_mut(&word_position)
+		let word_notes = match chapter_annotations.get_mut(&word_position)
 		{
 			Some(word_highlights) => word_highlights,
 			None => 
 			{
-				chapter_highlights.insert(word_position, Vec::new());
-				chapter_highlights.get_mut(&word_position).unwrap()
+				chapter_annotations.insert(word_position, WordAnnotations {
+					highlights: vec![],
+					notes: vec![]
+				});
+				chapter_annotations.get_mut(&word_position).unwrap()
 			},
 		};
 
 		let highlight_id = highlight_id.to_string();
-		if !word_highlights.contains(&highlight_id)
+		if !word_notes.highlights.contains(&highlight_id)
 		{
-			word_highlights.push(highlight_id);
+			word_notes.highlights.push(highlight_id);
 		}
 	});
 }
@@ -221,15 +224,15 @@ pub fn highlight_word(chapter: ChapterIndex, word_position: u32, highlight_id: &
 pub fn erase_highlight(chapter: ChapterIndex, word_position: u32, highlight_id: &str)
 {
 	AppData::get().read_notes(|notebook| {
-		let Some(chapter_highlights) = notebook.chapter_highlights.get_mut(&chapter) else {
+		let Some(chapter_highlights) = notebook.annotations.get_mut(&chapter) else {
 			return;
 		};
 
-		let Some(word_highlights) = chapter_highlights.get_mut(&word_position) else {
+		let Some(word_notes) = chapter_highlights.get_mut(&word_position) else {
 			return;
 		};
 
-		word_highlights.retain(|h| h != highlight_id);
+		word_notes.highlights.retain(|h| h != highlight_id);
 	});
 }
 

@@ -14,20 +14,21 @@ export async function render_search_result(result, searched, results_id, word_po
 {
     const catagories = await get_catagories();
     const results_node = document.getElementById(results_id);
-
+    
     let result_count = result.length;
     let new_children = [];
-
+    
     append_search_header(result_count, new_children, searched);
-
+    
     let event_handler = _e => on_stop_dragging(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_rendered, on_search)
     if(old_event_handler !== null)
     {
         document.removeEventListener('mouseup', old_event_handler);
     }
+    
     document.addEventListener('mouseup', event_handler);
     old_event_handler = event_handler;
-
+    
     let start = display_index * MAX_DISPLAY;
     let end = Math.min(result_count, MAX_DISPLAY + start);
 
@@ -123,7 +124,7 @@ async function spawn_verse(words, searched, position, catagories, word_popup, si
     searched = searched.map(s => s.toLocaleLowerCase());
     let verse_node = document.createElement('p');
     let offset = await bible.get_verse_word_offset(position.book, position.chapter, position.verse);
-    let highlights = JSON.parse(await utils.invoke('get_chapter_highlights', { chapter: {
+    let chapter_annotations = JSON.parse(await utils.invoke('get_chapter_annotations', { chapter: {
         book: position.book,
         number: position.chapter,
     }}));
@@ -131,15 +132,15 @@ async function spawn_verse(words, searched, position, catagories, word_popup, si
     let last_word_highlights = null;
     for(let i = 0; i < words.length; i++)
     {
-        let word_highlights = highlights[offset + i];
+        let word_annotations = chapter_annotations[offset + i];
 
         if(i != 0)
         {
             let space = render.create_bible_space();
 
-            if(word_highlights !== undefined && word_highlights !== null && word_highlights.length !== 0 && last_word_highlights !== null)
+            if(word_annotations !== undefined && word_annotations !== null && word_annotations.highlights.length !== 0 && last_word_highlights !== null)
             {
-                let overlap = utils.overlap(word_highlights, last_word_highlights);
+                let overlap = utils.overlap(word_annotations.highlights, last_word_highlights);
                 if(overlap.length !== 0)
                 {
                     let space_highlight = render.get_highest_priority_highlight(overlap);
@@ -152,11 +153,11 @@ async function spawn_verse(words, searched, position, catagories, word_popup, si
         }
 
         let color = null;
-        if(word_highlights !== null && word_highlights !== undefined && word_highlights.length !== 0)
+        if(word_annotations !== null && word_annotations !== undefined && word_annotations.highlights.length !== 0)
         {
-            let id = render.get_highest_priority_highlight(word_highlights, catagories);
+            let id = render.get_highest_priority_highlight(word_annotations.highlights, catagories);
             color = catagories[id].color;
-            last_word_highlights = word_highlights;
+            last_word_highlights = word_annotations.highlights;
         }
         else 
         {
@@ -164,12 +165,12 @@ async function spawn_verse(words, searched, position, catagories, word_popup, si
         }
 
         let word_node = render_word(words[i], searched, color);
-        if(word_highlights !== null && word_highlights !== undefined && word_highlights.length !== 0)
+        if(word_annotations !== null && word_annotations !== undefined && word_annotations.highlights.length !== 0)
         {
-            wp.display_on_div(word_node, word_highlights.map(h => catagories[h].color), word_popup);
+            wp.display_on_div(word_node, word_annotations.highlights.map(h => catagories[h].color), word_popup);
 
             let word = utils.trim_string(words[i].text);
-            sp.display_on_div(word_node, word, word_highlights, catagories, side_popup, side_popup_content);
+            sp.display_on_div(word_node, word, word_annotations.highlights, catagories, side_popup, side_popup_content);
         }
 
         let chapter = {
