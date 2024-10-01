@@ -1,0 +1,147 @@
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.container {
+    width: 85%;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+/* Header Styles */
+header {
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: #fff;
+    padding: 20px 0;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+nav ul {
+    list-style: none;
+}
+
+nav ul li {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+nav ul li a {
+    background: #fff;
+    color: #6a11cb;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+nav ul li a:hover {
+    background: #fff5f8;
+    color: #333;
+}
+
+/* Section Styles */
+.section {
+    padding: 60px 0;
+}
+
+h2 {
+    margin-bottom: 20px;
+    font-size: 2.5rem;
+    color: #6a11cb;
+    text-align: center;
+    font-weight: 600;
+}
+
+p, ul, ol {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+ul, ol {
+    margin-left: 20px;
+}
+
+ol {
+    list-style: decimal inside;
+}
+
+/* Changelog Specific Styles */
+.changelog {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.changelog li {
+    background: #f7f7f7;
+    border-left: 5px solid #2575fc;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.changelog li:hover {
+    transform: translateY(-5px);
+}
+
+/* Footer Styles */
+footer {
+    background: #333;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+}
+
+footer p {
+    font-size: 1rem;
+}
+
+/* Button Hover Effect */
+nav ul li a:hover {
+    background: #2575fc;
+    color: #fff;
+}
+
+a {
+    color: #2575fc;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    color: #6a11cb;
+}
+
+/* Media Queries (for responsiveness) */
+@media (max-width: 768px) {
+    nav ul li {
+        display: block;
+        margin: 10px 0;
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 2rem;
+    }
+}
