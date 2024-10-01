@@ -49,7 +49,10 @@ export async function render_search_result(result, searched, results_id, word_po
 
     let render_section = (i) => render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, i, on_rendered, on_search);
     let buttons = await generate_section_buttons(result, render_section, display_index, searched);
-    new_children.push(buttons);
+    if(buttons !== null)
+    {
+        new_children.push(buttons);
+    }
 
     results_node.replaceChildren(...new_children);
     on_rendered();
@@ -84,7 +87,7 @@ async function generate_section_buttons(search_results, render_section, display_
     let section_count = Math.ceil(search_results.length / MAX_DISPLAY);
     if(section_count <= 1)
     {
-        return;
+        return null;
     }
 
     let parent = document.createElement('div');
