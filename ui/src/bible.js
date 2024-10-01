@@ -1,6 +1,6 @@
 import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils.js";
-import { get_catagories, get_chapter_highlights, get_selected_highlight } from "./highlights.js";
-import { push_chapter, get_current_view_state } from "./view_states.js";
+import { get_catagories, get_selected_highlight } from "./highlights.js";
+import { push_section, get_current_view_state } from "./view_states.js";
 
 export async function load_view()
 {
@@ -141,7 +141,11 @@ export async function to_next_chapter()
         current_chapter.number = 0;
     }
 
-    push_chapter(current_chapter);
+    push_section({
+        book: current_chapter.book,
+        chapter: current_chapter.number,
+        verseRange: null
+    });
 }
 
 export async function to_previous_chapter() 
@@ -159,7 +163,11 @@ export async function to_previous_chapter()
         current_chapter.number = view[current_chapter.book].chapterCount - 1;
     }
 
-    push_chapter(current_chapter);
+    push_section({
+        book: current_chapter.book,
+        chapter: current_chapter.number,
+        verseRange: null
+    });
 }
 
 export async function get_verse_word_offset(book, chapter, verse_index)

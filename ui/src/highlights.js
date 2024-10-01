@@ -83,10 +83,10 @@ export function render_catagories(on_delete, on_edit)
     });
 }
 
-export async function get_chapter_highlights()
+export async function get_chapter_annotations()
 {
     let chapter = await get_chapter();
-    let highlights_json = await utils.invoke('get_chapter_highlights', { chapter: chapter });
+    let highlights_json = await utils.invoke('get_chapter_annotations', { chapter: chapter });
     return JSON.parse(highlights_json);
 }
 

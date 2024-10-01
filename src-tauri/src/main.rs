@@ -19,7 +19,7 @@ fn main() {
 	tauri::Builder::default()
 		.setup(|app| {
 			let resource_path = app.path_resolver()
-				.resolve_resource("resources/kjv.txt")
+				.resolve_resource("resources/small_kjv.txt")
 				.expect("Failed to retrieve `kjv.txt` resource");
 
 			let mut file = std::fs::File::open(&resource_path).unwrap();
@@ -54,7 +54,7 @@ fn main() {
 			add_highlight_category,
 			remove_highlight_category,
 			set_highlight_category,
-			get_chapter_highlights,
+			get_chapter_annotations,
 			highlight_word,
 			erase_highlight,
 			parse_bible_search,

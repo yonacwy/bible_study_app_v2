@@ -54,8 +54,8 @@
   - [x] Reset scroll
   - [x] Duplicate words in searches break
 - [x] Chapter History
-- [ ] Better section display for large word searches
-  - [ ] Make buttons look better
+- [x] Better section display for large word searches
+  - [x] Make buttons look better
   - [x] Show chapter sections (ei: 1 Sam 4:4 -  Job 32:7), etc
   - [x] Need way to display short chapter names (first four letters?)
 - [x] Can check for multiple of teh same words
@@ -66,7 +66,7 @@
 - [x] Figure out name
 - [x] Allow copy paste text
 
-### Version 0.4.0: More Notes
+### Version 0.4.0: Proper Note Taking
 - [ ] Verse notes
   - [ ] Cross references
   - [ ] Editor

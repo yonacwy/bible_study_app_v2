@@ -90,3 +90,21 @@ pub struct VerseRange
     pub start: u32,
     pub end: u32,
 }
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct WordRange
+{
+    pub verse_start: u32,
+    pub word_start: u32,
+    pub verse_end: u32,
+    pub word_end: u32,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ReferenceLocation
+{
+    pub chapter: ChapterIndex,
+    pub range: WordRange,
+}

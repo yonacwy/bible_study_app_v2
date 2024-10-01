@@ -1,82 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Freeze Rendering Example</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        .content {
-            padding: 20px;
-            text-align: center;
-        }
-
-        .freeze-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(255, 255, 255, 0.8);
-            z-index: 9999;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .freeze-overlay p {
-            font-size: 24px;
-            color: #333;
-        }
-
-        /* Optional styling for the button */
-        button {
-            padding: 10px 20px;
-            font-size: 18px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="freeze-overlay">
-        <p>Loading, please wait...</p>
-    </div>
-
-    <div class="content">
-        <h1>Page Content</h1>
-        <p>This is the content of the page. Click the button below to simulate changes and show the overlay.</p>
-        <button onclick="simulateChanges()">Make Changes</button>
-    </div>
-
-    <script>
-        function showOverlay() {
-            const overlay = document.querySelector('.freeze-overlay');
-            overlay.style.display = 'flex';  // Show overlay
-        }
-
-        function hideOverlay() {
-            const overlay = document.querySelector('.freeze-overlay');
-            overlay.style.display = 'none';  // Hide overlay
-        }
-
-        function simulateChanges() {
-            showOverlay();  // Show overlay before changes
-            console.log("Starting changes...");
-
-            // Simulate some changes (e.g., DOM updates, AJAX request, etc.)
-            setTimeout(() => {
-                console.log("Changes completed.");
-                hideOverlay();  // Hide overlay when changes are done
-            }, 3000);  // Simulate 3 seconds delay to mimic a process
-        }
-    </script>
-
-</body>
-</html>
+<ol>
+    <li>
+      <div class="custom-content"></div>
+      <span class="list-number"></span>
+      <span class="list-text">Item 1</span>
+    </li>
+    <li>
+      <div class="custom-content"></div>
+      <span class="list-number"></span>
+      <span class="list-text">Item 2</span>
+    </li>
+    <li>
+      <div class="custom-content"></div>
+      <span class="list-number"></span>
+      <span class="list-text">Item 3</span>
+    </li>
+  </ol>
+  
+  <style>
+    /* Hide default list numbers */
+    ol {
+      counter-reset: list-counter;
+      padding-left: 0;
+    }
+  
+    /* Use flexbox to align the div, number, and text */
+    li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      list-style-type: none; /* Remove default numbering */
+    }
+  
+    /* The square or image goes in this div */
+    .custom-content {
+      width: 20px;
+      height: 20px;
+      background-color: black; /* Example square */
+      margin-right: 10px; /* Space between the square and the number */
+    }
+  
+    /* Add custom number */
+    .list-number::before {
+      counter-increment: list-counter;
+      content: counter(list-counter) '. '; /* Add list number */
+      font-weight: bold;
+      margin-right: 10px; /* Space between number and text */
+    }
+  
+    /* Optional styling for the list text */
+    .list-text {
+      display: inline-block;
+    }
+  </style>
+  

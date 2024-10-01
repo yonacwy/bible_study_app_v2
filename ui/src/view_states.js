@@ -13,12 +13,15 @@ export async function is_first_view_state()
     return current <= 0;
 }
 
-export async function push_chapter(chapter, verse_range = null)
+export async function push_section(section)
 {
     return await utils.invoke('push_view_state', { viewState: {
         type: 'chapter',
-        chapter: chapter,
-        verseRange: verse_range,
+        chapter: {
+            book: section.book,
+            number: section.chapter
+        },
+        verseRange: section.verseRange,
         scroll: 0.0
     }});
 }

@@ -98,10 +98,7 @@
                 }
                 else if (result.type === 'section')
                 {
-                    view_states.push_chapter({
-                        book: result.section.book,
-                        number: result.section.chapter,
-                    }).then(() => {
+                    view_states.push_section(result.section).then(() => {
                         render_current_view();
                     });
                 }
