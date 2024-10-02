@@ -41,6 +41,16 @@ nav ul li {
     margin-right: 15px;
 }
 
+body {
+    background-color: #f0f0f0;
+}
+
+a {
+    color: #2575fc;
+    text-decoration: none;
+    font-weight: bold;
+}
+
 nav ul li a {
     background: #fff;
     color: #6a11cb;
@@ -54,6 +64,43 @@ nav ul li a {
 nav ul li a:hover {
     background: #fff5f8;
     color: #333;
+}
+
+/* Button Hover Effect */
+nav ul li a:hover {
+    background: #2575fc;
+    color: #fff;
+}
+
+a:hover {
+    color: #6a11cb;
+}
+
+.download-btn {
+    padding: 10px;
+    background-color: #2575fc;
+    margin-left: auto;
+    margin-right: auto;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    text-align: center;
+    width: 300px;
+    border-radius: 50px;
+    margin-bottom: 20px;
+}
+
+.download-btn a {
+    position: relative;
+    color: white;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.download-btn:hover {
+    background-color: white;
+}
+
+.download-btn:hover a {
+    color: #6a11cb;
 }
 
 /* Section Styles */
@@ -123,22 +170,6 @@ footer {
 
 footer p {
     font-size: 1rem;
-}
-
-/* Button Hover Effect */
-nav ul li a:hover {
-    background: #2575fc;
-    color: #fff;
-}
-
-a {
-    color: #2575fc;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-a:hover {
-    color: #6a11cb;
 }
 
 /* Media Queries (for responsiveness) */
