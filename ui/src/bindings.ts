@@ -18,8 +18,6 @@ export type HighlightCategory = { color: Color, name: string, description: strin
 export type NoteData = { id: string, text: string };
 export type WordAnnotations = { highlights: Array<string>, notes: Array<string> };
 
-
 // ------------------------ Misc Bindings ----------------------------
 export type Color = { r: number, g: number, b: number };
-export type BibleSection = { book: number, chapter: number, verseRange: VerseRange | null }
-export type WordSearchResult = { book: number, chapter: number, verse: number };
+export type BibleSection = { book: number, chapter: number, verseRange: VerseRange | null };
