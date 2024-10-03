@@ -4,6 +4,7 @@ import { init_word_popup_for_chapter } from "./word_popup.js";
 import { init_popup_panel_for_chapter } from "./side_popup.js"
 import { ERASER_STATE_NAME } from "./save_states.js";
 import { get_chapter } from "./bible.js";
+import { Color } from "./bindings.js";
 
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 
@@ -199,7 +200,7 @@ export function bold(t: HTMLElement): HTMLElement
     return b;
 }
 
-export function color(t: HTMLElement, c: any): HTMLElement
+export function color(t: HTMLElement, c: Color): HTMLElement
 {
     let span = document.createElement('span');
     span.appendChild(t);

@@ -172,7 +172,7 @@ export async function to_previous_chapter(): Promise<void>
     });
 }
 
-export async function get_verse_word_offset(book: string, chapter: number, verse_index: number): Promise<number>
+export async function get_verse_word_offset(book: number, chapter: number, verse_index: number): Promise<number>
 {
     let view = JSON.parse(await invoke('get_chapter_view', { chapter: {
         book: book,

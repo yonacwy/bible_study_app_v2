@@ -6,6 +6,7 @@ import * as sp from "./side_popup.js"
 import { erase_highlight, get_catagories, get_selected_highlight, highlight_word } from "./highlights.js";
 import { ERASER_STATE_NAME } from "./save_states.js";
 import { push_search } from "./view_states.js";
+import { ChapterIndex, Color, Word, WordPosition } from "./bindings.js";
 
 let old_event_handler: ((e: Event) => void) | null = null;
 const MAX_DISPLAY = 50;
@@ -123,7 +124,7 @@ async function generate_section_buttons(search_results: any[], render_section: (
     return parent;
 }
 
-async function spawn_verse(words: any[], searched: string[], position: any, catagories: any, word_popup: HTMLElement, side_popup: HTMLElement, side_popup_content: HTMLElement)
+async function spawn_verse(words: Word[], searched: string[], position: WordPosition, catagories: any, word_popup: HTMLElement, side_popup: HTMLElement, side_popup_content: HTMLElement)
 {
     searched = searched.map(s => s.toLocaleLowerCase());
     let verse_node = document.createElement('p');
@@ -197,7 +198,7 @@ async function spawn_verse(words: any[], searched: string[], position: any, cata
 }
 
 let is_dragging = false;
-async function on_start_dragging(chapter: any, word_index: number, word_div: HTMLElement) 
+async function on_start_dragging(chapter: ChapterIndex, word_index: number, word_div: HTMLElement) 
 {
     if(get_selected_highlight() !== null)
     {
@@ -206,7 +207,7 @@ async function on_start_dragging(chapter: any, word_index: number, word_div: HTM
     }
 }
 
-async function on_over_dragging(chapter: any, word_index: number, word_div: HTMLElement) 
+async function on_over_dragging(chapter: ChapterIndex, word_index: number, word_div: HTMLElement) 
 {
     if(is_dragging && get_selected_highlight() !== null)
     {
@@ -229,7 +230,7 @@ async function on_stop_dragging(result: any[], searched: string[], results_id: s
     }
 }
 
-function update_word(chapter: any, word: number, div: HTMLElement)
+function update_word(chapter: ChapterIndex, word: number, div: HTMLElement)
 {
     div.style.color = render.HIGHLIGHT_SELECTED_WORD_COLOR;
     let selected_highlight = get_selected_highlight();
@@ -261,7 +262,7 @@ async function spawn_reference(book: string, chapter: number, verse: number, on_
     return reference;
 }
 
-function render_word(word: any, searched: string[], color: any)
+function render_word(word: Word, searched: string[], color: Color | null)
 {
     let word_node: HTMLElement = render.create_bible_word(word.text);
     if (word.italicized)

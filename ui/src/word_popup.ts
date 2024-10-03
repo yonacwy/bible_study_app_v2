@@ -1,7 +1,8 @@
+import { Color } from "./bindings.js";
 import { get_catagories, get_chapter_annotations } from "./highlights.js";
 import { color_to_hex, debug_print } from "./utils.js";
 
-export function display_on_div(div: HTMLElement, colors: any[], popup: HTMLElement) 
+export function display_on_div(div: HTMLElement, colors: Color[], popup: HTMLElement) 
 {
     div.addEventListener('mouseenter', _ => {
         popup.replaceChildren();

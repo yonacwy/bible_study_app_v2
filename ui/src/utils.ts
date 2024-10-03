@@ -1,3 +1,5 @@
+import { Color } from "./bindings";
+
 export const invoke: (fn_name: string, args: any) => Promise<any> = (window as any).__TAURI__.invoke;
 
 export function debug_print(msg: string)
@@ -69,7 +71,7 @@ export function clamp(min: number, max: number, value: number): number
     return Math.max(min, Math.min(max, value));
 }
 
-export function color_to_hex(color: any): string
+export function color_to_hex(color: Color): string
 {
     const { r, g, b } = color;
 
@@ -83,7 +85,7 @@ export function color_to_hex(color: any): string
     return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-export function inverse_color(color: any): any
+export function inverse_color(color: Color): Color
 {
     const { r, g, b } = color;
     let ir = 255 - r;

@@ -1,3 +1,4 @@
+import { BibleSection } from "./bindings.js";
 import * as utils from "./utils.js";
 
 export async function is_last_view_state(): Promise<boolean>
@@ -13,7 +14,7 @@ export async function is_first_view_state(): Promise<boolean>
     return current <= 0;
 }
 
-export async function push_section(section: any)
+export async function push_section(section: BibleSection)
 {
     return await utils.invoke('push_view_state', { viewState: {
         type: 'chapter',
