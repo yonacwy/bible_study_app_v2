@@ -1,7 +1,7 @@
 {
   "build": {
-    "beforeBuildCommand": "",
-    "beforeDevCommand": "",
+    "beforeBuildCommand": "tsc -p src-tauri/tsconfig.json",
+    "beforeDevCommand": "tsc -p src-tauri/tsconfig.json",
     "devPath": "../ui",
     "distDir": "../ui",
     "withGlobalTauri": true

@@ -1,8 +1,11 @@
 import { debug_print } from "./utils.js";
 
-export function show_error_popup(id, show, message)
+export function show_error_popup(id: string, show: boolean, message: string)
 {
     const error_message = document.getElementById(id);
+
+    if(error_message === null) return;
+
     if (show) 
     {
         error_message.style.display = 'block';

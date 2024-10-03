@@ -54,9 +54,9 @@
         <div id="highlights" class="highlight-container"></div>
     </main>
     <script type="module">
-        import * as utils from "./src/utils.js";
-        import { show_error_popup } from "./src/error_popup.js";
-        import * as highlights from "./src/highlights.js";
+        import * as utils from "./dist/utils.js";
+        import { show_error_popup } from "./dist/error_popup.js";
+        import * as highlights from "./dist/highlights.js";
 
         let editing_id = null;
         function on_edit(id)
@@ -134,7 +134,7 @@
 
             if(!was_error)
             {
-                if(editing_id == null)
+                if(editing_id === null)
                 {
                     highlights.create_category(color, name, description, priority);
                 }

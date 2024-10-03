@@ -7,12 +7,12 @@ import { get_chapter } from "./bible.js";
 
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 
-export async function render_current_chapter(content_id, word_popup_id, popup_panel_id, on_render) 
+export async function render_current_chapter(content_id: string, word_popup_id: string, popup_panel_id: string, on_render: (() => Promise<void>) | null) 
 {
-    document.getElementById(content_id).replaceChildren();
+    document.getElementById(content_id)?.replaceChildren();
 
     return render_chapter_text().then((content) => {
-        document.getElementById(content_id).appendChild(content);
+        document.getElementById(content_id)?.appendChild(content);
     }).then(() => {
         init_word_popup_for_chapter(word_popup_id, content_id);
         init_popup_panel_for_chapter(popup_panel_id, content_id);
@@ -25,16 +25,16 @@ export async function render_current_chapter(content_id, word_popup_id, popup_pa
             {
                 is_dragging = false;
                 let scroll = window.scrollY;
-                render_current_chapter(content_id, word_popup_id, popup_panel_id).then(() => {
+                render_current_chapter(content_id, word_popup_id, popup_panel_id, null).then(() => {
                     window.scrollTo(window.scrollX, scroll);
                 }); 
-                document.getElementById(word_popup_id).classList.remove('show');
+                document.getElementById(word_popup_id)?.classList.remove('show');
             }
         });
 
         for(let i = 0; i < word_divs.length; i++)
         {
-            let word_div = word_divs[i];
+            let word_div = word_divs[i] as HTMLDivElement;
             word_div.addEventListener('mousedown', e => {
                 if(get_selected_highlight() !== null)
                 {
@@ -51,24 +51,29 @@ export async function render_current_chapter(content_id, word_popup_id, popup_pa
             });
         }
 
-        on_render();
+        if(on_render !== null)
+        {
+            on_render();
+        }
     });
 }
 
-function update_word(i, div)
+function update_word(i: number, div: HTMLDivElement)
 {
     div.style.color = HIGHLIGHT_SELECTED_WORD_COLOR;
+    let selected_highlight = get_selected_highlight();
+    if(selected_highlight === null) return;
     if(get_toggle_value(ERASER_STATE_NAME) !== true)
     {
-        highlight_chapter_word(i, get_selected_highlight()); // if the eraser is false, we highlight
+        highlight_chapter_word(i, selected_highlight); // if the eraser is false, we highlight
     }
     else 
     {
-        erase_chapter_highlight(i, get_selected_highlight()); // if eraser is true, we erase
+        erase_chapter_highlight(i, selected_highlight); // if eraser is true, we erase
     }
 }
 
-async function render_chapter_text()
+async function render_chapter_text(): Promise<HTMLOListElement>
 {
     let current_chapter_index = await get_chapter();
     let text_json = await invoke('get_chapter_text', { chapter: current_chapter_index });
@@ -84,7 +89,7 @@ async function render_chapter_text()
     {
         let verse = chapter.verses[verse_index];
         
-        let last_word_highlights = null;
+        let last_word_highlights: string[] | null = null;
 
         let verse_list_item = document.createElement('li');
         verse_list_item.id = `verse-index-${verse_index}`;
@@ -93,11 +98,11 @@ async function render_chapter_text()
         {
             let word_color = null;
             let word_annotations = chapter_annotations[word_pos];
-            let current_word_highlights = null;
+            let current_word_highlights: string[] | null = null;
             if(word_annotations !== undefined && word_annotations !== null && word_annotations.highlights.length > 0)
             {
                 current_word_highlights = word_annotations.highlights;
-                let id = get_highest_priority_highlight(word_annotations.highlights, catagories);
+                let id: string = get_highest_priority_highlight(word_annotations.highlights, catagories);
                 word_color = catagories[id].color;
             }
             else 
@@ -107,7 +112,7 @@ async function render_chapter_text()
 
             
             let word = verse.words[word_index];
-            let word_node = create_bible_word(word.text);
+            let word_node = create_bible_word(word.text) as HTMLElement;
             if (word.italicized)
             {
                 word_node = italicize(word_node);
@@ -120,11 +125,11 @@ async function render_chapter_text()
 
             if (word_index != 0)
             {
-                let spacer = create_bible_space();
+                let spacer: HTMLElement = create_bible_space();
 
-                if(current_word_highlights != null && last_word_highlights != null)
+                if(current_word_highlights !== null && last_word_highlights !== null)
                 {
-                    let overlap = current_word_highlights.filter(h => last_word_highlights.includes(h));
+                    let overlap = current_word_highlights.filter(h => last_word_highlights?.includes(h));
 
                     if(overlap.length > 0)
                     {
@@ -147,7 +152,7 @@ async function render_chapter_text()
     return chapter_ordered_list
 }
 
-export function get_highest_priority_highlight(word_highlights, catagories)
+export function get_highest_priority_highlight(word_highlights: string[], catagories: any): string
 {
     let max_highlight = word_highlights[0];
     for(let i = 1; i < word_highlights.length; i++)
@@ -161,11 +166,10 @@ export function get_highest_priority_highlight(word_highlights, catagories)
         } 
     }
 
-    if(max_highlight === null) { debug_print('this is a problem'); return null; }
     return max_highlight;
 }
 
-export function create_bible_space()
+export function create_bible_space(): HTMLElement
 {
     let space = document.createElement('div');
     space.innerHTML = "&nbsp;"
@@ -173,7 +177,7 @@ export function create_bible_space()
     return space;
 }
 
-export function create_bible_word(t)
+export function create_bible_word(t: string): HTMLElement
 {
     let word = document.createElement('div');
     word.innerHTML = t;
@@ -181,21 +185,21 @@ export function create_bible_word(t)
     return word;
 }
 
-export function italicize(t)
+export function italicize(t: HTMLElement): HTMLElement
 {
     let i = document.createElement('i');
     i.appendChild(t);
     return i;
 }
 
-export function bold(t)
+export function bold(t: HTMLElement): HTMLElement
 {
     let b = document.createElement('strong');
     b.appendChild(t);
     return b;
 }
 
-export function color(t, c)
+export function color(t: HTMLElement, c: any): HTMLElement
 {
     let span = document.createElement('span');
     span.appendChild(t);
