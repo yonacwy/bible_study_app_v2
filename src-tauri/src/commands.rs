@@ -121,6 +121,7 @@ pub fn get_highlight_catagories() -> String
 #[tauri::command]
 pub fn add_highlight_category(color: &str, name: &str, description: &str, priority: &str)
 {
+	println!("Got here");
 	AppData::get().read_notes(|notebook| {
 		let color = Color::from_hex(color).unwrap();
 		let name = name.to_string();

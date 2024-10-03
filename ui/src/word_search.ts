@@ -6,21 +6,23 @@ import * as sp from "./side_popup.js"
 import { erase_highlight, get_catagories, get_selected_highlight, highlight_word } from "./highlights.js";
 import { ERASER_STATE_NAME } from "./save_states.js";
 import { push_search } from "./view_states.js";
+import { ChapterIndex, Color, Word, WordPosition } from "./bindings.js";
 
-let old_event_handler = null;
+let old_event_handler: ((e: Event) => void) | null = null;
 const MAX_DISPLAY = 50;
 
-export async function render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_rendered, on_search)
+export async function render_search_result(result: any[], searched: string[], results_id: string, word_popup: HTMLElement, side_popup: HTMLElement, side_popup_content: HTMLElement, display_index: number, on_rendered: () => void, on_search: (msg: string) => void)
 {
     const catagories = await get_catagories();
     const results_node = document.getElementById(results_id);
+    if(results_node === null) return;
     
     let result_count = result.length;
-    let new_children = [];
+    let new_children: HTMLElement[] = [];
     
     append_search_header(result_count, new_children, searched);
     
-    let event_handler = _e => on_stop_dragging(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_rendered, on_search)
+    let event_handler = (_e: Event) => on_stop_dragging(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_rendered, on_search)
     if(old_event_handler !== null)
     {
         document.removeEventListener('mouseup', old_event_handler);
@@ -47,7 +49,7 @@ export async function render_search_result(result, searched, results_id, word_po
         new_children.push(result_node);
     }
 
-    let render_section = (i) => render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, i, on_rendered, on_search);
+    let render_section = (i: number) => render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, i, on_rendered, on_search);
     let buttons = await generate_section_buttons(result, render_section, display_index, searched);
     if(buttons !== null)
     {
@@ -58,7 +60,7 @@ export async function render_search_result(result, searched, results_id, word_po
     on_rendered();
 }
 
-function append_search_header(result_count, new_children, searched) 
+function append_search_header(result_count: number, new_children: HTMLElement[], searched: string[]) 
 {
     if (result_count === 0) 
     {
@@ -80,7 +82,7 @@ function append_search_header(result_count, new_children, searched)
     }
 }
 
-async function generate_section_buttons(search_results, render_section, display_index, searched) 
+async function generate_section_buttons(search_results: any[], render_section: (index: number) => void, display_index: number, searched: string[]) 
 {
     let view = await bible.load_view();
 
@@ -122,7 +124,7 @@ async function generate_section_buttons(search_results, render_section, display_
     return parent;
 }
 
-async function spawn_verse(words, searched, position, catagories, word_popup, side_popup, side_popup_content)
+async function spawn_verse(words: Word[], searched: string[], position: WordPosition, catagories: any, word_popup: HTMLElement, side_popup: HTMLElement, side_popup_content: HTMLElement)
 {
     searched = searched.map(s => s.toLocaleLowerCase());
     let verse_node = document.createElement('p');
@@ -139,14 +141,14 @@ async function spawn_verse(words, searched, position, catagories, word_popup, si
 
         if(i != 0)
         {
-            let space = render.create_bible_space();
+            let space: HTMLElement = render.create_bible_space();
 
             if(word_annotations !== undefined && word_annotations !== null && word_annotations.highlights.length !== 0 && last_word_highlights !== null)
             {
-                let overlap = utils.overlap(word_annotations.highlights, last_word_highlights);
+                let overlap: any[] = utils.overlap(word_annotations.highlights, last_word_highlights);
                 if(overlap.length !== 0)
                 {
-                    let space_highlight = render.get_highest_priority_highlight(overlap);
+                    let space_highlight = render.get_highest_priority_highlight(overlap, catagories);
                     let space_color = catagories[space_highlight].color;
                     space = render.color(space, space_color);
                 }
@@ -170,7 +172,7 @@ async function spawn_verse(words, searched, position, catagories, word_popup, si
         let word_node = render_word(words[i], searched, color);
         if(word_annotations !== null && word_annotations !== undefined && word_annotations.highlights.length !== 0)
         {
-            wp.display_on_div(word_node, word_annotations.highlights.map(h => catagories[h].color), word_popup);
+            wp.display_on_div(word_node, word_annotations.highlights.map((h: string) => catagories[h].color), word_popup);
 
             let word = utils.trim_string(words[i].text);
             sp.display_on_div(word_node, word, word_annotations.highlights, catagories, side_popup, side_popup_content);
@@ -196,7 +198,7 @@ async function spawn_verse(words, searched, position, catagories, word_popup, si
 }
 
 let is_dragging = false;
-async function on_start_dragging(chapter, word_index, word_div) 
+async function on_start_dragging(chapter: ChapterIndex, word_index: number, word_div: HTMLElement) 
 {
     if(get_selected_highlight() !== null)
     {
@@ -205,7 +207,7 @@ async function on_start_dragging(chapter, word_index, word_div)
     }
 }
 
-async function on_over_dragging(chapter, word_index, word_div) 
+async function on_over_dragging(chapter: ChapterIndex, word_index: number, word_div: HTMLElement) 
 {
     if(is_dragging && get_selected_highlight() !== null)
     {
@@ -213,7 +215,7 @@ async function on_over_dragging(chapter, word_index, word_div)
     }
 }
 
-async function on_stop_dragging(result, results_id, searched, word_popup, side_popup, side_popup_content, display_index, on_search) 
+async function on_stop_dragging(result: any[], searched: string[], results_id: string, word_popup: HTMLElement, side_popup: HTMLElement, side_popup_content: HTMLElement, display_index: number, on_rendered: () => void, on_search: (msg: string) => void) 
 {
     if(is_dragging && get_selected_highlight() !== null)
     {
@@ -222,26 +224,29 @@ async function on_stop_dragging(result, results_id, searched, word_popup, side_p
 
         let scroll = window.scrollY;
 
-        render_search_result(result, results_id, searched, word_popup, side_popup, side_popup_content, display_index, on_search).then(() => {
+        render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_rendered, on_search).then(() => {
             window.scrollTo(window.scrollX, scroll);
         });
     }
 }
 
-function update_word(chapter, word, div)
+function update_word(chapter: ChapterIndex, word: number, div: HTMLElement)
 {
     div.style.color = render.HIGHLIGHT_SELECTED_WORD_COLOR;
+    let selected_highlight = get_selected_highlight();
+
+    if(selected_highlight === null) return;
     if(utils.get_toggle_value(ERASER_STATE_NAME) !== true)
     {
-        highlight_word(chapter, word, get_selected_highlight());
+        highlight_word(chapter, word, selected_highlight);
     }
     else 
     {
-        erase_highlight(chapter, word, get_selected_highlight());
+        erase_highlight(chapter, word, selected_highlight);
     }
 }
 
-async function spawn_reference(book, chapter, verse, on_search)
+async function spawn_reference(book: string, chapter: number, verse: number, on_search: (text: string) => void)
 {
     let book_title = await utils.invoke('get_book_name', { book: book });
     let verse_reference_text = `${book_title} ${chapter + 1}:${verse + 1}`;
@@ -257,9 +262,9 @@ async function spawn_reference(book, chapter, verse, on_search)
     return reference;
 }
 
-function render_word(word, searched, color)
+function render_word(word: Word, searched: string[], color: Color | null)
 {
-    let word_node = render.create_bible_word(word.text);
+    let word_node: HTMLElement = render.create_bible_word(word.text);
     if (word.italicized)
     {
         word_node = render.italicize(word_node);

@@ -69,15 +69,17 @@
         </button>
     </main>
     <script type="module">
-        import * as utils from './src/utils.js';
-        import * as bible from './src/bible.js';
-        import * as view_states from './src/view_states.js';
-        import { get_catagories, set_selected_highlight, get_selected_highlight } from './src/highlights.js';
-        import { ERASER_STATE_NAME } from './src/save_states.js';
-        import { render_current_chapter } from './src/bible_render.js';
-        import { show_error_popup } from './src/error_popup.js';
-        import { build_chapter_selection_dropdown } from './src/selection.js';
-        import { render_search_result } from './src/word_search.js';
+        import * as utils from './dist/utils.js';
+        import * as bible from './dist/bible.js';
+        import * as view_states from './dist/view_states.js';
+        import { get_catagories, set_selected_highlight, get_selected_highlight } from './dist/highlights.js';
+        import { ERASER_STATE_NAME } from './dist/save_states.js';
+        import { render_current_chapter } from './dist/bible_render.js';
+        import { show_error_popup } from './dist/error_popup.js';
+        import { build_chapter_selection_dropdown } from './dist/selection.js';
+        import { render_search_result } from './dist/word_search.js';
+
+        utils.debug_print('test');
 
         utils.init_format_copy_event_listener();
 

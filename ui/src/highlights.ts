@@ -1,36 +1,38 @@
 import { get_chapter } from "./bible.js";
 import * as utils from "./utils.js";
 
-export function create_category(color, name, description, priority)
+export function create_category(color: string, name: string, description: string, priority: string)
 {
     utils.invoke('add_highlight_category', {
         color: color,
         name: name,
-        description: description,
+        description: description ?? "",
         priority: priority
     });
+    utils.debug_print(`${description}`);
 }
 
-export function set_category(id, color, name, description, priority)
+export function set_category(id: string, color: string, name: string, description: string, priority: number)
 {
     utils.invoke('set_highlight_category', {
         id: id,
         color: color,
         name: name,
-        description: description,
+        description: description ?? "",
         priority: priority
     });
 }
 
-export async function get_catagories() 
+export async function get_catagories(): Promise<any>
 {
-    return JSON.parse(await utils.invoke('get_highlight_catagories'));
+    return JSON.parse(await utils.invoke('get_highlight_catagories', {}));
 }
 
-export function render_catagories(on_delete, on_edit)
+export function render_catagories(on_delete: (id: string) => void, on_edit: (id: string) => void)
 {
-    utils.invoke('get_highlight_catagories').then(catagories_json => {
+    utils.invoke('get_highlight_catagories', {}).then((catagories_json: string) => {
         let container = document.getElementById('highlights');
+        if (container === null) return;
         let catagories = JSON.parse(catagories_json);
 
         if (catagories.length == 0)
@@ -83,14 +85,14 @@ export function render_catagories(on_delete, on_edit)
     });
 }
 
-export async function get_chapter_annotations()
+export async function get_chapter_annotations(): Promise<any>
 {
     let chapter = await get_chapter();
-    let highlights_json = await utils.invoke('get_chapter_annotations', { chapter: chapter });
-    return JSON.parse(highlights_json);
+    let annotations_json = await utils.invoke('get_chapter_annotations', { chapter: chapter });
+    return JSON.parse(annotations_json);
 }
 
-export async function highlight_word(chapter, word_pos, highlight_id) 
+export async function highlight_word(chapter: any, word_pos: number, highlight_id: string) 
 {
     if(highlight_id !== null && highlight_id !== undefined)
     {
@@ -102,7 +104,7 @@ export async function highlight_word(chapter, word_pos, highlight_id)
     }
 }
 
-export async function highlight_chapter_word(word_pos, highlight_id) 
+export async function highlight_chapter_word(word_pos: number, highlight_id: string) 
 {
     let chapter = await get_chapter();
     if(highlight_id !== null && highlight_id !== undefined)
@@ -115,7 +117,7 @@ export async function highlight_chapter_word(word_pos, highlight_id)
     }
 }
 
-export async function erase_highlight(chapter, word_index, highlight_id) 
+export async function erase_highlight(chapter: any, word_index: number, highlight_id: string) 
 {
     if(highlight_id !== null && highlight_id !== undefined)
     {
@@ -127,7 +129,7 @@ export async function erase_highlight(chapter, word_index, highlight_id)
     }
 }
 
-export async function erase_chapter_highlight(word_pos, highlight_id) 
+export async function erase_chapter_highlight(word_pos: number, highlight_id: string) 
 {
     let chapter = await get_chapter();
     if(highlight_id !== null && highlight_id !== undefined)
@@ -142,7 +144,7 @@ export async function erase_chapter_highlight(word_pos, highlight_id)
 
 const SELECTED_HIGHLIGHT_KEY = 'selected-highlight-id';
 
-export function set_selected_highlight(id) 
+export function set_selected_highlight(id: string | null) 
 {
     if(id === null)
     {
@@ -154,7 +156,7 @@ export function set_selected_highlight(id)
     }
 }
 
-export function get_selected_highlight()
+export function get_selected_highlight(): string | null
 {
     return window.sessionStorage.getItem(SELECTED_HIGHLIGHT_KEY);
 }
