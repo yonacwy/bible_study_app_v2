@@ -1,4 +1,3 @@
-import { get_chapter } from "./bible.js";
 import * as utils from "./utils.js";
 export function create_category(color, name, description, priority) {
     utils.invoke('add_highlight_category', {
@@ -67,8 +66,7 @@ export function render_catagories(on_delete, on_edit) {
         ;
     });
 }
-export async function get_chapter_annotations() {
-    let chapter = await get_chapter();
+export async function get_chapter_annotations(chapter) {
     let annotations_json = await utils.invoke('get_chapter_annotations', { chapter: chapter });
     return JSON.parse(annotations_json);
 }
@@ -81,8 +79,7 @@ export async function highlight_word(chapter, word_pos, highlight_id) {
         });
     }
 }
-export async function highlight_chapter_word(word_pos, highlight_id) {
-    let chapter = await get_chapter();
+export async function highlight_chapter_word(chapter, word_pos, highlight_id) {
     if (highlight_id !== null && highlight_id !== undefined) {
         utils.invoke('highlight_word', {
             chapter: chapter,
@@ -100,8 +97,7 @@ export async function erase_highlight(chapter, word_index, highlight_id) {
         });
     }
 }
-export async function erase_chapter_highlight(word_pos, highlight_id) {
-    let chapter = await get_chapter();
+export async function erase_chapter_highlight(chapter, word_pos, highlight_id) {
     if (highlight_id !== null && highlight_id !== undefined) {
         utils.invoke('erase_highlight', {
             chapter: chapter,

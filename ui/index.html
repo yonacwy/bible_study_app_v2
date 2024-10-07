@@ -79,7 +79,11 @@
         import { build_chapter_selection_dropdown } from './dist/selection.js';
         import { render_search_result } from './dist/word_search.js';
 
-        utils.debug_print('test');
+        window.location.href = utils.encode_to_url('bible_page.html', {
+            book: 0,
+            chapter: 0,
+            verseRange: null,
+        });
 
         utils.init_format_copy_event_listener();
 
@@ -211,7 +215,8 @@
                     if(view_state.verseRange !== null)
                     {
                         let start = view_state.verseRange.start;
-                        let element = document.getElementById(`verse-index-${start}`);
+                        let element = document.getElementsByClassName(`verse-index-${start}`)[0];
+
                         element.scrollIntoView();
                         window.scrollBy(0, -25);
                     }

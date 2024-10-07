@@ -43,7 +43,6 @@ lazy_static::lazy_static! {
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct SectionSearchResult 
 {
     pub book: u32,
@@ -52,7 +51,6 @@ pub struct SectionSearchResult
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct WordSearchResult
 {
     pub book: u32,
@@ -61,7 +59,7 @@ pub struct WordSearchResult
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", tag = "type")]
+#[serde(tag = "type")]
 pub enum ParsedSearchResult
 {
     Section 

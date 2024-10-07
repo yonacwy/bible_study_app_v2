@@ -164,20 +164,18 @@ impl AppData
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", tag = "type")]
+#[serde(tag = "type")]
 pub enum ViewState
 {
     Chapter
     {
         chapter: ChapterIndex,
-        #[serde(rename = "verseRange")]
         verse_range: Option<VerseRange>,
         scroll: f32,
     },
     Search
     {
         words: Vec<String>,
-        #[serde(rename = "displayIndex")]
         display_index: u32,
         scroll: f32,
     }

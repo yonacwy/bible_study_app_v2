@@ -61,7 +61,6 @@ impl Bible
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
-#[serde(rename_all = "camelCase")]
 pub struct ChapterIndex
 {
     pub book: u32,
@@ -69,7 +68,6 @@ pub struct ChapterIndex
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct BookView
 {
     pub name: String,
@@ -77,14 +75,12 @@ pub struct BookView
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct ChapterView
 {
     pub verses: Vec<u32>
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct VerseRange 
 {
     pub start: u32,
@@ -92,7 +88,6 @@ pub struct VerseRange
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct WordRange
 {
     pub verse_start: u32,
@@ -102,7 +97,6 @@ pub struct WordRange
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "camelCase")]
 pub struct ReferenceLocation
 {
     pub chapter: ChapterIndex,

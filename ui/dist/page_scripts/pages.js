@@ -1,115 +1,88 @@
 import * as highlight_utils from "../highlights.js";
 import * as utils from "../utils.js";
 import * as view_states from "../view_states.js";
-import *  as bible from "../bible.js";
-
-export const SEARCH_INPUT_ID: string = "search-input";
-export const SEARCH_BUTTON_ID: string = "search-btn";
-export const BACK_BUTTON_ID: string = "back-btn";
-export const FORWARD_BUTTON_ID: string = "forward-btn";
-export const POPUP_PANEL_ID: string = "popup-panel";
-export const POPUP_PANEL_CONTENT_ID: string = "popup-panel-content";
-export const WORD_POPUP_ID: string = "word-popup";
-
-export const HIGHLIGHT_SELECTOR_ID: string = "highlight-selector-btn";
-
-export function init_nav_buttons()
-{
+import * as bible from "../bible.js";
+export const SEARCH_INPUT_ID = "search-input";
+export const SEARCH_BUTTON_ID = "search-btn";
+export const BACK_BUTTON_ID = "back-btn";
+export const FORWARD_BUTTON_ID = "forward-btn";
+export const POPUP_PANEL_ID = "popup-panel";
+export const POPUP_PANEL_CONTENT_ID = "popup-panel-content";
+export const WORD_POPUP_ID = "word-popup";
+export const HIGHLIGHT_SELECTOR_ID = "highlight-selector-btn";
+export function init_nav_buttons() {
     utils.on_click(FORWARD_BUTTON_ID, e => {
         view_states.next_view_state().then(() => {
             utils.debug_print('going to next view state');
-        })
+        });
     });
-
     utils.on_click(BACK_BUTTON_ID, e => {
         view_states.previous_view_state().then(() => {
             utils.debug_print('going to previous view state');
-        })
+        });
     });
 }
-
-export function update_nav_buttons_opacity() 
-{
+export function update_nav_buttons_opacity() {
     const INACTIVE_OPACITY = 0.3;
     view_states.is_last_view_state().then(is_last => {
-        if(is_last)
-        {
+        if (is_last) {
             utils.set_opacity('forward-btn', INACTIVE_OPACITY.toString());
         }
-        else 
-        {
+        else {
             utils.set_opacity('forward-btn', 1.0.toString());
         }
     });
-
     view_states.is_first_view_state().then(is_first => {
-        if(is_first)
-        {
+        if (is_first) {
             utils.set_opacity('back-btn', INACTIVE_OPACITY.toString());
         }
-        else 
-        {
+        else {
             utils.set_opacity('back-btn', 1.0.toString());
         }
-    })
+    });
 }
-
-export function update_word_selection()
-{
-    if(highlight_utils.get_selected_highlight() !== null)
-    {
+export function update_word_selection() {
+    if (highlight_utils.get_selected_highlight() !== null) {
         document.querySelectorAll('.bible-word, .bible-space').forEach(w => {
-            (w as HTMLElement).style.userSelect = 'none';
-            (w as HTMLElement).style.cursor = 'pointer';
+            w.style.userSelect = 'none';
+            w.style.cursor = 'pointer';
         });
     }
-    else 
-    {
+    else {
         document.querySelectorAll('.bible-word, .bible-space').forEach(w => {
-            (w as HTMLElement).style.userSelect = 'text';
-            (w as HTMLElement).style.cursor = 'default';
+            w.style.userSelect = 'text';
+            w.style.cursor = 'default';
         });
     }
 }
-
-export function init_highlight_selection(on_change: ((id: string | null) => void) | null)
-{
-    const DEFAULT_BUTTON_COLOR: string = document.getElementById(HIGHLIGHT_SELECTOR_ID)?.style.backgroundColor ?? "white";
+export function init_highlight_selection(on_change) {
+    const DEFAULT_BUTTON_COLOR = document.getElementById(HIGHLIGHT_SELECTOR_ID)?.style.backgroundColor ?? "white";
     bible.create_highlight_selection(id => {
         highlight_utils.get_catagories().then(catagories => {
             let color = DEFAULT_BUTTON_COLOR;
             let opacity = 0.3;
-            if(id !== null)
-            {
+            if (id !== null) {
                 let category = catagories[id];
                 color = utils.color_to_hex(category.color);
                 opacity = 1.0;
             }
-            
             highlight_utils.set_selected_highlight(id);
-
             let btn = document.getElementById('highlight-selector-btn');
-            if (btn !== null) 
-            {
+            if (btn !== null) {
                 btn.style.backgroundColor = color;
                 btn.style.opacity = opacity.toString();
-                update_word_selection()
+                update_word_selection();
             }
-
-            if(on_change !== null)
-            {
+            if (on_change !== null) {
                 on_change(id);
             }
         });
     });
 }
-
-export function init_search_enter()
-{
+export function init_search_enter() {
     document.getElementById(SEARCH_INPUT_ID)?.addEventListener('keydown', e => {
-        if(e.key === 'Enter')
-        {
+        if (e.key === 'Enter') {
             document.getElementById(SEARCH_BUTTON_ID)?.click();
         }
-    })
+    });
 }

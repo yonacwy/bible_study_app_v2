@@ -8,7 +8,6 @@ use uuid::Uuid;
 use crate::{bible::{ChapterIndex, ReferenceLocation}, utils::Color};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct HighlightCategory
 {
     pub color: Color,
@@ -19,7 +18,6 @@ pub struct HighlightCategory
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct NoteData 
 {
     pub id: String,
@@ -27,7 +25,6 @@ pub struct NoteData
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct WordAnnotations
 {
     pub highlights: Vec<String>,
@@ -36,7 +33,6 @@ pub struct WordAnnotations
 
 #[serde_as]
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Notebook
 {
     pub highlight_catagories: HashMap<String, HighlightCategory>,

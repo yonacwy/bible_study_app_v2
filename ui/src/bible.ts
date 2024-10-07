@@ -1,6 +1,7 @@
 import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils.js";
 import { get_catagories, get_selected_highlight } from "./highlights.js";
 import { push_section, get_current_view_state } from "./view_states.js";
+import { ChapterIndex } from "./bindings.js";
 
 export async function load_view(): Promise<any>
 {
@@ -29,9 +30,8 @@ export async function get_chapter(): Promise<any>
     return view_state.chapter;
 }
 
-export async function get_chapter_words(): Promise<string[]>
+export async function get_chapter_words(chapter: ChapterIndex): Promise<string[]>
 {
-    let chapter = await get_chapter();
     let chapter_text = JSON.parse(await invoke('get_chapter_text', { chapter: chapter }));
 
     let words: string[] = [];

@@ -20,8 +20,7 @@ export async function get_chapter() {
     }
     return view_state.chapter;
 }
-export async function get_chapter_words() {
-    let chapter = await get_chapter();
+export async function get_chapter_words(chapter) {
     let chapter_text = JSON.parse(await invoke('get_chapter_text', { chapter: chapter }));
     let words = [];
     for (let v = 0; v < chapter_text.verses.length; v++) {
