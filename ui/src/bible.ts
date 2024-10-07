@@ -133,7 +133,7 @@ export async function to_next_chapter(): Promise<void>
     let current_chapter = await get_chapter();
     let view = await load_view();
 
-    if(current_chapter.number < view[current_chapter.book].chapterCount - 1)
+    if(current_chapter.number < view[current_chapter.book].chapter_count - 1)
     {
         current_chapter.number++;
     }
@@ -146,7 +146,7 @@ export async function to_next_chapter(): Promise<void>
     return push_section({
         book: current_chapter.book,
         chapter: current_chapter.number,
-        verseRange: null
+        verse_range: null
     });
 }
 
@@ -168,7 +168,7 @@ export async function to_previous_chapter(): Promise<void>
     return push_section({
         book: current_chapter.book,
         chapter: current_chapter.number,
-        verseRange: null
+        verse_range: null
     });
 }
 

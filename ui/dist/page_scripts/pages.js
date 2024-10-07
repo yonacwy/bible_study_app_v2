@@ -2,6 +2,7 @@ import * as highlight_utils from "../highlights.js";
 import * as utils from "../utils.js";
 import * as view_states from "../view_states.js";
 import * as bible from "../bible.js";
+import { build_chapter_selection_dropdown } from "../selection.js";
 export const SEARCH_INPUT_ID = "search-input";
 export const SEARCH_BUTTON_ID = "search-btn";
 export const BACK_BUTTON_ID = "back-btn";
@@ -10,6 +11,8 @@ export const POPUP_PANEL_ID = "popup-panel";
 export const POPUP_PANEL_CONTENT_ID = "popup-panel-content";
 export const WORD_POPUP_ID = "word-popup";
 export const HIGHLIGHT_SELECTOR_ID = "highlight-selector-btn";
+export const HIGHLIGHT_EDITOR_BUTTON_ID = "highlight-settings";
+const CHAPTER_SELECTOR_ID = "book-selection-content";
 export function init_nav_buttons() {
     utils.on_click(FORWARD_BUTTON_ID, e => {
         view_states.next_view_state().then(() => {
@@ -84,5 +87,18 @@ export function init_search_enter() {
         if (e.key === 'Enter') {
             document.getElementById(SEARCH_BUTTON_ID)?.click();
         }
+    });
+}
+export function init_highlight_editor_button() {
+    document.getElementById(HIGHLIGHT_EDITOR_BUTTON_ID)?.addEventListener('click', e => {
+        window.location.href = utils.encode_to_url('highlight_editor.html', {
+            old_path: window.location.href
+        });
+    });
+}
+export async function init_chapter_selection_dropdown() {
+    build_chapter_selection_dropdown(CHAPTER_SELECTOR_ID, (name, number) => {
+        utils.set_value(SEARCH_INPUT_ID, `${name} ${number}`);
+        document.getElementById(SEARCH_BUTTON_ID)?.click();
     });
 }

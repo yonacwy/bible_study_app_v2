@@ -164,7 +164,7 @@ impl AppData
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(rename_all = "camelCase", tag = "type")]
 pub enum ViewState
 {
     Chapter
@@ -178,5 +178,5 @@ pub enum ViewState
         words: Vec<String>,
         display_index: u32,
         scroll: f32,
-    }
+    },
 }

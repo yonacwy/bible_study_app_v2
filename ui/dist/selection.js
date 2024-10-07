@@ -46,7 +46,7 @@ export async function build_chapter_selection_dropdown(dropdown_content_id, on_s
     dropdown.replaceChildren();
     for (let i = 0; i < books.length; i++) {
         let name = books[i].name;
-        let chapter_count = books[i].chapterCount;
+        let chapter_count = books[i].chapter_count;
         let option = spawn_option(name, chapter_count, name === current_selected_books[dropdown_content_id], on_selected);
         let selection_element = option;
         let titles = option.getElementsByClassName('expanded-option-title');

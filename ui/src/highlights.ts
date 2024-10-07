@@ -10,7 +10,6 @@ export function create_category(color: string, name: string, description: string
         description: description ?? "",
         priority: priority
     });
-    utils.debug_print(`${description}`);
 }
 
 export function set_category(id: string, color: string, name: string, description: string, priority: number)
@@ -98,8 +97,8 @@ export async function highlight_word(chapter: any, word_pos: number, highlight_i
     {
         utils.invoke('highlight_word', {
             chapter: chapter,
-            wordPosition: word_pos,
-            highlightId: highlight_id,
+            word_position: word_pos,
+            highlight_id: highlight_id,
         });
     }
 }
@@ -110,8 +109,8 @@ export async function highlight_chapter_word(chapter: ChapterIndex, word_pos: nu
     {
         utils.invoke('highlight_word', {
             chapter: chapter,
-            wordPosition: word_pos,
-            highlightId: highlight_id,
+            word_position: word_pos,
+            highlight_id: highlight_id,
         });
     }
 }
@@ -122,8 +121,8 @@ export async function erase_highlight(chapter: any, word_index: number, highligh
     {
         utils.invoke('erase_highlight', {
             chapter: chapter,
-            wordPosition: word_index,
-            highlightId: highlight_id,
+            word_position: word_index,
+            highlight_id: highlight_id,
         });
     }
 }
@@ -134,8 +133,8 @@ export async function erase_chapter_highlight(chapter: ChapterIndex, word_pos: n
     {
         utils.invoke('erase_highlight', {
             chapter: chapter,
-            wordPosition: word_pos,
-            highlightId: highlight_id,
+            word_position: word_pos,
+            highlight_id: highlight_id,
         });
     }
 }

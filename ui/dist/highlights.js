@@ -74,8 +74,8 @@ export async function highlight_word(chapter, word_pos, highlight_id) {
     if (highlight_id !== null && highlight_id !== undefined) {
         utils.invoke('highlight_word', {
             chapter: chapter,
-            wordPosition: word_pos,
-            highlightId: highlight_id,
+            word_position: word_pos,
+            highlight_id: highlight_id,
         });
     }
 }
@@ -83,8 +83,8 @@ export async function highlight_chapter_word(chapter, word_pos, highlight_id) {
     if (highlight_id !== null && highlight_id !== undefined) {
         utils.invoke('highlight_word', {
             chapter: chapter,
-            wordPosition: word_pos,
-            highlightId: highlight_id,
+            word_position: word_pos,
+            highlight_id: highlight_id,
         });
     }
 }
@@ -92,8 +92,8 @@ export async function erase_highlight(chapter, word_index, highlight_id) {
     if (highlight_id !== null && highlight_id !== undefined) {
         utils.invoke('erase_highlight', {
             chapter: chapter,
-            wordPosition: word_index,
-            highlightId: highlight_id,
+            word_position: word_index,
+            highlight_id: highlight_id,
         });
     }
 }
@@ -101,8 +101,8 @@ export async function erase_chapter_highlight(chapter, word_pos, highlight_id) {
     if (highlight_id !== null && highlight_id !== undefined) {
         utils.invoke('erase_highlight', {
             chapter: chapter,
-            wordPosition: word_pos,
-            highlightId: highlight_id,
+            word_position: word_pos,
+            highlight_id: highlight_id,
         });
     }
 }

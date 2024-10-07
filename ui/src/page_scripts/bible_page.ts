@@ -3,11 +3,9 @@ import * as bible from "../bible.js";
 import * as bible_renderer from "../bible_render.js";
 import { BibleSection, ChapterIndex, VerseRange } from "../bindings.js";
 import * as pages from "./pages.js";
-import { build_chapter_selection_dropdown } from "../selection.js";
 
 const CONTENT_ID: string = "chapter-text-content";
 const CHAPTER_NAME_ID: string = "chapter-name"
-const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 
 const NEXT_CHAPTER_BUTTON_ID: string = "next-chapter-btn";
 const PREVIOUS_CHAPTER_BUTTON_ID: string = "previous-chapter-btn";
@@ -16,14 +14,16 @@ export async function run()
 {
     let data = utils.decode_from_url(window.location.href) as BibleSection;
 
-    init_chapter_selection_dropdown();
+    pages.init_chapter_selection_dropdown();
     init_chapter_buttons();
     pages.init_highlight_selection(null);
     pages.init_search_enter();
     pages.init_nav_buttons();
+    pages.init_highlight_editor_button();
+    pages.update_nav_buttons_opacity();
     utils.init_format_copy_event_listener();
 
-    display_chapter({book: data.book, number: data.chapter}, data.verseRange);
+    display_chapter({book: data.book, number: data.chapter}, data.verse_range);
 }
 
 async function display_chapter(chapter: ChapterIndex, verse_range: VerseRange | null)
@@ -49,14 +49,6 @@ async function display_chapter(chapter: ChapterIndex, verse_range: VerseRange | 
 
         pages.update_word_selection();
     });
-}
-
-async function init_chapter_selection_dropdown()
-{
-    build_chapter_selection_dropdown(CHAPTER_SELECTOR_ID, (name, number) => {
-        utils.set_value(pages.SEARCH_INPUT_ID, `${name} ${number}`);
-        document.getElementById(pages.SEARCH_BUTTON_ID)?.click();
-    })
 }
 
 async function init_chapter_buttons()

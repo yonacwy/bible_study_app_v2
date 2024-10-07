@@ -87,7 +87,6 @@ async function render_chapter_text(chapter_index: ChapterIndex): Promise<HTMLOLi
     
     let catagories = await get_catagories();
     let chapter_annotations = await get_chapter_annotations(chapter_index);
-    debug_print(JSON.stringify(chapter_annotations));
     
     let chapter_ordered_list = document.createElement('ol');
 

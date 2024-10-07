@@ -59,7 +59,7 @@ pub struct WordSearchResult
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type")]
+#[serde(rename_all = "camelCase", tag = "type")]
 pub enum ParsedSearchResult
 {
     Section 
