@@ -3,6 +3,7 @@ import * as utils from "../utils.js";
 import * as view_states from "../view_states.js";
 import * as bible from "../bible.js";
 import { build_chapter_selection_dropdown } from "../selection.js";
+import { show_error_popup } from "../error_popup.js";
 export const SEARCH_INPUT_ID = "search-input";
 export const SEARCH_BUTTON_ID = "search-btn";
 export const BACK_BUTTON_ID = "back-btn";
@@ -16,12 +17,12 @@ const CHAPTER_SELECTOR_ID = "book-selection-content";
 export function init_nav_buttons() {
     utils.on_click(FORWARD_BUTTON_ID, e => {
         view_states.next_view_state().then(() => {
-            utils.debug_print('going to next view state');
+            view_states.goto_current_view_state();
         });
     });
     utils.on_click(BACK_BUTTON_ID, e => {
         view_states.previous_view_state().then(() => {
-            utils.debug_print('going to previous view state');
+            view_states.goto_current_view_state();
         });
     });
 }
@@ -93,6 +94,32 @@ export function init_highlight_editor_button() {
     document.getElementById(HIGHLIGHT_EDITOR_BUTTON_ID)?.addEventListener('click', e => {
         window.location.href = utils.encode_to_url('highlight_editor.html', {
             old_path: window.location.href
+        });
+    });
+}
+export async function init_search_bar() {
+    utils.on_click(SEARCH_BUTTON_ID, e => {
+        let value = utils.read_value(SEARCH_INPUT_ID);
+        utils.invoke('parse_bible_search', { text: value }).then(result => {
+            if (result.type !== 'error') {
+                utils.reset_scroll();
+            }
+            if (result.type === 'error') {
+                show_error_popup('error-message', true, result.error);
+            }
+            else if (result.type === 'word') {
+                view_states.push_search(result.words, 0).then(() => {
+                    view_states.goto_current_view_state();
+                });
+            }
+            else if (result.type === 'section') {
+                view_states.push_section(result.section).then(() => {
+                    view_states.goto_current_view_state();
+                });
+            }
+            else {
+                show_error_popup('error-message', true, `Search type ${result.type} unsupported on the front end`);
+            }
         });
     });
 }

@@ -24,6 +24,8 @@ export async function run()
     utils.on_click('back-btn', e => {
         window.location.href = data.old_path
     });
+
+    document.body.style.visibility = 'visible';
 }
 
 let editing_id: string | null = null;

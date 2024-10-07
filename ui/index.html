@@ -79,11 +79,7 @@
         import { build_chapter_selection_dropdown } from './dist/selection.js';
         import { render_search_result } from './dist/word_search.js';
 
-        window.location.href = utils.encode_to_url('bible_page.html', {
-            book: 0,
-            chapter: 0,
-            verseRange: null,
-        });
+        view_states.goto_current_view_state();
 
         utils.init_format_copy_event_listener();
 

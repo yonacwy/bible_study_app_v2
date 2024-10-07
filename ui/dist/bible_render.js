@@ -1,5 +1,5 @@
 import { get_selected_highlight, highlight_chapter_word, get_catagories, get_chapter_annotations, erase_chapter_highlight } from "./highlights.js";
-import { debug_print, get_toggle_value, invoke, color_to_hex } from "./utils.js";
+import { get_toggle_value, invoke, color_to_hex } from "./utils.js";
 import { init_word_popup_for_chapter } from "./word_popup.js";
 import { init_popup_panel_for_chapter } from "./side_popup.js";
 import { ERASER_STATE_NAME } from "./save_states.js";
@@ -64,7 +64,6 @@ async function render_chapter_text(chapter_index) {
     let chapter = JSON.parse(text_json);
     let catagories = await get_catagories();
     let chapter_annotations = await get_chapter_annotations(chapter_index);
-    debug_print(JSON.stringify(chapter_annotations));
     let chapter_ordered_list = document.createElement('ol');
     let word_pos = 0;
     for (let verse_index = 0; verse_index < chapter.verses.length; verse_index++) {

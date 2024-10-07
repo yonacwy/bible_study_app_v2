@@ -60,7 +60,7 @@ export async function goto_current_view_state()
     }
     else if(current.type === 'search')
     {
-        
+        utils.debug_print('not working yet');
     }
 }
 

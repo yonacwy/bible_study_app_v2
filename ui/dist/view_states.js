@@ -44,6 +44,7 @@ export async function goto_current_view_state() {
         window.location.href = url;
     }
     else if (current.type === 'search') {
+        utils.debug_print('not working yet');
     }
 }
 export async function get_current_view_state() {

@@ -162,7 +162,7 @@ export async function to_previous_chapter(): Promise<void>
     else if(current_chapter.book > 0)
     {
         current_chapter.book--;
-        current_chapter.number = view[current_chapter.book].chapterCount - 1;
+        current_chapter.number = view[current_chapter.book].chapter_count - 1;
     }
 
     return push_section({

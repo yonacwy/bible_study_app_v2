@@ -6,7 +6,6 @@ export function create_category(color, name, description, priority) {
         description: description ?? "",
         priority: priority
     });
-    utils.debug_print(`${description}`);
 }
 export function set_category(id, color, name, description, priority) {
     utils.invoke('set_highlight_category', {

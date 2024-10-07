@@ -3,6 +3,7 @@ import * as bible from "../bible.js";
 import * as bible_renderer from "../bible_render.js";
 import { BibleSection, ChapterIndex, VerseRange } from "../bindings.js";
 import * as pages from "./pages.js";
+import * as view_states from "../view_states.js";
 
 const CONTENT_ID: string = "chapter-text-content";
 const CHAPTER_NAME_ID: string = "chapter-name"
@@ -13,17 +14,22 @@ const PREVIOUS_CHAPTER_BUTTON_ID: string = "previous-chapter-btn";
 export async function run()
 {
     let data = utils.decode_from_url(window.location.href) as BibleSection;
-
-    pages.init_chapter_selection_dropdown();
-    init_chapter_buttons();
-    pages.init_highlight_selection(null);
-    pages.init_search_enter();
-    pages.init_nav_buttons();
-    pages.init_highlight_editor_button();
-    pages.update_nav_buttons_opacity();
     utils.init_format_copy_event_listener();
-
-    display_chapter({book: data.book, number: data.chapter}, data.verse_range);
+    
+    Promise.all([
+        pages.init_chapter_selection_dropdown(),
+        pages.init_highlight_selection(null),
+        pages.init_search_enter(),
+        pages.init_nav_buttons(),
+        pages.init_highlight_editor_button(),
+        pages.update_nav_buttons_opacity(),
+        pages.init_search_bar(),
+        
+        init_chapter_buttons(),
+        display_chapter({book: data.book, number: data.chapter}, data.verse_range),
+    ]).then(_ => {
+        document.body.style.visibility = 'visible';
+    });
 }
 
 async function display_chapter(chapter: ChapterIndex, verse_range: VerseRange | null)
@@ -53,17 +59,17 @@ async function display_chapter(chapter: ChapterIndex, verse_range: VerseRange | 
 
 async function init_chapter_buttons()
 {
-    utils.on_click(NEXT_CHAPTER_BUTTON_ID, e => {
+    utils.on_click(PREVIOUS_CHAPTER_BUTTON_ID, e => {
         bible.to_previous_chapter().then(() => {
             utils.reset_scroll();
-            utils.debug_print('going to next chapter')
+            view_states.goto_current_view_state();
         })
     });
 
-    utils.on_click(PREVIOUS_CHAPTER_BUTTON_ID, e => {
+    utils.on_click(NEXT_CHAPTER_BUTTON_ID, e => {
         bible.to_next_chapter().then(() => {
             utils.reset_scroll();
-            utils.debug_print('going to previous chapter');
+            view_states.goto_current_view_state();
         })
     })
 }
