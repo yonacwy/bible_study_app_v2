@@ -5,13 +5,13 @@ import { init_popup_panel_for_chapter } from "./side_popup.js";
 import { ERASER_STATE_NAME } from "./save_states.js";
 import { get_chapter } from "./bible.js";
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
-export async function render_current_chapter(content_id, word_popup_id, popup_panel_id, on_render) {
+export async function render_chapter(chapter, content_id, word_popup_id, popup_panel_id, on_render) {
     document.getElementById(content_id)?.replaceChildren();
-    return render_chapter_text().then((content) => {
+    return render_chapter_text(chapter).then((content) => {
         document.getElementById(content_id)?.appendChild(content);
     }).then(() => {
-        init_word_popup_for_chapter(word_popup_id, content_id);
-        init_popup_panel_for_chapter(popup_panel_id, content_id);
+        init_word_popup_for_chapter(chapter, word_popup_id, content_id);
+        init_popup_panel_for_chapter(chapter, popup_panel_id, content_id);
         let word_divs = document.getElementsByClassName('bible-word');
         let is_dragging = false;
         document.addEventListener('mouseup', e => {
@@ -29,12 +29,12 @@ export async function render_current_chapter(content_id, word_popup_id, popup_pa
             word_div.addEventListener('mousedown', e => {
                 if (get_selected_highlight() !== null) {
                     is_dragging = true;
-                    update_word(i, word_div);
+                    update_word(chapter, i, word_div);
                 }
             });
             word_div.addEventListener('mouseover', e => {
                 if (is_dragging && get_selected_highlight() !== null) {
-                    update_word(i, word_div);
+                    update_word(chapter, i, word_div);
                 }
             });
         }
@@ -43,31 +43,34 @@ export async function render_current_chapter(content_id, word_popup_id, popup_pa
         }
     });
 }
-function update_word(i, div) {
+export async function render_current_chapter(content_id, word_popup_id, popup_panel_id, on_render) {
+    let chapter = await get_chapter();
+    return await render_chapter(chapter, content_id, word_popup_id, popup_panel_id, on_render);
+}
+function update_word(chapter, i, div) {
     div.style.color = HIGHLIGHT_SELECTED_WORD_COLOR;
     let selected_highlight = get_selected_highlight();
     if (selected_highlight === null)
         return;
     if (get_toggle_value(ERASER_STATE_NAME) !== true) {
-        highlight_chapter_word(i, selected_highlight); // if the eraser is false, we highlight
+        highlight_chapter_word(chapter, i, selected_highlight); // if the eraser is false, we highlight
     }
     else {
-        erase_chapter_highlight(i, selected_highlight); // if eraser is true, we erase
+        erase_chapter_highlight(chapter, i, selected_highlight); // if eraser is true, we erase
     }
 }
-async function render_chapter_text() {
-    let current_chapter_index = await get_chapter();
-    let text_json = await invoke('get_chapter_text', { chapter: current_chapter_index });
+async function render_chapter_text(chapter_index) {
+    let text_json = await invoke('get_chapter_text', { chapter: chapter_index });
     let chapter = JSON.parse(text_json);
     let catagories = await get_catagories();
-    let chapter_annotations = await get_chapter_annotations();
+    let chapter_annotations = await get_chapter_annotations(chapter_index);
     let chapter_ordered_list = document.createElement('ol');
     let word_pos = 0;
     for (let verse_index = 0; verse_index < chapter.verses.length; verse_index++) {
         let verse = chapter.verses[verse_index];
         let last_word_highlights = null;
         let verse_list_item = document.createElement('li');
-        verse_list_item.id = `verse-index-${verse_index}`;
+        verse_list_item.classList.add(`verse-index-${verse_index}`);
         for (let word_index = 0; word_index < verse.words.length; word_index++) {
             let word_color = null;
             let word_annotations = chapter_annotations[word_pos];

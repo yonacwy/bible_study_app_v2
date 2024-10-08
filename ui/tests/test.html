@@ -1,55 +1,80 @@
-<ol>
-    <li>
-      <div class="custom-content"></div>
-      <span class="list-number"></span>
-      <span class="list-text">Item 1</span>
-    </li>
-    <li>
-      <div class="custom-content"></div>
-      <span class="list-number"></span>
-      <span class="list-text">Item 2</span>
-    </li>
-    <li>
-      <div class="custom-content"></div>
-      <span class="list-number"></span>
-      <span class="list-text">Item 3</span>
-    </li>
-  </ol>
-  
-  <style>
-    /* Hide default list numbers */
-    ol {
-      counter-reset: list-counter;
-      padding-left: 0;
-    }
-  
-    /* Use flexbox to align the div, number, and text */
-    li {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-      list-style-type: none; /* Remove default numbering */
-    }
-  
-    /* The square or image goes in this div */
-    .custom-content {
-      width: 20px;
-      height: 20px;
-      background-color: black; /* Example square */
-      margin-right: 10px; /* Space between the square and the number */
-    }
-  
-    /* Add custom number */
-    .list-number::before {
-      counter-increment: list-counter;
-      content: counter(list-counter) '. '; /* Add list number */
-      font-weight: bold;
-      margin-right: 10px; /* Space between number and text */
-    }
-  
-    /* Optional styling for the list text */
-    .list-text {
-      display: inline-block;
-    }
-  </style>
-  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Editor</title>
+    <style>
+        /* Inline CSS */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        .editor-container {
+            display: flex;
+            width: 90%;
+            height: 80%;
+            gap: 20px;
+        }
+
+        textarea {
+            width: 50%;
+            height: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .preview {
+            width: 50%;
+            height: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            border-radius: 5px;
+            overflow-y: auto;
+            font-family: inherit;
+        }
+
+        em {
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="editor-container">
+        <textarea id="markdown-editor" placeholder="Type your markdown here..."></textarea>
+        <div id="preview" class="preview"></div>
+    </div>
+
+    <script>
+        // Inline JavaScript
+        document.addEventListener('DOMContentLoaded', () => {
+            const editor = document.getElementById('markdown-editor');
+            const preview = document.getElementById('preview');
+
+            editor.addEventListener('input', updatePreview);
+
+            function updatePreview() {
+                const markdownText = editor.value;
+
+                // Convert *text* to <em>text</em> for italics
+                let html = markdownText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+                // Display HTML in the preview area
+                preview.innerHTML = html;
+            }
+        });
+    </script>
+</body>
+</html>

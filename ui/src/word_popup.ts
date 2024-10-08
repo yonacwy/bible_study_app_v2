@@ -1,4 +1,4 @@
-import { Color } from "./bindings.js";
+import { ChapterIndex, Color } from "./bindings.js";
 import { get_catagories, get_chapter_annotations } from "./highlights.js";
 import { color_to_hex, debug_print } from "./utils.js";
 
@@ -25,10 +25,10 @@ export function display_on_div(div: HTMLElement, colors: Color[], popup: HTMLEle
     });
 }
 
-export async function init_word_popup_for_chapter(popup_id: string, content_id: string) 
+export async function init_word_popup_for_chapter(chapter: ChapterIndex, popup_id: string, content_id: string) 
 {
     let highlight_catagories = await get_catagories();
-    let chapter_highlights = await get_chapter_annotations();
+    let chapter_highlights = await get_chapter_annotations(chapter);
 
     let chapter_content = document.getElementById(content_id);
     if(chapter_content === null) return;

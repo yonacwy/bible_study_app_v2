@@ -19,9 +19,9 @@ export function display_on_div(div, colors, popup) {
         popup.classList.remove('show');
     });
 }
-export async function init_word_popup_for_chapter(popup_id, content_id) {
+export async function init_word_popup_for_chapter(chapter, popup_id, content_id) {
     let highlight_catagories = await get_catagories();
-    let chapter_highlights = await get_chapter_annotations();
+    let chapter_highlights = await get_chapter_annotations(chapter);
     let chapter_content = document.getElementById(content_id);
     if (chapter_content === null)
         return;

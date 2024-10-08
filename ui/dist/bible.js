@@ -20,8 +20,7 @@ export async function get_chapter() {
     }
     return view_state.chapter;
 }
-export async function get_chapter_words() {
-    let chapter = await get_chapter();
+export async function get_chapter_words(chapter) {
     let chapter_text = JSON.parse(await invoke('get_chapter_text', { chapter: chapter }));
     let words = [];
     for (let v = 0; v < chapter_text.verses.length; v++) {
@@ -96,7 +95,7 @@ export async function create_highlight_selection(on_selected) {
 export async function to_next_chapter() {
     let current_chapter = await get_chapter();
     let view = await load_view();
-    if (current_chapter.number < view[current_chapter.book].chapterCount - 1) {
+    if (current_chapter.number < view[current_chapter.book].chapter_count - 1) {
         current_chapter.number++;
     }
     else if (current_chapter.book < view.length) {
@@ -106,7 +105,7 @@ export async function to_next_chapter() {
     return push_section({
         book: current_chapter.book,
         chapter: current_chapter.number,
-        verseRange: null
+        verse_range: null
     });
 }
 export async function to_previous_chapter() {
@@ -117,12 +116,12 @@ export async function to_previous_chapter() {
     }
     else if (current_chapter.book > 0) {
         current_chapter.book--;
-        current_chapter.number = view[current_chapter.book].chapterCount - 1;
+        current_chapter.number = view[current_chapter.book].chapter_count - 1;
     }
     return push_section({
         book: current_chapter.book,
         chapter: current_chapter.number,
-        verseRange: null
+        verse_range: null
     });
 }
 export async function get_verse_word_offset(book, chapter, verse_index) {

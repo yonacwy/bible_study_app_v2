@@ -4,13 +4,13 @@ use itertools::Itertools;
 
 use crate::{app_state::{AppData, ViewState}, bible::{ChapterIndex, Verse}, notes::{HighlightCategory, WordAnnotations}, search_parsing::*, utils::{get_hash_code, Color}};
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn debug_print(message: &str)
 {
 	println!("Debug from JS: `{}`", message);
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn get_bible_view() -> String 
 {
 	let view = AppData::get().bible.get_view();
@@ -18,7 +18,7 @@ pub fn get_bible_view() -> String
 }
 
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn get_current_view_state() -> ViewState
 {
 	let index = AppData::get().get_view_state_index();
@@ -27,7 +27,7 @@ pub fn get_current_view_state() -> ViewState
 	})
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn push_view_state(view_state: ViewState)
 {
 	let index = get_view_state_index();
@@ -49,7 +49,7 @@ pub fn push_view_state(view_state: ViewState)
 	to_next_view_state();
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn get_view_state_count() -> u32 
 {
 	AppData::get().read_view_states(|states| {
@@ -57,13 +57,13 @@ pub fn get_view_state_count() -> u32
 	})
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn get_view_state_index() -> u32 
 {
 	AppData::get().get_view_state_index() as u32
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn to_next_view_state()
 {
 	let current = get_view_state_index();
@@ -74,7 +74,7 @@ pub fn to_next_view_state()
 	}
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn to_previous_view_state()
 {
 	let current = get_view_state_index();
@@ -84,33 +84,33 @@ pub fn to_previous_view_state()
 	}
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn get_chapter_text(chapter: ChapterIndex) -> String
 {
 	let chapter = &AppData::get().bible.books[chapter.book as usize].chapters[chapter.number as usize];
 	serde_json::to_string(chapter).unwrap()
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn get_verse(book: u32, chapter: u32, verse: u32) -> Verse
 {
 	AppData::get().bible.books[book as usize].chapters[chapter as usize].verses[verse as usize].clone()
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn get_book_name(book: u32) -> String 
 {
 	AppData::get().bible.books[book as usize].name.clone()
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn get_chapter_view(chapter: ChapterIndex) -> String 
 {
 	let view = AppData::get().bible.books[chapter.book as usize].chapters[chapter.number as usize].get_view();
 	serde_json::to_string(&view).unwrap()
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn get_highlight_catagories() -> String 
 {
 	AppData::get().read_notes(|notebook| {
@@ -118,10 +118,9 @@ pub fn get_highlight_catagories() -> String
 	})
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn add_highlight_category(color: &str, name: &str, description: &str, priority: &str)
 {
-	println!("Got here");
 	AppData::get().read_notes(|notebook| {
 		let color = Color::from_hex(color).unwrap();
 		let name = name.to_string();
@@ -141,7 +140,7 @@ pub fn add_highlight_category(color: &str, name: &str, description: &str, priori
 	})
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn remove_highlight_category(id: &str)
 {
 	AppData::get().read_notes(|notebook| {
@@ -150,7 +149,7 @@ pub fn remove_highlight_category(id: &str)
 	})
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn set_highlight_category(id: &str, color: &str, name: &str, description: &str, priority: &str)
 {
 	AppData::get().read_notes(|notebook| {
@@ -171,7 +170,7 @@ pub fn set_highlight_category(id: &str, color: &str, name: &str, description: &s
 	})
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn get_chapter_annotations(chapter: ChapterIndex) -> String
 {
 	AppData::get().read_notes(|notebook| {
@@ -186,7 +185,7 @@ pub fn get_chapter_annotations(chapter: ChapterIndex) -> String
 	})
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn highlight_word(chapter: ChapterIndex, word_position: u32, highlight_id: &str)
 {
 	AppData::get().read_notes(|notebook| {
@@ -221,7 +220,7 @@ pub fn highlight_word(chapter: ChapterIndex, word_position: u32, highlight_id: &
 	});
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn erase_highlight(chapter: ChapterIndex, word_position: u32, highlight_id: &str)
 {
 	AppData::get().read_notes(|notebook| {
@@ -237,14 +236,14 @@ pub fn erase_highlight(chapter: ChapterIndex, word_position: u32, highlight_id: 
 	});
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn parse_bible_search(text: &str) -> ParsedSearchResult
 {
 	let bible = &AppData::get().bible;
 	parse_search(text, bible)
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn run_word_search(words: Vec<String>) -> Vec<WordSearchResult>
 {
 	let bible = &AppData::get().bible;

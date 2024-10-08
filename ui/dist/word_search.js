@@ -8,6 +8,12 @@ import { ERASER_STATE_NAME } from "./save_states.js";
 import { push_search } from "./view_states.js";
 let old_event_handler = null;
 const MAX_DISPLAY = 50;
+/**
+ * Initializes the rendering of a search result.
+ * When display index is set, will automatically rerender the page
+ * @param on_rendered -- Will be called when the display index changes
+ * @param on_search -- Called when a search for a verse is called
+ */
 export async function render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_rendered, on_search) {
     const catagories = await get_catagories();
     const results_node = document.getElementById(results_id);
@@ -63,6 +69,7 @@ function append_search_header(result_count, new_children, searched) {
 async function generate_section_buttons(search_results, render_section, display_index, searched) {
     let view = await bible.load_view();
     let section_count = Math.ceil(search_results.length / MAX_DISPLAY);
+    utils.debug_print(`${section_count}`);
     if (section_count <= 1) {
         return null;
     }

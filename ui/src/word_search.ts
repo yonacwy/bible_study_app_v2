@@ -11,7 +11,13 @@ import { ChapterIndex, Color, Word, WordPosition } from "./bindings.js";
 let old_event_handler: ((e: Event) => void) | null = null;
 const MAX_DISPLAY = 50;
 
-export async function render_search_result(result: any[], searched: string[], results_id: string, word_popup: HTMLElement, side_popup: HTMLElement, side_popup_content: HTMLElement, display_index: number, on_rendered: () => void, on_search: (msg: string) => void)
+/**
+ * Initializes the rendering of a search result. 
+ * When display index is set, will automatically rerender the page
+ * @param on_rendered -- Will be called when the display index changes
+ * @param on_search -- Called when a search for a verse is called
+ */
+export async function render_search_result(result: any[], searched: string[], results_id: string, word_popup: HTMLElement, side_popup: HTMLElement, side_popup_content: HTMLElement, display_index: number, on_rendered: () => void, on_search: (msg: string) => void): Promise<void>
 {
     const catagories = await get_catagories();
     const results_node = document.getElementById(results_id);
@@ -82,18 +88,19 @@ function append_search_header(result_count: number, new_children: HTMLElement[],
     }
 }
 
-async function generate_section_buttons(search_results: any[], render_section: (index: number) => void, display_index: number, searched: string[]) 
+async function generate_section_buttons(search_results: any[], render_section: (index: number) => void, display_index: number, searched: string[]): Promise<HTMLElement | null>
 {
     let view = await bible.load_view();
 
     let section_count = Math.ceil(search_results.length / MAX_DISPLAY);
+    utils.debug_print(`${section_count}`);
     if(section_count <= 1)
     {
         return null;
     }
 
     let parent = document.createElement('div');
-    parent.classList.add('selection-buttons')
+    parent.classList.add('selection-buttons');
 
     for (let i = 0; i < section_count; i++) 
     {

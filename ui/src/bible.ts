@@ -1,6 +1,7 @@
 import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils.js";
 import { get_catagories, get_selected_highlight } from "./highlights.js";
 import { push_section, get_current_view_state } from "./view_states.js";
+import { ChapterIndex } from "./bindings.js";
 
 export async function load_view(): Promise<any>
 {
@@ -29,9 +30,8 @@ export async function get_chapter(): Promise<any>
     return view_state.chapter;
 }
 
-export async function get_chapter_words(): Promise<string[]>
+export async function get_chapter_words(chapter: ChapterIndex): Promise<string[]>
 {
-    let chapter = await get_chapter();
     let chapter_text = JSON.parse(await invoke('get_chapter_text', { chapter: chapter }));
 
     let words: string[] = [];
@@ -133,7 +133,7 @@ export async function to_next_chapter(): Promise<void>
     let current_chapter = await get_chapter();
     let view = await load_view();
 
-    if(current_chapter.number < view[current_chapter.book].chapterCount - 1)
+    if(current_chapter.number < view[current_chapter.book].chapter_count - 1)
     {
         current_chapter.number++;
     }
@@ -146,7 +146,7 @@ export async function to_next_chapter(): Promise<void>
     return push_section({
         book: current_chapter.book,
         chapter: current_chapter.number,
-        verseRange: null
+        verse_range: null
     });
 }
 
@@ -162,13 +162,13 @@ export async function to_previous_chapter(): Promise<void>
     else if(current_chapter.book > 0)
     {
         current_chapter.book--;
-        current_chapter.number = view[current_chapter.book].chapterCount - 1;
+        current_chapter.number = view[current_chapter.book].chapter_count - 1;
     }
 
     return push_section({
         book: current_chapter.book,
         chapter: current_chapter.number,
-        verseRange: null
+        verse_range: null
     });
 }
 

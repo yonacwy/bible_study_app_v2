@@ -1,15 +1,16 @@
-import { get_chapter_words } from "./bible.js";
+import { get_chapter, get_chapter_words } from "./bible.js";
+import { ChapterIndex } from "./bindings.js";
 import { get_catagories, get_chapter_annotations, get_selected_highlight } from "./highlights.js";
 import { debug_print, clamp, color_to_hex } from "./utils.js";
 
 const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";
 
-export async function init_popup_panel_for_chapter(id: string, content_id: string)
+export async function init_popup_panel_for_chapter(chapter: ChapterIndex, id: string, content_id: string)
 {
-    let chapter_highlights = await get_chapter_annotations();
+    let chapter_highlights = await get_chapter_annotations(chapter);
     let catagories = await get_catagories();
-    let chapter_words = await get_chapter_words();
+    let chapter_words = await get_chapter_words(chapter);
     
     let initial_width = sessionStorage.getItem(WIDTH_STORAGE_NAME) ?? INITIAL_WIDTH;
     const panel = document.getElementById(id);
