@@ -1,4 +1,4 @@
-import { BibleSection } from "./bindings.js";
+import { BibleSection, SearchSection } from "./bindings.js";
 import * as utils from "./utils.js";
 
 export async function is_last_view_state(): Promise<boolean>
@@ -60,7 +60,13 @@ export async function goto_current_view_state()
     }
     else if(current.type === 'search')
     {
-        utils.debug_print('not working yet');
+        let data: SearchSection = {
+            words: current.words,
+            display_index: current.display_index
+        };
+
+        let url = utils.encode_to_url('search_page.html', data);
+        window.location.href = url;
     }
 }
 

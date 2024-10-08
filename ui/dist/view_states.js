@@ -44,7 +44,12 @@ export async function goto_current_view_state() {
         window.location.href = url;
     }
     else if (current.type === 'search') {
-        utils.debug_print('not working yet');
+        let data = {
+            words: current.words,
+            display_index: current.display_index
+        };
+        let url = utils.encode_to_url('search_page.html', data);
+        window.location.href = url;
     }
 }
 export async function get_current_view_state() {

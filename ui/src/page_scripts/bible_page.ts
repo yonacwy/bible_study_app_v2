@@ -4,6 +4,7 @@ import * as bible_renderer from "../bible_render.js";
 import { BibleSection, ChapterIndex, VerseRange } from "../bindings.js";
 import * as pages from "./pages.js";
 import * as view_states from "../view_states.js";
+import { ERASER_STATE_NAME } from "../save_states.js";
 
 const CONTENT_ID: string = "chapter-text-content";
 const CHAPTER_NAME_ID: string = "chapter-name"
@@ -19,12 +20,12 @@ export async function run()
     Promise.all([
         pages.init_chapter_selection_dropdown(),
         pages.init_highlight_selection(null),
-        pages.init_search_enter(),
         pages.init_nav_buttons(),
         pages.init_highlight_editor_button(),
         pages.update_nav_buttons_opacity(),
         pages.init_search_bar(),
-        
+        utils.init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {}),
+
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range),
     ]).then(_ => {
@@ -49,7 +50,7 @@ async function display_chapter(chapter: ChapterIndex, verse_range: VerseRange | 
             if (element !== undefined)
             {
                 element.scrollIntoView();
-                window.scrollBy(0, -25);
+                window.scrollBy(0, -40);
             }
         }
 

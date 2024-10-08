@@ -108,16 +108,6 @@ export function init_highlight_selection(on_change: ((id: string | null) => void
     });
 }
 
-export function init_search_enter()
-{
-    document.getElementById(SEARCH_INPUT_ID)?.addEventListener('keydown', e => {
-        if(e.key === 'Enter')
-        {
-            document.getElementById(SEARCH_BUTTON_ID)?.click();
-        }
-    })
-}
-
 export function init_highlight_editor_button()
 {
     document.getElementById(HIGHLIGHT_EDITOR_BUTTON_ID)?.addEventListener('click', e => {
@@ -127,7 +117,7 @@ export function init_highlight_editor_button()
     })
 }
 
-export async function init_search_bar()
+export function init_search_bar()
 {
     utils.on_click(SEARCH_BUTTON_ID, e => {
         let value = utils.read_value(SEARCH_INPUT_ID);
@@ -155,6 +145,13 @@ export async function init_search_bar()
                 show_error_popup('error-message', true, `Search type ${result.type} unsupported on the front end`)
             }
         })
+    });
+
+    document.getElementById(SEARCH_INPUT_ID)?.addEventListener('keydown', e => {
+        if(e.key === 'Enter')
+        {
+            document.getElementById(SEARCH_BUTTON_ID)?.click();
+        }
     });
 }
 

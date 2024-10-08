@@ -47,7 +47,7 @@
         </button>
     </header>
     <main>
-        <section class="results" id="word-search-content" style="display: none;"></section>
+        <section class="results" id="word-search-content"></section>
         <div id="popup-panel" class="popup-panel">
             <button class="close-image" onclick="document.getElementById('popup-panel').classList.toggle('open')" title="Close popup">
                 <img src="images/light-xmark.svg" alt="Close">
@@ -58,7 +58,8 @@
         <div class="word-popup word-popup-content" id="word-popup"></div>
     </main>
     <script type="module">
-
+        import { run } from "../dist/page_scripts/search_page.js";
+        run();
     </script>
 </body>
 </html>
