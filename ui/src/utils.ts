@@ -18,7 +18,12 @@ export function set_display(id: string, display: string)
 
 export function on_click(id: string, f:(e: Event) => void)
 {
-    document.getElementById(id)?.addEventListener('click', (e) => {
+    let element = document.getElementById(id);
+    if(element === null)
+    {
+        debug_print(`could not find element ${id}`);
+    }
+    element?.addEventListener('click', (e) => {
         f(e)
     });
 }

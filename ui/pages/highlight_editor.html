@@ -4,19 +4,19 @@
     <title>Highlight Editor</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="styles/styles.css"/>
-    <link rel="stylesheet" href="styles/popup.css"/>
-    <link rel="stylesheet" href="styles/menu.css">
-    <link rel="stylesheet" href="styles/highlights.css">
-    <link rel="stylesheet" href="styles/error_popup.css">
+    <link rel="stylesheet" href="../styles/styles.css"/>
+    <link rel="stylesheet" href="../styles/popup.css"/>
+    <link rel="stylesheet" href="../styles/menu.css">
+    <link rel="stylesheet" href="../styles/highlights.css">
+    <link rel="stylesheet" href="../styles/error_popup.css">
 </head>
 <body>
     <header>
         <button class="image-btn" id="back-btn" title="Back to bible view.">
-            <img src="images/light-backward.svg">
+            <img src="../images/light-backward.svg">
         </button>
         <button class="image-btn" id="new-btn" title="Create new highlight">
-            <img src="images/light-plus.svg">
+            <img src="../images/light-plus.svg">
         </button>
     </header>
     <main>
@@ -54,7 +54,7 @@
         <div id="highlights" class="highlight-container"></div>
     </main>
     <script type="module">
-        import { run } from "./dist/page_scripts/highlight_editor.js";
+        import { run } from "../dist/page_scripts/highlight_editor.js";
         run();
     </script>
 </body>

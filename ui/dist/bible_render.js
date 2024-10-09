@@ -18,7 +18,7 @@ export async function render_chapter(chapter, content_id, word_popup_id, popup_p
             if (is_dragging && get_selected_highlight() !== null) {
                 is_dragging = false;
                 let scroll = window.scrollY;
-                render_current_chapter(content_id, word_popup_id, popup_panel_id, null).then(() => {
+                render_current_chapter(content_id, word_popup_id, popup_panel_id, on_render).then(() => {
                     window.scrollTo(window.scrollX, scroll);
                 });
                 document.getElementById(word_popup_id)?.classList.remove('show');

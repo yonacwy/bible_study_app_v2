@@ -125,7 +125,7 @@ export async function create_highlight_selection(on_selected: (id: string | null
     });
 
     container.appendChild(none_div);
-    on_selected(null);
+    on_selected(get_selected_highlight());
 }
 
 export async function to_next_chapter(): Promise<void>

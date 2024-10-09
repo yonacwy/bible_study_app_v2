@@ -9,7 +9,11 @@ export function set_display(id, display) {
     }
 }
 export function on_click(id, f) {
-    document.getElementById(id)?.addEventListener('click', (e) => {
+    let element = document.getElementById(id);
+    if (element === null) {
+        debug_print(`could not find element ${id}`);
+    }
+    element?.addEventListener('click', (e) => {
         f(e);
     });
 }

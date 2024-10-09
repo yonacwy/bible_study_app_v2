@@ -69,7 +69,6 @@ function append_search_header(result_count, new_children, searched) {
 async function generate_section_buttons(search_results, render_section, display_index, searched) {
     let view = await bible.load_view();
     let section_count = Math.ceil(search_results.length / MAX_DISPLAY);
-    utils.debug_print(`${section_count}`);
     if (section_count <= 1) {
         return null;
     }

@@ -90,7 +90,7 @@ export async function create_highlight_selection(on_selected) {
         on_selected(null);
     });
     container.appendChild(none_div);
-    on_selected(null);
+    on_selected(get_selected_highlight());
 }
 export async function to_next_chapter() {
     let current_chapter = await get_chapter();

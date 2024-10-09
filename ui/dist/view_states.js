@@ -34,13 +34,14 @@ export async function push_highlights() {
 }
 export async function goto_current_view_state() {
     let current = await get_current_view_state();
+    let base_path = window.location.pathname == '/' ? 'pages/' : '';
     if (current.type === 'chapter') {
         let data = {
             book: current.chapter.book,
             chapter: current.chapter.number,
             verse_range: current.verse_range
         };
-        let url = utils.encode_to_url('bible_page.html', data);
+        let url = utils.encode_to_url(base_path + 'bible_page.html', data);
         window.location.href = url;
     }
     else if (current.type === 'search') {
@@ -48,7 +49,7 @@ export async function goto_current_view_state() {
             words: current.words,
             display_index: current.display_index
         };
-        let url = utils.encode_to_url('search_page.html', data);
+        let url = utils.encode_to_url(base_path + 'search_page.html', data);
         window.location.href = url;
     }
 }

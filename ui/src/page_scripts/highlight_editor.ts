@@ -25,6 +25,10 @@ export async function run()
         window.location.href = data.old_path
     });
 
+    utils.on_click('cancel-submit-btn', e => {
+        utils.set_display('highlight-popup', 'none');
+    })
+
     document.body.style.visibility = 'visible';
 }
 

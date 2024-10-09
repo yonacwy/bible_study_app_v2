@@ -14,6 +14,9 @@ export async function run() {
     utils.on_click('back-btn', e => {
         window.location.href = data.old_path;
     });
+    utils.on_click('cancel-submit-btn', e => {
+        utils.set_display('highlight-popup', 'none');
+    });
     document.body.style.visibility = 'visible';
 }
 let editing_id = null;
