@@ -1,5 +1,5 @@
 import { get_chapter } from "./bible.js";
-import { ChapterIndex } from "./bindings.js";
+import { ChapterIndex, HighlightCategory } from "./bindings.js";
 import * as utils from "./utils.js";
 
 export function create_category(color: string, name: string, description: string, priority: string)

@@ -60,8 +60,6 @@ export function update_nav_buttons_opacity()
 
 export function update_word_selection()
 {
-    utils.debug_print('updating selection');
-    utils.debug_print('hi');
     if(highlight_utils.get_selected_highlight() !== null)
     {
         document.querySelectorAll('.bible-word, .bible-space').forEach(w => {

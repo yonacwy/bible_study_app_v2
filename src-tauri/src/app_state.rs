@@ -86,11 +86,41 @@ impl AppData
             }
         }
 
+        let mut test_notebook = Notebook::default();
+        test_notebook.add_note(&bible, "df4163b0-c155-4b3f-9f1b-1ff0ab5f243d".into(), "# Here is a test note".into(), vec![
+            ReferenceLocation 
+            {
+                chapter: ChapterIndex {
+                    book: 0,
+                    number: 0
+                },
+                range: WordRange {
+                    verse_start: 0,
+                    word_start: 0,
+                    verse_end: 0,
+                    word_end: 3
+                }
+            },
+            ReferenceLocation 
+            {
+                chapter: ChapterIndex {
+                    book: 1,
+                    number: 0
+                },
+                range: WordRange {
+                    verse_start: 0,
+                    word_start: 0,
+                    verse_end: 0,
+                    word_end: 3
+                }
+            }
+        ]);
+
         unsafe 
         {
             DATA = Some(Self {
                 bible,
-                notebook: Mutex::new(RefCell::new(notebook)),
+                notebook: Mutex::new(RefCell::new(test_notebook)),
                 view_state_index: Mutex::new(RefCell::new(view_state_index)),
                 view_states: Mutex::new(RefCell::new(view_states)),
                 resolver

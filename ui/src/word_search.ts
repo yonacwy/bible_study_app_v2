@@ -2,11 +2,11 @@ import * as utils from "./utils.js";
 import * as render from "./bible_render.js"
 import * as bible from "./bible.js";
 import * as wp from "./word_popup.js";
-import * as sp from "./side_popup.js"
+import * as sp from "./side_popup.js";
 import { erase_highlight, get_catagories, get_selected_highlight, highlight_word } from "./highlights.js";
 import { ERASER_STATE_NAME } from "./save_states.js";
 import { push_search } from "./view_states.js";
-import { ChapterIndex, Color, Word, WordPosition } from "./bindings.js";
+import { ChapterIndex, Color, Word, WordPosition as VersePosition } from "./bindings.js";
 
 let old_event_handler: ((e: Event) => void) | null = null;
 const MAX_DISPLAY = 50;
@@ -130,7 +130,7 @@ async function generate_section_buttons(search_results: any[], render_section: (
     return parent;
 }
 
-async function spawn_verse(words: Word[], searched: string[], position: WordPosition, catagories: any, word_popup: HTMLElement, side_popup: HTMLElement, side_popup_content: HTMLElement)
+async function spawn_verse(words: Word[], searched: string[], position: VersePosition, catagories: any, word_popup: HTMLElement, side_popup: HTMLElement, side_popup_content: HTMLElement)
 {
     searched = searched.map(s => s.toLocaleLowerCase());
     let verse_node = document.createElement('p');

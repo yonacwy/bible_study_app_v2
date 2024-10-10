@@ -57,6 +57,11 @@ impl Bible
             }
         }).collect_vec()
     }
+
+    pub fn get_chapter(&self, index: ChapterIndex) -> &Chapter
+    {
+        &self.books[index.book as usize].chapters[index.number as usize]
+    }
 }
 
 #[repr(C)]
@@ -80,6 +85,21 @@ pub struct ChapterView
     pub verses: Vec<u32>
 }
 
+impl ChapterView
+{
+    pub fn flatten_word_index(&self, verse_index: u32, verse_word_index: u32) -> u32 
+    {
+        let mut offset = 0;
+        for v in 0..verse_index
+        {
+            offset += self.verses[v as usize];
+        }
+
+        offset += verse_word_index;
+        offset
+    }
+}
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
 pub struct VerseRange 
 {
@@ -87,6 +107,7 @@ pub struct VerseRange
     pub end: u32,
 }
 
+/// Note: All values are inclusive
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
 pub struct WordRange
 {
@@ -94,6 +115,28 @@ pub struct WordRange
     pub word_start: u32,
     pub verse_end: u32,
     pub word_end: u32,
+}
+
+impl WordRange
+{
+    pub fn get_chapter_word_indices(&self, view: &ChapterView) -> Vec<u32>
+    {
+        let mut indices = vec![];
+        let mut offset = if self.verse_start != 0 { view.verses[0..(self.verse_start as usize)].iter().sum() } else { 0 };
+
+        for v in self.verse_start..=self.verse_end
+        {
+            let word_start = if v == self.verse_start { self.word_start } else { 0 };
+            let word_end = if v == self.verse_end { self.word_end } else { view.verses[v as usize] - 1 };
+            for _ in word_start..=word_end
+            {
+                indices.push(offset);
+                offset += 1;
+            }
+        }
+
+        indices
+    }
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]

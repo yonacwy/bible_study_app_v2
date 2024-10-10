@@ -59,6 +59,10 @@ fn main() {
 			erase_highlight,
 			parse_bible_search,
 			run_word_search,
+			add_note,
+			edit_note,
+			remove_note,
+			get_note,
 		])
 		.run(tauri::generate_context!())
 		.expect("error while running tauri application");

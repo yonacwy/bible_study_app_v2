@@ -1,11 +1,10 @@
-use std::{collections::HashMap, num::ParseIntError};
+use std::collections::HashMap;
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-use uuid::Uuid;
 
-use crate::{bible::{ChapterIndex, ReferenceLocation}, utils::Color};
+use crate::{bible::{Bible, ChapterIndex, ReferenceLocation}, utils::Color};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HighlightCategory
@@ -22,6 +21,7 @@ pub struct NoteData
 {
     pub id: String,
     pub text: String,
+    pub locations: Vec<ReferenceLocation>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -32,7 +32,7 @@ pub struct WordAnnotations
 }
 
 #[serde_as]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Notebook
 {
     pub highlight_catagories: HashMap<String, HighlightCategory>,
@@ -60,5 +60,51 @@ impl Notebook
                 word_highlights.highlights.retain(|id| highlight_ids.contains(id))
             }
         }
+    }
+
+    pub fn add_note(&mut self, bible: &Bible, id: String, text: String, locations: Vec<ReferenceLocation>)
+    {
+        for location in &locations
+        {
+            let chapter = bible.get_chapter(location.chapter).get_view();
+            for word_index in location.range.get_chapter_word_indices(&chapter)
+            {
+                let chapter_annotations = self.annotations.entry(location.chapter).or_insert(HashMap::default());
+                let word_annotations =  chapter_annotations.entry(word_index).or_insert(WordAnnotations { 
+                    highlights: vec![], 
+                    notes: vec![] 
+                });
+
+                if !word_annotations.notes.contains(&id)
+                {
+                    word_annotations.notes.push(id.clone());
+                }
+            }
+        }
+
+        self.notes.insert(id.clone(), NoteData { 
+            id, 
+            text, 
+            locations
+        });
+    }
+
+    pub fn remove_note(&mut self, id: &str)
+    {
+        let note = &self.notes[id];
+        for location in &note.locations
+        {
+            for chapter_annotations in self.annotations.get_mut(&location.chapter).unwrap().values_mut()
+            {
+                chapter_annotations.notes.retain(|id| note.id != *id);
+            }
+        }
+        
+        self.notes.remove(id);
+    }
+
+    pub fn get_note(&self, id: &str) -> &NoteData
+    {
+        self.notes.get(id).unwrap()
     }
 }
