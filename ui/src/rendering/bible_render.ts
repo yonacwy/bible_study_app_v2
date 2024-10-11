@@ -8,8 +8,7 @@ let was_initialized = false;
 
 export async function render_chapter(chapter: ChapterIndex, content: HTMLElement, word_popup: HTMLElement, popup_panel: HTMLElement, popup_panel_content: HTMLElement, on_render: (() => void) | null)
 {
-    let scroll = window.scrollY;
-    content.replaceChildren();
+    content.style.pointerEvents = 'none';
 
     if(!was_initialized)
     {
@@ -40,15 +39,13 @@ export async function render_chapter(chapter: ChapterIndex, content: HTMLElement
         chapter_ol.appendChild(verse_li);
     }
 
-    content.appendChild(chapter_ol);
+    content.replaceChildren(chapter_ol);
+    content.style.pointerEvents = 'auto';
 
     if(on_render !== null)
     {
-        utils.debug_print(content.innerHTML);
         on_render();
     }
-
-    window.scrollTo(window.scrollX, scroll);
 }
 
 export async function render_current_chapter(content: HTMLElement, word_popup: HTMLElement, popup_panel: HTMLElement, popup_panel_content: HTMLElement, on_render: (() => void) | null): Promise<void>

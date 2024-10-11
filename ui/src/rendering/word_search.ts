@@ -24,6 +24,7 @@ export async function render_search_result(result: any[], searched: string[], re
 
     const results_node = document.getElementById(results_id);
     if(results_node === null) return;
+    results_node.style.pointerEvents = 'none';
     
     let result_count = result.length;
     let new_children: HTMLElement[] = [];
@@ -55,6 +56,7 @@ export async function render_search_result(result: any[], searched: string[], re
     }
 
     results_node.replaceChildren(...new_children);
+    results_node.style.pointerEvents = 'auto';
     on_rendered();
 }
 

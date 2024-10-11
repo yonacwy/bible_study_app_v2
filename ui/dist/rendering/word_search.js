@@ -19,6 +19,7 @@ export async function render_search_result(result, searched, results_id, word_po
     const results_node = document.getElementById(results_id);
     if (results_node === null)
         return;
+    results_node.style.pointerEvents = 'none';
     let result_count = result.length;
     let new_children = [];
     append_search_header(result_count, new_children, searched);
@@ -40,6 +41,7 @@ export async function render_search_result(result, searched, results_id, word_po
         new_children.push(buttons);
     }
     results_node.replaceChildren(...new_children);
+    results_node.style.pointerEvents = 'auto';
     on_rendered();
 }
 function append_search_header(result_count, new_children, searched) {

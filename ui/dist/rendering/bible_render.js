@@ -1,11 +1,9 @@
 import * as bible from "../bible.js";
 import * as verse_renderer from "./verse_rendering.js";
-import * as utils from "../utils.js";
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 let was_initialized = false;
 export async function render_chapter(chapter, content, word_popup, popup_panel, popup_panel_content, on_render) {
-    let scroll = window.scrollY;
-    content.replaceChildren();
+    content.style.pointerEvents = 'none';
     if (!was_initialized) {
         was_initialized = true;
         let on_require_rerender = () => render_chapter(chapter, content, word_popup, popup_panel, popup_panel_content, on_render);
@@ -27,12 +25,11 @@ export async function render_chapter(chapter, content, word_popup, popup_panel, 
         verse_li.append(...elements);
         chapter_ol.appendChild(verse_li);
     }
-    content.appendChild(chapter_ol);
+    content.replaceChildren(chapter_ol);
+    content.style.pointerEvents = 'auto';
     if (on_render !== null) {
-        utils.debug_print(content.innerHTML);
         on_render();
     }
-    window.scrollTo(window.scrollX, scroll);
 }
 export async function render_current_chapter(content, word_popup, popup_panel, popup_panel_content, on_render) {
     let chapter = await bible.get_chapter();
