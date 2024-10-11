@@ -1,6 +1,6 @@
 import * as utils from "../utils.js";
 import * as bible from "../bible.js";
-import * as bible_renderer from "../bible_render.js";
+import * as bible_renderer from "../rendering/bible_render.js";
 import { BibleSection, ChapterIndex, VerseRange } from "../bindings.js";
 import * as pages from "./pages.js";
 import * as view_states from "../view_states.js";

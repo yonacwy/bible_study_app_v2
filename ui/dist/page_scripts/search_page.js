@@ -1,6 +1,6 @@
 import * as utils from "../utils.js";
 import * as pages from "./pages.js";
-import * as search from "../word_search.js";
+import * as search from "../rendering/word_search.js";
 import { ERASER_STATE_NAME } from "../save_states.js";
 export function run() {
     let section = utils.decode_from_url(window.location.href);

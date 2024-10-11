@@ -120,7 +120,7 @@ impl AppData
         {
             DATA = Some(Self {
                 bible,
-                notebook: Mutex::new(RefCell::new(test_notebook)),
+                notebook: Mutex::new(RefCell::new(notebook)),
                 view_state_index: Mutex::new(RefCell::new(view_state_index)),
                 view_states: Mutex::new(RefCell::new(view_states)),
                 resolver

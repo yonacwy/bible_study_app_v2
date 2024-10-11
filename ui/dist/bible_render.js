@@ -1,9 +1,9 @@
-import { get_selected_highlight, highlight_chapter_word, get_catagories, get_chapter_annotations, erase_chapter_highlight } from "./highlights.js";
-import { get_toggle_value, invoke, color_to_hex } from "./utils.js";
+import * as highlighting from "./highlights.js";
+import * as utils from "./utils.js";
 import { init_word_popup_for_chapter } from "./word_popup.js";
 import { init_popup_panel_for_chapter } from "./side_popup.js";
 import { ERASER_STATE_NAME } from "./save_states.js";
-import { get_chapter } from "./bible.js";
+import * as bible from "./bible.js";
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 export async function render_chapter(chapter, content_id, word_popup_id, popup_panel_id, on_render) {
     document.getElementById(content_id)?.replaceChildren();
@@ -15,7 +15,7 @@ export async function render_chapter(chapter, content_id, word_popup_id, popup_p
         let word_divs = document.getElementsByClassName('bible-word');
         let is_dragging = false;
         document.addEventListener('mouseup', e => {
-            if (is_dragging && get_selected_highlight() !== null) {
+            if (is_dragging && highlighting.get_selected_highlight() !== null) {
                 is_dragging = false;
                 let scroll = window.scrollY;
                 render_current_chapter(content_id, word_popup_id, popup_panel_id, on_render).then(() => {
@@ -27,13 +27,13 @@ export async function render_chapter(chapter, content_id, word_popup_id, popup_p
         for (let i = 0; i < word_divs.length; i++) {
             let word_div = word_divs[i];
             word_div.addEventListener('mousedown', e => {
-                if (get_selected_highlight() !== null) {
+                if (highlighting.get_selected_highlight() !== null) {
                     is_dragging = true;
                     update_word(chapter, i, word_div);
                 }
             });
             word_div.addEventListener('mouseover', e => {
-                if (is_dragging && get_selected_highlight() !== null) {
+                if (is_dragging && highlighting.get_selected_highlight() !== null) {
                     update_word(chapter, i, word_div);
                 }
             });
@@ -44,26 +44,26 @@ export async function render_chapter(chapter, content_id, word_popup_id, popup_p
     });
 }
 export async function render_current_chapter(content_id, word_popup_id, popup_panel_id, on_render) {
-    let chapter = await get_chapter();
+    let chapter = await bible.get_chapter();
     return await render_chapter(chapter, content_id, word_popup_id, popup_panel_id, on_render);
 }
 function update_word(chapter, i, div) {
     div.style.color = HIGHLIGHT_SELECTED_WORD_COLOR;
-    let selected_highlight = get_selected_highlight();
+    let selected_highlight = highlighting.get_selected_highlight();
     if (selected_highlight === null)
         return;
-    if (get_toggle_value(ERASER_STATE_NAME) !== true) {
-        highlight_chapter_word(chapter, i, selected_highlight); // if the eraser is false, we highlight
+    if (utils.get_toggle_value(ERASER_STATE_NAME) !== true) {
+        highlighting.highlight_chapter_word(chapter, i, selected_highlight); // if the eraser is false, we highlight
     }
     else {
-        erase_chapter_highlight(chapter, i, selected_highlight); // if eraser is true, we erase
+        highlighting.erase_chapter_highlight(chapter, i, selected_highlight); // if eraser is true, we erase
     }
 }
 async function render_chapter_text(chapter_index) {
-    let text_json = await invoke('get_chapter_text', { chapter: chapter_index });
+    let text_json = await utils.invoke('get_chapter_text', { chapter: chapter_index });
     let chapter = JSON.parse(text_json);
-    let catagories = await get_catagories();
-    let chapter_annotations = await get_chapter_annotations(chapter_index);
+    let catagories = await highlighting.get_catagories();
+    let chapter_annotations = await highlighting.get_chapter_annotations(chapter_index);
     let chapter_ordered_list = document.createElement('ol');
     let word_pos = 0;
     for (let verse_index = 0; verse_index < chapter.verses.length; verse_index++) {
@@ -147,6 +147,6 @@ export function bold(t) {
 export function color(t, c) {
     let span = document.createElement('span');
     span.appendChild(t);
-    span.style.backgroundColor = color_to_hex(c);
+    span.style.backgroundColor = utils.color_to_hex(c);
     return span;
 }

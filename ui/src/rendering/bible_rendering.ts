@@ -1,5 +1,5 @@
-import { Color, Word } from "./bindings.js";
-import * as utils from "./utils.js";
+import { Color, Word } from "../bindings.js";
+import * as utils from "../utils.js";
 
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 

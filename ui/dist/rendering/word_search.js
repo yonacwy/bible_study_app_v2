@@ -1,7 +1,7 @@
-import * as utils from "./utils.js";
-import * as bible from "./bible.js";
-import { get_catagories } from "./highlights.js";
-import { push_search } from "./view_states.js";
+import * as utils from "../utils.js";
+import * as bible from "../bible.js";
+import { get_catagories } from "../highlights.js";
+import { push_search } from "../view_states.js";
 import * as verse_renderer from "./verse_rendering.js";
 const MAX_DISPLAY = 50;
 let was_initialized = false;
