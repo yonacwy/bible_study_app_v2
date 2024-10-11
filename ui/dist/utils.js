@@ -100,6 +100,7 @@ export function overlap(a, b) {
     return a.filter(i => b.includes(i));
 }
 export function reset_scroll() {
+    debug_print('resetting scroll');
     window.scrollTo(0, 0);
 }
 export function set_opacity(id, opacity) {

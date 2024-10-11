@@ -12,10 +12,10 @@ export async function run() {
     let data = utils.decode_from_url(window.location.href);
     utils.init_format_copy_event_listener();
     Promise.all([
-        pages.init_chapter_selection_dropdown(),
-        pages.init_highlight_selection(null),
         pages.init_nav_buttons(),
+        pages.init_chapter_selection_dropdown(),
         pages.init_highlight_editor_button(),
+        pages.init_highlight_selection(null),
         pages.update_nav_buttons_opacity(),
         pages.init_search_bar(),
         utils.init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => { }),
@@ -26,12 +26,19 @@ export async function run() {
     });
 }
 async function display_chapter(chapter, verse_range) {
+    const content = document.getElementById(CONTENT_ID);
+    const word_popup = document.getElementById(pages.WORD_POPUP_ID);
+    const popup_panel = document.getElementById(pages.WORD_POPUP_ID);
+    const popup_panel_content = document.getElementById(pages.POPUP_PANEL_CONTENT_ID);
+    if (content === null || word_popup === null || popup_panel === null || popup_panel_content === null) {
+        return;
+    }
     let chapter_view = await bible.load_view();
     let name = chapter_view[chapter.book].name;
     let number = chapter.number + 1;
     utils.set_value(pages.SEARCH_INPUT_ID, `${name} ${number}`);
     utils.set_html(CHAPTER_NAME_ID, `${name} ${number}`);
-    bible_renderer.render_current_chapter(CONTENT_ID, pages.WORD_POPUP_ID, pages.POPUP_PANEL_ID, pages.update_word_selection).then(() => {
+    bible_renderer.render_current_chapter(content, word_popup, popup_panel, popup_panel_content, pages.update_word_selection).then(() => {
         if (verse_range !== null) {
             let start = verse_range.start;
             let element = document.getElementById(CONTENT_ID)?.getElementsByClassName(`verse-index-${start}`)[0];

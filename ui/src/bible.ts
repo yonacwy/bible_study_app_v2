@@ -10,10 +10,9 @@ export async function load_view(): Promise<any>
     return view;
 }
 
-export async function get_chapter_view(): Promise<any>
+export async function get_chapter_view(chapter: ChapterIndex): Promise<any>
 {
-    let current = get_chapter();
-    let str = await invoke('get_chapter_view', { chapter: current });
+    let str = await invoke('get_chapter_view', { chapter: chapter });
     let view = JSON.parse(str);
     return view;
 }

@@ -146,6 +146,7 @@ export function overlap<T>(a: T[], b: T[]): T[]
 
 export function reset_scroll()
 {
+    debug_print('resetting scroll');
     window.scrollTo(0, 0);
 }
 

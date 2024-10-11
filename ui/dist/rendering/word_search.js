@@ -1,6 +1,5 @@
 import * as utils from "../utils.js";
 import * as bible from "../bible.js";
-import { get_catagories } from "../highlights.js";
 import { push_search } from "../view_states.js";
 import * as verse_renderer from "./verse_rendering.js";
 const MAX_DISPLAY = 50;
@@ -17,7 +16,6 @@ export async function render_search_result(result, searched, results_id, word_po
         let on_require_rerender = () => render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_rendered, on_search);
         verse_renderer.init_highlighting(side_popup, on_require_rerender);
     }
-    const catagories = await get_catagories();
     const results_node = document.getElementById(results_id);
     if (results_node === null)
         return;
@@ -93,15 +91,15 @@ async function generate_section_buttons(search_results, render_section, display_
 async function spawn_verse(position, searched, word_popup, side_popup, side_popup_content) {
     searched = searched.map(s => s.toLocaleLowerCase());
     let verse_node = document.createElement('p');
-    verse_renderer.render_verse({
+    let elements = await verse_renderer.render_verse({
         chapter: { book: position.book, number: position.chapter },
         verse: position.verse,
         word_popup: word_popup,
         side_popup: side_popup,
         side_popup_content: side_popup_content,
         bolded: searched,
-        target: verse_node,
     });
+    verse_node.append(...elements);
     return verse_node;
 }
 async function spawn_reference(book, chapter, verse, on_search) {

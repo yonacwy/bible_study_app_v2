@@ -13,6 +13,7 @@ export function init_highlighting(side_popup, on_require_rerender) {
     document.addEventListener('mouseup', _e => on_stop_dragging(side_popup, on_require_rerender));
 }
 export async function render_verse(args) {
+    let elements = [];
     let verse_data = await utils.invoke('get_verse', { book: args.chapter.book, chapter: args.chapter.number, verse: args.verse });
     let words = verse_data.words;
     let offset = await bible.get_verse_word_offset(args.chapter.book, args.chapter.number, args.verse);
@@ -30,7 +31,7 @@ export async function render_verse(args) {
                     space = rendering.color(space, space_color);
                 }
             }
-            args.target.appendChild(space);
+            elements.push(space);
         }
         let color = null;
         if (word_annotations !== null && word_annotations !== undefined && word_annotations.highlights.length !== 0) {
@@ -53,8 +54,9 @@ export async function render_verse(args) {
         word_node.addEventListener('mouseover', e => {
             on_over_dragging(args.chapter, offset + i, word_node);
         });
-        args.target.appendChild(word_node);
+        elements.push(word_node);
     }
+    return elements;
 }
 let is_dragging = false;
 function on_start_dragging(chapter, word_index, word_div) {

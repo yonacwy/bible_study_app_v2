@@ -46,7 +46,9 @@ export function update_nav_buttons_opacity() {
     });
 }
 export function update_word_selection() {
+    utils.debug_print('updating word selection');
     if (highlight_utils.get_selected_highlight() !== null) {
+        utils.debug_print('deselecting');
         document.querySelectorAll('.bible-word, .bible-space').forEach(w => {
             w.style.userSelect = 'none';
             w.style.cursor = 'pointer';

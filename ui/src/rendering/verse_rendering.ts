@@ -20,15 +20,16 @@ export function init_highlighting(side_popup: HTMLElement, on_require_rerender: 
 export type VerseRenderArgs = {
     chapter: ChapterIndex,
     verse: number,
-    target: HTMLElement,
     word_popup: HTMLElement,
     side_popup: HTMLElement,
     side_popup_content: HTMLElement,
     bolded: string[] | null,
 }
 
-export async function render_verse(args: VerseRenderArgs): Promise<void>
+export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]>
 {
+    let elements = [];
+
     let verse_data = await utils.invoke('get_verse', { book: args.chapter.book, chapter: args.chapter.number, verse: args.verse });
     let words: Word[] = verse_data.words;
     let offset = await bible.get_verse_word_offset(args.chapter.book, args.chapter.number, args.verse);
@@ -54,7 +55,7 @@ export async function render_verse(args: VerseRenderArgs): Promise<void>
                 }
             }
             
-            args.target.appendChild(space);
+            elements.push(space);
         }
 
         let color = null;
@@ -86,8 +87,10 @@ export async function render_verse(args: VerseRenderArgs): Promise<void>
             on_over_dragging(args.chapter, offset + i, word_node);
         });
 
-        args.target.appendChild(word_node);
+        elements.push(word_node);
     }
+
+    return elements;
 }
 
 let is_dragging = false;

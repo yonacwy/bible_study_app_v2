@@ -1,12 +1,7 @@
 import * as utils from "../utils.js";
-import * as render from "./bible_render.js"
 import * as bible from "../bible.js";
-import * as wp from "../word_popup.js";
-import * as sp from "../side_popup.js";
-import { erase_highlight, get_catagories, get_selected_highlight, highlight_word } from "../highlights.js";
-import { ERASER_STATE_NAME } from "../save_states.js";
 import { push_search } from "../view_states.js";
-import { ChapterIndex, Color, Word, VersePosition as VersePosition } from "../bindings.js";
+import { VersePosition } from "../bindings.js";
 import * as verse_renderer from "./verse_rendering.js";
 
 const MAX_DISPLAY = 50;
@@ -23,12 +18,10 @@ export async function render_search_result(result: any[], searched: string[], re
     if(!was_initialized)
     {
         was_initialized = true;
-        
         let on_require_rerender = () => render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_rendered, on_search);
         verse_renderer.init_highlighting(side_popup, on_require_rerender);
     }
 
-    const catagories = await get_catagories();
     const results_node = document.getElementById(results_id);
     if(results_node === null) return;
     
@@ -134,16 +127,16 @@ async function spawn_verse(position: VersePosition, searched: string[], word_pop
     searched = searched.map(s => s.toLocaleLowerCase());
     let verse_node = document.createElement('p');
     
-    verse_renderer.render_verse({
+    let elements = await verse_renderer.render_verse({
         chapter: { book: position.book, number: position.chapter},
         verse: position.verse,
         word_popup: word_popup,
         side_popup: side_popup,
         side_popup_content: side_popup_content,
         bolded: searched,
-        target: verse_node,
-    })
+    });
 
+    verse_node.append(...elements);
     return verse_node;
 }
 

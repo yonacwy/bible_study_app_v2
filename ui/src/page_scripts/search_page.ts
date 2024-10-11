@@ -8,6 +8,8 @@ import { ERASER_STATE_NAME } from "../save_states.js";
 export function run()
 {
     let section = utils.decode_from_url(window.location.href) as SearchSection;
+    utils.init_format_copy_event_listener();
+
     Promise.all([
         pages.init_nav_buttons(),
         pages.init_chapter_selection_dropdown(),
@@ -16,6 +18,7 @@ export function run()
         pages.update_nav_buttons_opacity(),
         pages.init_search_bar(),
         utils.init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {}),
+        
         display_search(section)
     ]).then(() => {
         document.body.style.visibility = 'visible';

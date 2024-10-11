@@ -6,9 +6,8 @@ export async function load_view() {
     let view = JSON.parse(str);
     return view;
 }
-export async function get_chapter_view() {
-    let current = get_chapter();
-    let str = await invoke('get_chapter_view', { chapter: current });
+export async function get_chapter_view(chapter) {
+    let str = await invoke('get_chapter_view', { chapter: chapter });
     let view = JSON.parse(str);
     return view;
 }
