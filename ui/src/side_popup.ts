@@ -1,10 +1,13 @@
 import { get_chapter, get_chapter_words } from "./bible.js";
-import { ChapterIndex } from "./bindings.js";
+import { ChapterIndex, Color, WordAnnotations } from "./bindings.js";
 import { get_catagories, get_chapter_annotations, get_selected_highlight } from "./highlights.js";
-import { debug_print, clamp, color_to_hex } from "./utils.js";
+import * as utils from "./utils.js";
+import * as notes from "./notes.js";
 
 const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";
+const CATAGORIES: any = await get_catagories();
+
 
 export async function init_popup_panel(id: string) 
 {
@@ -16,12 +19,12 @@ export async function init_popup_panel(id: string)
     });
 }
 
-export function display_on_div(div: HTMLElement, word: string, word_highlights: string[], catagories: any, panel: Element, content: Element)
+export function display_on_div(div: HTMLElement, word: string, annotations: WordAnnotations | null, panel: Element, content: Element)
 {
     div.addEventListener('click', e => {
-        if(word_highlights === null          ||
-           word_highlights === undefined     ||
-           word_highlights.length === 0      ||
+        if(annotations === null          ||
+            annotations === undefined     ||
+           (annotations.notes.length === 0 && annotations.highlights.length === 0)      ||
            get_selected_highlight() !== null
         )
         {
@@ -31,35 +34,77 @@ export function display_on_div(div: HTMLElement, word: string, word_highlights: 
         }
         
         panel.classList.add('open');
-        content.innerHTML = "";
-        
-        content.innerHTML += `
-            <div class="panel-title">
-                <h2>"${word.toUpperCase()}"</h2>
-            </div>
-            <hr>
-            <hr>
-        `;
-        for(let j = 0; j < word_highlights.length; j++)
-        {
-            let id = word_highlights[j];
-            let name = catagories[id].name;
-            let description = catagories[id].description;
-            let color =  catagories[id].color;
-
-            content.innerHTML += `
-                <div class="panel-info">
-                <div class="info-title" style="display: flex">
-                    <h3>${name}</h3>
-                    <div class="color-square" style="background-color: ${color_to_hex(color)}"></div>
-                </div>
-                <p>${description}</p>
-                </div>
-                <hr>
-            `;
-        }
+        content.replaceChildren();
+        build_popup_content(word, annotations, content)
     })
 }
+
+async function build_popup_content(word: string, annotations: WordAnnotations, target: Element)
+{
+    target.appendElement('div', div => {
+        div.classList.add('panel-title');
+        div.appendElement('h2', header => {
+            header.innerHTML = word.toUpperCase();
+        });
+    });
+
+    target.appendElement('hr');
+    target.appendElement('hr');
+
+    append_highlights(annotations, target);
+    await append_notes(annotations, target);
+}
+
+async function append_notes(annotations: WordAnnotations, target: Element) 
+{
+    for (let i = 0; i < annotations.notes.length; i++) 
+    {
+        let id = annotations.notes[i];
+        let note_data = await notes.get_note(id);
+        target.appendElement('h6', async header => {
+            header.innerHTML = await notes.get_note_references(note_data).then(r => r.join('; '))
+        })
+        target.appendElement('p', p => {
+            p.innerHTML = note_data.text;
+        });
+        target.appendElement('hr');
+    }
+}
+
+function append_highlights(annotations: WordAnnotations, target: Element) 
+{
+    for (let i = 0; i < annotations.highlights.length; i++) 
+    {
+        let id = annotations.highlights[i];
+        let name: string = CATAGORIES[id].name;
+        let color: Color = CATAGORIES[id].color;
+        let description: string = CATAGORIES[id].description;
+
+        target.appendElement('div', div => {
+            div.classList.add('panel-info');
+            div.appendElement('div', title => {
+                title.classList.add('info-title');
+                title.style.display = 'flex';
+
+                title.appendElement('h3', header => {
+                    header.innerHTML = name;
+                });
+
+                title.appendElement('div', square => {
+                    square.style.backgroundColor = utils.color_to_hex(color);
+                    square.classList.add('color-square');
+                });
+            });
+
+            div.appendElement('p', p => {
+                p.innerHTML = description;
+            });
+        });
+
+        target.appendElement('hr');
+    }
+}
+
 
 let is_resizing = false;
 let resizing_panel: HTMLElement | null = null;
@@ -78,7 +123,7 @@ function resize_panel(e: Event)
     if (is_resizing && resizing_panel !== null) 
     {
         let new_width = window.innerWidth - (e as DragEvent).clientX;
-        new_width = clamp(200, 500, new_width);
+        new_width = utils.clamp(200, 500, new_width);
 
         resizing_panel.style.width = new_width + 'px';
         sessionStorage.setItem(WIDTH_STORAGE_NAME, `${new_width}`);

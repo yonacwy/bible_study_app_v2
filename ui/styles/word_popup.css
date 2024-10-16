@@ -31,7 +31,7 @@
     border: none;
     margin: 2px;
     padding: 0px;
-    padding-top: 1px;
+    padding-top: 1px; /* Don't ask me why, it just needs this to look centered :shrug: */
 }
 
 .word-popup-content .img-square img {

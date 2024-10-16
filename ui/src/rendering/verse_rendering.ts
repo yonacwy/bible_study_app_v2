@@ -1,4 +1,4 @@
-import { ChapterIndex, Word } from "../bindings.js";
+import { ChapterIndex, Color, Word, WordAnnotations } from "../bindings.js";
 import * as utils from "../utils.js"
 import * as rendering from "./bible_rendering.js";
 import * as bible from "../bible.js";
@@ -35,10 +35,10 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
     let offset = await bible.get_verse_word_offset(args.chapter.book, args.chapter.number, args.verse);
     let chapter_annotations = JSON.parse(await utils.invoke('get_chapter_annotations', { chapter: args.chapter}));
     
-    let last_word_annotations: any | null = null;
+    let last_word_annotations: WordAnnotations | null = null;
     for(let i = 0; i < words.length; i++)
     {
-        let word_annotations = chapter_annotations[offset + i];
+        let word_annotations: WordAnnotations | null | undefined = chapter_annotations[offset + i];
 
         if(i != 0)
         {
@@ -65,11 +65,15 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
             elements.push(space);
         }
 
-        let color = null;
-        if(word_annotations !== null && word_annotations !== undefined && word_annotations.highlights.length !== 0)
+        let color: Color | null = null;
+        if(word_annotations !== null && word_annotations !== undefined)
         {
-            let id = rendering.get_highest_priority_highlight(word_annotations.highlights, HIGHLIGHT_CATAGORIES);
-            color = HIGHLIGHT_CATAGORIES[id].color;
+            if(word_annotations.highlights.length !== 0)
+            {
+                let id = rendering.get_highest_priority_highlight(word_annotations.highlights, HIGHLIGHT_CATAGORIES);
+                color = HIGHLIGHT_CATAGORIES[id].color;
+            }
+
             last_word_annotations = word_annotations;
         }
         else 
@@ -89,7 +93,7 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
             wp.display_on_div(word_node, word_annotations.highlights.map((h: string) => HIGHLIGHT_CATAGORIES[h].color), has_notes, args.word_popup);
 
             let word = utils.trim_string(words[i].text);
-            sp.display_on_div(word_node, word, word_annotations.highlights, HIGHLIGHT_CATAGORIES, args.side_popup, args.side_popup_content);
+            sp.display_on_div(word_node, word, word_annotations, args.side_popup, args.side_popup_content);
         }
 
         word_node.addEventListener('mousedown', e => {

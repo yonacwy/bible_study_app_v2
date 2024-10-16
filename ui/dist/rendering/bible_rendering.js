@@ -28,26 +28,16 @@ export function get_highest_priority_highlight(word_highlights, catagories) {
     return max_highlight;
 }
 export function create_bible_space() {
-    let space = document.createElement('div');
+    let space = document.createElement('span');
     space.innerHTML = "&nbsp;";
     space.classList.add('bible-space');
     return space;
 }
 export function create_bible_word(t) {
-    let word = document.createElement('div');
+    let word = document.createElement('span');
     word.innerHTML = t;
     word.classList.add('bible-word');
     return word;
-}
-export function underline(t) {
-    let u = document.createElement('u');
-    u.appendChild(t);
-    return u;
-}
-export function italicize(t) {
-    let i = document.createElement('i');
-    i.appendChild(t);
-    return i;
 }
 export function bold(t) {
     let b = document.createElement('strong');

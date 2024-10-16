@@ -1,16 +1,16 @@
 import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils.js";
 import { get_catagories, get_selected_highlight } from "./highlights.js";
 import { push_section, get_current_view_state } from "./view_states.js";
-import { ChapterIndex } from "./bindings.js";
+import { BookView, ChapterIndex, ChapterView } from "./bindings.js";
 
-export async function load_view(): Promise<any>
+export async function load_view(): Promise<BookView[]>
 {
     let str = await invoke('get_bible_view', {});
     let view = JSON.parse(str);
     return view;
 }
 
-export async function get_chapter_view(chapter: ChapterIndex): Promise<any>
+export async function get_chapter_view(chapter: ChapterIndex): Promise<ChapterView>
 {
     let str = await invoke('get_chapter_view', { chapter: chapter });
     let view = JSON.parse(str);
@@ -218,4 +218,16 @@ export function shorten_book_name(name: string): string
         : name;
 
     return prefix + capitalize_first_char(name);
+}
+
+export function flatten_verse_index(chapter: ChapterView, verse: number, word: number): number 
+{
+    let index = 0;
+    for(let i = 0; i < verse; i++)
+    {
+        index += chapter.verses[i];
+    }
+
+    index += word;
+    return index;
 }

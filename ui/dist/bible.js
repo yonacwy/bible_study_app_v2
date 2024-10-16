@@ -157,3 +157,11 @@ export function shorten_book_name(name) {
         : name;
     return prefix + capitalize_first_char(name);
 }
+export function flatten_verse_index(chapter, verse, word) {
+    let index = 0;
+    for (let i = 0; i < verse; i++) {
+        index += chapter.verses[i];
+    }
+    index += word;
+    return index;
+}

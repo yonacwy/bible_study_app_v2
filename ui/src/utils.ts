@@ -146,7 +146,6 @@ export function overlap<T>(a: T[], b: T[]): T[]
 
 export function reset_scroll()
 {
-    debug_print('resetting scroll');
     window.scrollTo(0, 0);
 }
 
@@ -218,3 +217,20 @@ export function decode_from_url(url: string): object | null
         return decode_64(data);
     }
 }
+
+declare global {
+    export interface Element {
+        appendElement<K extends keyof HTMLElementTagNameMap>(key: K, builder?: (k: HTMLElementTagNameMap[K]) => void): Element;
+    }
+}
+
+Element.prototype.appendElement = function<K extends keyof HTMLElementTagNameMap>(key: K, builder?: (k: HTMLElementTagNameMap[K]) => void): Element {
+    let child = document.createElement(key);
+    if(builder !== undefined)
+    {
+        builder(child);
+    }
+    this.appendChild(child);
+    return this;
+};
+

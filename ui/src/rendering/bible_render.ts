@@ -1,6 +1,7 @@
 import * as bible from "../bible.js";
 import { ChapterIndex, Color } from "../bindings.js";
 import * as verse_renderer from "./verse_rendering.js";
+import * as utils from "../utils.js";
 
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 let was_initialized = false;

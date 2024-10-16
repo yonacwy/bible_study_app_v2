@@ -100,7 +100,6 @@ export function overlap(a, b) {
     return a.filter(i => b.includes(i));
 }
 export function reset_scroll() {
-    debug_print('resetting scroll');
     window.scrollTo(0, 0);
 }
 export function set_opacity(id, opacity) {
@@ -154,3 +153,11 @@ export function decode_from_url(url) {
         return decode_64(data);
     }
 }
+Element.prototype.appendElement = function (key, builder) {
+    let child = document.createElement(key);
+    if (builder !== undefined) {
+        builder(child);
+    }
+    this.appendChild(child);
+    return this;
+};

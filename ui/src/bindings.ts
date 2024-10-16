@@ -6,9 +6,9 @@ export type Chapter = { verses: Array<Verse> };
 
 export type ChapterIndex = { book: number, number: number };
 export type VerseRange = { start: number, end: number };
-export type WordRange = { verse_start: number };
+export type WordRange = { verse_start: number, word_start: number, verse_end: number, word_end: number };
 export type ReferenceLocation = { chapter: ChapterIndex, range: WordRange };
-export type VersePosition = { book: number, chapter: number, verse: number}
+export type VersePosition = { book: number, chapter: number, verse: number};
 
 export type BookView = { name: string, chapter_count: number };
 export type ChapterView = { verses: Array<number> };

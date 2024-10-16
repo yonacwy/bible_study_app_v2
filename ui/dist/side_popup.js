@@ -1,7 +1,9 @@
-import { get_selected_highlight } from "./highlights.js";
-import { clamp, color_to_hex } from "./utils.js";
+import { get_catagories, get_selected_highlight } from "./highlights.js";
+import * as utils from "./utils.js";
+import * as notes from "./notes.js";
 const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";
+const CATAGORIES = await get_catagories();
 export async function init_popup_panel(id) {
     const panel = document.getElementById(id);
     if (panel === null)
@@ -11,42 +13,71 @@ export async function init_popup_panel(id) {
         init_resize(e, panel);
     });
 }
-export function display_on_div(div, word, word_highlights, catagories, panel, content) {
+export function display_on_div(div, word, annotations, panel, content) {
     div.addEventListener('click', e => {
-        if (word_highlights === null ||
-            word_highlights === undefined ||
-            word_highlights.length === 0 ||
+        if (annotations === null ||
+            annotations === undefined ||
+            (annotations.notes.length === 0 && annotations.highlights.length === 0) ||
             get_selected_highlight() !== null) {
             panel.classList.remove('open');
             content.innerHTML = "";
             return;
         }
         panel.classList.add('open');
-        content.innerHTML = "";
-        content.innerHTML += `
-            <div class="panel-title">
-                <h2>"${word.toUpperCase()}"</h2>
-            </div>
-            <hr>
-            <hr>
-        `;
-        for (let j = 0; j < word_highlights.length; j++) {
-            let id = word_highlights[j];
-            let name = catagories[id].name;
-            let description = catagories[id].description;
-            let color = catagories[id].color;
-            content.innerHTML += `
-                <div class="panel-info">
-                <div class="info-title" style="display: flex">
-                    <h3>${name}</h3>
-                    <div class="color-square" style="background-color: ${color_to_hex(color)}"></div>
-                </div>
-                <p>${description}</p>
-                </div>
-                <hr>
-            `;
-        }
+        content.replaceChildren();
+        build_popup_content(word, annotations, content);
     });
+}
+async function build_popup_content(word, annotations, target) {
+    target.appendElement('div', div => {
+        div.classList.add('panel-title');
+        div.appendElement('h2', header => {
+            header.innerHTML = word.toUpperCase();
+        });
+    });
+    target.appendElement('hr');
+    target.appendElement('hr');
+    append_highlights(annotations, target);
+    await append_notes(annotations, target);
+}
+async function append_notes(annotations, target) {
+    for (let i = 0; i < annotations.notes.length; i++) {
+        let id = annotations.notes[i];
+        let note_data = await notes.get_note(id);
+        target.appendElement('h6', async (header) => {
+            header.innerHTML = await notes.get_note_references(note_data).then(r => r.join('; '));
+        });
+        target.appendElement('p', p => {
+            p.innerHTML = note_data.text;
+        });
+        target.appendElement('hr');
+    }
+}
+function append_highlights(annotations, target) {
+    for (let i = 0; i < annotations.highlights.length; i++) {
+        let id = annotations.highlights[i];
+        let name = CATAGORIES[id].name;
+        let color = CATAGORIES[id].color;
+        let description = CATAGORIES[id].description;
+        target.appendElement('div', div => {
+            div.classList.add('panel-info');
+            div.appendElement('div', title => {
+                title.classList.add('info-title');
+                title.style.display = 'flex';
+                title.appendElement('h3', header => {
+                    header.innerHTML = name;
+                });
+                title.appendElement('div', square => {
+                    square.style.backgroundColor = utils.color_to_hex(color);
+                    square.classList.add('color-square');
+                });
+            });
+            div.appendElement('p', p => {
+                p.innerHTML = description;
+            });
+        });
+        target.appendElement('hr');
+    }
 }
 let is_resizing = false;
 let resizing_panel = null;
@@ -60,7 +91,7 @@ function init_resize(e, panel) {
 function resize_panel(e) {
     if (is_resizing && resizing_panel !== null) {
         let new_width = window.innerWidth - e.clientX;
-        new_width = clamp(200, 500, new_width);
+        new_width = utils.clamp(200, 500, new_width);
         resizing_panel.style.width = new_width + 'px';
         sessionStorage.setItem(WIDTH_STORAGE_NAME, `${new_width}`);
     }
