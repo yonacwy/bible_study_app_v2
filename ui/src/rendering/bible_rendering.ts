@@ -3,12 +3,18 @@ import * as utils from "../utils.js";
 
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 
-export function render_word(word: Word, searched: string[] | null, c: Color | null)
+export function render_word(word: Word, searched: string[] | null, c: Color | null, has_note: boolean)
 {
     let word_node: HTMLElement = create_bible_word(word.text);
+
+    if(has_note)
+    {
+        word_node.style.textDecoration = 'underline';
+    }
+
     if (word.italicized)
     {
-        word_node = italicize(word_node);
+        word_node.style.fontStyle = 'italic'
     }
     
     if (searched !== null && searched.includes(utils.trim_string(word.text).toLocaleLowerCase()))
@@ -55,6 +61,13 @@ export function create_bible_word(t: string): HTMLElement
     word.innerHTML = t;
     word.classList.add('bible-word');
     return word;
+}
+
+export function underline(t: HTMLElement): HTMLElement
+{
+    let u = document.createElement('u');
+    u.appendChild(t);
+    return u;
 }
 
 export function italicize(t: HTMLElement): HTMLElement

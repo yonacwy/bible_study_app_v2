@@ -6,34 +6,14 @@ import { debug_print, clamp, color_to_hex } from "./utils.js";
 const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";
 
-export async function init_popup_panel_for_chapter(chapter: ChapterIndex, id: string, content_id: string)
+export async function init_popup_panel(id: string) 
 {
-    let chapter_highlights = await get_chapter_annotations(chapter);
-    let catagories = await get_catagories();
-    let chapter_words = await get_chapter_words(chapter);
-    
-    let initial_width = sessionStorage.getItem(WIDTH_STORAGE_NAME) ?? INITIAL_WIDTH;
     const panel = document.getElementById(id);
     if (panel === null) return;
-    panel.style.width = initial_width + 'px';
-
     const resizer = panel.getElementsByClassName('resizer')[0];
-    const content = panel.getElementsByClassName('popup-panel-content')[0];
-
     resizer.addEventListener('mousedown', e => {
         init_resize(e, panel);
     });
-
-    let word_divs = document.getElementById(content_id)?.getElementsByClassName('bible-word');
-    if (word_divs === undefined) { return; }
-    for(let i = 0; i < word_divs.length; i++)
-    {
-        let word_annotations = chapter_highlights[i];
-        if(word_annotations !== undefined && word_annotations !== null)
-        {
-            display_on_div(word_divs[i] as HTMLElement, chapter_words[i], word_annotations.highlights, catagories, panel, content);
-        }
-    }
 }
 
 export function display_on_div(div: HTMLElement, word: string, word_highlights: string[], catagories: any, panel: Element, content: Element)

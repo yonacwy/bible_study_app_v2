@@ -35,7 +35,7 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
     let offset = await bible.get_verse_word_offset(args.chapter.book, args.chapter.number, args.verse);
     let chapter_annotations = JSON.parse(await utils.invoke('get_chapter_annotations', { chapter: args.chapter}));
     
-    let last_word_highlights = null;
+    let last_word_annotations: any | null = null;
     for(let i = 0; i < words.length; i++)
     {
         let word_annotations = chapter_annotations[offset + i];
@@ -44,14 +44,21 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
         {
             let space: HTMLElement = rendering.create_bible_space();
 
-            if(word_annotations !== undefined && word_annotations !== null && word_annotations.highlights.length !== 0 && last_word_highlights !== null)
+            if(word_annotations !== undefined && word_annotations !== null && last_word_annotations !== null)
             {
-                let overlap: any[] = utils.overlap(word_annotations.highlights, last_word_highlights);
-                if(overlap.length !== 0)
+                if(word_annotations.highlights.length !== 0 && last_word_annotations.highlights.length !== null)
                 {
-                    let space_highlight = rendering.get_highest_priority_highlight(overlap, HIGHLIGHT_CATAGORIES);
-                    let space_color = HIGHLIGHT_CATAGORIES[space_highlight].color;
-                    space = rendering.color(space, space_color);
+                    let overlap: any[] = utils.overlap(word_annotations.highlights, last_word_annotations.highlights);
+                    if(overlap.length !== 0)
+                    {
+                        let space_highlight = rendering.get_highest_priority_highlight(overlap, HIGHLIGHT_CATAGORIES);
+                        let space_color = HIGHLIGHT_CATAGORIES[space_highlight].color;
+                        space = rendering.color(space, space_color);
+                    }
+                }
+                if(word_annotations.notes.length !== null && last_word_annotations.notes.length !== 0)
+                {
+                    space.style.textDecoration = 'underline';
                 }
             }
             
@@ -63,17 +70,23 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
         {
             let id = rendering.get_highest_priority_highlight(word_annotations.highlights, HIGHLIGHT_CATAGORIES);
             color = HIGHLIGHT_CATAGORIES[id].color;
-            last_word_highlights = word_annotations.highlights;
+            last_word_annotations = word_annotations;
         }
         else 
         {
-            last_word_highlights = null;
+            last_word_annotations = null;
         }
 
-        let word_node = rendering.render_word(words[i], args.bolded, color);
-        if(word_annotations !== null && word_annotations !== undefined && word_annotations.highlights.length !== 0)
+        let has_notes = false;
+        if(word_annotations !== null && word_annotations !== undefined && word_annotations.notes.length !== 0)
         {
-            wp.display_on_div(word_node, word_annotations.highlights.map((h: string) => HIGHLIGHT_CATAGORIES[h].color), args.word_popup);
+            has_notes = true;
+        }
+
+        let word_node = rendering.render_word(words[i], args.bolded, color, has_notes);
+        if(word_annotations !== null && word_annotations !== undefined && (word_annotations.highlights.length !== 0 || word_annotations.notes.length !== 0))
+        {
+            wp.display_on_div(word_node, word_annotations.highlights.map((h: string) => HIGHLIGHT_CATAGORIES[h].color), has_notes, args.word_popup);
 
             let word = utils.trim_string(words[i].text);
             sp.display_on_div(word_node, word, word_annotations.highlights, HIGHLIGHT_CATAGORIES, args.side_popup, args.side_popup_content);

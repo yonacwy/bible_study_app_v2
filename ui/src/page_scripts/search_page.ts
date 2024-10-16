@@ -4,6 +4,7 @@ import * as view_states from "../view_states.js";
 import { SearchSection } from "../bindings.js";
 import * as search from "../rendering/word_search.js";
 import { ERASER_STATE_NAME } from "../save_states.js";
+import * as side_popup from "../side_popup.js";
 
 export function run()
 {
@@ -18,6 +19,7 @@ export function run()
         pages.update_nav_buttons_opacity(),
         pages.init_search_bar(),
         utils.init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {}),
+        side_popup.init_popup_panel('popup-panel'),
         
         display_search(section)
     ]).then(() => {

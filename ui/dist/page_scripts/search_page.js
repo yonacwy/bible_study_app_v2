@@ -2,6 +2,7 @@ import * as utils from "../utils.js";
 import * as pages from "./pages.js";
 import * as search from "../rendering/word_search.js";
 import { ERASER_STATE_NAME } from "../save_states.js";
+import * as side_popup from "../side_popup.js";
 export function run() {
     let section = utils.decode_from_url(window.location.href);
     utils.init_format_copy_event_listener();
@@ -13,6 +14,7 @@ export function run() {
         pages.update_nav_buttons_opacity(),
         pages.init_search_bar(),
         utils.init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => { }),
+        side_popup.init_popup_panel('popup-panel'),
         display_search(section)
     ]).then(() => {
         document.body.style.visibility = 'visible';

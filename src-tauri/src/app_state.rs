@@ -87,6 +87,37 @@ impl AppData
         }
 
         let mut test_notebook = Notebook::default();
+        {
+            let highlight_id = uuid::Uuid::new_v4().to_string();
+            test_notebook.highlight_catagories.insert(highlight_id.clone(), HighlightCategory {
+                color: Color { r: 255, g: 255, b: 0 },
+                name: "test".into(),
+                description: "".into(),
+                priority: 10,
+                id: highlight_id.clone()
+            });
+
+            let mut annotations = HashMap::new();
+            annotations.insert(0, WordAnnotations {
+                highlights: vec![highlight_id.clone()],
+                notes: vec![]
+            });
+            annotations.insert(1, WordAnnotations {
+                highlights: vec![highlight_id.clone()],
+                notes: vec![]
+            });
+            annotations.insert(2, WordAnnotations {
+                highlights: vec![highlight_id.clone()],
+                notes: vec![]
+            });
+
+            annotations.insert(4, WordAnnotations {
+                highlights: vec![highlight_id.clone()],
+                notes: vec![]
+            });
+
+            test_notebook.annotations.insert(ChapterIndex { book: 0, number: 0 }, annotations);
+        }
         test_notebook.add_note(&bible, "df4163b0-c155-4b3f-9f1b-1ff0ab5f243d".into(), "# Here is a test note".into(), vec![
             ReferenceLocation 
             {

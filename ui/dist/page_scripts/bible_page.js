@@ -4,6 +4,7 @@ import * as bible_renderer from "../rendering/bible_render.js";
 import * as pages from "./pages.js";
 import * as view_states from "../view_states.js";
 import { ERASER_STATE_NAME } from "../save_states.js";
+import * as side_popup from "../side_popup.js";
 const CONTENT_ID = "chapter-text-content";
 const CHAPTER_NAME_ID = "chapter-name";
 const NEXT_CHAPTER_BUTTON_ID = "next-chapter-btn";
@@ -19,6 +20,7 @@ export async function run() {
         pages.update_nav_buttons_opacity(),
         pages.init_search_bar(),
         utils.init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => { }),
+        side_popup.init_popup_panel('popup-panel'),
         init_chapter_buttons(),
         display_chapter({ book: data.book, number: data.chapter }, data.verse_range),
     ]).then(_ => {
@@ -28,7 +30,7 @@ export async function run() {
 async function display_chapter(chapter, verse_range) {
     const content = document.getElementById(CONTENT_ID);
     const word_popup = document.getElementById(pages.WORD_POPUP_ID);
-    const popup_panel = document.getElementById(pages.WORD_POPUP_ID);
+    const popup_panel = document.getElementById(pages.POPUP_PANEL_ID);
     const popup_panel_content = document.getElementById(pages.POPUP_PANEL_CONTENT_ID);
     if (content === null || word_popup === null || popup_panel === null || popup_panel_content === null) {
         return;
