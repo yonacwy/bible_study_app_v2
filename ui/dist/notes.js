@@ -18,7 +18,7 @@ export async function get_note_references(note_data) {
         if (location.range.verse_start !== location.range.verse_end) {
             title += `-${location.range.verse_end}`;
         }
-        references.push(`${title} > "${text}"`);
+        references.push([title, text]);
     }
     return references;
 }

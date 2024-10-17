@@ -13,7 +13,7 @@ export async function init_popup_panel(id) {
         init_resize(e, panel);
     });
 }
-export function display_on_div(div, word, annotations, panel, content) {
+export function display_on_div(div, word, annotations, panel, content, on_search) {
     div.addEventListener('click', e => {
         if (annotations === null ||
             annotations === undefined ||
@@ -25,32 +25,40 @@ export function display_on_div(div, word, annotations, panel, content) {
         }
         panel.classList.add('open');
         content.replaceChildren();
-        build_popup_content(word, annotations, content);
+        build_popup_content(word, annotations, content, on_search);
     });
 }
-async function build_popup_content(word, annotations, target) {
+async function build_popup_content(word, annotations, target, on_search) {
     target.appendElement('div', div => {
         div.classList.add('panel-title');
-        div.appendElement('h2', header => {
-            header.innerHTML = word.toUpperCase();
-        });
+        div.innerHTML = `"${word}"`;
     });
-    target.appendElement('hr');
-    target.appendElement('hr');
     append_highlights(annotations, target);
-    await append_notes(annotations, target);
+    await append_notes(annotations, target, on_search);
 }
-async function append_notes(annotations, target) {
+async function append_notes(annotations, target, on_search) {
     for (let i = 0; i < annotations.notes.length; i++) {
         let id = annotations.notes[i];
         let note_data = await notes.get_note(id);
-        target.appendElement('h6', async (header) => {
-            header.innerHTML = await notes.get_note_references(note_data).then(r => r.join('; '));
+        let references = await notes.get_note_references(note_data);
+        target.appendElement('div', div => {
+            div.classList.add('note-viewer');
+            div.appendElement('div', content => {
+                content.classList.add('note-content');
+                content.innerHTML = note_data.text;
+            });
+            div.appendElement('div', grid => {
+                grid.classList.add('reference-buttons');
+                references.forEach(ref => {
+                    grid.appendElement('button', button => {
+                        button.innerHTML = `${ref[0]}:'${ref[1]}'`;
+                        button.addEventListener('click', e => {
+                            on_search(ref[0]);
+                        });
+                    });
+                });
+            });
         });
-        target.appendElement('p', p => {
-            p.innerHTML = note_data.text;
-        });
-        target.appendElement('hr');
     }
 }
 function append_highlights(annotations, target) {
@@ -60,23 +68,20 @@ function append_highlights(annotations, target) {
         let color = CATAGORIES[id].color;
         let description = CATAGORIES[id].description;
         target.appendElement('div', div => {
-            div.classList.add('panel-info');
-            div.appendElement('div', title => {
-                title.classList.add('info-title');
-                title.style.display = 'flex';
-                title.appendElement('h3', header => {
-                    header.innerHTML = name;
-                });
-                title.appendElement('div', square => {
-                    square.style.backgroundColor = utils.color_to_hex(color);
-                    square.classList.add('color-square');
-                });
+            div.classList.add('highlight-viewer');
+            div.appendElement('div', color_bar => {
+                color_bar.classList.add('color-bar');
+                color_bar.style.backgroundColor = utils.color_to_hex(color);
             });
-            div.appendElement('p', p => {
-                p.innerHTML = description;
+            div.appendElement('div', content => {
+                content.classList.add('highlight-content');
+                content.appendElement('div', title => {
+                    title.classList.add('highlight-title');
+                    title.innerHTML = name;
+                });
+                content.appendElement('p', desc => desc.innerHTML = description);
             });
         });
-        target.appendElement('hr');
     }
 }
 let is_resizing = false;

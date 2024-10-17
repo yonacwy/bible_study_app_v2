@@ -7,9 +7,9 @@ export async function get_note(id: string): Promise<NoteData>
     return JSON.parse(await utils.invoke('get_note', { id: id }));
 }
 
-export async function get_note_references(note_data: NoteData): Promise<string[]>
+export async function get_note_references(note_data: NoteData): Promise<[string, string][]>
 {
-    let references = [];
+    let references: [string, string][] = [];
     let bible_view = await bible.load_view();
 
     for(let i = 0; i < note_data.locations.length; i++)
@@ -29,7 +29,7 @@ export async function get_note_references(note_data: NoteData): Promise<string[]
             title += `-${location.range.verse_end}`;
         }
 
-        references.push(`${title} > "${text}"`);
+        references.push([title, text]);
     }
 
     return references;

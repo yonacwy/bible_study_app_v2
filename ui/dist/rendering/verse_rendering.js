@@ -57,7 +57,7 @@ export async function render_verse(args) {
         if (word_annotations !== null && word_annotations !== undefined && (word_annotations.highlights.length !== 0 || word_annotations.notes.length !== 0)) {
             wp.display_on_div(word_node, word_annotations.highlights.map((h) => HIGHLIGHT_CATAGORIES[h].color), has_notes, args.word_popup);
             let word = utils.trim_string(words[i].text);
-            sp.display_on_div(word_node, word, word_annotations, args.side_popup, args.side_popup_content);
+            sp.display_on_div(word_node, word, word_annotations, args.side_popup, args.side_popup_content, args.on_search);
         }
         word_node.addEventListener('mousedown', e => {
             on_start_dragging(args.chapter, offset + i, word_node);

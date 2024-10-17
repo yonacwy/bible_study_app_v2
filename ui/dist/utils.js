@@ -19,7 +19,7 @@ export function on_click(id, f) {
 }
 export function read_value(id) {
     let element = document.getElementById(id);
-    if (element instanceof HTMLInputElement) {
+    if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
         return element.value;
     }
     else {
@@ -28,7 +28,8 @@ export function read_value(id) {
 }
 export function set_value(id, value) {
     let element = document.getElementById(id);
-    if (element instanceof HTMLInputElement) {
+    HTMLTextAreaElement;
+    if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
         element.value = value;
     }
 }

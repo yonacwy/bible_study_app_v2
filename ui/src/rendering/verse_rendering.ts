@@ -24,6 +24,7 @@ export type VerseRenderArgs = {
     side_popup: HTMLElement,
     side_popup_content: HTMLElement,
     bolded: string[] | null,
+    on_search: (msg: string) => void
 }
 
 export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]>
@@ -93,7 +94,7 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
             wp.display_on_div(word_node, word_annotations.highlights.map((h: string) => HIGHLIGHT_CATAGORIES[h].color), has_notes, args.word_popup);
 
             let word = utils.trim_string(words[i].text);
-            sp.display_on_div(word_node, word, word_annotations, args.side_popup, args.side_popup_content);
+            sp.display_on_div(word_node, word, word_annotations, args.side_popup, args.side_popup_content, args.on_search);
         }
 
         word_node.addEventListener('mousedown', e => {

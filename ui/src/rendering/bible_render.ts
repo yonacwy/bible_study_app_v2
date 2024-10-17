@@ -6,14 +6,14 @@ import * as utils from "../utils.js";
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 let was_initialized = false;
 
-export async function render_chapter(chapter: ChapterIndex, content: HTMLElement, word_popup: HTMLElement, popup_panel: HTMLElement, popup_panel_content: HTMLElement, on_render: (() => void) | null)
+export async function render_chapter(chapter: ChapterIndex, content: HTMLElement, word_popup: HTMLElement, popup_panel: HTMLElement, popup_panel_content: HTMLElement, on_render: (() => void), on_search: (msg: string) => void)
 {
     content.style.pointerEvents = 'none';
 
     if(!was_initialized)
     {
         was_initialized = true;
-        let on_require_rerender = () => render_chapter(chapter, content, word_popup, popup_panel, popup_panel_content, on_render);
+        let on_require_rerender = () => render_chapter(chapter, content, word_popup, popup_panel, popup_panel_content, on_render, on_search);
         verse_renderer.init_highlighting(popup_panel, on_require_rerender);
     }
 
@@ -33,6 +33,7 @@ export async function render_chapter(chapter: ChapterIndex, content: HTMLElement
             side_popup: popup_panel,
             side_popup_content: popup_panel_content,
             bolded: [],
+            on_search: on_search
         })
         
         verse_li.append(...elements);
@@ -48,8 +49,8 @@ export async function render_chapter(chapter: ChapterIndex, content: HTMLElement
     }
 }
 
-export async function render_current_chapter(content: HTMLElement, word_popup: HTMLElement, popup_panel: HTMLElement, popup_panel_content: HTMLElement, on_render: (() => void) | null): Promise<void>
+export async function render_current_chapter(content: HTMLElement, word_popup: HTMLElement, popup_panel: HTMLElement, popup_panel_content: HTMLElement, on_render: (() => void), on_search: (msg: string) => void): Promise<void>
 {
     let chapter = await bible.get_chapter() as ChapterIndex;
-    return await render_chapter(chapter, content, word_popup, popup_panel, popup_panel_content, on_render);
+    return await render_chapter(chapter, content, word_popup, popup_panel, popup_panel_content, on_render, on_search);
 }

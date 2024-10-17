@@ -38,7 +38,7 @@ export async function render_search_result(result: any[], searched: string[], re
     {
         let result_data = result[i];
 
-        let verse_node = await spawn_verse(result_data, searched, word_popup,  side_popup, side_popup_content);
+        let verse_node = await spawn_verse(result_data, searched, word_popup,  side_popup, side_popup_content, on_search);
         let reference_node = await spawn_reference(result_data.book, result_data.chapter, result_data.verse, on_search);
 
         let result_node = document.createElement('div');
@@ -124,7 +124,7 @@ async function generate_section_buttons(search_results: any[], render_section: (
     return parent;
 }
 
-async function spawn_verse(position: VersePosition, searched: string[], word_popup: HTMLElement, side_popup: HTMLElement, side_popup_content: HTMLElement)
+async function spawn_verse(position: VersePosition, searched: string[], word_popup: HTMLElement, side_popup: HTMLElement, side_popup_content: HTMLElement, on_search: (msg: string) => void)
 {
     searched = searched.map(s => s.toLocaleLowerCase());
     let verse_node = document.createElement('p');
@@ -136,6 +136,7 @@ async function spawn_verse(position: VersePosition, searched: string[], word_pop
         side_popup: side_popup,
         side_popup_content: side_popup_content,
         bolded: searched,
+        on_search: on_search
     });
 
     verse_node.append(...elements);

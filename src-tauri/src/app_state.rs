@@ -92,7 +92,7 @@ impl AppData
             test_notebook.highlight_catagories.insert(highlight_id.clone(), HighlightCategory {
                 color: Color { r: 255, g: 255, b: 0 },
                 name: "test".into(),
-                description: "".into(),
+                description: "this is a test description".into(),
                 priority: 10,
                 id: highlight_id.clone()
             });

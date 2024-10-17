@@ -31,7 +31,7 @@ export function on_click(id: string, f:(e: Event) => void)
 export function read_value(id: string): string | undefined
 {
     let element = document.getElementById(id);
-    if(element instanceof HTMLInputElement)
+    if(element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement)
     {
         return element.value;
     }
@@ -44,7 +44,8 @@ export function read_value(id: string): string | undefined
 export function set_value(id: string, value: string)
 {
     let element = document.getElementById(id);
-    if(element instanceof HTMLInputElement)
+    HTMLTextAreaElement
+    if(element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement)
     {
         element.value = value;
     }

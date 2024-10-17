@@ -12,8 +12,8 @@ export function set_category(id, color, name, description, priority) {
         id: id,
         color: color,
         name: name,
-        description: description ?? "",
-        priority: priority
+        description: description,
+        priority: priority.toString()
     });
 }
 export async function get_catagories() {
@@ -32,6 +32,7 @@ export function render_catagories(on_delete, on_edit) {
         }
         for (let id in catagories) {
             let category = catagories[id];
+            utils.debug_print(JSON.stringify(category));
             let name = category.name;
             let description = category.description;
             let color = category.color;

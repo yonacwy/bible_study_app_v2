@@ -3,13 +3,12 @@
     right: 0;
     top: var(--header-height);
     height: calc(100% - var(--header-height));
-    overflow: auto;
+    overflow: none;
     width: 250px;
-    background-color: rgb(101, 101, 101);
-    color: #ffffff;
+    background-color: #f4f4f4;
+    color: black;
     transform: translateX(100%);
     transition: transform 0.3s ease;
-    overflow: auto;
     z-index: 1000;
     min-width: 200px;
     max-width: 500px;
@@ -25,13 +24,12 @@
 
 .resizer {
     position: absolute;
-    left: -5px;
     top: 0;
-    width: 10px;
+    width: 5px;
     height: 100%;
     cursor: ew-resize;
     z-index: 1002;
-    background-color: black;
+    background-color: #333;
 }
 
 .popup-panel .close-image {
@@ -45,40 +43,73 @@
 }
 
 .popup-panel .panel-title {
+    text-align: center;
+    font-size: 2em;
+    font-weight: bold;
+    border-bottom: 1px solid #333;
+}
+
+.popup-panel-content .highlight-viewer {
+    display: flex;
+    align-items: stretch; /* Ensures both the color bar and content stretch to the same height */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: white;
+    transition: transform 0.3s ease;
+}
+
+.popup-panel-content .highlight-viewer:hover {
+    transform: scale(1.05);
+}
+
+.popup-panel-content .highlight-viewer .color-bar {
+    width: 10px;
+    border-radius: 8px 0 0 8px;
+    margin-right: 10px;
+}
+
+.popup-panel-content .highlight-viewer .highlight-content {
+    display: block;
+    flex-direction: column;
     justify-content: center;
-    align-items: center;
-    margin: 0;
-    padding: 0;
+    width: calc(100% - 20px);
 }
 
-.popup-panel .close-image img {
-    width: 100%;
-    height: 100%;
-}
-
-.popup-panel-content .color-square {
-    width: 20px;
-    height: 20px;
-    margin-left: 10px;
-}
-
-.panel-info {
-    margin: 0;
-    padding: 0;
-}
-
-.panel-info .info-title {
-    align-items: center;
-    padding: 0px;
+.popup-panel-content .highlight-viewer .highlight-content .highlight-title {
     margin: 0px;
+    font-weight: bold;
+    border-bottom: 1px solid #333;
 }
 
-.panel-info .info-title h3 {
-    margin: 0;
-    padding: 0;
+.popup-panel-content .highlight-viewer .highlight-content p {
+    margin: 5px 0;
 }
 
-.panel-info p {
-    margin: 10px 0px 0px 0px;
-    padding: 0;
+.popup-panel-content .note-viewer {
+    display: block;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: white;
+    transition: transform 0.3s ease;
+}
+
+.popup-panel-content .note-viewer:hover {
+    transform: scale(1.05);
+}
+
+.popup-panel-content .note-viewer .note-content {
+    margin: 5px 0;
+    padding-bottom: 15px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #333;
+}
+
+.popup-panel-content .note-viewer .reference-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 5px;
 }

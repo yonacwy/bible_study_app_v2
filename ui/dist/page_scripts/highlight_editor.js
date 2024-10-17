@@ -27,7 +27,7 @@ function on_edit(id) {
         utils.set_value('color-in', color);
         utils.set_value('name-in', category.name);
         utils.set_value('description-in', category.description);
-        utils.set_value('priority-in', category.priority);
+        utils.set_value('priority-in', category.priority.toString());
         editing_id = category.id;
         utils.set_display('highlight-popup', 'flex');
     });

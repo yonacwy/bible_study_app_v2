@@ -40,7 +40,11 @@ async function display_chapter(chapter, verse_range) {
     let number = chapter.number + 1;
     utils.set_value(pages.SEARCH_INPUT_ID, `${name} ${number}`);
     utils.set_html(CHAPTER_NAME_ID, `${name} ${number}`);
-    bible_renderer.render_current_chapter(content, word_popup, popup_panel, popup_panel_content, pages.update_word_selection).then(() => {
+    let on_search = (msg) => {
+        utils.set_value('search-input', msg);
+        document.getElementById('search-btn')?.click();
+    };
+    bible_renderer.render_current_chapter(content, word_popup, popup_panel, popup_panel_content, pages.update_word_selection, on_search).then(() => {
         if (verse_range !== null) {
             let start = verse_range.start;
             let element = document.getElementById(CONTENT_ID)?.getElementsByClassName(`verse-index-${start}`)[0];

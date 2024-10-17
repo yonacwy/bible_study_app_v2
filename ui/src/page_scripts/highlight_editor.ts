@@ -1,6 +1,7 @@
 import * as utils from "../utils.js";
 import * as highlights from "../highlights.js";
 import { show_error_popup } from "../error_popup.js";
+import { HighlightCategory } from "../bindings.js";
 
 export type HighlightEditorData = {
     old_path: string
@@ -36,12 +37,13 @@ let editing_id: string | null = null;
 function on_edit(id: string)
 {
     highlights.get_catagories().then(catagories => {
-        let category = catagories[id];
+        let category: HighlightCategory = catagories[id];
         let color = utils.color_to_hex(category.color);
         utils.set_value('color-in', color);
         utils.set_value('name-in', category.name);
         utils.set_value('description-in', category.description);
-        utils.set_value('priority-in', category.priority);
+
+        utils.set_value('priority-in', category.priority.toString());
 
         editing_id = category.id;
         utils.set_display('highlight-popup', 'flex');
