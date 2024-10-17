@@ -1,4 +1,4 @@
-import * as utils from "../utils.js";
+import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
 import * as bible_renderer from "../rendering/bible_render.js";
 import * as pages from "./pages.js";

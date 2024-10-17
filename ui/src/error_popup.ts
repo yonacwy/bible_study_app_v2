@@ -1,4 +1,4 @@
-import { debug_print } from "./utils.js";
+import { debug_print } from "./utils/index.js";
 
 export function show_error_popup(id: string, show: boolean, message: string)
 {

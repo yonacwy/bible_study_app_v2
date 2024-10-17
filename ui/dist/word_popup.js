@@ -1,4 +1,4 @@
-import { color_to_hex } from "./utils.js";
+import { color_to_hex } from "./utils/index.js";
 export function display_on_div(div, colors, has_note, popup) {
     div.addEventListener('mouseenter', _ => {
         popup.replaceChildren();

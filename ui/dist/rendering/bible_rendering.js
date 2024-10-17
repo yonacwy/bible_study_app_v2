@@ -1,4 +1,4 @@
-import * as utils from "../utils.js";
+import * as utils from "../utils/index.js";
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 export function render_word(word, searched, c, has_note) {
     let word_node = create_bible_word(word.text);

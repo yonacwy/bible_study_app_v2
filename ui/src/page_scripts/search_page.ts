@@ -1,4 +1,4 @@
-import * as utils from "../utils.js";
+import * as utils from "../utils/index.js";
 import * as pages from "./pages.js";
 import * as view_states from "../view_states.js";
 import { SearchSection } from "../bindings.js";

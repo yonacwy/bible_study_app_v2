@@ -1,6 +1,6 @@
 import { Color, WordAnnotations } from "./bindings.js";
 import { get_catagories, get_selected_highlight } from "./highlights.js";
-import * as utils from "./utils.js";
+import * as utils from "./utils/index.js";
 import * as notes from "./notes.js";
 import * as md from "./md/index.js";
 

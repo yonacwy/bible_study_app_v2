@@ -1,0 +1,19 @@
+export function clamp(min, max, value) {
+    return Math.max(min, Math.min(max, value));
+}
+export function color_to_hex(color) {
+    const { r, g, b } = color;
+    // Ensure r, g, and b are within the range of 0-255
+    const clamp = (value) => Math.max(0, Math.min(255, value));
+    // Convert each color component to a two-digit hexadecimal value
+    const toHex = (value) => clamp(value).toString(16).padStart(2, '0');
+    // Combine the hex values into a single string
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+export function inverse_color(color) {
+    const { r, g, b } = color;
+    let ir = 255 - r;
+    let ig = 255 - g;
+    let ib = 255 - b;
+    return { r: ir, g: ig, b: ib };
+}

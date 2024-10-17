@@ -1,5 +1,5 @@
 import { load_view } from "./bible.js";
-import { debug_print } from "./utils.js";
+import { debug_print } from "./utils/index.js";
 
 function spawn_normal_option(name: string): HTMLElement
 {
