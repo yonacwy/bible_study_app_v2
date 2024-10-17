@@ -25,7 +25,6 @@ export function read_value(id) {
 }
 export function set_value(id, value) {
     let element = document.getElementById(id);
-    HTMLTextAreaElement;
     if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
         element.value = value;
     }
