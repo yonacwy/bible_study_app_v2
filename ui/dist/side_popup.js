@@ -1,5 +1,5 @@
 import { get_catagories, get_selected_highlight } from "./highlights.js";
-import * as utils from "./utils.js";
+import * as utils from "./utils/index.js";
 import * as notes from "./notes.js";
 const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";
@@ -45,7 +45,7 @@ async function append_notes(annotations, target, on_search) {
             div.classList.add('note-viewer');
             div.appendElement('div', content => {
                 content.classList.add('note-content');
-                content.innerHTML = note_data.text;
+                content.innerHTML = utils.render_markdown(note_data.text);
             });
             div.appendElement('div', grid => {
                 grid.classList.add('reference-buttons');

@@ -1,6 +1,6 @@
 import { ChapterIndex, Color } from "./bindings.js";
 import { get_catagories, get_chapter_annotations } from "./highlights.js";
-import { color_to_hex, debug_print } from "./utils.js";
+import { color_to_hex, debug_print } from "./utils/index.js";
 
 export function display_on_div(div: HTMLElement, colors: Color[], has_note: boolean, popup: HTMLElement) 
 {

@@ -1,5 +1,5 @@
 import * as highlight_utils from "../highlights.js";
-import * as utils from "../utils.js";
+import * as utils from "../utils/index.js";
 import * as view_states from "../view_states.js";
 import *  as bible from "../bible.js";
 import { build_chapter_selection_dropdown } from "../selection.js";

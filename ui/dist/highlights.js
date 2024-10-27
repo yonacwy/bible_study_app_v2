@@ -1,4 +1,4 @@
-import * as utils from "./utils.js";
+import * as utils from "./utils/index.js";
 export function create_category(color, name, description, priority) {
     utils.invoke('add_highlight_category', {
         color: color,

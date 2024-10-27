@@ -1,4 +1,4 @@
-import * as utils from "../utils.js";
+import * as utils from "../utils/index.js";
 import * as highlights from "../highlights.js";
 import { show_error_popup } from "../error_popup.js";
 export async function run() {

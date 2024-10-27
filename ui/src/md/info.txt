@@ -1,0 +1,1 @@
+This library was taken from `https://github.com/ts-stack/markdown/tree/master`, and modified by Nathanael A. Craver, to have it function with `strict` setting in tsConfig.json

@@ -1,4 +1,4 @@
-import * as utils from "./utils.js";
+import * as utils from "./utils/index.js";
 import * as bible from "./bible.js";
 export async function get_note(id) {
     return JSON.parse(await utils.invoke('get_note', { id: id }));

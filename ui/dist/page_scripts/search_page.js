@@ -1,4 +1,4 @@
-import * as utils from "../utils.js";
+import * as utils from "../utils/index.js";
 import * as pages from "./pages.js";
 import * as search from "../rendering/word_search.js";
 import { ERASER_STATE_NAME } from "../save_states.js";

@@ -1,8 +1,8 @@
-import { get_chapter, get_chapter_words } from "./bible.js";
-import { ChapterIndex, Color, WordAnnotations } from "./bindings.js";
-import { get_catagories, get_chapter_annotations, get_selected_highlight } from "./highlights.js";
-import * as utils from "./utils.js";
+import { Color, WordAnnotations } from "./bindings.js";
+import { get_catagories, get_selected_highlight } from "./highlights.js";
+import * as utils from "./utils/index.js";
 import * as notes from "./notes.js";
+import * as md from "./md/index.js";
 
 const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";
@@ -61,7 +61,7 @@ async function append_notes(annotations: WordAnnotations, target: Element, on_se
             div.classList.add('note-viewer');
             div.appendElement('div', content => {
                 content.classList.add('note-content');
-                content.innerHTML = note_data.text
+                content.innerHTML = utils.render_markdown(note_data.text);
             });
             div.appendElement('div', grid => {
                 grid.classList.add('reference-buttons')

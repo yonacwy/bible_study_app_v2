@@ -1,5 +1,5 @@
 import { BibleSection, SearchSection } from "./bindings.js";
-import * as utils from "./utils.js";
+import * as utils from "./utils/index.js";
 
 export async function is_last_view_state(): Promise<boolean>
 {

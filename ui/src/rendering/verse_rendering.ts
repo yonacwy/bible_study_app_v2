@@ -1,5 +1,5 @@
 import { ChapterIndex, Color, Word, WordAnnotations } from "../bindings.js";
-import * as utils from "../utils.js"
+import * as utils from "../utils/index.js"
 import * as rendering from "./bible_rendering.js";
 import * as bible from "../bible.js";
 import * as highlighting from "../highlights.js"
