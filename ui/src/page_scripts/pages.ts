@@ -4,6 +4,8 @@ import * as view_states from "../view_states.js";
 import *  as bible from "../bible.js";
 import { build_chapter_selection_dropdown } from "../selection.js";
 import { show_error_popup } from "../error_popup.js";
+import * as side_popup from "../side_popup.js";
+import { ERASER_STATE_NAME } from "../save_states.js";
 
 export const SEARCH_INPUT_ID: string = "search-input";
 export const SEARCH_BUTTON_ID: string = "search-btn";
@@ -16,6 +18,20 @@ export const HIGHLIGHT_SELECTOR_ID: string = "highlight-selector-btn";
 export const HIGHLIGHT_EDITOR_BUTTON_ID: string = "highlight-settings";
 
 const CHAPTER_SELECTOR_ID: string = "book-selection-content";
+
+export async function init_header(): Promise<void>
+{
+    await Promise.all([
+        init_nav_buttons(),
+        init_chapter_selection_dropdown(),
+        init_highlight_editor_button(),
+        init_highlight_selection(null),
+        update_nav_buttons_opacity(),
+        init_search_bar(),
+        utils.init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {}),
+        side_popup.init_popup_panel('popup-panel'),
+    ]);
+}
 
 export function init_nav_buttons()
 {
@@ -55,7 +71,7 @@ export function update_nav_buttons_opacity()
         {
             utils.set_opacity('back-btn', 1.0.toString());
         }
-    })
+    });
 }
 
 export function update_word_selection()
@@ -114,7 +130,7 @@ export function init_highlight_editor_button()
         window.location.href = utils.encode_to_url('highlight_editor.html', {
             old_path: window.location.href
         });
-    })
+    });
 }
 
 export function init_search_bar()
@@ -160,5 +176,5 @@ export async function init_chapter_selection_dropdown()
     build_chapter_selection_dropdown(CHAPTER_SELECTOR_ID, (name, number) => {
         utils.set_value(SEARCH_INPUT_ID, `${name} ${number}`);
         document.getElementById(SEARCH_BUTTON_ID)?.click();
-    })
+    });
 }

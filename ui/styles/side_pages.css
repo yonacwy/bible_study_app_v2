@@ -1,0 +1,55 @@
+#left-pane, #right-pane {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    overflow: hidden;
+    transition: width 0.3s ease-in-out;
+    white-space: nowrap;
+}
+
+#left-pane {
+    background-color: #f0f0f0;
+    width: 50%;
+}
+
+#right-pane {
+    background-color: #ddd;
+    width: 50%;
+}
+
+#resizer {
+    width: 5px;
+    background-color: #333;
+    cursor: col-resize;
+    position: relative;
+}
+
+#pane-container {
+    display: flex;
+    top: var(--header-height);
+    height: calc(100vh - var(--header-height));
+    width: 100%;
+    position: relative;
+}
+
+.collapse-button-container {
+    z-index: 1000;
+    position: fixed;
+    top: calc(10px + var(--header-height));
+    width: 100vw;
+}
+
+.collapse-left-button {
+    left: 10px;
+}
+
+.collapse-right-button {
+    right: 10px;
+}
+
+.collapse-right-button, .collapse-left-button {
+    position: absolute;
+    padding: 5px 10px;
+    font-size: 14px;
+}

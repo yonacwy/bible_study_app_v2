@@ -12,15 +12,7 @@ export function run()
     utils.init_format_copy_event_listener();
 
     Promise.all([
-        pages.init_nav_buttons(),
-        pages.init_chapter_selection_dropdown(),
-        pages.init_highlight_editor_button(),
-        pages.init_highlight_selection(null),
-        pages.update_nav_buttons_opacity(),
-        pages.init_search_bar(),
-        utils.init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {}),
-        side_popup.init_popup_panel('popup-panel'),
-        
+        pages.init_header(),
         display_search(section)
     ]).then(() => {
         document.body.style.visibility = 'visible';

@@ -10,8 +10,68 @@
     <link rel="stylesheet" href="../styles/side_popup.css">
     <link rel="stylesheet" href="../styles/searchbar.css">
     <link rel="stylesheet" href="../styles/error_popup.css">
+    <link rel="stylesheet" href="../styles/side_pages.css">
 </head>
 <body>
-    
+    <header>
+        <div class="dropdown">
+            <button class="image-btn" title="Bible chapter selection">
+                <img src="../images/light-books.svg">
+            </button>
+            <div class="dropdown-content" id="book-selection-content"></div>
+        </div>
+        <div class="searchbar" style="position: relative;">
+            <input type="text" id="search-input">
+            <button id="search-btn" title="Search the bible">
+                <img src="../images/light-magnifying-glass.svg">
+            </button> 
+            <div class="error-popup" id="error-message"></div>
+        </div>
+        <button class="image-btn" id="back-btn" title="Go back">
+            <img src="../images/light-arrow-turn-left.svg">
+        </button>
+        <button class="image-btn" id="forward-btn" title="Go forward">
+            <img src="../images/light-arrow-turn-right.svg">
+        </button>
+        <div class="dropdown">
+            <button class="image-dropdown-button" id="highlight-selector-btn" title="Select a highlight to paint with">
+                <img src="../images/light-highlighter-line.svg" alt="Dropdown Button">
+            </button>
+            <div class="dropdown-content" id="highlights-dropdown"></div>
+        </div>
+        <button class="image-btn" id="erase-highlight-toggle" title="Toggle if you want to erase highlights">
+            <img src="../images/light-eraser.svg">
+        </button>
+        <button class="image-btn" id="highlight-settings" title="Edit highlight settings">
+            <img src="../images/light-paintbrush-pencil.svg">
+        </button>
+    </header>
+    <main style="margin: 0px; padding: 0px;">
+        <div class="collapse-button-container">
+            <button class="collapse-left-button" id="collapse-left">Collapse Left</button>
+            <button class="collapse-right-button" id="collapse-right">Collapse Right</button>
+        </div>
+        <div id="pane-container">
+            <div id="left-pane">
+                <div>Left Pane</div>
+            </div>
+            <div id="resizer"></div>
+            <div id="right-pane">
+                <div>Right Pane</div>
+            </div>
+        </div>
+        <div id="popup-panel" class="popup-panel">
+            <button class="close-image" onclick="document.getElementById('popup-panel').classList.toggle('open')" title="Close popup">
+                <img src="../images/light-xmark.svg" alt="Close">
+            </button>
+            <div class="resizer"></div>
+            <div class="popup-panel-content" id="popup-panel-content"></div>
+        </div>
+        <div class="word-popup word-popup-content" id="word-popup"></div>
+    </main>
+    <script type="module">
+        import { run } from '../dist/page_scripts/bible_note_page.js';
+        run();
+    </script>
 </body>
 </html>
