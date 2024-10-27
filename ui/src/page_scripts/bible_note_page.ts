@@ -1,4 +1,4 @@
-import * as utils from "../utils.js";
+import * as utils from "../utils/index.js";
 import * as pages from "./pages.js";
 
 export function run()
