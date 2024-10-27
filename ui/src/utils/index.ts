@@ -1,4 +1,5 @@
 import { Color } from "../bindings.js";
+import { Marked } from "../md/marked.js";
 export * from "./extensions.js";
 export * from "./string_utils.js";
 export * from "./color_utils.js";
@@ -44,3 +45,8 @@ export function init_format_copy_event_listener()
     copy_event_listener = listener;
 }
 
+export function render_markdown(markdown: string): string
+{
+    let rendered = Marked.parse(markdown);
+    return rendered;
+}

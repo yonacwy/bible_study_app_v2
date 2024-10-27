@@ -61,8 +61,7 @@ async function append_notes(annotations: WordAnnotations, target: Element, on_se
             div.classList.add('note-viewer');
             div.appendElement('div', content => {
                 content.classList.add('note-content');
-                content.innerHTML = note_data.text
-                utils.debug_print(md.Marked.parse(note_data.text));
+                content.innerHTML = utils.render_markdown(note_data.text);
             });
             div.appendElement('div', grid => {
                 grid.classList.add('reference-buttons')

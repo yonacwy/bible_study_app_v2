@@ -1,3 +1,4 @@
+import { Marked } from "../md/marked.js";
 export * from "./extensions.js";
 export * from "./string_utils.js";
 export * from "./color_utils.js";
@@ -30,4 +31,8 @@ export function init_format_copy_event_listener() {
     };
     document.addEventListener('copy', listener);
     copy_event_listener = listener;
+}
+export function render_markdown(markdown) {
+    let rendered = Marked.parse(markdown);
+    return rendered;
 }
