@@ -28,7 +28,7 @@ export async function run()
     });
 }
 
-async function display_chapter(chapter: ChapterIndex, verse_range: VerseRange | null)
+export async function display_chapter(chapter: ChapterIndex, verse_range: VerseRange | null)
 {
     const content = document.getElementById(CONTENT_ID);
     const word_popup = document.getElementById(pages.WORD_POPUP_ID);
@@ -66,7 +66,7 @@ async function display_chapter(chapter: ChapterIndex, verse_range: VerseRange | 
     });
 }
 
-async function init_chapter_buttons()
+export async function init_chapter_buttons()
 {
     utils.on_click(PREVIOUS_CHAPTER_BUTTON_ID, e => {
         bible.to_previous_chapter().then(() => {

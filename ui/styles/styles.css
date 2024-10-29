@@ -7,6 +7,15 @@ body {
     visibility: hidden; /*Displays when everything is loaded*/
 }
 
+body img {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 :root {
     --header-height: 35px;
     --content-margin: 15px;
@@ -64,4 +73,17 @@ main {
 .content h1 {
     font-size: 24px;
     margin-top: 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.no-select {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }

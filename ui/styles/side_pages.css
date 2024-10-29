@@ -34,7 +34,7 @@
 }
 
 .collapse-button-container {
-    z-index: 1000;
+    z-index: 500;
     position: fixed;
     top: calc(10px + var(--header-height));
     width: 100vw;
@@ -52,4 +52,20 @@
     position: absolute;
     padding: 5px 10px;
     font-size: 14px;
+}
+
+.collapse-button-container .image-btn {
+    padding: 1px;
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    box-sizing: border-box;
+    justify-content: center;
+    align-items: center;
+}
+
+.collapse-button-container .image-btn img {
+    margin: 0;
+    width: calc(100%);
+    height: calc(100%);
 }
