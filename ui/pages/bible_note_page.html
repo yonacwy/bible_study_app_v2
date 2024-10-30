@@ -47,26 +47,46 @@
         </button>
     </header>
     <main style="margin: 0px; padding: 0px;">
-        <div class="collapse-button-container">
-            <button class="collapse-left-button image-btn" id="collapse-left">
-                <img src="../images/light-minimize.svg" alt="minimize" id="left-min-img">
-                <img src="../images/light-maximize.svg" alt="maximize" id="left-max-img" class="hidden">
-            </button>
-            <button class="collapse-right-button image-btn" id="collapse-right">
-                <img src="../images/light-minimize.svg" alt="minimize" id="right-min-img">
-                <img src="../images/light-maximize.svg" alt="maximize"id="right-max-img" class="hidden">
-            </button>
-        </div>
+        <button class="collapse-left-button image-btn" id="collapse-left">
+            <img src="../images/light-minimize.svg" alt="minimize" id="left-min-img" title="Minimize">
+            <img src="../images/light-maximize.svg" alt="maximize" id="left-max-img" class="hidden" title="Maximize">
+        </button>
+        <button class="collapse-right-button image-btn" id="collapse-right">
+            <img src="../images/light-minimize.svg" alt="minimize" id="right-min-img" title="Minimize">
+            <img src="../images/light-maximize.svg" alt="maximize"id="right-max-img" class="hidden" title="Maximize">
+        </button>
         <div id="pane-container">
             <div id="left-pane">
                 <section class="bible-container" id="chapter-content">
-                    <h2 class="chapter-title" id="chapter-name"></h2>
+                    <div class="chapter-title-container">
+                        <button class="image-btn">
+                            <img src="../images/light-arrow-left.svg" alt="Left Arrow" title="Previous Chapter">
+                        </button>
+                        <h2 class="chapter-title" id="chapter-name"></h2>
+                        <button class="image-btn">
+                            <img src="../images/light-arrow-right.svg" alt="Right Arrow" title="Next Chapter">
+                        </button>
+                    </div>
                     <div id="chapter-text-content" class="bible-chapter"></div>
                 </section>
             </div>
             <div id="resizer"></div>
             <div id="right-pane">
-                <div>Right Pane</div>
+                <div class="toolbar">
+                    <button class="image-btn">
+                        <img src="../images/light-text.svg" alt="Text Image" title="Edit Note">
+                    </button>
+                    <button class="image-btn">
+                        <img src="../images/light-floppy-disk.svg" alt="Text Image" title="Edit Note">
+                    </button>
+                    <button class="image-btn">
+                        <img src="../images/light-trash-can.svg" alt="Text Image" title="Edit Note">
+                    </button>
+                </div>
+                <div class="text-editor-content">
+                    <textarea id="md-text-area" placeholder="Enter your note here..."></textarea>
+                    <div class="md-text-preview hidden"></div>
+                </div>
             </div>
         </div>
         <div class="word-popup word-popup-content" id="word-popup"></div>

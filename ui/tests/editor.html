@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Editor</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+    }
+
+    .editor-container {
+      width: 60%;
+      max-width: 800px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    .toolbar {
+      display: flex;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      background-color: #f7f7f7;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .toolbar button {
+      background: none;
+      border: none;
+      margin: 0 5px;
+      padding: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      color: #333;
+      transition: color 0.3s;
+    }
+
+    .toolbar button:hover {
+      color: #007bff;
+    }
+
+    .editor {
+      padding: 15px;
+      min-height: 300px;
+      max-height: 600px;
+      overflow-y: auto;
+      outline: none;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #333;
+      border-radius: 0 0 8px 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="editor-container">
+    <!-- Toolbar with formatting buttons -->
+    <div class="toolbar">
+      <button onclick="document.execCommand('bold')"><b>B</b></button>
+      <button onclick="document.execCommand('italic')"><i>I</i></button>
+      <button onclick="document.execCommand('underline')"><u>U</u></button>
+      <button onclick="document.execCommand('strikeThrough')"><s>S</s></button>
+      <button onclick="document.execCommand('justifyLeft')">L</button>
+      <button onclick="document.execCommand('justifyCenter')">C</button>
+      <button onclick="document.execCommand('justifyRight')">R</button>
+      <button onclick="document.execCommand('insertUnorderedList')">&bull;</button>
+      <button onclick="document.execCommand('insertOrderedList')">1.</button>
+      <button onclick="document.execCommand('undo')">&#x21b6;</button>
+      <button onclick="document.execCommand('redo')">&#x21b7;</button>
+    </div>
+
+    <!-- Editable content area -->
+    <div class="editor" contenteditable="true">
+      Start typing here...
+    </div>
+  </div>
+
+  <script>
+    // Additional functionality can be added here, for now, it simply initializes the editor
+    document.querySelector('.editor').focus();
+  </script>
+</body>
+</html>
