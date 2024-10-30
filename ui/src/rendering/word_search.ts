@@ -133,8 +133,10 @@ async function spawn_verse(position: VersePosition, searched: string[], word_pop
         chapter: { book: position.book, number: position.chapter},
         verse: position.verse,
         word_popup: word_popup,
-        side_popup: side_popup,
-        side_popup_content: side_popup_content,
+        side_popup_data: {
+            popup_panel: side_popup,
+            popup_panel_content: side_popup_content
+        },
         bolded: searched,
         on_search: on_search
     });

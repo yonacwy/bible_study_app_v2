@@ -1,6 +1,7 @@
-import { BibleSection } from "../bindings.js";
+import { BibleSection, ChapterIndex } from "../bindings.js";
 import * as utils from "../utils/index.js";
 import * as pages from "./pages.js";
+import * as bible_page from "./bible_page.js";
 
 export type BibleNotePageData = { note: string, section: BibleSection };
 
@@ -9,9 +10,16 @@ export function run()
     let data = utils.decode_from_url(window.location.href) as BibleNotePageData;
     utils.debug_print(JSON.stringify(data));
     utils.init_format_copy_event_listener();
+
+    let chapter: ChapterIndex = {
+        book: data.section.book,
+        number: data.section.chapter
+    };
+
     Promise.all([
         pages.init_header(),
         init_resizer(),
+        bible_page.display_chapter(chapter, data.section.verse_range)
     ]).then(_ => {
         document.body.style.visibility = 'visible';
     });

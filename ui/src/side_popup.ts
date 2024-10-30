@@ -8,6 +8,10 @@ const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";
 const CATAGORIES: any = await get_catagories();
 
+export type PanelData = {
+    popup_panel: HTMLElement,
+    popup_panel_content: HTMLElement
+}
 
 export async function init_popup_panel(id: string) 
 {
@@ -19,7 +23,7 @@ export async function init_popup_panel(id: string)
     });
 }
 
-export function display_on_div(div: HTMLElement, word: string, annotations: WordAnnotations | null, panel: Element, content: Element, on_search: (msg: string) => void)
+export function display_on_div(div: HTMLElement, word: string, annotations: WordAnnotations | null, panel_data: PanelData, on_search: (msg: string) => void)
 {
     div.addEventListener('click', e => {
         if(annotations === null          ||
@@ -28,14 +32,14 @@ export function display_on_div(div: HTMLElement, word: string, annotations: Word
            get_selected_highlight() !== null
         )
         {
-            panel.classList.remove('open');
-            content.innerHTML = "";
+            panel_data.popup_panel.classList.remove('open');
+            panel_data.popup_panel_content.innerHTML = "";
             return;
         }
         
-        panel.classList.add('open');
-        content.replaceChildren();
-        build_popup_content(word, annotations, content, on_search)
+        panel_data.popup_panel.classList.add('open');
+        panel_data.popup_panel_content.replaceChildren();
+        build_popup_content(word, annotations, panel_data.popup_panel_content, on_search)
     })
 }
 

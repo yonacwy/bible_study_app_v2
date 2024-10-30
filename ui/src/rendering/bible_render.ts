@@ -2,19 +2,20 @@ import * as bible from "../bible.js";
 import { ChapterIndex, Color } from "../bindings.js";
 import * as verse_renderer from "./verse_rendering.js";
 import * as utils from "../utils/index.js";
+import { PanelData } from "../side_popup.js";
 
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 let was_initialized = false;
 
-export async function render_chapter(chapter: ChapterIndex, content: HTMLElement, word_popup: HTMLElement, popup_panel: HTMLElement, popup_panel_content: HTMLElement, on_render: (() => void), on_search: (msg: string) => void)
+export async function render_chapter(chapter: ChapterIndex, content: HTMLElement, word_popup: HTMLElement, panel_data: PanelData | null, on_render: (() => void), on_search: (msg: string) => void)
 {
     content.style.pointerEvents = 'none';
 
     if(!was_initialized)
     {
         was_initialized = true;
-        let on_require_rerender = () => render_chapter(chapter, content, word_popup, popup_panel, popup_panel_content, on_render, on_search);
-        verse_renderer.init_highlighting(popup_panel, on_require_rerender);
+        let on_require_rerender = () => render_chapter(chapter, content, word_popup, panel_data, on_render, on_search);
+        verse_renderer.init_highlighting(panel_data?.popup_panel ?? null, on_require_rerender);
     }
 
     
@@ -30,8 +31,7 @@ export async function render_chapter(chapter: ChapterIndex, content: HTMLElement
             chapter: chapter,
             verse: verse_index,
             word_popup: word_popup,
-            side_popup: popup_panel,
-            side_popup_content: popup_panel_content,
+            side_popup_data: panel_data,
             bolded: [],
             on_search: on_search
         })
@@ -49,8 +49,8 @@ export async function render_chapter(chapter: ChapterIndex, content: HTMLElement
     }
 }
 
-export async function render_current_chapter(content: HTMLElement, word_popup: HTMLElement, popup_panel: HTMLElement, popup_panel_content: HTMLElement, on_render: (() => void), on_search: (msg: string) => void): Promise<void>
+export async function render_current_chapter(content: HTMLElement, word_popup: HTMLElement, panel_data: PanelData | null, on_render: (() => void), on_search: (msg: string) => void): Promise<void>
 {
     let chapter = await bible.get_chapter() as ChapterIndex;
-    return await render_chapter(chapter, content, word_popup, popup_panel, popup_panel_content, on_render, on_search);
+    return await render_chapter(chapter, content, word_popup, panel_data, on_render, on_search);
 }

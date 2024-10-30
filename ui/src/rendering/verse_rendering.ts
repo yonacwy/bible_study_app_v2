@@ -12,7 +12,7 @@ const HIGHLIGHT_CATAGORIES = await highlighting.get_catagories();
 /**
  * Note: this function must be called only once on page reload
  */
-export function init_highlighting(side_popup: HTMLElement, on_require_rerender: () => Promise<void>): void
+export function init_highlighting(side_popup: HTMLElement | null, on_require_rerender: () => Promise<void>): void
 {
     document.addEventListener('mouseup', _e => on_stop_dragging(side_popup, on_require_rerender));
 }
@@ -21,8 +21,7 @@ export type VerseRenderArgs = {
     chapter: ChapterIndex,
     verse: number,
     word_popup: HTMLElement,
-    side_popup: HTMLElement,
-    side_popup_content: HTMLElement,
+    side_popup_data: sp.PanelData | null,
     bolded: string[] | null,
     on_search: (msg: string) => void
 }
@@ -93,8 +92,11 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
         {
             wp.display_on_div(word_node, word_annotations.highlights.map((h: string) => HIGHLIGHT_CATAGORIES[h].color), has_notes, args.word_popup);
 
-            let word = utils.trim_string(words[i].text);
-            sp.display_on_div(word_node, word, word_annotations, args.side_popup, args.side_popup_content, args.on_search);
+            if(args.side_popup_data !== null)
+            {
+                let word = utils.trim_string(words[i].text);
+                sp.display_on_div(word_node, word, word_annotations, args.side_popup_data, args.on_search);    
+            }
         }
 
         word_node.addEventListener('mousedown', e => {
@@ -129,12 +131,12 @@ function on_over_dragging(chapter: ChapterIndex, word_index: number, word_div: H
     }
 }
 
-function on_stop_dragging(word_popup: HTMLElement, on_require_rerender: () => Promise<void>) 
+function on_stop_dragging(word_popup: HTMLElement | null, on_require_rerender: () => Promise<void>) 
 {
     if(is_dragging && highlighting.get_selected_highlight() !== null)
     {
         is_dragging = false;
-        word_popup.classList.remove('show');
+        word_popup?.classList.remove('show');
 
         let scroll = window.scrollY;
 

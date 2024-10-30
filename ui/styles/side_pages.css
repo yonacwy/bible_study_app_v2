@@ -1,20 +1,20 @@
 #left-pane, #right-pane {
-    display: flex;
+    display: block;
     align-items: center;
     justify-content: center;
     padding: 10px;
-    overflow: hidden;
+    overflow-y: auto;
     transition: width 0.3s ease-in-out;
     white-space: nowrap;
 }
 
 #left-pane {
-    background-color: #f0f0f0;
+    background-color: #f4f4f4;
     width: 50%;
 }
 
 #right-pane {
-    background-color: #ddd;
+    background-color: #f4f4f4;
     width: 50%;
 }
 
@@ -57,8 +57,8 @@
 .collapse-button-container .image-btn {
     padding: 1px;
     display: inline-block;
-    width: 40px;
-    height: 40px;
+    width: var(--button-size);
+    height: var(--button-size);
     box-sizing: border-box;
     justify-content: center;
     align-items: center;
@@ -68,4 +68,20 @@
     margin: 0;
     width: calc(100%);
     height: calc(100%);
+}
+
+.bible-container {
+    display: block;
+    background-color: white;
+    text-wrap: wrap;
+    padding: 10px;
+    border-radius: 8px;
+    top: 5px;
+    margin-right: 5px;
+    margin-left: 5px;
+    height: fit-content;
+}
+
+.bible-container .chapter-title {
+    text-align: center;
 }

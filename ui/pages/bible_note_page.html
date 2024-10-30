@@ -59,19 +59,15 @@
         </div>
         <div id="pane-container">
             <div id="left-pane">
-                <div>Left Pane</div>
+                <section class="bible-container" id="chapter-content">
+                    <h2 class="chapter-title" id="chapter-name"></h2>
+                    <div id="chapter-text-content" class="bible-chapter"></div>
+                </section>
             </div>
             <div id="resizer"></div>
             <div id="right-pane">
                 <div>Right Pane</div>
             </div>
-        </div>
-        <div id="popup-panel" class="popup-panel">
-            <button class="close-image" onclick="document.getElementById('popup-panel').classList.toggle('open')" title="Close popup">
-                <img src="../images/light-xmark.svg" alt="Close">
-            </button>
-            <div class="resizer"></div>
-            <div class="popup-panel-content" id="popup-panel-content"></div>
         </div>
         <div class="word-popup word-popup-content" id="word-popup"></div>
     </main>

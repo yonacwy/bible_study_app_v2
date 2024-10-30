@@ -35,7 +35,16 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
     const popup_panel = document.getElementById(pages.POPUP_PANEL_ID);
     const popup_panel_content = document.getElementById(pages.POPUP_PANEL_CONTENT_ID);
 
-    if(content === null || word_popup === null || popup_panel === null || popup_panel_content === null) { return; }
+    if(content === null || word_popup === null) { return; }
+
+    let panel_data: side_popup.PanelData | null = null;
+    if(popup_panel && popup_panel_content)
+    {
+        panel_data = {
+            popup_panel: popup_panel,
+            popup_panel_content: popup_panel_content
+        };
+    }
 
     let chapter_view = await bible.load_view();
     
@@ -50,7 +59,7 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
         document.getElementById('search-btn')?.click();
     }
 
-    bible_renderer.render_current_chapter(content, word_popup, popup_panel, popup_panel_content, pages.update_word_selection, on_search).then(() => {
+    bible_renderer.render_chapter(chapter, content, word_popup, panel_data, pages.update_word_selection, on_search).then(() => {
         if(verse_range !== null)
         {
             let start = verse_range.start;
