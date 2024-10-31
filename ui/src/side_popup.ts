@@ -2,7 +2,7 @@ import { Color, WordAnnotations } from "./bindings.js";
 import { get_catagories, get_selected_highlight } from "./highlights.js";
 import * as utils from "./utils/index.js";
 import * as notes from "./notes.js";
-import * as md from "./md/index.js";
+import * as view_states from "./view_states.js";
 
 const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";
@@ -63,6 +63,15 @@ async function append_notes(annotations: WordAnnotations, target: Element, on_se
         let references = await notes.get_note_references(note_data);
         target.appendElement('div', div => {
             div.classList.add('note-viewer');
+            div.appendElement('button', button => {
+                button.classList.add('edit-btn');
+                button.addEventListener('click', e => {
+                    notes.set_editing_note(note_data.id).then(_ => {
+                        view_states.goto_current_view_state();
+                    });
+                })
+                button.appendElement('img');
+            });
             div.appendElement('div', content => {
                 content.classList.add('note-content');
                 content.innerHTML = utils.render_markdown(note_data.text);
@@ -74,10 +83,10 @@ async function append_notes(annotations: WordAnnotations, target: Element, on_se
                         button.innerHTML = `${ref[0]}:'${ref[1]}'`;
                         button.addEventListener('click', e => {
                             on_search(ref[0]);
-                        })
-                    })
-                })
-            })
+                        });
+                    });
+                });
+            });
         })
     }
 }

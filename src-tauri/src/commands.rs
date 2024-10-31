@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 
-use crate::{app_state::{AppData, ViewState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, NoteData, WordAnnotations}, search_parsing::*, utils::{get_hash_code, Color}};
+use crate::{app_state::{AppData, ViewState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, WordAnnotations}, search_parsing::*, utils::Color};
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn debug_print(message: &str)

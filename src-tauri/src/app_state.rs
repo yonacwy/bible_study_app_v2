@@ -158,7 +158,7 @@ impl AppData
                 notebook: Mutex::new(RefCell::new(test_notebook)),
                 view_state_index: Mutex::new(RefCell::new(save.view_state_index)),
                 view_states: Mutex::new(RefCell::new(save.view_states)),
-                editing_note: Mutex::new(RefCell::new(Some("df4163b0-c155-4b3f-9f1b-1ff0ab5f243d".into()))),
+                editing_note: Mutex::new(RefCell::new(save.editing_note)),
                 resolver
             })
         }

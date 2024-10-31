@@ -3,6 +3,7 @@ import * as utils from "../utils/index.js";
 import * as pages from "./pages.js";
 import * as bible_page from "./bible_page.js";
 import * as notes from "../notes.js";
+import * as view_states from "../view_states.js";
 
 export type BibleNotePageData = { note: string, section: BibleSection };
 
@@ -22,8 +23,23 @@ export function run()
         init_resizer(),
         bible_page.display_chapter(chapter, data.section.verse_range),
         init_editor_toggle(data.note),
+        init_close_editor_btn(),
     ]).then(_ => {
         document.body.style.visibility = 'visible';
+    });
+}
+
+function init_close_editor_btn()
+{
+    let button = document.getElementById('close-editor-btn');
+    if(!button) return;
+
+    button.addEventListener('click', _ => {
+        apply_transitions();
+        collapse_pane(PaneSideType.Right);
+        notes.set_editing_note(null).then(_ => {
+            view_states.goto_current_view_state();
+        });
     });
 }
 
@@ -103,18 +119,15 @@ enum PaneSideType
     Left,
 }
 
+const leftPane = document.getElementById('left-pane') as HTMLElement;
+const rightPane = document.getElementById('right-pane')  as HTMLElement;
+const resizer = document.getElementById('resizer') as HTMLElement;
+const collapseLeftBtn = document.getElementById('collapse-left') as HTMLElement;
+const collapseRightBtn = document.getElementById('collapse-right') as HTMLElement;
+const paneContainer = document.getElementById('pane-container') as HTMLElement;
+
 function init_resizer()
 {
-    const leftPane = document.getElementById('left-pane') as HTMLElement;
-    const rightPane = document.getElementById('right-pane')  as HTMLElement;
-    const resizer = document.getElementById('resizer') as HTMLElement;
-    const collapseLeftBtn = document.getElementById('collapse-left') as HTMLElement;
-    const collapseRightBtn = document.getElementById('collapse-right') as HTMLElement;
-    const paneContainer = document.getElementById('pane-container') as HTMLElement;
-
-    if(!leftPane || !rightPane || !resizer || !collapseLeftBtn || !collapseRightBtn || !paneContainer) return;
-
-
     let isResizing = false;
     const collapseThreshold = 20;
 
@@ -163,38 +176,6 @@ function init_resizer()
         }
     });
 
-    function remove_transitions() 
-    {
-        leftPane.style.transition = 'none';
-        rightPane.style.transition = 'none';
-    }
-
-    function apply_transitions() 
-    {
-        leftPane.style.transition = 'width 0.3s ease-in-out';
-        rightPane.style.transition = 'width 0.3s ease-in-out';
-    }
-
-    function collapse_pane(side: PaneSideType) 
-    {
-        if (side === PaneSideType.Left) 
-        {
-            leftPane.style.width = '0%';
-            leftPane.style.padding = '0';
-            rightPane.style.width = '100%';
-            rightPane.style.padding = '10px'
-        } 
-        else if (side === PaneSideType.Right) 
-        {
-            rightPane.style.width = '0%';
-            rightPane.style.padding = '0';
-            leftPane.style.width = '100%';
-            leftPane.style.padding = '10px';
-        }
-
-        update_collapse_images(side);
-    }
-
     // Collapse/Expand logic for left pane
     collapseLeftBtn.addEventListener('click', () => {
         if (leftPane.style.width === '0%') 
@@ -236,6 +217,38 @@ function init_resizer()
     });
 }
 
+function remove_transitions() 
+{
+    leftPane.style.transition = 'none';
+    rightPane.style.transition = 'none';
+}
+
+function apply_transitions() 
+{
+    leftPane.style.transition = 'width 0.3s ease-in-out';
+    rightPane.style.transition = 'width 0.3s ease-in-out';
+}
+
+function collapse_pane(side: PaneSideType) 
+{
+    if (side === PaneSideType.Left) 
+    {
+        leftPane.style.width = '0%';
+        leftPane.style.padding = '0';
+        rightPane.style.width = '100%';
+        rightPane.style.padding = '10px'
+    } 
+    else if (side === PaneSideType.Right) 
+    {
+        rightPane.style.width = '0%';
+        rightPane.style.padding = '0';
+        leftPane.style.width = '100%';
+        leftPane.style.padding = '10px';
+    }
+
+    update_collapse_images(side);
+}
+
 function update_collapse_images(type: PaneSideType | null) {
     const right_min_img = document.getElementById('right-min-img');
     const right_max_img = document.getElementById('right-max-img');
@@ -269,14 +282,12 @@ function update_collapse_images(type: PaneSideType | null) {
 
 function hide_resizer()
 {
-    const resizer = document.getElementById('resizer') as HTMLElement;
     if(!resizer) return;
     resizer.style.display = 'none';
 }
 
 function show_resizer()
 {
-    const resizer = document.getElementById('resizer') as HTMLElement;
     if(!resizer) return;
     resizer.style.display = 'block';
 }

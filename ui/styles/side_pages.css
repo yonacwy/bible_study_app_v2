@@ -76,12 +76,14 @@
     box-sizing: border-box;
     justify-content: center;
     align-items: center;
+    flex: 0 0 auto
 }
 
 .image-btn img {
     margin: 0;
     width: calc(100%);
     height: calc(100%);
+    flex: 0 0 auto
 }
 
 .chapter-title-container .image-btn {
@@ -112,6 +114,10 @@
 
 .toolbar button:not(:last-child) {
     margin-right: 10px;
+}
+
+.toolbar button:last-child {
+    margin-left: auto;
 }
 
 .editor {
