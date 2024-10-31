@@ -2,6 +2,7 @@ import { BibleSection, ChapterIndex } from "../bindings.js";
 import * as utils from "../utils/index.js";
 import * as pages from "./pages.js";
 import * as bible_page from "./bible_page.js";
+import * as notes from "../notes.js";
 
 export type BibleNotePageData = { note: string, section: BibleSection };
 
@@ -19,10 +20,81 @@ export function run()
     Promise.all([
         pages.init_header(),
         init_resizer(),
-        bible_page.display_chapter(chapter, data.section.verse_range)
+        bible_page.display_chapter(chapter, data.section.verse_range),
+        init_editor_toggle(data.note),
     ]).then(_ => {
         document.body.style.visibility = 'visible';
     });
+}
+
+enum MdState 
+{
+    Viewing,
+    Editing,
+}
+
+const TOGGLED_STORAGE = 'editor-toggle-storage';
+
+async function init_editor_toggle(note_id: string)
+{
+    const textarea = document.getElementById('editor-text');
+    const render_target = document.getElementById('editor-view');
+    const view_note_image = document.getElementById('view-note-img');
+    const edit_note_image = document.getElementById('edit-note-img');
+    const change_mode_button = document.getElementById('toggle-editor-btn');
+
+    if(!(textarea instanceof HTMLTextAreaElement) || !render_target || !edit_note_image || !view_note_image || !change_mode_button) return;
+
+    let current_state = utils.storage.retreive_value<MdState>(TOGGLED_STORAGE) ?? MdState.Editing;
+    set_md_state(current_state, textarea, render_target, edit_note_image, view_note_image);
+    
+    let note_text = (await notes.get_note(note_id)).text;
+    textarea.value = note_text;
+
+    change_mode_button.addEventListener('click', e => {
+        let current_state = utils.storage.retreive_value<MdState>(TOGGLED_STORAGE) ?? MdState.Editing;
+        let next_state = swap_state(current_state);
+        set_md_state(next_state, textarea, render_target, edit_note_image, view_note_image);
+    });
+}
+
+function swap_state(state: MdState): MdState
+{
+    if(state == MdState.Editing)
+    {
+        return MdState.Viewing;
+    }
+    else if(state === MdState.Viewing)
+    {
+        return MdState.Editing;
+    }
+    else 
+    {
+        throw "Unknown Markdown State"; 
+    }
+}
+
+function set_md_state(state: MdState, textarea: HTMLTextAreaElement, render_target: HTMLElement, edit_note_image: HTMLElement, view_note_image: HTMLElement)
+{
+    utils.storage.store_value(TOGGLED_STORAGE, state);
+    if(state === MdState.Editing)
+    {
+        textarea.classList.remove('hidden');
+        view_note_image.classList.remove('hidden');
+        render_target.replaceChildren();
+        render_target.classList.add('hidden');
+        edit_note_image.classList.add('hidden');
+    }
+    if(state === MdState.Viewing)
+    {
+        textarea.classList.add('hidden');
+        view_note_image.classList.add('hidden');
+        render_target.classList.remove('hidden');
+        edit_note_image.classList.remove('hidden');
+
+        let html = utils.render_markdown(textarea.value);
+        render_target.innerHTML = html;
+    }
 }
 
 enum PaneSideType 
@@ -44,30 +116,26 @@ function init_resizer()
 
 
     let isResizing = false;
-    const collapseThreshold = 20;  // If the pane is smaller than 10%, it will collapse
+    const collapseThreshold = 20;
 
-    // Handle mousedown event on the resizer
     resizer.addEventListener('mousedown', _ => {
         isResizing = true;
         document.body.style.cursor = 'col-resize';
-        document.body.style.userSelect = 'none';  // Prevent text selection during resize
-        remove_transitions();  // Remove transitions while resizing
+        document.body.style.userSelect = 'none';
+        remove_transitions();
     });
 
-    // Handle mousemove events on the window to capture even when pointer is outside resizer
     window.addEventListener('mousemove', e => {
         if (!isResizing) return;
 
         const containerWidth = paneContainer.offsetWidth;
         let leftWidth = e.clientX / containerWidth * 100;
 
-        // Collapse left pane if it's too small
         if (leftWidth < collapseThreshold) 
         {
             collapse_pane(PaneSideType.Left);
             hide_resizer();
         } 
-        // Collapse right pane if right side is too small
         else if ((100 - leftWidth) < collapseThreshold) 
         {
             collapse_pane(PaneSideType.Right);
@@ -75,53 +143,53 @@ function init_resizer()
         } 
         else 
         {
-            // Normal resize behavior when within range
             leftPane.style.width = `${leftWidth}%`;
+            leftPane.style.padding = "10px";
             rightPane.style.width = `${100 - leftWidth}%`;
+            rightPane.style.padding = "10px";
+
             update_collapse_images(null);
             show_resizer();
         }
     });
 
-    // Handle mouseup to stop resizing
     window.addEventListener('mouseup', () => {
         if (isResizing) {
             isResizing = false;
             document.body.style.cursor = 'default';
-            document.body.style.userSelect = 'auto';  // Restore text selection
-            apply_transitions();  // Reapply transitions after resizing
+            document.body.style.userSelect = 'auto';
+            apply_transitions();
 
         }
     });
 
-    // Remove transitions when resizing
     function remove_transitions() 
     {
         leftPane.style.transition = 'none';
         rightPane.style.transition = 'none';
     }
 
-    // Reapply transitions after resizing
     function apply_transitions() 
     {
         leftPane.style.transition = 'width 0.3s ease-in-out';
         rightPane.style.transition = 'width 0.3s ease-in-out';
     }
 
-    // Function to collapse a pane
     function collapse_pane(side: PaneSideType) 
     {
         if (side === PaneSideType.Left) 
         {
             leftPane.style.width = '0%';
-            leftPane.style.padding = '0';  // Remove padding for full collapse
+            leftPane.style.padding = '0';
             rightPane.style.width = '100%';
+            rightPane.style.padding = '10px'
         } 
         else if (side === PaneSideType.Right) 
         {
             rightPane.style.width = '0%';
-            rightPane.style.padding = '0';  // Remove padding for full collapse
+            rightPane.style.padding = '0';
             leftPane.style.width = '100%';
+            leftPane.style.padding = '10px';
         }
 
         update_collapse_images(side);

@@ -7,6 +7,16 @@ export async function get_note(id: string): Promise<NoteData>
     return JSON.parse(await utils.invoke('get_note', { id: id }));
 }
 
+export async function get_editing_note(): Promise<string | null>
+{
+    return await utils.invoke('get_editing_note', {}) as string | null
+}
+
+export async function set_editing_note(note: string | null): Promise<void>
+{
+    return await utils.invoke('set_editing_note', { note: note })
+}
+
 export async function get_note_references(note_data: NoteData): Promise<[string, string][]>
 {
     let references: [string, string][] = [];

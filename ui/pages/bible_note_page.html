@@ -74,8 +74,9 @@
             <div id="right-pane">
                 <div class="editor-container">
                     <div class="toolbar">
-                        <button class="image-btn">
-                            <img src="../images/light-text.svg" alt="Text Image" title="Edit Note">
+                        <button class="image-btn" id="toggle-editor-btn">
+                            <img src="../images/light-eye.svg" alt="Eye Image" title="View Note" id="view-note-img">
+                            <img src="../images/light-text.svg" alt="Text Image" title="Edit Note" id="edit-note-img" class="hidden">
                         </button>
                         <button class="image-btn">
                             <img src="../images/light-floppy-disk.svg" alt="Text Image" title="Edit Note">
@@ -86,6 +87,7 @@
                     </div>
                     <div class="editor">
                         <textarea id="editor-text" placeholder="Enter text here..."></textarea>
+                        <div id="editor-view" class="editor-view"></div>
                     </div>
                 </div>
             </div>

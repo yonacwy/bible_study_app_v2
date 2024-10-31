@@ -286,3 +286,19 @@ pub fn get_note(id: &str) -> String
 		serde_json::to_string(note).unwrap()
 	})
 }
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn get_editing_note() -> Option<String>
+{
+	AppData::get().read_editing_note(|editing_note| {
+		editing_note.clone()
+	})
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn set_editing_note(note: Option<String>)
+{
+	AppData::get().read_editing_note(|editing_note| {
+		*editing_note = note.clone()
+	})
+}

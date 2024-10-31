@@ -63,6 +63,8 @@ fn main() {
 			edit_note,
 			remove_note,
 			get_note,
+			get_editing_note,
+			set_editing_note,
 		])
 		.run(tauri::generate_context!())
 		.expect("error while running tauri application");
