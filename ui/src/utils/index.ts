@@ -8,7 +8,7 @@ export * from "./toggle.js";
 export * from "./node_management.js";
 export * as storage from "./storage.js";
 
-export const invoke: (fn_name: string, args: any) => Promise<any> = (window as any).__TAURI__.invoke;
+export const invoke: (fn_name: string, args: any) => Promise<any> = (window as any).__TAURI__.core.invoke;
 
 export function debug_print(msg: string)
 {
