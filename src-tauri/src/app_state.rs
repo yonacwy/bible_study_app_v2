@@ -7,7 +7,8 @@ use crate::{bible::*, bible_parsing, notes::*, utils::Color};
 static mut DATA: Option<AppData> = None;
 const SAVE_NAME: &str = "save.txt";
 
-pub struct AppData {
+pub struct AppData 
+{
     pub bible: Bible,
     notebook: Mutex<RefCell<Notebook>>,
 
@@ -17,14 +18,16 @@ pub struct AppData {
 }
 
 #[derive(Serialize, Deserialize)]
-struct AppSave {
+struct AppSave 
+{
     notebook: Notebook,
     view_state_index: usize,
     view_states: Vec<ViewState>,
     editing_note: Option<String>,
 }
 
-impl AppData {
+impl AppData 
+{
     pub fn init<R>(bible_text: &str, resolver: &PathResolver<R>) 
         where R : Runtime
     {
