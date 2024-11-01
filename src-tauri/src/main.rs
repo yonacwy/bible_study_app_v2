@@ -60,9 +60,9 @@ fn main() {
 			parse_bible_search,
 			run_word_search,
 			add_note,
-			edit_note,
 			remove_note,
 			get_note,
+			update_note,
 			get_editing_note,
 			set_editing_note,
 		])

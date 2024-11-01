@@ -10,7 +10,6 @@ export type BibleNotePageData = { note: string, section: BibleSection };
 export function run()
 {
     let data = utils.decode_from_url(window.location.href) as BibleNotePageData;
-    utils.debug_print(JSON.stringify(data));
     utils.init_format_copy_event_listener();
 
     let chapter: ChapterIndex = {
@@ -24,14 +23,16 @@ export function run()
         bible_page.display_chapter(chapter, data.section.verse_range),
         init_editor_toggle(data.note),
         init_close_editor_btn(),
+        init_save_callbacks(),
     ]).then(_ => {
         document.body.style.visibility = 'visible';
     });
 }
 
+const CLOSE_EDITOR_BUTTON = 'close-editor-btn';
 function init_close_editor_btn()
 {
-    let button = document.getElementById('close-editor-btn');
+    let button = document.getElementById(CLOSE_EDITOR_BUTTON);
     if(!button) return;
 
     button.addEventListener('click', _ => {
@@ -41,6 +42,26 @@ function init_close_editor_btn()
             view_states.goto_current_view_state();
         });
     });
+}
+
+const TEXT_EDITOR_NAME = 'editor-text';
+function init_save_callbacks()
+{
+    const textarea = document.getElementById(TEXT_EDITOR_NAME) as HTMLTextAreaElement;
+    let save_callback = async (e: Event) =>
+    {
+        let current = await notes.get_editing_note();
+        if(current === null) return;
+        
+        let new_text = textarea.value;
+        utils.debug_print(`tried to save note`);
+
+        let locations = (await notes.get_note(current)).locations;
+        notes.update_note(current, locations, new_text);
+    }
+
+    textarea.addEventListener('blur', save_callback);
+    window.addEventListener('beforeunload', save_callback);
 }
 
 enum MdState 
@@ -53,7 +74,7 @@ const TOGGLED_STORAGE = 'editor-toggle-storage';
 
 async function init_editor_toggle(note_id: string)
 {
-    const textarea = document.getElementById('editor-text');
+    const textarea = document.getElementById(TEXT_EDITOR_NAME);
     const render_target = document.getElementById('editor-view');
     const view_note_image = document.getElementById('view-note-img');
     const edit_note_image = document.getElementById('edit-note-img');
@@ -61,14 +82,14 @@ async function init_editor_toggle(note_id: string)
 
     if(!(textarea instanceof HTMLTextAreaElement) || !render_target || !edit_note_image || !view_note_image || !change_mode_button) return;
 
-    let current_state = utils.storage.retreive_value<MdState>(TOGGLED_STORAGE) ?? MdState.Editing;
+    let current_state = utils.storage.retrieve_value<MdState>(TOGGLED_STORAGE) ?? MdState.Editing;
     set_md_state(current_state, textarea, render_target, edit_note_image, view_note_image);
     
     let note_text = (await notes.get_note(note_id)).text;
     textarea.value = note_text;
 
     change_mode_button.addEventListener('click', e => {
-        let current_state = utils.storage.retreive_value<MdState>(TOGGLED_STORAGE) ?? MdState.Editing;
+        let current_state = utils.storage.retrieve_value<MdState>(TOGGLED_STORAGE) ?? MdState.Editing;
         let next_state = swap_state(current_state);
         set_md_state(next_state, textarea, render_target, edit_note_image, view_note_image);
     });

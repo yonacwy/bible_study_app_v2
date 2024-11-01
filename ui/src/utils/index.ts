@@ -53,8 +53,6 @@ export function init_format_copy_event_listener()
 
 export function render_markdown(markdown: string): string
 {
-    debug_print(`Markdown: ${markdown}`);
     let rendered = Marked.parse(markdown);
-    debug_print(`HTML: ${rendered}`);
     return rendered;
 }

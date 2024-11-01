@@ -260,16 +260,6 @@ pub fn add_note(text: String, locations: Vec<ReferenceLocation>)
 	})
 }
 
-
-#[tauri::command(rename_all = "snake_case")]
-pub fn edit_note(id: String, text: String, locations: Vec<ReferenceLocation>)
-{
-	AppData::get().read_notes(move |notebook| {
-		notebook.remove_note(&id);
-		notebook.add_note(&AppData::get().bible, id.to_owned(), text.to_owned(), locations.to_owned());
-	})
-}
-
 #[tauri::command(rename_all = "snake_case")]
 pub fn remove_note(id: &str)
 {
@@ -300,5 +290,16 @@ pub fn set_editing_note(note: Option<String>)
 {
 	AppData::get().read_editing_note(|editing_note| {
 		*editing_note = note.clone()
+	})
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn update_note(id: String, locations: Vec<ReferenceLocation>, text: String)
+{
+	println!("Updated {id}, with text: \n{text}");
+	AppData::get().read_notes(|notebook| {
+		let note = notebook.notes.get_mut(&id).unwrap();
+		note.locations = locations.clone();
+		note.text = text.clone();
 	})
 }

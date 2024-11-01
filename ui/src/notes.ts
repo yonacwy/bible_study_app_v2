@@ -1,10 +1,15 @@
-import { NoteData } from "./bindings";
+import { NoteData, ReferenceLocation } from "./bindings";
 import * as utils from "./utils/index.js";
 import * as bible from "./bible.js";
 
 export async function get_note(id: string): Promise<NoteData>
 {
     return JSON.parse(await utils.invoke('get_note', { id: id }));
+}
+
+export async function update_note(id: string, locations: ReferenceLocation[], text: string): Promise<void>
+{
+    return await utils.invoke('update_note', { id: id, locations: locations, text: text });
 }
 
 export async function get_editing_note(): Promise<string | null>
