@@ -54,14 +54,12 @@ function init_save_callbacks()
         if(current === null) return;
         
         let new_text = textarea.value;
-        utils.debug_print(`tried to save note`);
 
         let locations = (await notes.get_note(current)).locations;
         notes.update_note(current, locations, new_text);
     }
 
-    textarea.addEventListener('blur', save_callback);
-    window.addEventListener('beforeunload', save_callback);
+    textarea.addEventListener('input', save_callback); // A hack so that it saves correctly, HOPEFULLY isn't too slow
 }
 
 enum MdState 

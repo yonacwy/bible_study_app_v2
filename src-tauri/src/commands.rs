@@ -296,7 +296,6 @@ pub fn set_editing_note(note: Option<String>)
 #[tauri::command(rename_all = "snake_case")]
 pub fn update_note(id: String, locations: Vec<ReferenceLocation>, text: String)
 {
-	println!("Updated {id}, with text: \n{text}");
 	AppData::get().read_notes(|notebook| {
 		let note = notebook.notes.get_mut(&id).unwrap();
 		note.locations = locations.clone();

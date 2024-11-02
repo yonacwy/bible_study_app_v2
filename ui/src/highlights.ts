@@ -45,7 +45,6 @@ export function render_catagories(on_delete: (id: string) => void, on_edit: (id:
         for(let id in catagories)
         {
             let category: HighlightCategory = catagories[id];
-            utils.debug_print(JSON.stringify(category));
             let name = category.name;
             let description = category.description;
             let color = category.color;

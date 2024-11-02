@@ -10,6 +10,12 @@ export * as storage from "./storage.js";
 
 export const invoke: (fn_name: string, args: any) => Promise<any> = (window as any).__TAURI__.core.invoke;
 
+export const emit_event: (event_name: string, data: any) => Promise<void> = (window as any).__TAURI__.event.emit;
+
+export type UnlistenFn = () => void;
+export type EventCallback = (value: any) => void;
+export const listen_event: (event_name: string, handler: EventCallback) => Promise<UnlistenFn> = (window as any).__TAURI__.event.listen;
+
 export function debug_print(msg: string)
 {
     invoke('debug_print', {message: msg});
