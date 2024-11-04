@@ -3,8 +3,8 @@ import * as utils from "../utils/index.js";
 import * as view_states from "../view_states.js";
 import *  as bible from "../bible.js";
 import { build_chapter_selection_dropdown } from "../selection.js";
-import { show_error_popup } from "../error_popup.js";
-import * as side_popup from "../side_popup.js";
+import { show_error_popup } from "../popups/error_popup.js";
+import * as side_popup from "../popups/side_popup.js";
 import { ERASER_STATE_NAME } from "../save_states.js";
 
 export const SEARCH_INPUT_ID: string = "search-input";

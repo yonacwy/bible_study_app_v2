@@ -5,7 +5,8 @@ import { BibleSection, ChapterIndex, VerseRange } from "../bindings.js";
 import * as pages from "./pages.js";
 import * as view_states from "../view_states.js";
 import { ERASER_STATE_NAME } from "../save_states.js";
-import * as side_popup from "../side_popup.js";
+import * as side_popup from "../popups/side_popup.js";
+import * as context_menu from "../popups/context_menu.js";
 
 const CONTENT_ID: string = "chapter-text-content";
 const CHAPTER_NAME_ID: string = "chapter-name"
@@ -23,6 +24,20 @@ export async function run()
 
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range),
+        context_menu.init_context_menu('#chapter-content', [
+            {
+                name: 'Test Option 1',
+                command: async () => {}
+            },
+            {
+                name: 'Test Option 2',
+                command: async () => {}
+            },
+            {
+                name: 'Test Option 3',
+                command: async () => {}
+            },
+        ])
     ]).then(_ => {
         document.body.style.visibility = 'visible';
     });

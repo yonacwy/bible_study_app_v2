@@ -2,7 +2,7 @@ import * as bible from "../bible.js";
 import { ChapterIndex, Color } from "../bindings.js";
 import * as verse_renderer from "./verse_rendering.js";
 import * as utils from "../utils/index.js";
-import { PanelData } from "../side_popup.js";
+import { PanelData } from "../popups/side_popup.js";
 
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 let was_initialized = false;

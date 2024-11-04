@@ -3,8 +3,8 @@ import * as utils from "../utils/index.js"
 import * as rendering from "./bible_rendering.js";
 import * as bible from "../bible.js";
 import * as highlighting from "../highlights.js"
-import * as wp from "../word_popup.js";
-import * as sp from "../side_popup.js";
+import * as wp from "../popups/word_popup.js";
+import * as sp from "../popups/side_popup.js";
 import { ERASER_STATE_NAME } from "../save_states.js";
 
 const HIGHLIGHT_CATAGORIES = await highlighting.get_catagories();

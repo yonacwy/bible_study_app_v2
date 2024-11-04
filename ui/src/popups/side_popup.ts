@@ -1,8 +1,8 @@
-import { Color, WordAnnotations } from "./bindings.js";
-import { get_catagories, get_selected_highlight } from "./highlights.js";
-import * as utils from "./utils/index.js";
-import * as notes from "./notes.js";
-import * as view_states from "./view_states.js";
+import { Color, WordAnnotations } from "../bindings.js";
+import { get_catagories, get_selected_highlight } from "../highlights.js";
+import * as utils from "../utils/index.js";
+import * as notes from "../notes.js";
+import * as view_states from "../view_states.js";
 
 const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";

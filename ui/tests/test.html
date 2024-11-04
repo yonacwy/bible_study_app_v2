@@ -1,207 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resizable Split Pane with Auto Collapse</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Right-Click Menu</title>
+  <style>
+    /* Basic styles for the page */
+    body {
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-        html, body {
-            height: 100%;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
+    /* Styles for the context menu */
+    .context-menu {
+      position: absolute;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+      display: none;
+      padding: 0;
+      list-style: none;
+      min-width: 150px;
+      overflow: hidden;
+      border-radius: 5px;
+      animation: dropdown 0.2s ease-out;
+    }
 
-        #container {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-            position: relative;
-        }
+    .context-menu li {
+      padding: 10px 15px;
+      cursor: pointer;
+    }
 
-        #left-pane, #right-pane {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-            overflow: hidden;
-            transition: width 0.3s ease-in-out;
-            white-space: nowrap;
-        }
+    .context-menu li:hover {
+      background-color: #ddd;
+    }
 
-        #left-pane {
-            background-color: #f0f0f0;
-            width: 50%;
-        }
+    /* Dropdown animation */
+    @keyframes dropdown {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
 
-        #right-pane {
-            background-color: #ddd;
-            width: 50%;
-        }
-
-        #resizer {
-            width: 5px;
-            background-color: #333;
-            cursor: col-resize;
-            position: relative;
-        }
-
-        .button-container {
-            position: absolute;
-            top: 10px;
-        }
-
-        .left-button {
-            left: 10px;
-        }
-
-        .right-button {
-            right: 10px;
-        }
-
-        button {
-            padding: 5px 10px;
-            font-size: 14px;
-        }
-    </style>
+    /* Example elements to right-click on */
+    .clickable {
+      border: 2px dashed #333;
+      padding: 50px;
+      margin: 20px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <div id="container">
-        <div id="left-pane">
-            <div>Left Pane</div>
-        </div>
-        <div id="resizer"></div>
-        <div id="right-pane">
-            <div>Right Pane</div>
-        </div>
-    </div>
 
-    <div class="button-container left-button">
-        <button id="collapse-left">Collapse Left</button>
-    </div>
-    <div class="button-container right-button">
-        <button id="collapse-right">Collapse Right</button>
-    </div>
+<div class="clickable" id="section1">Right-click here for Section 1 Options</div>
+<div class="clickable" id="section2">Right-click here for Section 2 Options</div>
 
-    <script>
-        const leftPane = document.getElementById('left-pane');
-        const rightPane = document.getElementById('right-pane');
-        const resizer = document.getElementById('resizer');
-        const collapseLeftBtn = document.getElementById('collapse-left');
-        const collapseRightBtn = document.getElementById('collapse-right');
+<ul id="context-menu" class="context-menu"></ul>
 
-        let isResizing = false;
-        const collapseThreshold = 10;  // If the pane is smaller than 10%, it will collapse
+<script>
+  // Define menu items for different sections
+  const menuOptions = {
+    section1: ["Option 1A", "Option 1B", "Option 1C"],
+    section2: ["Option 2A", "Option 2B", "Option 2C"]
+  };
 
-        // Handle mousedown event on the resizer
-        resizer.addEventListener('mousedown', function (e) {
-            isResizing = true;
-            document.body.style.cursor = 'col-resize';
-            document.body.style.userSelect = 'none';  // Prevent text selection during resize
-            removeTransitions();  // Remove transitions while resizing
-        });
+  const contextMenu = document.getElementById("context-menu");
 
-        // Handle mousemove events on the window to capture even when pointer is outside resizer
-        window.addEventListener('mousemove', function (e) {
-            if (!isResizing) return;
+  document.addEventListener("contextmenu", function (event) {
+    event.preventDefault();
+    const targetId = event.target.id;
+    if (menuOptions[targetId]) {
+      // Clear previous menu items
+      contextMenu.innerHTML = "";
+      
+      // Add new menu items based on right-clicked element
+      menuOptions[targetId].forEach(optionText => {
+        const menuItem = document.createElement("li");
+        menuItem.textContent = optionText;
+        menuItem.onclick = () => {
+          alert(`You selected: ${optionText}`);
+          contextMenu.style.display = "none";
+        };
+        contextMenu.appendChild(menuItem);
+      });
 
-            const containerWidth = document.getElementById('container').offsetWidth;
-            let leftWidth = e.clientX / containerWidth * 100;
+      // Position menu at mouse click and display it
+      contextMenu.style.left = `${event.pageX}px`;
+      contextMenu.style.top = `${event.pageY}px`;
+      contextMenu.style.display = "block";
+    } else {
+      contextMenu.style.display = "none";
+    }
+  });
 
-            // Collapse left pane if it's too small
-            if (leftWidth < collapseThreshold) {
-                collapsePane('left');
-            } 
-            // Collapse right pane if right side is too small
-            else if ((100 - leftWidth) < collapseThreshold) {
-                collapsePane('right');
-            } 
-            else {
-                // Normal resize behavior when within range
-                leftPane.style.width = `${leftWidth}%`;
-                rightPane.style.width = `${100 - leftWidth}%`;
-                collapseLeftBtn.textContent = 'Collapse Left';
-                collapseRightBtn.textContent = 'Collapse Right';
-            }
-        });
+  // Hide menu on click outside or scroll
+  document.addEventListener("click", () => contextMenu.style.display = "none");
+  window.addEventListener("scroll", () => contextMenu.style.display = "none");
+</script>
 
-        // Handle mouseup to stop resizing
-        window.addEventListener('mouseup', function () {
-            if (isResizing) {
-                isResizing = false;
-                document.body.style.cursor = 'default';
-                document.body.style.userSelect = 'auto';  // Restore text selection
-                applyTransitions();  // Reapply transitions after resizing
-            }
-        });
-
-        // Remove transitions when resizing
-        function removeTransitions() {
-            leftPane.style.transition = 'none';
-            rightPane.style.transition = 'none';
-        }
-
-        // Reapply transitions after resizing
-        function applyTransitions() {
-            leftPane.style.transition = 'width 0.3s ease-in-out';
-            rightPane.style.transition = 'width 0.3s ease-in-out';
-        }
-
-        // Function to collapse a pane
-        function collapsePane(side) {
-            if (side === 'left') {
-                leftPane.style.width = '0%';
-                leftPane.style.padding = '0';  // Remove padding for full collapse
-                rightPane.style.width = '100%';
-                collapseLeftBtn.textContent = 'Expand Left';
-                collapseRightBtn.textContent = 'Collapse Right';
-            } else if (side === 'right') {
-                rightPane.style.width = '0%';
-                rightPane.style.padding = '0';  // Remove padding for full collapse
-                leftPane.style.width = '100%';
-                collapseRightBtn.textContent = 'Expand Right';
-                collapseLeftBtn.textContent = 'Collapse Left';
-            }
-
-            resizer.style.display = 'block';
-            setTimeout(() => {
-                if(leftPane.style.width === '0%' || rightPane.style.width === '0%')
-                {
-                    resizer.style.display = 'none';
-                }
-            }, 300);
-        }
-
-        // Collapse/Expand logic for left pane
-        collapseLeftBtn.addEventListener('click', function () {
-            if (leftPane.style.width === '0%') {
-                leftPane.style.width = '50%';
-                leftPane.style.padding = '10px';  // Restore padding
-                rightPane.style.width = '50%';
-                collapseLeftBtn.textContent = 'Collapse Left';
-                resizer.style.display = 'block';
-            } else {
-                collapsePane('left');
-            }
-        });
-
-        // Collapse/Expand logic for right pane
-        collapseRightBtn.addEventListener('click', function () {
-            if (rightPane.style.width === '0%') {
-                rightPane.style.width = '50%';
-                rightPane.style.padding = '10px';  // Restore padding
-                leftPane.style.width = '50%';
-                collapseRightBtn.textContent = 'Collapse Right';
-                resizer.style.display = 'block';
-            } else {
-                collapsePane('right');
-            }
-        });
-    </script>
 </body>
 </html>

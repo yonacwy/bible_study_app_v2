@@ -1,10 +1,7 @@
 import * as utils from "../utils/index.js";
 import * as pages from "./pages.js";
-import * as view_states from "../view_states.js";
 import { SearchSection } from "../bindings.js";
 import * as search from "../rendering/word_search.js";
-import { ERASER_STATE_NAME } from "../save_states.js";
-import * as side_popup from "../side_popup.js";
 
 export function run()
 {

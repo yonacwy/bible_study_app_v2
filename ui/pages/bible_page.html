@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../styles/side_popup.css">
     <link rel="stylesheet" href="../styles/searchbar.css">
     <link rel="stylesheet" href="../styles/error_popup.css">
+    <link rel="stylesheet" href="../styles/context_menu.css">
 </head>
 <body>
     <header>
@@ -64,6 +65,8 @@
         <button class="chapter-button previous" id="previous-chapter-btn" title="Previous chapter">
             <img src="../images/light-arrow-left.svg">
         </button>
+        
+        <ul class="context-menu-popup hidden" id="context-menu"></ul>
     </main>
     <script type="module">
         import { run } from '../dist/page_scripts/bible_page.js';

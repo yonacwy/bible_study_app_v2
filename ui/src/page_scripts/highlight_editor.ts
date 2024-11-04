@@ -1,6 +1,6 @@
 import * as utils from "../utils/index.js";
 import * as highlights from "../highlights.js";
-import { show_error_popup } from "../error_popup.js";
+import { show_error_popup } from "../popups/error_popup.js";
 import { HighlightCategory } from "../bindings.js";
 
 export type HighlightEditorData = {
