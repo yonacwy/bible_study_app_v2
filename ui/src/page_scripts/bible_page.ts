@@ -37,7 +37,7 @@ async function init_context_menu()
     let highlight_selections: ContextMenuCommand[] = catagories.map(v => {
         let selection: ContextMenuCommand = {
             name: v.name,
-            command: async () => { highlights.set_selected_highlight(v.id); }
+            command: async () => { highlights.SELECTED_HIGHLIGHT.set(v.id); }
         }
 
         return selection;
@@ -52,11 +52,11 @@ async function init_context_menu()
         return selection;
     });
 
-    let should_interupt = async () => {
-        let highlight = highlights.get_selected_highlight();
+    let should_interrupt = async () => {
+        let highlight = highlights.SELECTED_HIGHLIGHT.get();
         if(highlight !== null)
         {
-            highlights.set_selected_highlight(null);
+            highlights.SELECTED_HIGHLIGHT.set(null);
             return true;
         }
 
@@ -76,7 +76,7 @@ async function init_context_menu()
             name: 'Erase',
             args: erase_selections
         }
-    ], should_interupt)
+    ], should_interrupt)
 }
 
 export async function display_chapter(chapter: ChapterIndex, verse_range: VerseRange | null)

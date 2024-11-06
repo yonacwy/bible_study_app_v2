@@ -116,7 +116,7 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
 let is_dragging = false;
 function on_start_dragging(chapter: ChapterIndex, word_index: number, word_div: HTMLElement) 
 {
-    if(highlighting.get_selected_highlight() !== null)
+    if(highlighting.SELECTED_HIGHLIGHT.get() !== null)
     {
         is_dragging = true;
         update_word(chapter, word_index, word_div);
@@ -125,7 +125,7 @@ function on_start_dragging(chapter: ChapterIndex, word_index: number, word_div: 
 
 function on_over_dragging(chapter: ChapterIndex, word_index: number, word_div: HTMLElement) 
 {
-    if(is_dragging && highlighting.get_selected_highlight() !== null)
+    if(is_dragging && highlighting.SELECTED_HIGHLIGHT.get() !== null)
     {
         update_word(chapter, word_index, word_div);
     }
@@ -133,7 +133,7 @@ function on_over_dragging(chapter: ChapterIndex, word_index: number, word_div: H
 
 function on_stop_dragging(word_popup: HTMLElement | null, on_require_rerender: () => Promise<void>) 
 {
-    if(is_dragging && highlighting.get_selected_highlight() !== null)
+    if(is_dragging && highlighting.SELECTED_HIGHLIGHT.get() !== null)
     {
         is_dragging = false;
         word_popup?.classList.remove('show');
@@ -149,7 +149,7 @@ function on_stop_dragging(word_popup: HTMLElement | null, on_require_rerender: (
 function update_word(chapter: ChapterIndex, word: number, div: HTMLElement)
 {
     div.style.color = rendering.HIGHLIGHT_SELECTED_WORD_COLOR;
-    let selected_highlight = highlighting.get_selected_highlight();
+    let selected_highlight = highlighting.SELECTED_HIGHLIGHT.get();
 
     if(selected_highlight === null) return;
     if(utils.get_toggle_value(ERASER_STATE_NAME) !== true)

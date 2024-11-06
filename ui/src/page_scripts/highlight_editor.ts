@@ -106,9 +106,9 @@ function init_confirm_popup()
         if (deleting_id != null)
         {
             utils.invoke('remove_highlight_category', { id: deleting_id });
-            if(highlights.get_selected_highlight() === deleting_id)
+            if(highlights.SELECTED_HIGHLIGHT.get() === deleting_id)
             {
-                highlights.set_selected_highlight(null);   
+                highlights.SELECTED_HIGHLIGHT.set(null);   
             }
         }
 

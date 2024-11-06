@@ -1,6 +1,5 @@
-import { read_value } from "./node_management";
 
-export class Storage<T>
+export class ValueStorage<T>
 {
     private readonly path: string;
     private on_changed_listeners: ((v: T) => void)[]
@@ -13,7 +12,7 @@ export class Storage<T>
 
     public get(): T 
     {
-        return read_value(this.path) as T;
+        return retrieve_value(this.path) as T; // should never be null, as it is initialized in the constructor
     }
 
     public set(value: T)
@@ -22,7 +21,7 @@ export class Storage<T>
         this.update_listeners();
     }
 
-    public add_listener(listener: () => void): boolean
+    public add_listener(listener: (v: T) => void): boolean
     {
         if(!this.on_changed_listeners.includes(listener))
         {
@@ -33,7 +32,7 @@ export class Storage<T>
         return false;
     }
 
-    public remove_listener(listener: () => void): boolean
+    public remove_listener(listener: (v: T) => void): boolean
     {
         if(this.on_changed_listeners.includes(listener))
         {

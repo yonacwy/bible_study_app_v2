@@ -23,14 +23,14 @@ export function is_context_menu_active(): boolean
     return false;
 }
 
-export function init_context_menu(args: ContextMenuArg[], should_interupt: () => Promise<boolean>)
+export function init_context_menu(args: ContextMenuArg[], should_interrupt: () => Promise<boolean>)
 {
     let menu = document.getElementById('context-menu') as HTMLElement;
     build_menu(menu, args, true);
     document.addEventListener('contextmenu', async e => {
         e.preventDefault();
-        let interupt = await should_interupt();
-        if(!interupt)
+        let interrupt = await should_interrupt();
+        if(!interrupt)
         {
             show_popup(menu, e);
         }

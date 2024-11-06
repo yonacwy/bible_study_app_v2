@@ -21,15 +21,13 @@ const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 
 export async function init_header(): Promise<void>
 {
-    highlight_utils.SELECTED_HIGHLIGHT.add_listener(() => {
-        update_word_selection();
-    });
+    highlight_utils.SELECTED_HIGHLIGHT.add_listener(on_highlight_changed);
 
     await Promise.all([
         init_nav_buttons(),
         init_chapter_selection_dropdown(),
         init_highlight_editor_button(),
-        init_highlight_selection(),
+        highlight_utils.create_highlight_selection(),
         update_nav_buttons_opacity(),
         init_search_bar(),
         utils.init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {}),
@@ -96,30 +94,26 @@ export function update_word_selection()
     }
 }
 
-export function init_highlight_selection()
+const DEFAULT_BUTTON_COLOR: string = document.getElementById(HIGHLIGHT_SELECTOR_ID)?.style.backgroundColor ?? "white";
+export function on_highlight_changed(id: string | null)
 {
-    const DEFAULT_BUTTON_COLOR: string = document.getElementById(HIGHLIGHT_SELECTOR_ID)?.style.backgroundColor ?? "white";
-    bible.create_highlight_selection(id => {
-        highlight_utils.get_catagories().then(catagories => {
-            let color = DEFAULT_BUTTON_COLOR;
-            let opacity = 0.3;
-            if(id !== null)
-            {
-                let category = catagories[id];
-                color = utils.color_to_hex(category.color);
-                opacity = 1.0;
-            }
-            
-            highlight_utils.SELECTED_HIGHLIGHT.set(id);
+    update_word_selection();
+    highlight_utils.get_catagories().then(catagories => {
+        let color = DEFAULT_BUTTON_COLOR;
+        let opacity = 0.3;
+        if(id !== null)
+        {
+            let category = catagories[id];
+            color = utils.color_to_hex(category.color);
+            opacity = 1.0;
+        }
 
-            let btn = document.getElementById('highlight-selector-btn');
-            if (btn !== null) 
-            {
-                btn.style.backgroundColor = color;
-                btn.style.opacity = opacity.toString();
-                update_word_selection()
-            }
-        });
+        let btn = document.getElementById('highlight-selector-btn');
+        if (btn !== null) 
+        {
+            btn.style.backgroundColor = color;
+            btn.style.opacity = opacity.toString();
+        }
     });
 }
 

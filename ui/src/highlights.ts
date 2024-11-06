@@ -162,7 +162,7 @@ export async function create_highlight_selection()
     });
 
     container.appendChild(none_div);
-    on_selected(get_selected_highlight());
+    SELECTED_HIGHLIGHT.update_listeners();
 }
 
 export async function get_chapter_annotations(chapter: ChapterIndex): Promise<any>
@@ -220,4 +220,4 @@ export async function erase_chapter_highlight(chapter: ChapterIndex, word_pos: n
 }
 
 const SELECTED_HIGHLIGHT_KEY = 'selected-highlight-id';
-export const SELECTED_HIGHLIGHT = new utils.storage.Storage<string | null>(null, SELECTED_HIGHLIGHT_KEY)
+export const SELECTED_HIGHLIGHT = new utils.storage.ValueStorage<string | null>(null, SELECTED_HIGHLIGHT_KEY)

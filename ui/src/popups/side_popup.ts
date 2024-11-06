@@ -1,12 +1,12 @@
 import { Color, WordAnnotations } from "../bindings.js";
-import { get_catagories, get_selected_highlight } from "../highlights.js";
+import * as highlight_utils from "../highlights.js";
 import * as utils from "../utils/index.js";
 import * as notes from "../notes.js";
 import * as view_states from "../view_states.js";
 
 const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";
-const CATAGORIES: any = await get_catagories();
+const CATAGORIES: any = await highlight_utils.get_catagories();
 
 export type PanelData = {
     popup_panel: HTMLElement,
@@ -29,7 +29,7 @@ export function display_on_div(div: HTMLElement, word: string, annotations: Word
         if(annotations === null          ||
             annotations === undefined     ||
            (annotations.notes.length === 0 && annotations.highlights.length === 0)      ||
-           get_selected_highlight() !== null
+           highlight_utils.SELECTED_HIGHLIGHT.get() !== null
         )
         {
             panel_data.popup_panel.classList.remove('open');

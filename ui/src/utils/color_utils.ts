@@ -1,4 +1,4 @@
-import { Color } from "../bindings";
+import { Color } from "../bindings.js";
 
 export function clamp(min: number, max: number, value: number): number
 {
