@@ -5,7 +5,7 @@ import *  as bible from "../bible.js";
 import { build_chapter_selection_dropdown } from "../selection.js";
 import { show_error_popup } from "../popups/error_popup.js";
 import * as side_popup from "../popups/side_popup.js";
-import { ERASER_STATE_NAME } from "../save_states.js";
+import { init_word_popup } from "../popups/word_popup.js";
 
 export const SEARCH_INPUT_ID: string = "search-input";
 export const SEARCH_BUTTON_ID: string = "search-btn";
@@ -22,6 +22,11 @@ const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 export async function init_header(): Promise<void>
 {
     highlight_utils.SELECTED_HIGHLIGHT.add_listener(on_highlight_changed);
+    let word_popup = document.getElementById(WORD_POPUP_ID);
+    if(word_popup !== null)
+    {
+        init_word_popup(word_popup);
+    }
 
     await Promise.all([
         init_nav_buttons(),
@@ -30,7 +35,7 @@ export async function init_header(): Promise<void>
         highlight_utils.create_highlight_selection(),
         update_nav_buttons_opacity(),
         init_search_bar(),
-        utils.init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {}),
+        utils.init_toggle('erase-highlight-toggle', highlight_utils.ERASING_HIGHLIGHT),
         side_popup.init_popup_panel('popup-panel'),
     ]);
 }

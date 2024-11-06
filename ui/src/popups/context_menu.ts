@@ -134,9 +134,7 @@ function build_menu(menu: HTMLElement, args: ContextMenuArg[], is_main: boolean)
             {
                 div.innerHTML = arg.name;
                 div.addEventListener('click', _ => {
-                    utils.debug_print(arg.name);
                     command.command()
-                    
                     if(is_main) hide_popup(menu);
                 });
             }

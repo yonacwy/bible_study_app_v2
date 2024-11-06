@@ -5,7 +5,6 @@ import * as bible from "../bible.js";
 import * as highlighting from "../highlights.js"
 import * as wp from "../popups/word_popup.js";
 import * as sp from "../popups/side_popup.js";
-import { ERASER_STATE_NAME } from "../save_states.js";
 
 const HIGHLIGHT_CATAGORIES = await highlighting.get_catagories();
 
@@ -90,7 +89,7 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
         let word_node = rendering.render_word(words[i], args.bolded, color, has_notes);
         if(word_annotations !== null && word_annotations !== undefined && (word_annotations.highlights.length !== 0 || word_annotations.notes.length !== 0))
         {
-            wp.display_on_div(word_node, word_annotations.highlights.map((h: string) => HIGHLIGHT_CATAGORIES[h].color), has_notes, args.word_popup);
+            wp.display_on_div(word_node, word_annotations.highlights, has_notes, args.word_popup);
 
             if(args.side_popup_data !== null)
             {
@@ -100,10 +99,12 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
         }
 
         word_node.addEventListener('mousedown', e => {
+            if(e.button !== utils.LEFT_MOUSE_BUTTON) return;
             on_start_dragging(args.chapter, offset + i, word_node);
         });
 
         word_node.addEventListener('mouseover', e => {
+            if(e.button !== utils.LEFT_MOUSE_BUTTON) return;
             on_over_dragging(args.chapter, offset + i, word_node);
         });
 
@@ -152,7 +153,7 @@ function update_word(chapter: ChapterIndex, word: number, div: HTMLElement)
     let selected_highlight = highlighting.SELECTED_HIGHLIGHT.get();
 
     if(selected_highlight === null) return;
-    if(utils.get_toggle_value(ERASER_STATE_NAME) !== true)
+    if(highlighting.ERASING_HIGHLIGHT.get() !== true)
     {
         highlighting.highlight_word(chapter, word, selected_highlight);
     }

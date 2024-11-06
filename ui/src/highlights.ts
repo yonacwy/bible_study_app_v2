@@ -220,4 +220,7 @@ export async function erase_chapter_highlight(chapter: ChapterIndex, word_pos: n
 }
 
 const SELECTED_HIGHLIGHT_KEY = 'selected-highlight-id';
-export const SELECTED_HIGHLIGHT = new utils.storage.ValueStorage<string | null>(null, SELECTED_HIGHLIGHT_KEY)
+export const SELECTED_HIGHLIGHT = new utils.storage.ValueStorage<string>(SELECTED_HIGHLIGHT_KEY);
+
+const IS_ERASING_KEY = 'is-erasing-id';
+export const ERASING_HIGHLIGHT = new utils.storage.ValueStorage<boolean>(IS_ERASING_KEY);

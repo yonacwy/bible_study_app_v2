@@ -22,10 +22,26 @@ export function run()
         init_resizer(),
         bible_page.display_chapter(chapter, data.section.verse_range),
         init_editor_toggle(data.note),
+        init_delete_note_button(data),
         init_close_editor_btn(),
         init_save_callbacks(),
     ]).then(_ => {
         document.body.style.visibility = 'visible';
+    });
+}
+
+const DELETE_NOTE_BUTTON = 'delete-note-btn'
+function init_delete_note_button(data: BibleNotePageData)
+{
+    let button = document.getElementById(DELETE_NOTE_BUTTON);
+
+    button?.addEventListener('click', _ => {
+        document.body.style.visibility = 'hidden';
+        notes.delete_note(data.note).then(() => {
+            notes.set_editing_note(null).then(() => {
+                view_states.goto_current_view_state();
+            });
+        });
     });
 }
 

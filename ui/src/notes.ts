@@ -12,6 +12,11 @@ export async function update_note(id: string, locations: ReferenceLocation[], te
     return await utils.invoke('update_note', { id: id, locations: locations, text: text });
 }
 
+export async function delete_note(id: string): Promise<void>
+{
+    return await utils.invoke('remove_note', { id: id });
+}
+
 export async function get_editing_note(): Promise<string | null>
 {
     return await utils.invoke('get_editing_note', {}) as string | null

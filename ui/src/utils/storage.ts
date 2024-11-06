@@ -2,26 +2,25 @@
 export class ValueStorage<T>
 {
     private readonly path: string;
-    private on_changed_listeners: ((v: T) => void)[]
-    public constructor(init: T, path: string)
+    private on_changed_listeners: ((v: T | null) => void)[]
+    public constructor(path: string)
     {
         this.path = path;
-        store_value(path, init);
         this.on_changed_listeners = [];
     }
 
-    public get(): T 
+    public get(): T | null
     {
-        return retrieve_value(this.path) as T; // should never be null, as it is initialized in the constructor
+        return retrieve_value(this.path) as T | null; // should never be null, as it is initialized in the constructor
     }
 
-    public set(value: T)
+    public set(value: T | null)
     {
         store_value(this.path, value);
         this.update_listeners();
     }
 
-    public add_listener(listener: (v: T) => void): boolean
+    public add_listener(listener: (v: T | null) => void): boolean
     {
         if(!this.on_changed_listeners.includes(listener))
         {
@@ -32,7 +31,7 @@ export class ValueStorage<T>
         return false;
     }
 
-    public remove_listener(listener: (v: T) => void): boolean
+    public remove_listener(listener: (v: T | null) => void): boolean
     {
         if(this.on_changed_listeners.includes(listener))
         {

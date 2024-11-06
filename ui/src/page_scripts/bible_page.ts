@@ -37,7 +37,10 @@ async function init_context_menu()
     let highlight_selections: ContextMenuCommand[] = catagories.map(v => {
         let selection: ContextMenuCommand = {
             name: v.name,
-            command: async () => { highlights.SELECTED_HIGHLIGHT.set(v.id); }
+            command: async () => { 
+                highlights.SELECTED_HIGHLIGHT.set(v.id); 
+                highlights.ERASING_HIGHLIGHT.set(false);
+            }
         }
 
         return selection;
@@ -46,7 +49,10 @@ async function init_context_menu()
     let erase_selections: ContextMenuCommand[] = catagories.map(v => {
         let selection: ContextMenuCommand = {
             name: v.name,
-            command: async () => { utils.debug_print(`Erasing highlight ${v.name}`) }
+            command: async () => { 
+                highlights.SELECTED_HIGHLIGHT.set(v.id); 
+                highlights.ERASING_HIGHLIGHT.set(true);
+            }
         }
 
         return selection;
@@ -57,6 +63,7 @@ async function init_context_menu()
         if(highlight !== null)
         {
             highlights.SELECTED_HIGHLIGHT.set(null);
+            highlights.ERASING_HIGHLIGHT.set(false);
             return true;
         }
 

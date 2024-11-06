@@ -16,6 +16,10 @@ export type UnlistenFn = () => void;
 export type EventCallback = (value: any) => void;
 export const listen_event: (event_name: string, handler: EventCallback) => Promise<UnlistenFn> = (window as any).__TAURI__.event.listen;
 
+export const LEFT_MOUSE_BUTTON = 0;
+export const MIDDLE_MOUSE_BUTTON = 1;
+export const RIGHT_MOUSE_BUTTON = 2;
+
 export function debug_print(msg: string)
 {
     invoke('debug_print', {message: msg});
