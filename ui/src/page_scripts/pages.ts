@@ -21,11 +21,15 @@ const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 
 export async function init_header(): Promise<void>
 {
+    highlight_utils.SELECTED_HIGHLIGHT.add_listener(() => {
+        update_word_selection();
+    });
+
     await Promise.all([
         init_nav_buttons(),
         init_chapter_selection_dropdown(),
         init_highlight_editor_button(),
-        init_highlight_selection(null),
+        init_highlight_selection(),
         update_nav_buttons_opacity(),
         init_search_bar(),
         utils.init_toggle('erase-highlight-toggle', ERASER_STATE_NAME, _ => {}),
@@ -76,7 +80,7 @@ export function update_nav_buttons_opacity()
 
 export function update_word_selection()
 {
-    if(highlight_utils.get_selected_highlight() !== null)
+    if(highlight_utils.SELECTED_HIGHLIGHT.get() !== null)
     {
         document.querySelectorAll('.bible-word, .bible-space').forEach(w => {
             (w as HTMLElement).style.userSelect = 'none';
@@ -92,7 +96,7 @@ export function update_word_selection()
     }
 }
 
-export function init_highlight_selection(on_change: ((id: string | null) => void) | null)
+export function init_highlight_selection()
 {
     const DEFAULT_BUTTON_COLOR: string = document.getElementById(HIGHLIGHT_SELECTOR_ID)?.style.backgroundColor ?? "white";
     bible.create_highlight_selection(id => {
@@ -106,7 +110,7 @@ export function init_highlight_selection(on_change: ((id: string | null) => void
                 opacity = 1.0;
             }
             
-            highlight_utils.set_selected_highlight(id);
+            highlight_utils.SELECTED_HIGHLIGHT.set(id);
 
             let btn = document.getElementById('highlight-selector-btn');
             if (btn !== null) 
@@ -114,11 +118,6 @@ export function init_highlight_selection(on_change: ((id: string | null) => void
                 btn.style.backgroundColor = color;
                 btn.style.opacity = opacity.toString();
                 update_word_selection()
-            }
-
-            if(on_change !== null)
-            {
-                on_change(id);
             }
         });
     });

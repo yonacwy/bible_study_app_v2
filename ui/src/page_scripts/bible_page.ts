@@ -1,12 +1,13 @@
 import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
 import * as bible_renderer from "../rendering/bible_render.js";
-import { BibleSection, ChapterIndex, VerseRange } from "../bindings.js";
+import { BibleSection, ChapterIndex, HighlightCategory, VerseRange } from "../bindings.js";
 import * as pages from "./pages.js";
 import * as view_states from "../view_states.js";
-import { ERASER_STATE_NAME } from "../save_states.js";
 import * as side_popup from "../popups/side_popup.js";
 import * as context_menu from "../popups/context_menu.js";
+import * as highlights from "../highlights.js";
+import { ContextMenuCommand } from "../popups/context_menu.js";
 
 const CONTENT_ID: string = "chapter-text-content";
 const CHAPTER_NAME_ID: string = "chapter-name"
@@ -21,26 +22,61 @@ export async function run()
 
     Promise.all([
         pages.init_header(),
-
+        init_context_menu(),
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range),
-        context_menu.init_context_menu('#chapter-content', [
-            {
-                name: 'Test Option 1',
-                command: async () => {}
-            },
-            {
-                name: 'Test Option 2',
-                command: async () => {}
-            },
-            {
-                name: 'Test Option 3',
-                command: async () => {}
-            },
-        ])
+        
     ]).then(_ => {
         document.body.style.visibility = 'visible';
     });
+}
+
+async function init_context_menu()
+{
+    let catagories = Object.values(await highlights.get_catagories() as object) as HighlightCategory[];
+    let highlight_selections: ContextMenuCommand[] = catagories.map(v => {
+        let selection: ContextMenuCommand = {
+            name: v.name,
+            command: async () => { highlights.set_selected_highlight(v.id); }
+        }
+
+        return selection;
+    });
+
+    let erase_selections: ContextMenuCommand[] = catagories.map(v => {
+        let selection: ContextMenuCommand = {
+            name: v.name,
+            command: async () => { utils.debug_print(`Erasing highlight ${v.name}`) }
+        }
+
+        return selection;
+    });
+
+    let should_interupt = async () => {
+        let highlight = highlights.get_selected_highlight();
+        if(highlight !== null)
+        {
+            highlights.set_selected_highlight(null);
+            return true;
+        }
+
+        return false;
+    }
+
+    context_menu.init_context_menu([
+        {
+            name: 'New Note',
+            command: async () => {}
+        },
+        {
+            name: 'Highlight',
+            args: highlight_selections
+        },
+        {
+            name: 'Erase',
+            args: erase_selections
+        }
+    ], should_interupt)
 }
 
 export async function display_chapter(chapter: ChapterIndex, verse_range: VerseRange | null)

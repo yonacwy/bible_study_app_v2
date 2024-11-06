@@ -85,6 +85,86 @@ export function render_catagories(on_delete: (id: string) => void, on_edit: (id:
     });
 }
 
+export async function create_highlight_selection() 
+{
+    let highlight_data = await get_catagories();
+    let container = document.getElementById('highlights-dropdown');
+    let current_highlight_id = SELECTED_HIGHLIGHT.get();
+
+    if(container === null) return;
+
+    let highlight_catagories: any[] = [];
+    for(let id in highlight_data)
+    {
+        highlight_catagories.push(highlight_data[id]);
+    }
+
+    highlight_catagories = highlight_catagories.sort((a, b) => {
+        if (a.name < b.name) return -1;
+        if (a.name > b.name) return 1;
+        return 0;
+    })
+
+    for(let i = 0; i < highlight_catagories.length; i++)
+    {
+        let highlight = highlight_catagories[i];
+
+        let highlight_div = document.createElement('div');
+        highlight_div.classList.add('dropdown-option');
+        if(highlight.id === current_highlight_id)
+        {
+            highlight_div.classList.add('selected-option');
+        }
+        
+        let span = document.createElement('span');
+        span.innerHTML = highlight.name;
+        highlight_div.appendChild(span);
+
+        let color_div = document.createElement('div');
+        color_div.style.backgroundColor = utils.color_to_hex(highlight.color);
+        color_div.classList.add('color-square');
+        highlight_div.appendChild(color_div);
+
+        highlight_div.addEventListener('click', e => {
+            let nodes = container.getElementsByClassName('dropdown-option');
+            for (let i = 0; i < nodes.length; i++)
+            {
+                nodes[i].classList.remove('selected-option');
+            }
+
+            highlight_div.classList.add('selected-option');
+            SELECTED_HIGHLIGHT.set(highlight.id);
+        });
+
+        container.appendChild(highlight_div);
+    }
+
+    let none_div = document.createElement('div');
+    none_div.classList.add('dropdown-option');
+    if(current_highlight_id === null)
+    {
+        none_div.classList.add('selected-option');
+    }
+
+    let span = document.createElement('span');
+    span.innerHTML = 'None';
+    none_div.appendChild(span);
+
+    none_div.addEventListener('click', e => {
+        let nodes = container.getElementsByClassName('dropdown-option');
+        for (let i = 0; i < nodes.length; i++)
+        {
+            nodes[i].classList.remove('selected-option');
+        }
+
+        none_div.classList.add('selected-option');
+        SELECTED_HIGHLIGHT.set(null);
+    });
+
+    container.appendChild(none_div);
+    on_selected(get_selected_highlight());
+}
+
 export async function get_chapter_annotations(chapter: ChapterIndex): Promise<any>
 {
     let annotations_json = await utils.invoke('get_chapter_annotations', { chapter: chapter });
@@ -140,20 +220,4 @@ export async function erase_chapter_highlight(chapter: ChapterIndex, word_pos: n
 }
 
 const SELECTED_HIGHLIGHT_KEY = 'selected-highlight-id';
-
-export function set_selected_highlight(id: string | null) 
-{
-    if(id === null)
-    {
-        window.sessionStorage.removeItem(SELECTED_HIGHLIGHT_KEY);
-    }
-    else 
-    {
-        window.sessionStorage.setItem(SELECTED_HIGHLIGHT_KEY, id);
-    }
-}
-
-export function get_selected_highlight(): string | null
-{
-    return window.sessionStorage.getItem(SELECTED_HIGHLIGHT_KEY);
-}
+export const SELECTED_HIGHLIGHT = new utils.storage.Storage<string | null>(null, SELECTED_HIGHLIGHT_KEY)

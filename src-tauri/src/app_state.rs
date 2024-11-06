@@ -90,19 +90,67 @@ impl AppData
 
         let mut test_notebook = Notebook::default();
         {
-            let highlight_id = uuid::Uuid::new_v4().to_string();
+            let highlight_id1 = uuid::Uuid::new_v4().to_string();
             test_notebook.highlight_catagories.insert(
-                highlight_id.clone(),
+                highlight_id1.clone(),
                 HighlightCategory {
                     color: Color {
-                        r: 255,
+                        r: 200,
                         g: 255,
                         b: 0,
                     },
-                    name: "test".into(),
+                    name: "Main".into(),
                     description: "this is a test description".into(),
                     priority: 10,
-                    id: highlight_id.clone(),
+                    id: highlight_id1.clone(),
+                },
+            );
+
+            let highlight_id2 = uuid::Uuid::new_v4().to_string();
+            test_notebook.highlight_catagories.insert(
+                highlight_id2.clone(),
+                HighlightCategory {
+                    color: Color {
+                        r: 20,
+                        g: 200,
+                        b: 40,
+                    },
+                    name: "Name of God".into(),
+                    description: "this is a test description".into(),
+                    priority: 1,
+                    id: highlight_id2.clone(),
+                },
+            );
+
+            let highlight_id3 = uuid::Uuid::new_v4().to_string();
+            test_notebook.highlight_catagories.insert(
+                highlight_id3.clone(),
+                HighlightCategory {
+                    color: Color {
+                        r: 60,
+                        g: 100,
+                        b: 200,
+                    },
+                    name: "Jesus".into(),
+                    description: "this is a test description".into(),
+                    priority: 1,
+                    id: highlight_id3.clone(),
+                },
+            );
+
+            let highlight_id4 = uuid::Uuid::new_v4().to_string();
+            test_notebook.highlight_catagories.insert(
+                highlight_id4.clone(),
+                HighlightCategory {
+                    color: Color {
+                        r: 255,
+                        g: 0,
+                        b: 255,
+                    },
+                    name: "Imporntant Name".into(),
+                    description: "this is a test description".into(),
+                    priority: 1,
+                    id: highlight_id4.clone(),
                 },
             );
 
@@ -110,21 +158,21 @@ impl AppData
             annotations.insert(
                 0,
                 WordAnnotations {
-                    highlights: vec![highlight_id.clone()],
+                    highlights: vec![highlight_id1.clone()],
                     notes: vec![],
                 },
             );
             annotations.insert(
                 1,
                 WordAnnotations {
-                    highlights: vec![highlight_id.clone()],
+                    highlights: vec![highlight_id1.clone()],
                     notes: vec![],
                 },
             );
             annotations.insert(
                 2,
                 WordAnnotations {
-                    highlights: vec![highlight_id.clone()],
+                    highlights: vec![highlight_id1.clone()],
                     notes: vec![],
                 },
             );
@@ -132,7 +180,7 @@ impl AppData
             annotations.insert(
                 4,
                 WordAnnotations {
-                    highlights: vec![highlight_id.clone()],
+                    highlights: vec![highlight_id1.clone()],
                     notes: vec![],
                 },
             );

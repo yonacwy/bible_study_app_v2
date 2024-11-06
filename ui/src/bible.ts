@@ -1,5 +1,5 @@
 import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils/index.js";
-import { get_catagories, get_selected_highlight } from "./highlights.js";
+import { get_catagories } from "./highlights.js";
 import { push_section, get_current_view_state } from "./view_states.js";
 import { BookView, ChapterIndex, ChapterView } from "./bindings.js";
 
@@ -45,86 +45,6 @@ export async function get_chapter_words(chapter: ChapterIndex): Promise<string[]
     }
 
     return words;
-}
-
-export async function create_highlight_selection(on_selected: (id: string | null) => void) 
-{
-    let highlight_data = await get_catagories();
-    let container = document.getElementById('highlights-dropdown');
-    let current_highlight_id = get_selected_highlight();
-
-    if(container === null) return;
-
-    let highlight_catagories: any[] = [];
-    for(let id in highlight_data)
-    {
-        highlight_catagories.push(highlight_data[id]);
-    }
-
-    highlight_catagories = highlight_catagories.sort((a, b) => {
-        if (a.name < b.name) return -1;
-        if (a.name > b.name) return 1;
-        return 0;
-    })
-
-    for(let i = 0; i < highlight_catagories.length; i++)
-    {
-        let highlight = highlight_catagories[i];
-
-        let highlight_div = document.createElement('div');
-        highlight_div.classList.add('dropdown-option');
-        if(highlight.id === current_highlight_id)
-        {
-            highlight_div.classList.add('selected-option');
-        }
-        
-        let span = document.createElement('span');
-        span.innerHTML = highlight.name;
-        highlight_div.appendChild(span);
-
-        let color_div = document.createElement('div');
-        color_div.style.backgroundColor = color_to_hex(highlight.color);
-        color_div.classList.add('color-square');
-        highlight_div.appendChild(color_div);
-
-        highlight_div.addEventListener('click', e => {
-            let nodes = container.getElementsByClassName('dropdown-option');
-            for (let i = 0; i < nodes.length; i++)
-            {
-                nodes[i].classList.remove('selected-option');
-            }
-
-            highlight_div.classList.add('selected-option');
-            on_selected(highlight.id);
-        });
-
-        container.appendChild(highlight_div);
-    }
-
-    let none_div = document.createElement('div');
-    none_div.classList.add('dropdown-option');
-    if(current_highlight_id === null)
-    {
-        none_div.classList.add('selected-option');
-    }
-
-    let span = document.createElement('span');
-    span.innerHTML = 'None';
-    none_div.appendChild(span);
-
-    none_div.addEventListener('click', e => {
-        let nodes = container.getElementsByClassName('dropdown-option');
-        for (let i = 0; i < nodes.length; i++)
-        {
-            nodes[i].classList.remove('selected-option');
-        }
-
-        none_div.classList.add('selected-option');
-        on_selected(null);
-    });
-
-    container.appendChild(none_div);
-    on_selected(get_selected_highlight());
 }
 
 export async function to_next_chapter(): Promise<void>

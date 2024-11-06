@@ -6,19 +6,50 @@
     padding: 0;
     list-style: none;
     min-width: 150px;
-    overflow: hidden;
     border-radius: 5px;
     animation: dropdown 0.2s ease-out;
     margin: 0px;
 }
 
 .context-menu-popup li {
+    position: relative;
     padding: 10px 15px;
     cursor: pointer;
+    overflow: visible;
 }
 
 .context-menu-popup li:hover {
     background-color: #ddd;
+}
+
+.context-menu-popup .sub-menu, .sub-menu .sub-menu {
+    position: absolute;
+    left: 100%;
+    top: 0px;
+    display: none;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    padding: 0;
+    list-style: none;
+    min-width: 150px;
+    width: fit-content;
+    border-radius: 5px;
+    animation: dropdown 0.2s ease-out;
+    margin: 0px;
+    white-space: nowrap;
+}
+
+.context-menu-popup li:hover .sub-menu {
+    display: block;
+}
+
+.sub-menu li:not(:hover) .sub-menu {
+    display: none;
+}
+
+.sub-menu li:hover .sub-menu {
+    display: block;
 }
 
   /* Dropdown animation */
