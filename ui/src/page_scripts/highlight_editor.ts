@@ -2,6 +2,7 @@ import * as utils from "../utils/index.js";
 import * as highlights from "../highlights.js";
 import { show_error_popup } from "../popups/error_popup.js";
 import { HighlightCategory } from "../bindings.js";
+import * as confirm_popup from "../popups/confirm_popup.js";
 
 export type HighlightEditorData = {
     old_path: string
@@ -20,7 +21,6 @@ export async function run()
     utils.on_click('submit-btn', on_submit);
 
     let data = utils.decode_from_url(window.location.href) as HighlightEditorData;
-    init_confirm_popup();
 
     utils.on_click('back-btn', e => {
         window.location.href = data.old_path
@@ -54,7 +54,23 @@ let deleting_id: string | null = null;
 function on_delete(id: string)
 {
     deleting_id = id;
-    utils.set_display('confirm-popup', 'flex');
+    confirm_popup.show_confirm_popup({
+        message: 'Are you sure you want to delete this popup?',
+        yes_text: 'Delete popup',
+        no_text: 'Cancel delete popup',
+        on_confirm: () => {
+            if (deleting_id != null)
+            {
+                utils.invoke('remove_highlight_category', { id: deleting_id });
+                if(highlights.SELECTED_HIGHLIGHT.get() === deleting_id)
+                {
+                    highlights.SELECTED_HIGHLIGHT.set(null);   
+                }
+            }
+
+            location.reload();
+        }
+    })
 }
 
 function on_submit(_e: Event)
@@ -98,26 +114,4 @@ function on_submit(_e: Event)
         location.reload();
         editing_id = null;
     }
-}
-
-function init_confirm_popup()
-{
-    utils.on_click('confirm-btn', (e) => {
-        if (deleting_id != null)
-        {
-            utils.invoke('remove_highlight_category', { id: deleting_id });
-            if(highlights.SELECTED_HIGHLIGHT.get() === deleting_id)
-            {
-                highlights.SELECTED_HIGHLIGHT.set(null);   
-            }
-        }
-
-        utils.set_display('confirm-popup', 'none');
-        location.reload();
-    });
-
-    utils.on_click('cancel-delete-btn', (e) => {
-        utils.set_display('confirm-popup', 'none');
-        deleting_id = null;
-    });
 }

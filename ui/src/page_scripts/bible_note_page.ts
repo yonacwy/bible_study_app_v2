@@ -4,6 +4,7 @@ import * as pages from "./pages.js";
 import * as bible_page from "./bible_page.js";
 import * as notes from "../notes.js";
 import * as view_states from "../view_states.js";
+import * as confirm_popup from "../popups/confirm_popup.js";
 
 export type BibleNotePageData = { note: string, section: BibleSection };
 
@@ -36,13 +37,21 @@ function init_delete_note_button(data: BibleNotePageData)
     let button = document.getElementById(DELETE_NOTE_BUTTON);
 
     button?.addEventListener('click', _ => {
+        confirm_popup.show_confirm_popup({
+            message: 'Are you sure you want to delete this popup?',
+            on_confirm: delete_note
+        });
+    });
+
+    function delete_note()
+    {
         document.body.style.visibility = 'hidden';
         notes.delete_note(data.note).then(() => {
             notes.set_editing_note(null).then(() => {
                 view_states.goto_current_view_state();
             });
         });
-    });
+    }
 }
 
 const CLOSE_EDITOR_BUTTON = 'close-editor-btn';
@@ -207,7 +216,6 @@ function init_resizer()
             document.body.style.cursor = 'default';
             document.body.style.userSelect = 'auto';
             apply_transitions();
-
         }
     });
 

@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="../styles/styles.css"/>
-    <link rel="stylesheet" href="../styles/popup.css"/>
     <link rel="stylesheet" href="../styles/menu.css">
     <link rel="stylesheet" href="../styles/highlights.css">
     <link rel="stylesheet" href="../styles/error_popup.css">
+    <link rel="stylesheet" href="../styles/confirm_popup.css">
 </head>
 <body>
     <header>
@@ -20,14 +20,7 @@
         </button>
     </header>
     <main>
-        <div class="popup" id="confirm-popup">
-            <div class="popup-content">
-                <p>Are you sure you want to delete this highlight?</p>
-                <button id="confirm-btn" class="yes" title="Confirm delete popup">Confirm</button>
-                <button id="cancel-delete-btn" class="no" title="Cancel deleting popup">Cancel</button>
-            </div>
-        </div>
-        <div class="popup" id="highlight-popup">
+        <div class="edit-highlight-popup" id="highlight-popup">
             <div class="popup-content menu">
                 <label for="color-in" title="Highlight color">Color:</label>
                 <input type="color" id="color-in" value="#FFD700">
