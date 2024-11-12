@@ -3,28 +3,35 @@ import * as utils from "../utils/index.js";
 
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 
-export function render_word(word: Word, searched: string[] | null, c: Color | null, has_note: boolean)
-{
-    let word_node: HTMLElement = create_bible_word(word.text);
+export type WordData = {
+    word: Word,
+    has_note: boolean,
+    searched: string[] | null,
+    color: Color | null,
+}
 
-    if(has_note)
+export function render_word(data: WordData)
+{
+    let word_node: HTMLElement = create_bible_word(data.word.text);
+
+    if(data.has_note)
     {
         word_node.style.textDecoration = 'underline';
     }
 
-    if (word.italicized)
+    if (data.word.italicized)
     {
         word_node.style.fontStyle = 'italic'
     }
     
-    if (searched !== null && searched.includes(utils.trim_string(word.text).toLocaleLowerCase()))
+    if (data.searched !== null && data.searched.includes(utils.trim_string(data.word.text).toLocaleLowerCase()))
     {
         word_node = bold(word_node);
     }
 
-    if(c !== null)
+    if(data.color !== null)
     {
-        word_node = color(word_node, c);
+        word_node = color(word_node, data.color);
     }
 
     return word_node

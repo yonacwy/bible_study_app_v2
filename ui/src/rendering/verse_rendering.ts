@@ -86,7 +86,13 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
             has_notes = true;
         }
 
-        let word_node = rendering.render_word(words[i], args.bolded, color, has_notes);
+        let word_node = rendering.render_word({
+            word: words[i], 
+            searched: args.bolded, 
+            has_note: has_notes,
+            color: color,
+        });
+
         if(word_annotations !== null && word_annotations !== undefined && (word_annotations.highlights.length !== 0 || word_annotations.notes.length !== 0))
         {
             wp.display_on_div(word_node, word_annotations.highlights, has_notes, args.word_popup);
