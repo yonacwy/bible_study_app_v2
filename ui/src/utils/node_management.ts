@@ -1,5 +1,15 @@
 import { debug_print } from "./index.js";
 
+export function hide(node: HTMLElement)
+{
+    node.classList.add('hidden');
+}
+
+export function show(node: HTMLElement)
+{
+    node.classList.remove('hidden');
+}
+
 export function set_display(id: string, display: string)
 {
     let element = document.getElementById(id);

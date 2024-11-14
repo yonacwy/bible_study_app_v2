@@ -93,7 +93,7 @@ enum MdState
     Editing,
 }
 
-const TOGGLED_STORAGE = 'editor-toggle-storage';
+let current_state = MdState.Editing;
 
 async function init_editor_toggle(note_id: string)
 {
@@ -105,14 +105,12 @@ async function init_editor_toggle(note_id: string)
 
     if(!(textarea instanceof HTMLTextAreaElement) || !render_target || !edit_note_image || !view_note_image || !change_mode_button) return;
 
-    let current_state = utils.storage.retrieve_value<MdState>(TOGGLED_STORAGE) ?? MdState.Editing;
     set_md_state(current_state, textarea, render_target, edit_note_image, view_note_image);
     
     let note_text = (await notes.get_note(note_id)).text;
     textarea.value = note_text;
 
     change_mode_button.addEventListener('click', e => {
-        let current_state = utils.storage.retrieve_value<MdState>(TOGGLED_STORAGE) ?? MdState.Editing;
         let next_state = swap_state(current_state);
         set_md_state(next_state, textarea, render_target, edit_note_image, view_note_image);
     });
@@ -136,21 +134,21 @@ function swap_state(state: MdState): MdState
 
 function set_md_state(state: MdState, textarea: HTMLTextAreaElement, render_target: HTMLElement, edit_note_image: HTMLElement, view_note_image: HTMLElement)
 {
-    utils.storage.store_value(TOGGLED_STORAGE, state);
+    current_state = state;
     if(state === MdState.Editing)
     {
-        textarea.classList.remove('hidden');
-        view_note_image.classList.remove('hidden');
+        utils.show(textarea);
+        utils.show(view_note_image);
         render_target.replaceChildren();
-        render_target.classList.add('hidden');
-        edit_note_image.classList.add('hidden');
+        utils.hide(render_target);
+        utils.hide(edit_note_image);
     }
     if(state === MdState.Viewing)
     {
-        textarea.classList.add('hidden');
-        view_note_image.classList.add('hidden');
-        render_target.classList.remove('hidden');
-        edit_note_image.classList.remove('hidden');
+        utils.hide(textarea);
+        utils.hide(view_note_image);
+        utils.show(render_target);
+        utils.show(edit_note_image)
 
         let html = utils.render_markdown(textarea.value);
         render_target.innerHTML = html;
