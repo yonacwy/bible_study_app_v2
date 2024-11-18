@@ -25,7 +25,8 @@ export function is_context_menu_active(): boolean
 
 export function init_context_menu(args: ContextMenuArg[], should_interrupt: () => Promise<boolean>)
 {
-    let menu = document.getElementById('context-menu') as HTMLElement;
+    let menu = document.getElementById('context-menu') as HTMLElement | null;
+    if(menu === null) return;
     build_menu(menu, args, true);
     document.addEventListener('contextmenu', async e => {
         e.preventDefault();

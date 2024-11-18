@@ -10,7 +10,8 @@ export function run()
 
     Promise.all([
         pages.init_header(),
-        display_search(section)
+        display_search(section),
+        pages.init_context_menu(),
     ]).then(() => {
         document.body.style.visibility = 'visible';
     })

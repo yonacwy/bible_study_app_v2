@@ -22,68 +22,13 @@ export async function run()
 
     Promise.all([
         pages.init_header(),
-        init_context_menu(),
+        pages.init_context_menu(),
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range),
         
     ]).then(_ => {
         document.body.style.visibility = 'visible';
     });
-}
-
-async function init_context_menu()
-{
-    let catagories = Object.values(await highlights.get_catagories() as object) as HighlightCategory[];
-    let highlight_selections: ContextMenuCommand[] = catagories.map(v => {
-        let selection: ContextMenuCommand = {
-            name: v.name,
-            command: async () => { 
-                highlights.SELECTED_HIGHLIGHT.set(v.id); 
-                highlights.ERASING_HIGHLIGHT.set(false);
-            }
-        }
-
-        return selection;
-    });
-
-    let erase_selections: ContextMenuCommand[] = catagories.map(v => {
-        let selection: ContextMenuCommand = {
-            name: v.name,
-            command: async () => { 
-                highlights.SELECTED_HIGHLIGHT.set(v.id); 
-                highlights.ERASING_HIGHLIGHT.set(true);
-            }
-        }
-
-        return selection;
-    });
-
-    let should_interrupt = async () => {
-        let highlight = highlights.SELECTED_HIGHLIGHT.get();
-        if(highlight !== null)
-        {
-            highlights.SELECTED_HIGHLIGHT.set(null);
-            highlights.ERASING_HIGHLIGHT.set(false);
-            return true;
-        }
-
-        return false;
-    }
-
-    context_menu.init_context_menu([
-        {
-            name: 'New Note',
-            command: async () => {}
-        },
-        {
-            name: 'Highlight',
-            args: highlight_selections
-        },
-        {
-            name: 'Erase',
-            args: erase_selections
-        }
-    ], should_interrupt)
 }
 
 export async function display_chapter(chapter: ChapterIndex, verse_range: VerseRange | null)
@@ -94,6 +39,7 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
     const popup_panel_content = document.getElementById(pages.POPUP_PANEL_CONTENT_ID);
 
     if(content === null || word_popup === null) { return; }
+    content.replaceChildren();
 
     let panel_data: side_popup.PanelData | null = null;
     if(popup_panel && popup_panel_content)
@@ -117,7 +63,7 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
         document.getElementById('search-btn')?.click();
     }
 
-    bible_renderer.render_chapter(chapter, content, word_popup, panel_data, pages.update_word_selection, on_search).then(() => {
+    return bible_renderer.render_chapter(chapter, content, word_popup, panel_data, pages.update_word_selection, on_search).then(() => {
         if(verse_range !== null)
         {
             let start = verse_range.start;

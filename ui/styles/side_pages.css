@@ -113,6 +113,7 @@
 }
 
 .toolbar .reference-dropdown {
+    box-sizing: border-box;
     position: relative;
     padding: 0px;
     height: var(--button-size);
@@ -124,21 +125,23 @@
 }
 
 .toolbar .reference-dropdown .reference-dropdown-title {
-    margin: auto;
-    padding: auto;
-    width: 100%;
+    padding: calc((var(--button-size) - 1em) / 2);
+    padding-right: 10px;
+    margin: 0px;
+    margin-right: calc((var(--button-size) - 1em) / 2);
+    width: auto;
     height: 100%;
     box-sizing: border-box;
-    line-height: 100%;
     overflow: hidden;
-    border: 1px solid cadetblue;
 }
 
 .toolbar .reference-dropdown .reference-dropdown-content {
     margin: 0px;
-    width: calc(100% - 2px);
+    width: 100%;
     display: none;
     position: absolute;
+    top: 0px;
+    right: 0px;
     border-radius: 2px;
     border: 1px solid #333;
     background-color: white;

@@ -5,11 +5,11 @@ import * as confirm_popup from "../popups/confirm_popup.js";
 
 const DELETE_NOTE_BUTTON = 'delete-note-btn'
 
-export async function init_note_page(note_id: string): Promise<void>
+export async function init_note_page(note_id: string, on_text_require_rerender: () => void): Promise<void>
 {
     Promise.all([
         init_resizer(),
-        render_reference_dropdown(),
+        render_reference_dropdown(on_text_require_rerender),
         init_editor_toggle(note_id),
         init_delete_note_button(note_id),
         init_close_editor_btn(),
@@ -133,14 +133,14 @@ function set_md_state(state: MdState, textarea: HTMLTextAreaElement, render_targ
         utils.hide(textarea);
         utils.hide(view_note_image);
         utils.show(render_target);
-        utils.show(edit_note_image)
+        utils.show(edit_note_image);
 
         let html = utils.render_markdown(textarea.value);
         render_target.innerHTML = html;
     }
 }
 
-async function render_reference_dropdown()
+async function render_reference_dropdown(on_text_require_rerender: () => void)
 {
     let dropdown = document.getElementById('reference-dropdown');
     let editing_note = await notes.get_editing_note();
@@ -171,7 +171,14 @@ async function render_reference_dropdown()
                 link.appendElement('div', text_node => {
                     text_node.classList.add('reference-text');
                     text_node.innerHTML = `${title}: ${text}`
+
+                    if(references.length === 1)
+                    {
+                        text_node.style.width = '100%';
+                    }
                 })
+
+                if(references.length === 1) return;
 
                 link.appendElement('button', button => {
                     button.classList.add('image-btn');
@@ -181,7 +188,7 @@ async function render_reference_dropdown()
                     });
 
                     button.addEventListener('click', e => {
-                        delete_reference(index);
+                        delete_reference(index, on_text_require_rerender);
                     });
                 });
             });
@@ -189,7 +196,7 @@ async function render_reference_dropdown()
     });
 }
 
-async function delete_reference(index: number)
+async function delete_reference(index: number, on_text_require_rerender: () => void)
 {
     confirm_popup.show_confirm_popup({
         message: 'Are you sure you want to delete this reference location?',
@@ -200,7 +207,8 @@ async function delete_reference(index: number)
             note.locations.remove_at(index);
         
             notes.update_note(note.id, note.locations, note.text).then(_ => {
-                render_reference_dropdown();
+                on_text_require_rerender();
+                render_reference_dropdown(on_text_require_rerender);
             });
         }
     });

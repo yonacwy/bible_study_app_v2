@@ -6,6 +6,9 @@ import { build_chapter_selection_dropdown } from "../selection.js";
 import { show_error_popup } from "../popups/error_popup.js";
 import * as side_popup from "../popups/side_popup.js";
 import { init_word_popup } from "../popups/word_popup.js";
+import * as context_menu from "../popups/context_menu.js";
+import { ContextMenuCommand } from "../popups/context_menu.js";
+import { HighlightCategory } from "../bindings.js";
 
 export const SEARCH_INPUT_ID: string = "search-input";
 export const SEARCH_BUTTON_ID: string = "search-btn";
@@ -175,4 +178,59 @@ export async function init_chapter_selection_dropdown()
         utils.set_value(SEARCH_INPUT_ID, `${name} ${number}`);
         document.getElementById(SEARCH_BUTTON_ID)?.click();
     });
+}
+
+export async function init_context_menu()
+{
+    let catagories = Object.values(await highlight_utils.get_catagories() as object) as HighlightCategory[];
+    let highlight_selections: ContextMenuCommand[] = catagories.map(v => {
+        let selection: ContextMenuCommand = {
+            name: v.name,
+            command: async () => { 
+                highlight_utils.SELECTED_HIGHLIGHT.set(v.id); 
+                highlight_utils.ERASING_HIGHLIGHT.set(false);
+            }
+        }
+
+        return selection;
+    });
+
+    let erase_selections: ContextMenuCommand[] = catagories.map(v => {
+        let selection: ContextMenuCommand = {
+            name: v.name,
+            command: async () => { 
+                highlight_utils.SELECTED_HIGHLIGHT.set(v.id); 
+                highlight_utils.ERASING_HIGHLIGHT.set(true);
+            }
+        }
+
+        return selection;
+    });
+
+    let should_interrupt = async () => {
+        let highlight = highlight_utils.SELECTED_HIGHLIGHT.get();
+        if(highlight !== null)
+        {
+            highlight_utils.SELECTED_HIGHLIGHT.set(null);
+            highlight_utils.ERASING_HIGHLIGHT.set(false);
+            return true;
+        }
+
+        return false;
+    }
+
+    context_menu.init_context_menu([
+        {
+            name: 'New Note',
+            command: async () => {}
+        },
+        {
+            name: 'Highlight',
+            args: highlight_selections
+        },
+        {
+            name: 'Erase',
+            args: erase_selections
+        }
+    ], should_interrupt)
 }

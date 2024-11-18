@@ -16,6 +16,8 @@ export type UnlistenFn = () => void;
 export type EventCallback = (value: any) => void;
 export const listen_event: (event_name: string, handler: EventCallback) => Promise<UnlistenFn> = (window as any).__TAURI__.event.listen;
 
+export type AsyncableFn = (() => void) | (() => Promise<void>);
+
 export const LEFT_MOUSE_BUTTON = 0;
 export const MIDDLE_MOUSE_BUTTON = 1;
 export const RIGHT_MOUSE_BUTTON = 2;
@@ -38,6 +40,36 @@ export function overlap<T>(a: T[], b: T[]): T[]
 export function reset_scroll()
 {
     window.scrollTo(0, 0);
+}
+
+export function conserve_scroll(update: AsyncableFn, id?: string)
+{
+    let scrollable: Element | Window = window;
+    let scroll = { x: window.scrollX, y: window.scrollY };
+
+    if(id !== undefined)
+    {
+        let e = document.getElementById(id);
+        if(e !== null)
+        {
+            scrollable = e;
+            scroll = { x: e.scrollLeft, y: e.scrollTop }
+        }
+    }
+
+    debug_print(`Scrolling to ${JSON.stringify(scroll)}`);
+    let r = update();
+    if(r instanceof Promise)
+    {
+        r.then(() => {
+            scrollable.scrollTo(scroll.x, scroll.y);
+            debug_print('scrolled');
+        })
+    }
+    else 
+    {
+        scrollable.scrollTo(scroll.x, scroll.y);
+    }
 }
 
 let copy_event_listener: ((e: any) => void) | null = null;

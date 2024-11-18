@@ -18,8 +18,13 @@ export function run()
 
     Promise.all([
         pages.init_header(),
-        init_note_page(data.note),
+        init_note_page(data.note, () => {
+            utils.conserve_scroll(() => {
+                return bible_page.display_chapter(chapter, data.section.verse_range);
+            }, 'left-pane')
+        }),
         bible_page.display_chapter(chapter, data.section.verse_range),
+        pages.init_context_menu(),
     ]).then(_ => {
         document.body.style.visibility = 'visible';
     });

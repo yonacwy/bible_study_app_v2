@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 
-use crate::{app_state::{AppData, ViewState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, WordAnnotations}, search_parsing::*, utils::Color};
+use crate::{app_state::{AppData, ViewState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, NoteData, WordAnnotations}, search_parsing::*, utils::Color};
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn debug_print(message: &str)
@@ -296,9 +296,8 @@ pub fn set_editing_note(note: Option<String>)
 #[tauri::command(rename_all = "snake_case")]
 pub fn update_note(id: String, locations: Vec<ReferenceLocation>, text: String)
 {
-	AppData::get().read_notes(|notebook| {
-		let note = notebook.notes.get_mut(&id).unwrap();
-		note.locations = locations.clone();
-		note.text = text.clone();
+	AppData::get().read_notes(move |notebook| {
+		notebook.remove_note(&id);
+		notebook.add_note(&AppData::get().bible, id.clone(), text.clone(), locations.clone());
 	})
 }
