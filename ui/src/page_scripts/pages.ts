@@ -9,6 +9,7 @@ import { init_word_popup } from "../popups/word_popup.js";
 import * as context_menu from "../popups/context_menu.js";
 import { ContextMenuCommand } from "../popups/context_menu.js";
 import { HighlightCategory } from "../bindings.js";
+import * as word_select from "../word_select.js";
 
 export const SEARCH_INPUT_ID: string = "search-input";
 export const SEARCH_BUTTON_ID: string = "search-btn";
@@ -84,28 +85,10 @@ export function update_nav_buttons_opacity()
     });
 }
 
-export function update_word_selection()
-{
-    if(highlight_utils.SELECTED_HIGHLIGHT.get() !== null)
-    {
-        document.querySelectorAll('.bible-word, .bible-space').forEach(w => {
-            (w as HTMLElement).style.userSelect = 'none';
-            (w as HTMLElement).style.cursor = 'pointer';
-        });
-    }
-    else 
-    {
-        document.querySelectorAll('.bible-word, .bible-space').forEach(w => {
-            (w as HTMLElement).style.userSelect = 'text';
-            (w as HTMLElement).style.cursor = 'default';
-        });
-    }
-}
-
 const DEFAULT_BUTTON_COLOR: string = document.getElementById(HIGHLIGHT_SELECTOR_ID)?.style.backgroundColor ?? "white";
 export function on_highlight_changed(id: string | null)
 {
-    update_word_selection();
+    word_select.update_words_for_selection();
     highlight_utils.get_catagories().then(catagories => {
         let color = DEFAULT_BUTTON_COLOR;
         let opacity = 0.3;
@@ -222,7 +205,7 @@ export async function init_context_menu()
     context_menu.init_context_menu([
         {
             name: 'New Note',
-            command: async () => {}
+            command: async () => { word_select.begin_making_note() }
         },
         {
             name: 'Highlight',

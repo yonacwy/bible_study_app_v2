@@ -140,6 +140,20 @@ export function shorten_book_name(name: string): string
     return prefix + capitalize_first_char(name);
 }
 
+export function expand_word_index(chapter: ChapterView, word_index: number): [number, number]
+{
+    let verse = 0;
+    let word = word_index;
+
+    while(word - chapter.verses[verse] > 0)
+    {
+        word -= chapter.verses[verse];
+        verse++;
+    }
+
+    return [verse, word];
+}
+
 export function flatten_verse_index(chapter: ChapterView, verse: number, word: number): number 
 {
     let index = 0;

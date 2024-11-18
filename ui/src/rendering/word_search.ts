@@ -3,6 +3,7 @@ import * as bible from "../bible.js";
 import { push_search } from "../view_states.js";
 import { VersePosition } from "../bindings.js";
 import * as verse_renderer from "./verse_rendering.js";
+import * as word_select from "../word_select.js";
 
 const MAX_DISPLAY = 50;
 let was_initialized = false;
@@ -19,9 +20,10 @@ export async function render_search_result(result: any[], searched: string[], re
     {
         was_initialized = true;
         let on_require_rerender = () => render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_rendered, on_search);
-        verse_renderer.init_highlighting(side_popup, on_require_rerender);
+        word_select.init_word_selection(side_popup, on_require_rerender);
     }
 
+    word_select.clear_selection_ranges();
     const results_node = document.getElementById(results_id);
     if(results_node === null) return;
     results_node.style.pointerEvents = 'none';
@@ -36,9 +38,13 @@ export async function render_search_result(result: any[], searched: string[], re
 
     for(let i = start; i < end; i++)
     {
-        let result_data = result[i];
+        let result_data = result[i] as VersePosition;
 
         let verse_node = await spawn_verse(result_data, searched, word_popup,  side_popup, side_popup_content, on_search);
+
+        let word_offset = await bible.get_verse_word_offset(result_data.book, result_data.chapter, result_data.verse);
+        word_select.push_selection_range(verse_node, {book: result_data.book, number: result_data.chapter}, word_offset)
+
         let reference_node = await spawn_reference(result_data.book, result_data.chapter, result_data.verse, on_search);
 
         let result_node = document.createElement('div');
@@ -145,7 +151,7 @@ async function spawn_verse(position: VersePosition, searched: string[], word_pop
     return verse_node;
 }
 
-async function spawn_reference(book: string, chapter: number, verse: number, on_search: (text: string) => void)
+async function spawn_reference(book: number, chapter: number, verse: number, on_search: (text: string) => void)
 {
     let book_title = await utils.invoke('get_book_name', { book: book });
     let verse_reference_text = `${book_title} ${chapter + 1}:${verse + 1}`;

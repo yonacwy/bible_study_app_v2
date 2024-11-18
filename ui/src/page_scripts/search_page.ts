@@ -2,6 +2,7 @@ import * as utils from "../utils/index.js";
 import * as pages from "./pages.js";
 import { SearchSection } from "../bindings.js";
 import * as search from "../rendering/word_search.js";
+import * as word_select from "../word_select.js";
 
 export function run()
 {
@@ -32,7 +33,7 @@ async function display_search(section: SearchSection): Promise<void>
     search.render_search_result(search_result, section.words, 'word-search-content', word_popup, side_popup, side_popup_content, section.display_index, 
         () => {
             pages.update_nav_buttons_opacity();
-            pages.update_word_selection();
+            word_select.update_words_for_selection;
         }, 
         (msg: string) => {
             utils.set_value('search-input', msg);

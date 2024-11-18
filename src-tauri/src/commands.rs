@@ -252,11 +252,12 @@ pub fn run_word_search(words: Vec<String>) -> Vec<WordSearchResult>
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn add_note(text: String, locations: Vec<ReferenceLocation>)
+pub fn add_note(text: String, locations: Vec<ReferenceLocation>) -> String
 {
 	AppData::get().read_notes(move |notebook| {
 		let id = uuid::Uuid::new_v4().to_string();
-		notebook.add_note(&AppData::get().bible, id, text.to_owned(), locations.to_owned());
+		notebook.add_note(&AppData::get().bible, id.clone(), text.to_owned(), locations.to_owned());
+		id
 	})
 }
 

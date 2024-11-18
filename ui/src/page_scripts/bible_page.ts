@@ -8,6 +8,7 @@ import * as side_popup from "../popups/side_popup.js";
 import * as context_menu from "../popups/context_menu.js";
 import * as highlights from "../highlights.js";
 import { ContextMenuCommand } from "../popups/context_menu.js";
+import * as word_select from "../word_select.js";
 
 const CONTENT_ID: string = "chapter-text-content";
 const CHAPTER_NAME_ID: string = "chapter-name"
@@ -63,7 +64,7 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
         document.getElementById('search-btn')?.click();
     }
 
-    return bible_renderer.render_chapter(chapter, content, word_popup, panel_data, pages.update_word_selection, on_search).then(() => {
+    return bible_renderer.render_chapter(chapter, content, word_popup, panel_data, word_select.update_words_for_selection, on_search).then(() => {
         if(verse_range !== null)
         {
             let start = verse_range.start;
@@ -75,7 +76,7 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
             }
         }
 
-        pages.update_word_selection();
+        word_select.update_words_for_selection();
     });
 }
 

@@ -8,14 +8,6 @@ import * as sp from "../popups/side_popup.js";
 
 const HIGHLIGHT_CATAGORIES = await highlighting.get_catagories();
 
-/**
- * Note: this function must be called only once on page reload
- */
-export function init_highlighting(side_popup: HTMLElement | null, on_require_rerender: () => Promise<void>): void
-{
-    document.addEventListener('mouseup', _e => on_stop_dragging(side_popup, on_require_rerender));
-}
-
 export type VerseRenderArgs = {
     chapter: ChapterIndex,
     verse: number,
@@ -104,67 +96,8 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
             }
         }
 
-        word_node.addEventListener('mousedown', e => {
-            if(e.button !== utils.LEFT_MOUSE_BUTTON) return;
-            on_start_dragging(args.chapter, offset + i, word_node);
-        });
-
-        word_node.addEventListener('mouseover', e => {
-            if(e.button !== utils.LEFT_MOUSE_BUTTON) return;
-            on_over_dragging(args.chapter, offset + i, word_node);
-        });
-
         elements.push(word_node);
     }
 
     return elements;
-}
-
-let is_dragging = false;
-function on_start_dragging(chapter: ChapterIndex, word_index: number, word_div: HTMLElement) 
-{
-    if(highlighting.SELECTED_HIGHLIGHT.get() !== null)
-    {
-        is_dragging = true;
-        update_word(chapter, word_index, word_div);
-    }
-}
-
-function on_over_dragging(chapter: ChapterIndex, word_index: number, word_div: HTMLElement) 
-{
-    if(is_dragging && highlighting.SELECTED_HIGHLIGHT.get() !== null)
-    {
-        update_word(chapter, word_index, word_div);
-    }
-}
-
-function on_stop_dragging(word_popup: HTMLElement | null, on_require_rerender: () => Promise<void>) 
-{
-    if(is_dragging && highlighting.SELECTED_HIGHLIGHT.get() !== null)
-    {
-        is_dragging = false;
-        word_popup?.classList.remove('show');
-
-        let scroll = window.scrollY;
-
-        on_require_rerender().then(() => {
-            window.scrollTo(window.scrollX, scroll);
-        });
-    }
-}
-
-function update_word(chapter: ChapterIndex, word: number, div: HTMLElement)
-{
-    div.style.color = rendering.HIGHLIGHT_SELECTED_WORD_COLOR;
-    let selected_highlight = highlighting.SELECTED_HIGHLIGHT.get();
-
-    if(selected_highlight === null) return;
-    if(highlighting.ERASING_HIGHLIGHT.get() !== true)
-    {
-        highlighting.highlight_word(chapter, word, selected_highlight);
-    }
-    else 
-    {
-        highlighting.erase_highlight(chapter, word, selected_highlight);
-    }
 }

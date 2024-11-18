@@ -3,6 +3,7 @@ import { ChapterIndex, Color } from "../bindings.js";
 import * as verse_renderer from "./verse_rendering.js";
 import * as utils from "../utils/index.js";
 import { PanelData } from "../popups/side_popup.js";
+import * as word_select from "../word_select.js";
 
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 let was_initialized = false;
@@ -15,10 +16,10 @@ export async function render_chapter(chapter: ChapterIndex, content: HTMLElement
     {
         was_initialized = true;
         let on_require_rerender = () => render_chapter(chapter, content, word_popup, panel_data, on_render, on_search);
-        verse_renderer.init_highlighting(panel_data?.popup_panel ?? null, on_require_rerender);
+        word_select.init_word_selection(panel_data?.popup_panel ?? null, on_require_rerender);
     }
 
-    
+    word_select.clear_selection_ranges();
     let chapter_ol = document.createElement('ol');
     let view = await bible.get_chapter_view(chapter);
 
@@ -42,6 +43,9 @@ export async function render_chapter(chapter: ChapterIndex, content: HTMLElement
 
     content.replaceChildren(chapter_ol);
     content.style.pointerEvents = 'auto';
+
+    word_select.push_selection_range(content, chapter, 0);
+    word_select.update_words_for_selection();
 
     if(on_render !== null)
     {
