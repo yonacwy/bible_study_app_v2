@@ -46,7 +46,7 @@ export async function get_note_references(note_data: NoteData): Promise<[string,
         let title = `${name} ${location.chapter.number + 1}:${location.range.verse_start + 1}`;
         if(location.range.verse_start !== location.range.verse_end)
         {
-            title += `-${location.range.verse_end}`;
+            title += `-${location.range.verse_end + 1}`;
         }
 
         references.push([title, text]);

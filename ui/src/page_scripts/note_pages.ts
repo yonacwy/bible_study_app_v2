@@ -9,6 +9,7 @@ export async function init_note_page(note_id: string): Promise<void>
 {
     Promise.all([
         init_resizer(),
+        render_reference_dropdown(),
         init_editor_toggle(note_id),
         init_delete_note_button(note_id),
         init_close_editor_btn(),
@@ -138,6 +139,73 @@ function set_md_state(state: MdState, textarea: HTMLTextAreaElement, render_targ
         render_target.innerHTML = html;
     }
 }
+
+async function render_reference_dropdown()
+{
+    let dropdown = document.getElementById('reference-dropdown');
+    let editing_note = await notes.get_editing_note();
+    if(!dropdown || editing_note === null) return;
+
+    let references = await notes.get_note_references(await notes.get_note(editing_note));
+
+    dropdown.replaceChildren();
+    dropdown.appendElement('div', title => {
+        title.classList.add('reference-dropdown-title');
+        title.innerHTML = `${references[0][0]}: ${references[0][1]}`
+    })
+    dropdown.appendElement('div', content => {
+        content.classList.add('reference-dropdown-content');
+
+        content.appendElement('div', new_reference_button => {
+            new_reference_button.classList.add('new-reference-btn');
+            new_reference_button.appendElement('img', img => {
+                img.src = '../images/light-plus.svg';
+                img.alt = 'plus';
+            });
+        });
+
+        references.forEach(([title, text], index) => {
+            content.appendElement('div', link => {
+                link.classList.add('reference-link');
+
+                link.appendElement('div', text_node => {
+                    text_node.classList.add('reference-text');
+                    text_node.innerHTML = `${title}: ${text}`
+                })
+
+                link.appendElement('button', button => {
+                    button.classList.add('image-btn');
+                    button.appendElement('img', img => {
+                        img.src = '../images/light-trash-can.svg';
+                        img.alt = 'trash';
+                    });
+
+                    button.addEventListener('click', e => {
+                        delete_reference(index);
+                    });
+                });
+            });
+        });
+    });
+}
+
+async function delete_reference(index: number)
+{
+    confirm_popup.show_confirm_popup({
+        message: 'Are you sure you want to delete this reference location?',
+        on_confirm: async () => {
+            let editing_id = await notes.get_editing_note();
+            if(editing_id === null) return;
+            let note = await notes.get_note(editing_id);
+            note.locations.remove_at(index);
+        
+            notes.update_note(note.id, note.locations, note.text).then(_ => {
+                render_reference_dropdown();
+            });
+        }
+    });
+}
+
 
 enum PaneSideType 
 {
