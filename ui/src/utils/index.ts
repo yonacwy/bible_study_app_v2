@@ -57,13 +57,11 @@ export function conserve_scroll(update: AsyncableFn, id?: string)
         }
     }
 
-    debug_print(`Scrolling to ${JSON.stringify(scroll)}`);
     let r = update();
     if(r instanceof Promise)
     {
         r.then(() => {
             scrollable.scrollTo(scroll.x, scroll.y);
-            debug_print('scrolled');
         })
     }
     else 

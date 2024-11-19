@@ -4,6 +4,7 @@ import { push_search } from "../view_states.js";
 import { VersePosition } from "../bindings.js";
 import * as verse_renderer from "./verse_rendering.js";
 import * as word_select from "../word_select.js";
+import { PanelData } from "../popups/side_popup.js";
 
 const MAX_DISPLAY = 50;
 let was_initialized = false;
@@ -14,13 +15,13 @@ let was_initialized = false;
  * @param on_rendered -- Will be called when the display index changes
  * @param on_search -- Called when a search for a verse is called
  */
-export async function render_search_result(result: any[], searched: string[], results_id: string, word_popup: HTMLElement, side_popup: HTMLElement, side_popup_content: HTMLElement, display_index: number, on_rendered: () => void, on_search: (msg: string) => void): Promise<void>
+export async function render_search_result(result: any[], searched: string[], results_id: string, word_popup: HTMLElement, side_popup_data: PanelData | null, display_index: number, on_rendered: () => void, on_search: (msg: string) => void): Promise<void>
 {
     if(!was_initialized)
     {
         was_initialized = true;
-        let on_require_rerender = () => render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, display_index, on_rendered, on_search);
-        word_select.init_word_selection(side_popup, on_require_rerender);
+        let on_require_rerender = () => render_search_result(result, searched, results_id, word_popup, side_popup_data, display_index, on_rendered, on_search);
+        word_select.init_word_selection(side_popup_data?.popup_panel ?? null, on_require_rerender);
     }
 
     word_select.clear_selection_ranges();
@@ -40,7 +41,7 @@ export async function render_search_result(result: any[], searched: string[], re
     {
         let result_data = result[i] as VersePosition;
 
-        let verse_node = await spawn_verse(result_data, searched, word_popup,  side_popup, side_popup_content, on_search);
+        let verse_node = await spawn_verse(result_data, searched, word_popup,  side_popup_data, on_search);
 
         let word_offset = await bible.get_verse_word_offset(result_data.book, result_data.chapter, result_data.verse);
         word_select.push_selection_range(verse_node, {book: result_data.book, number: result_data.chapter}, word_offset)
@@ -54,7 +55,7 @@ export async function render_search_result(result: any[], searched: string[], re
         new_children.push(result_node);
     }
 
-    let render_section = (i: number) => render_search_result(result, searched, results_id, word_popup, side_popup, side_popup_content, i, on_rendered, on_search);
+    let render_section = (i: number) => render_search_result(result, searched, results_id, word_popup, side_popup_data, i, on_rendered, on_search);
     let buttons = await generate_section_buttons(result, render_section, display_index, searched);
     if(buttons !== null)
     {
@@ -68,9 +69,9 @@ export async function render_search_result(result: any[], searched: string[], re
 
 function append_search_header(result_count: number, new_children: HTMLElement[], searched: string[]) 
 {
+    let results_title = document.createElement('h2');
     if (result_count === 0) 
     {
-        let results_title = document.createElement('h2');
         results_title.innerHTML = `No results found`;
         new_children.push(results_title);
     }
@@ -130,7 +131,7 @@ async function generate_section_buttons(search_results: any[], render_section: (
     return parent;
 }
 
-async function spawn_verse(position: VersePosition, searched: string[], word_popup: HTMLElement, side_popup: HTMLElement, side_popup_content: HTMLElement, on_search: (msg: string) => void)
+async function spawn_verse(position: VersePosition, searched: string[], word_popup: HTMLElement, side_popup_data: PanelData | null, on_search: (msg: string) => void)
 {
     searched = searched.map(s => s.toLocaleLowerCase());
     let verse_node = document.createElement('p');
@@ -139,10 +140,7 @@ async function spawn_verse(position: VersePosition, searched: string[], word_pop
         chapter: { book: position.book, number: position.chapter},
         verse: position.verse,
         word_popup: word_popup,
-        side_popup_data: {
-            popup_panel: side_popup,
-            popup_panel_content: side_popup_content
-        },
+        side_popup_data: side_popup_data,
         bolded: searched,
         on_search: on_search
     });

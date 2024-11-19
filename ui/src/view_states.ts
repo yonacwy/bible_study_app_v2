@@ -2,6 +2,7 @@ import { BibleSection, SearchSection } from "./bindings.js";
 import * as utils from "./utils/index.js";
 import * as notes from "./notes.js";
 import { BibleNotePageData } from "./page_scripts/bible_note_page.js";
+import { SearchNotePageData } from "./page_scripts/search_note_page.js";
 
 export async function is_last_view_state(): Promise<boolean>
 {
@@ -84,8 +85,21 @@ export async function goto_current_view_state()
             display_index: current.display_index
         };
 
-        let url = utils.encode_to_url(base_path + 'search_page.html', data);
-        window.location.href = url;
+        if(editing_note)
+        {
+            let note_page_data: SearchNotePageData = {
+                section: data,
+                note: editing_note
+            };
+
+            let url = utils.encode_to_url(base_path + 'search_note_page.html', note_page_data);
+            window.location.href = url;
+        }
+        else 
+        {
+            let url = utils.encode_to_url(base_path + 'search_page.html', data);
+            window.location.href = url;
+        }
     }
 }
 
