@@ -24,6 +24,7 @@ export function run()
             }, 'left-pane')
         }),
         bible_page.display_chapter(chapter, data.section.verse_range),
+        bible_page.init_chapter_buttons(),
         
         pages.init_context_menu(),
     ]).then(_ => {
