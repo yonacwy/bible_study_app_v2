@@ -11,8 +11,8 @@
     - [x] Basic information on what its about
     - [x] Name
     - [x] Priority
-  - [x] Can create new catagories
-  - [x] Can remove old catagories
+  - [x] Can create new categories
+  - [x] Can remove old categories
     - [x] Will have a warning message if any are in use
 - [x] Highlighting Scripture
   - [x] Highlight Selection
@@ -67,13 +67,32 @@
 - [x] Allow copy paste text
 
 ### Version 0.4.0: Proper Note Taking
-- [ ] Verse notes
-  - [ ] Cross references
-  - [ ] Editor
-  - [ ] Links to other sections in scripture
-- [ ] Favorite verses
-- [ ] Section headings
-- [ ] Viewer overhaul
-  - [ ] Make viewer look nicer
-  - [ ] Allow for quick edits
-  - [ ] Viewer for word and verses
+- [x] Verse notes
+  - [x] Cross references
+  - [x] Editor
+  - [x] Links to other sections in scripture
+- [ ] ~~Favorite verses~~
+- [ ] ~~Section headings~~
+- [x] Viewer overhaul
+  - [x] Make viewer look nicer
+  - [x] Allow for quick edits
+  - [x] Viewer for word and verses
+
+### Version 0.4.1: Visualization Overall
+- [ ] Implementing SCSS
+- [ ] Settings
+  - [ ] Different Font Support
+  - [ ] Theme Support?
+    - [ ] Light
+    - [ ] Dark
+  - [ ] Text Size
+- [ ] Min Window Size
+- [ ] Updater
+- [ ] CSS updates
+   [ ] Fix positioning issue when the window gets small
+
+### Version 0.5.0 - Multiple Bible Support
+- [ ] Multiple Bible Support
+
+### Version 0.6.0
+- [ ] Notebook Support
