@@ -64,6 +64,37 @@ export function begin_making_note()
     update_words_for_selection();
 }
 
+let on_edit_fn: (() => void) | null = null;
+let editing_note = false;
+export function begin_editing_note(on_edit: (() => void) | null)
+{
+    editing_note = true;
+    on_edit_fn = on_edit;
+    update_words_for_selection();
+}
+
+export function is_selecting(): boolean
+{
+    return editing_note || making_note || highlighting.SELECTED_HIGHLIGHT.get() !== null;
+}
+
+export function stop_selecting()
+{
+    begin = null;
+    end = null;
+    making_note = false;
+    editing_note = false;
+
+    if(highlighting.SELECTED_HIGHLIGHT.get() !== null)
+    {
+        highlighting.SELECTED_HIGHLIGHT.set(null);
+        highlighting.ERASING_HIGHLIGHT.set(false);
+    }
+
+    update_words_for_selection();
+    on_edit_fn = null;
+}
+
 let is_dragging = false;
 let begin: WordData | null = null;
 let end: WordData | null = null;
@@ -82,6 +113,13 @@ function on_start_dragging(chapter: ChapterIndex, word_index: number, word_div: 
         end = { html: word_div, word_index: word_index, chapter: chapter };
         update_selected_note_words();
     }
+    else if(editing_note)
+    {
+        is_dragging = true;
+        begin = { html: word_div, word_index: word_index, chapter: chapter };
+        end = { html: word_div, word_index: word_index, chapter: chapter };
+        update_selected_note_words();
+    }
 }
 
 function on_over_dragging(chapter: ChapterIndex, word_index: number, word_div: HTMLElement) 
@@ -90,7 +128,7 @@ function on_over_dragging(chapter: ChapterIndex, word_index: number, word_div: H
     {
         update_highlight_words(chapter, word_index, word_div);
     }
-    else if(is_dragging && making_note && begin !== null)
+    else if(is_dragging && (making_note || editing_note) && begin !== null)
     {
         let parent = ranges.find(r => r.words.includes(word_div))?.parent
         let begin_parent = ranges.find(r => {
@@ -119,7 +157,7 @@ async function on_stop_dragging(word_popup: HTMLElement | null, on_require_reren
             window.scrollTo(window.scrollX, scroll);
         });
     }
-    else if(is_dragging && making_note && begin && end)
+    else if(is_dragging && (making_note || editing_note) && begin && end)
     {
         update_words_for_selection();
         is_dragging = false;
@@ -149,21 +187,41 @@ async function on_stop_dragging(word_popup: HTMLElement | null, on_require_reren
             word_end: word_end,
         };
 
-        notes.create_note({
-            chapter: begin.chapter,
-            range: verse_range,
-        }).then(r => {
-            if (r !== null) // if created a new note, set it as the currently editing note
+        if(making_note)
+        {
+            notes.create_note({
+                chapter: begin.chapter,
+                range: verse_range,
+            }).then(r => {
+                if (r !== null) // if created a new note, set it as the currently editing note
+                {
+                    notes.set_editing_note(r).then(_ => {
+                        view_states.goto_current_view_state();
+                    });
+                }
+            });
+        }
+        else if(editing_note)
+        {
+            let editing_id = await notes.get_editing_note();
+            if(editing_id !== null)
             {
-                notes.set_editing_note(r).then(_ => {
-                    view_states.goto_current_view_state();
+                let editing_note = await notes.get_note(editing_id);
+                editing_note.locations.push({
+                    chapter: begin.chapter,
+                    range: verse_range,
                 });
-            }
-        });
 
-        begin = null;
-        end = null;
-        making_note = false;
+                await notes.update_note(editing_note.id, editing_note.locations, editing_note.text);
+            }
+
+            if(on_edit_fn !== null)
+            {
+                on_edit_fn();
+            }
+        }
+
+        stop_selecting();
 
         on_require_rerender().then(() => {
             window.scrollTo(window.scrollX, scroll);
@@ -215,7 +273,7 @@ function update_highlight_words(chapter: ChapterIndex, word: number, div: HTMLEl
 
 export function update_words_for_selection()
 {
-    if(making_note || highlighting.SELECTED_HIGHLIGHT.get() !== null)
+    if(making_note || editing_note || highlighting.SELECTED_HIGHLIGHT.get() !== null)
     {
         document.querySelectorAll('.bible-word, .bible-space').forEach(w => {
             (w as HTMLElement).style.userSelect = 'none';

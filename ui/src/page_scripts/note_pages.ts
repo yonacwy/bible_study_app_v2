@@ -2,6 +2,7 @@ import * as utils from "../utils/index.js";
 import * as notes from "../notes.js";
 import * as view_states from "../view_states.js";
 import * as confirm_popup from "../popups/confirm_popup.js";
+import * as word_select from "../word_select.js";
 
 const DELETE_NOTE_BUTTON = 'delete-note-btn'
 
@@ -162,6 +163,12 @@ async function render_reference_dropdown(on_text_require_rerender: () => void)
                 img.src = '../images/light-plus.svg';
                 img.alt = 'plus';
             });
+
+            new_reference_button.addEventListener('click', e => {
+                word_select.begin_editing_note(() => {
+                    render_reference_dropdown(on_text_require_rerender);
+                });
+            })
         });
 
         references.forEach(([title, text], index) => {

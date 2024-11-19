@@ -191,11 +191,9 @@ export async function init_context_menu()
     });
 
     let should_interrupt = async () => {
-        let highlight = highlight_utils.SELECTED_HIGHLIGHT.get();
-        if(highlight !== null)
+        if(word_select.is_selecting())
         {
-            highlight_utils.SELECTED_HIGHLIGHT.set(null);
-            highlight_utils.ERASING_HIGHLIGHT.set(false);
+            word_select.stop_selecting();
             return true;
         }
 
