@@ -81,7 +81,6 @@ function on_start_dragging(chapter: ChapterIndex, word_index: number, word_div: 
         begin = { html: word_div, word_index: word_index, chapter: chapter };
         end = { html: word_div, word_index: word_index, chapter: chapter };
         update_selected_note_words();
-        utils.debug_print(word_index.toString());
     }
 }
 
@@ -149,8 +148,6 @@ async function on_stop_dragging(word_popup: HTMLElement | null, on_require_reren
             word_start: word_start,
             word_end: word_end,
         };
-
-        utils.debug_json(verse_range);
 
         notes.create_note({
             chapter: begin.chapter,
