@@ -1,55 +1,132 @@
-<ol>
-    <li>
-      <div class="custom-content"></div>
-      <span class="list-number"></span>
-      <span class="list-text">Item 1</span>
-    </li>
-    <li>
-      <div class="custom-content"></div>
-      <span class="list-number"></span>
-      <span class="list-text">Item 2</span>
-    </li>
-    <li>
-      <div class="custom-content"></div>
-      <span class="list-number"></span>
-      <span class="list-text">Item 3</span>
-    </li>
-  </ol>
-  
-  <style>
-    /* Hide default list numbers */
-    ol {
-      counter-reset: list-counter;
-      padding-left: 0;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Right-Click Context Menu</title>
+<style>
+  /* Base styling for the menu */
+  .context-menu {
+    position: absolute;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 8px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    display: none;
+    z-index: 1000;
+  }
+
+  .context-menu-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  .context-menu-item:hover {
+    background-color: #ddd;
+  }
+
+  /* Styling for submenu */
+  .context-menu-submenu {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 8px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    display: none;
+  }
+
+  .context-menu-item.has-submenu::after {
+    content: "▶";
+    float: right;
+  }
+
+  .context-menu-item.has-submenu:hover .context-menu-submenu {
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<!-- Context menu structure -->
+<div id="contextMenu" class="context-menu">
+  <div class="context-menu-item" onclick="alert('Action 1')">Action 1</div>
+  <div class="context-menu-item has-submenu">
+    More Options
+    <div class="context-menu-submenu">
+      <div class="context-menu-item" onclick="alert('Sub Action 1')">Sub Action 1</div>
+      <div class="context-menu-item" onclick="alert('Sub Action 2')">Sub Action 2</div>
+      <div class="context-menu-item has-submenu">
+        Deep Options
+        <div class="context-menu-submenu">
+          <div class="context-menu-item" onclick="alert('Deep Action 1')">Deep Action 1</div>
+          <div class="context-menu-item" onclick="alert('Deep Action 2')">Deep Action 2</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="context-menu-item" onclick="alert('Action 3')">Action 3</div>
+</div>
+
+<script>
+  const contextMenu = document.getElementById('contextMenu');
+
+  // Utility function to show the menu at a given position
+  function showMenu(menu, x, y) {
+    menu.style.left = `${x}px`;
+    menu.style.top = `${y}px`;
+    menu.style.display = 'block';
+
+    const rect = menu.getBoundingClientRect();
+
+    // Adjust position if the menu goes outside the viewport
+    if (rect.right > window.innerWidth) {
+      menu.style.left = `${x - rect.width}px`;
     }
-  
-    /* Use flexbox to align the div, number, and text */
-    li {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-      list-style-type: none; /* Remove default numbering */
+    if (rect.bottom > window.innerHeight) {
+      menu.style.top = `${y - rect.height}px`;
     }
-  
-    /* The square or image goes in this div */
-    .custom-content {
-      width: 20px;
-      height: 20px;
-      background-color: black; /* Example square */
-      margin-right: 10px; /* Space between the square and the number */
-    }
-  
-    /* Add custom number */
-    .list-number::before {
-      counter-increment: list-counter;
-      content: counter(list-counter) '. '; /* Add list number */
-      font-weight: bold;
-      margin-right: 10px; /* Space between number and text */
-    }
-  
-    /* Optional styling for the list text */
-    .list-text {
-      display: inline-block;
-    }
-  </style>
-  
+  }
+
+  // Utility function to handle submenu positioning
+  function positionSubmenu(menu) {
+    const submenus = menu.querySelectorAll('.context-menu-submenu');
+    submenus.forEach(submenu => {
+      const parentRect = submenu.parentElement.getBoundingClientRect();
+      submenu.style.top = '0'; // Align submenu to parent item
+
+      const submenuRect = submenu.getBoundingClientRect();
+      if (parentRect.right + submenuRect.width > window.innerWidth) {
+        submenu.style.left = `-${submenuRect.width}px`; // Position submenu to the left
+      } else {
+        submenu.style.left = '100%'; // Default to right
+      }
+      if (parentRect.top + submenuRect.height > window.innerHeight) {
+        submenu.style.top = `-${submenuRect.height - parentRect.height}px`; // Adjust if it goes off bottom
+      }
+    });
+  }
+
+  // Event listener to show context menu
+  document.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+    showMenu(contextMenu, e.clientX, e.clientY);
+    positionSubmenu(contextMenu); // Adjust position of submenus
+  });
+
+  // Hide menu on clicking elsewhere
+  document.addEventListener('click', () => {
+    contextMenu.style.display = 'none';
+  });
+
+  // Hide menu on window resize
+  window.addEventListener('resize', () => {
+    contextMenu.style.display = 'none';
+  });
+</script>
+
+</body>
+</html>

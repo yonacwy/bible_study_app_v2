@@ -8,14 +8,6 @@
     background-color: rgb(229, 229, 229);
 }
 
-.bible-word {
-    display: inline-block;
-}
-
-.bible-space {
-    display: inline-block
-}
-
 .selected {
     color: blueviolet;
 }

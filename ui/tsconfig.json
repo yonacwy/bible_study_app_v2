@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "outDir": "../ui/dist",  // Output directory for compiled JavaScript files
+    "rootDir": "../ui/src",  // Directory for TypeScript source files
+    "jsx": "preserve"
+  },
+  "include": ["./src/**/*.ts"],
+  "exclude": [
+    "node_modules"
+  ]
+}

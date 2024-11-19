@@ -11,7 +11,7 @@
     border-radius: 8px;
     padding: 10px;
     margin: 10px 0;
-    background-color: #f9f9f9;
+    background-color: white;
 }
 
 .color-bar {
@@ -39,7 +39,47 @@
     font-weight: bold;
 }
 
-.same-line
-{
+.same-line {
     flex-direction: row;
+}
+
+.edit-highlight-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.edit-highlight-popup .popup-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    min-width: 500px;
+    max-height: 70%;
+    overflow: auto;
+}
+
+.edit-highlight-popup button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.edit-highlight-popup button.no {
+    background-color: #d9534f;
+    color: white;
+}
+
+.edit-highlight-popup button.yes {
+    background-color: #5bc0de;
+    color: white;
 }

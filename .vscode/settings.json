@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "Asyncable",
         "blueviolet",
         "Coloris",
         "colorjoe",
@@ -11,6 +12,7 @@
         "resizer",
         "searchbar",
         "Strikthrough",
-        "tauri"
-    ]
+        "tauri",
+        "Unlisten"
+    ],
 }

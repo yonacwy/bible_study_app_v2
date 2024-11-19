@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Color
 {
     pub r: u8,
