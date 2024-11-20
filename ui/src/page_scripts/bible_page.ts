@@ -23,7 +23,7 @@ export async function run()
 
     Promise.all([
         pages.init_header(),
-        pages.init_context_menu(),
+        pages.init_context_menu('chapter-content'),
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range),
         

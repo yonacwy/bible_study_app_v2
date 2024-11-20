@@ -6,7 +6,7 @@
 ### Version 0.5.0
 - [ ] Notebook Support
 
-### Version 0.4.1: Visualization Overall
+### Version 0.4.2: Visualization Overall
 - [ ] Implementing SCSS
 - [ ] Settings
   - [ ] Different Font Support
@@ -22,6 +22,14 @@
   - [ ] Fix positioning issue when the window gets small
 - [ ] More tooltips
 - [ ] ON BUILD: change file from short_kjv.txt to kjv.txt
+
+### Version 0.4.1: Various Bugfixes
+- [x] Note reference location view fix
+- [x] Context menu interfering with spellchecker
+- [x] Context menu positioning issue
+- [x] Empty note looks weird
+- [x] Delete note button in weird location
+- [x] Toolbar for the editor not collapsing properly
 
 ### Version 0.4.0: Proper Note Taking
 - [x] Verse notes

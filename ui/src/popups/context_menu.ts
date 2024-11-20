@@ -23,12 +23,15 @@ export function is_context_menu_active(): boolean
     return false;
 }
 
-export function init_context_menu(args: ContextMenuArg[], should_interrupt: () => Promise<boolean>)
+export function init_context_menu(target_id: string, args: ContextMenuArg[], should_interrupt: () => Promise<boolean>)
 {
+    let target = document.getElementById(target_id);
+    if(!target) return;
+
     let menu = document.getElementById('context-menu') as HTMLElement | null;
     if(menu === null) return;
     build_menu(menu, args, true);
-    document.addEventListener('contextmenu', async e => {
+    target.addEventListener('contextmenu', async e => {
         e.preventDefault();
         let interrupt = await should_interrupt();
         if(!interrupt)
@@ -37,7 +40,7 @@ export function init_context_menu(args: ContextMenuArg[], should_interrupt: () =
         }
     });
 
-    document.addEventListener('click', e => {
+    target.addEventListener('click', e => {
         hide_popup(menu);
     });
 }
@@ -59,22 +62,22 @@ function show_popup(menu: HTMLElement, event: MouseEvent)
 
     let menu_rect = menu.getBoundingClientRect();
 
-    if(event.pageX + menu_rect.width + SIZE_PADDING > window_size.width)
+    if(event.clientX + menu_rect.width + SIZE_PADDING > window_size.width)
     {
         menu.style.left = (window_size.width - menu_rect.width - SIZE_PADDING) + 'px';
     }
     else 
     {
-        menu.style.left = event.pageX + 'px';
+        menu.style.left = event.clientX + 'px';
     }
 
-    if(event.pageY + menu_rect.height + SIZE_PADDING > window_size.height)
+    if(event.clientY + menu_rect.height + SIZE_PADDING > window_size.height)
     {
         menu.style.top = (window_size.height - menu_rect.height - SIZE_PADDING) + 'px'
     }
     else 
     {
-        menu.style.top = event.pageY + 'px';
+        menu.style.top = event.clientY + 'px';
     }
 
     move_sub_menus(menu);

@@ -19,7 +19,7 @@ export function run()
                 return search_page.display_search(data.section);
             }, 'left-pane')
         }),
-        pages.init_context_menu(),
+        pages.init_context_menu('left-pane'),
     ]).then(() => {
         document.body.style.visibility = 'visible';
     })
