@@ -117,8 +117,9 @@
     position: relative;
     padding: 0px;
     height: var(--button-size);
-    max-width: 400px;
-    width: 200px;
+    max-width: fit-content;
+    width: fit-content;
+    min-width: 0px;
     border-radius: 2px;
     background-color: white;
     margin-right: 10px;

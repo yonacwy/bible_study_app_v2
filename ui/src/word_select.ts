@@ -180,6 +180,9 @@ async function on_stop_dragging(word_popup: HTMLElement | null, on_require_reren
         let [verse_start, word_start] = bible.expand_word_index(view, begin.word_index);
         let [verse_end, word_end] = bible.expand_word_index(view, end.word_index);
 
+        utils.debug_print(`start: ${begin.word_index}; end: ${end.word_index}`);
+        utils.debug_print(`e start: ${verse_start}:${word_start}; e end: ${verse_end}:${word_end}`);
+
         let verse_range = {
             verse_start: verse_start,
             verse_end: verse_end,

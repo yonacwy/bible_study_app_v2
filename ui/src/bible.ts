@@ -145,7 +145,7 @@ export function expand_word_index(chapter: ChapterView, word_index: number): [nu
     let verse = 0;
     let word = word_index;
 
-    while(word - chapter.verses[verse] > 0)
+    while(word - chapter.verses[verse] >= 0)
     {
         word -= chapter.verses[verse];
         verse++;

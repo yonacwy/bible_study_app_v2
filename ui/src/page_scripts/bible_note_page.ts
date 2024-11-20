@@ -26,7 +26,7 @@ export function run()
         bible_page.display_chapter(chapter, data.section.verse_range),
         bible_page.init_chapter_buttons(),
         
-        pages.init_context_menu(),
+        pages.init_context_menu('left-pane'),
     ]).then(_ => {
         document.body.style.visibility = 'visible';
     });

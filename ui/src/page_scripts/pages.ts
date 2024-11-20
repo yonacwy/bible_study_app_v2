@@ -163,7 +163,7 @@ export async function init_chapter_selection_dropdown()
     });
 }
 
-export async function init_context_menu()
+export async function init_context_menu(target_id: string)
 {
     let catagories = Object.values(await highlight_utils.get_catagories() as object) as HighlightCategory[];
     let highlight_selections: ContextMenuCommand[] = catagories.map(v => {
@@ -200,7 +200,7 @@ export async function init_context_menu()
         return false;
     }
 
-    context_menu.init_context_menu([
+    context_menu.init_context_menu(target_id, [
         {
             name: 'New Note',
             command: async () => { word_select.begin_making_note() }
