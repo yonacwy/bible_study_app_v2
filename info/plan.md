@@ -6,7 +6,7 @@
 ### Version 0.5.0
 - [ ] Notebook Support
 
-### Version 0.4.2: Visualization Overall
+### Version 0.4.3: Visualization Overall
 - [ ] Implementing SCSS
 - [ ] Settings
   - [ ] Different Font Support
@@ -22,6 +22,18 @@
   - [ ] Fix positioning issue when the window gets small
 - [ ] More tooltips
 - [ ] ON BUILD: change file from short_kjv.txt to kjv.txt
+
+### Version 0.4.2: Bugfixes
+- [ ] Bugfixes:
+  - [ ] Crash with note creation
+  - [ ] Context menu:
+    - [ ] Erase highlights with none created
+    - [ ] Set highlight with none created
+  - [ ] Note visual not showing properly in first verse
+- [ ] Updates:
+  - [ ] Save files with versioning
+  - [ ] Visual for selecting notes and highlights
+
 
 ### Version 0.4.1: Various Bugfixes
 - [x] Note reference location view fix
