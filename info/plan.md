@@ -26,13 +26,16 @@
 ### Version 0.4.2: Bugfixes
 - [ ] Bugfixes:
   - [ ] Crash with note creation
-  - [ ] Context menu:
-    - [ ] Erase highlights with none created
-    - [ ] Set highlight with none created
+  - [x] Context menu:
+    - [x] Erase highlights with none created
+    - [x] Set highlight with none created
+    - [x] Context menu highlighting selection not updating highlight dropdown preview 
   - [x] Note visual not showing properly in first verse
 - [ ] Updates:
   - [ ] Save files with versioning
   - [ ] Visual for selecting notes and highlights
+- [ ] Misc
+  - [ ] Fix spelling of `categories`
 
 
 ### Version 0.4.1: Various Bugfixes
