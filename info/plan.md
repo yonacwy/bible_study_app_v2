@@ -1,5 +1,5 @@
 # Plan:
-### Version 0.6.0 - Multiple Bible Support
+### Version 0.6.0: Multiple Bible Support
 - [ ] Multiple Bible Support
 - [ ] Special bible format?
 
@@ -25,7 +25,7 @@
 
 ### Version 0.4.2: Bugfixes
 - [ ] Bugfixes:
-  - [ ] Crash with note creation
+  - [ ] ~~Crash with note creation~~
   - [x] Context menu:
     - [x] Erase highlights with none created
     - [x] Set highlight with none created

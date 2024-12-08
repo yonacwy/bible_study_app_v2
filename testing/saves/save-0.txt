@@ -1,0 +1,22 @@
+{
+  "notebook": {
+    "highlight_catagories": {},
+    "notes": {},
+    "favorite_verses": [],
+    "section_headings": [],
+    "annotations": []
+  },
+  "view_state_index": 0,
+  "view_states": [
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 0,
+        "number": 0
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    }
+  ],
+  "editing_note": null
+}

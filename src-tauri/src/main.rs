@@ -12,6 +12,7 @@ pub mod commands;
 pub mod notes;
 mod search_parsing;
 pub mod utils;
+pub mod migration;
 
 use commands::*;
 use tauri::{Manager, path::BaseDirectory};
