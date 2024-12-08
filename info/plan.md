@@ -29,7 +29,7 @@
   - [ ] Context menu:
     - [ ] Erase highlights with none created
     - [ ] Set highlight with none created
-  - [ ] Note visual not showing properly in first verse
+  - [x] Note visual not showing properly in first verse
 - [ ] Updates:
   - [ ] Save files with versioning
   - [ ] Visual for selecting notes and highlights

@@ -122,7 +122,7 @@ impl WordRange
     pub fn get_chapter_word_indices(&self, view: &ChapterView) -> Vec<u32>
     {
         let mut indices = vec![];
-        let mut offset = if self.verse_start != 0 { view.verses[0..(self.verse_start as usize)].iter().sum::<u32>() + self.word_start } else { 0 };
+        let mut offset = if self.verse_start != 0 { view.verses[0..(self.verse_start as usize)].iter().sum::<u32>() + self.word_start } else { self.word_start };
 
         for v in self.verse_start..=self.verse_end
         {

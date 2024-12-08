@@ -22,7 +22,7 @@ fn main() {
         .setup(|app| {
             let resource_path = app
                 .path()
-                .resolve("resources/kjv.txt", BaseDirectory::Resource)
+                .resolve("resources/small_kjv.txt", BaseDirectory::Resource)
                 .expect("Failed to retrieve `kjv.txt` resource");
 
             let mut file = std::fs::File::open(&resource_path).unwrap();

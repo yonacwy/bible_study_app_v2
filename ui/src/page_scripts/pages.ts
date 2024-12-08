@@ -106,6 +106,8 @@ export function on_highlight_changed(id: string | null)
             btn.style.opacity = opacity.toString();
         }
     });
+
+    highlight_utils.update_highlight_selection();
 }
 
 export function init_highlight_editor_button()

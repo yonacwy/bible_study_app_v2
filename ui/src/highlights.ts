@@ -85,13 +85,16 @@ export function render_catagories(on_delete: (id: string) => void, on_edit: (id:
     });
 }
 
+const HIGHLIGHTS_DROPDOWN_SELECTION_ID: string = 'highlights-dropdown';
+
 export async function create_highlight_selection() 
 {
     let highlight_data = await get_catagories();
-    let container = document.getElementById('highlights-dropdown');
+    let container = document.getElementById(HIGHLIGHTS_DROPDOWN_SELECTION_ID);
     let current_highlight_id = SELECTED_HIGHLIGHT.get();
 
     if(container === null) return;
+    container.replaceChildren();
 
     let highlight_catagories: any[] = [];
     for(let id in highlight_data)
@@ -163,6 +166,37 @@ export async function create_highlight_selection()
 
     container.appendChild(none_div);
     SELECTED_HIGHLIGHT.update_listeners();
+}
+
+export async function update_highlight_selection()
+{
+    let highlight_data = await get_catagories();
+    let container = document.getElementById(HIGHLIGHTS_DROPDOWN_SELECTION_ID);
+    let current_highlight_id = SELECTED_HIGHLIGHT.get();
+
+    if (!container) return;
+    
+    let nodes = container.getElementsByClassName('dropdown-option');
+
+    let highlight_categories: string[] = [];
+    for(let id in highlight_data)
+    {
+        highlight_categories.push(id);
+    }
+
+    for (let i = 0; i < nodes.length; i++)
+    {
+        nodes[i].classList.remove('selected-option');
+        if (current_highlight_id === highlight_categories[i])
+        {
+            nodes[i].classList.add('selected-option');
+        }
+
+        if (current_highlight_id === null && i === nodes.length - 1)
+        {
+            nodes[i].classList.add('selected-option');
+        }
+    }
 }
 
 export async function get_chapter_annotations(chapter: ChapterIndex): Promise<any>
