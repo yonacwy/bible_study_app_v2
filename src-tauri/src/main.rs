@@ -9,16 +9,18 @@ pub mod app_state;
 pub mod bible;
 pub mod bible_parsing;
 pub mod commands;
+pub mod migration;
 pub mod notes;
 mod search_parsing;
 pub mod utils;
-pub mod migration;
 
 use commands::*;
-use tauri::{Manager, path::BaseDirectory};
+use tauri::{path::BaseDirectory, Manager};
+use tauri_plugin_notification::NotificationExt;
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
             let resource_path = app
@@ -31,6 +33,13 @@ fn main() {
             let mut text = String::new();
             file.read_to_string(&mut text).unwrap();
             AppData::init(&text, app.path());
+
+            app.notification()
+                .builder()
+                .title("Tauri")
+                .body("Tauri is awesome")
+                .show()
+                .unwrap();
 
             Ok(())
         })

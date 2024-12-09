@@ -1,15 +1,24 @@
 use serde::{Deserialize, Serialize};
 use std::{cell::RefCell, collections::HashMap, sync::Mutex};
-use tauri::{path::{BaseDirectory, PathResolver}, Runtime};
+use tauri::{
+    path::{BaseDirectory, PathResolver},
+    Runtime,
+};
 
-use crate::{bible::*, bible_parsing, notes::*, utils::Color};
+use crate::{
+    bible::*,
+    bible_parsing,
+    migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION},
+    notes::*,
+    utils::Color,
+};
 
 static mut DATA: Option<AppData> = None;
-const SAVE_NAME: &str = "save.txt";
+const SAVE_NAME: &str = "save.json";
 
-pub struct AppData 
-{
+pub struct AppData {
     pub bible: Bible,
+    pub save_version: SaveVersion,
     notebook: Mutex<RefCell<Notebook>>,
 
     view_state_index: Mutex<RefCell<usize>>,
@@ -18,21 +27,22 @@ pub struct AppData
 }
 
 #[derive(Serialize, Deserialize)]
-struct AppSave 
-{
+struct AppSave {
     notebook: Notebook,
+    save_version: SaveVersion,
     view_state_index: usize,
     view_states: Vec<ViewState>,
     editing_note: Option<String>,
 }
 
-impl AppData 
-{
-    pub fn init<R>(bible_text: &str, resolver: &PathResolver<R>) 
-        where R : Runtime
+impl AppData {
+    pub fn init<R>(bible_text: &str, resolver: &PathResolver<R>)
+    where
+        R: Runtime,
     {
         let file = resolver
-            .resolve(SAVE_NAME, BaseDirectory::Resource).ok()
+            .resolve(SAVE_NAME, BaseDirectory::Resource)
+            .ok()
             .and_then(|path| std::fs::read(path).ok())
             .and_then(|data| String::from_utf8(data).ok());
 
@@ -55,6 +65,7 @@ impl AppData
 
                 AppSave {
                     notebook,
+                    save_version: CURRENT_SAVE_VERSION,
                     view_state_index: 0,
                     view_states,
                     editing_note: None,
@@ -91,6 +102,7 @@ impl AppData
         unsafe {
             DATA = Some(Self {
                 bible,
+                save_version: CURRENT_SAVE_VERSION,
                 notebook: Mutex::new(RefCell::new(save.notebook)),
                 view_state_index: Mutex::new(RefCell::new(save.view_state_index)),
                 view_states: Mutex::new(RefCell::new(save.view_states)),
@@ -99,45 +111,57 @@ impl AppData
         }
     }
 
-    pub fn save<R>(&self, resolver: &PathResolver<R>) 
-        where R : Runtime
+    pub fn save<R>(&self, resolver: &PathResolver<R>)
+    where
+        R: Runtime,
     {
         let view_state_index = self.get_view_state_index();
 
         let view_states = self.view_states.lock().unwrap().borrow().clone();
         let notebook = self.notebook.lock().unwrap().borrow().clone();
         let editing_note = self.editing_note.lock().unwrap().borrow().clone();
+        let save_version = self.save_version;
 
         let save = AppSave {
             notebook,
+            save_version,
             view_state_index,
             editing_note,
             view_states,
         };
 
         let save_json = serde_json::to_string_pretty(&save).unwrap();
-        let path = resolver.resolve(SAVE_NAME, BaseDirectory::Resource)
+        let path = resolver
+            .resolve(SAVE_NAME, BaseDirectory::Resource)
             .expect("Error getting save path");
         std::fs::write(path, save_json).expect("Failed to write to save path");
     }
 
-    fn load(json: &str) -> AppSave 
-    {
-        serde_json::from_str(json).unwrap()
+    fn load(json: &str) -> AppSave {
+        let migrated_json = match migration::migrate_save_latest(json) {
+            MigrationResult::Same(str) => str,
+            MigrationResult::Different {
+                start,
+                end,
+                migrated,
+            } => {
+                println!("Migrated from {:?} to {:?}", start, end);
+                migrated
+            }
+            MigrationResult::Error(err) => panic!("Error on save | {}", err),
+        };
+        serde_json::from_str(&migrated_json).unwrap()
     }
 
-    pub fn get() -> &'static Self 
-    {
+    pub fn get() -> &'static Self {
         unsafe { DATA.as_ref().unwrap() }
     }
 
-    pub fn get_view_state_index(&self) -> usize 
-    {
+    pub fn get_view_state_index(&self) -> usize {
         *self.view_state_index.lock().unwrap().borrow()
     }
 
-    pub fn set_view_state_index(&self, mut index: usize) 
-    {
+    pub fn set_view_state_index(&self, mut index: usize) {
         let length = self.view_states.lock().unwrap().borrow().len();
         if index >= length {
             index = length - 1;
