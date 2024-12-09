@@ -31,6 +31,7 @@
     - [x] Set highlight with none created
     - [x] Context menu highlighting selection not updating highlight dropdown preview 
   - [x] Note visual not showing properly in first verse
+  - [ ] Search text not showing correct pointer
 - [ ] Updates:
   - [ ] Save files with versioning
   - [ ] Visual for selecting notes and highlights
