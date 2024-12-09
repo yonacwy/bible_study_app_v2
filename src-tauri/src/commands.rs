@@ -284,3 +284,9 @@ pub fn update_note(id: String, locations: Vec<ReferenceLocation>, text: String) 
         );
     })
 }
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn should_display_migration() -> bool 
+{
+    AppData::get().should_display_migration()
+}

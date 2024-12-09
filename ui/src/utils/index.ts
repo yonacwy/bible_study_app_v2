@@ -96,3 +96,12 @@ export function render_markdown(markdown: string): string
     let rendered = Marked.parse(markdown);
     return rendered;
 }
+
+export async function display_migration_popup()
+{
+    let should_display = await invoke('should_display_migration', {});
+    if (should_display)
+    {
+        alert('Your save has been migrated to the latest version.');
+    }
+}

@@ -24,6 +24,8 @@ pub struct AppData {
     view_state_index: Mutex<RefCell<usize>>,
     view_states: Mutex<RefCell<Vec<ViewState>>>,
     editing_note: Mutex<RefCell<Option<String>>>,
+
+    need_display_migration: Mutex<RefCell<bool>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -46,7 +48,7 @@ impl AppData {
             .and_then(|path| std::fs::read(path).ok())
             .and_then(|data| String::from_utf8(data).ok());
 
-        let mut save = match file {
+        let (mut save, was_migrated) = match file {
             Some(file) => Self::load(&file),
             None => {
                 let notebook = Notebook {
@@ -63,13 +65,13 @@ impl AppData {
                     scroll: 0.0,
                 }];
 
-                AppSave {
+                (AppSave {
                     notebook,
                     save_version: CURRENT_SAVE_VERSION,
                     view_state_index: 0,
                     view_states,
                     editing_note: None,
-                }
+                }, false)
             }
         };
 
@@ -107,6 +109,7 @@ impl AppData {
                 view_state_index: Mutex::new(RefCell::new(save.view_state_index)),
                 view_states: Mutex::new(RefCell::new(save.view_states)),
                 editing_note: Mutex::new(RefCell::new(save.editing_note)),
+                need_display_migration: Mutex::new(RefCell::new(was_migrated))
             })
         }
     }
@@ -137,20 +140,20 @@ impl AppData {
         std::fs::write(path, save_json).expect("Failed to write to save path");
     }
 
-    fn load(json: &str) -> AppSave {
-        let migrated_json = match migration::migrate_save_latest(json) {
-            MigrationResult::Same(str) => str,
+    fn load(json: &str) -> (AppSave, bool) {
+        let (migrated_json, was_migrated) = match migration::migrate_save_latest(json) {
+            MigrationResult::Same(str) => (str, false),
             MigrationResult::Different {
                 start,
                 end,
                 migrated,
             } => {
                 println!("Migrated from {:?} to {:?}", start, end);
-                migrated
+                (migrated, true)
             }
             MigrationResult::Error(err) => panic!("Error on save | {}", err),
         };
-        serde_json::from_str(&migrated_json).unwrap()
+        (serde_json::from_str(&migrated_json).unwrap(), was_migrated)
     }
 
     pub fn get() -> &'static Self {
@@ -195,6 +198,17 @@ impl AppData {
         let binding = self.editing_note.lock().unwrap();
         let mut editing_note = binding.borrow_mut();
         f(&mut editing_note)
+    }
+
+    /// If the application migrated teh save on load, will only return true ONCE, then will always return false
+    pub fn should_display_migration(&self) -> bool 
+    {
+        let binding = self.need_display_migration.lock().unwrap();
+        let mut need_display_migration = binding.borrow_mut();
+        
+        let old = *need_display_migration;
+        *need_display_migration = false;
+        old
     }
 }
 

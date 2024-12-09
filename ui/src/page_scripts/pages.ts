@@ -41,6 +41,7 @@ export async function init_header(): Promise<void>
         init_search_bar(),
         utils.init_toggle('erase-highlight-toggle', highlight_utils.ERASING_HIGHLIGHT),
         side_popup.init_popup_panel('popup-panel'),
+        utils.display_migration_popup(),
     ]);
 }
 
