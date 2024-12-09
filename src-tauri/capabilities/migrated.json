@@ -16,13 +16,6 @@
     "fs:allow-remove",
     "fs:allow-rename",
     "fs:allow-exists",
-    {
-      "identifier": "fs:scope",
-      "allow": [
-        "$RESOURCE/resources/*"
-      ]
-    },
-    "fs:default",
-    "notification:default"
+    "fs:default"
   ]
 }

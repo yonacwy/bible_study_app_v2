@@ -16,11 +16,9 @@ pub mod utils;
 
 use commands::*;
 use tauri::{path::BaseDirectory, Manager};
-use tauri_plugin_notification::NotificationExt;
 
 fn main() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
             let resource_path = app
@@ -33,13 +31,6 @@ fn main() {
             let mut text = String::new();
             file.read_to_string(&mut text).unwrap();
             AppData::init(&text, app.path());
-
-            app.notification()
-                .builder()
-                .title("Tauri")
-                .body("Tauri is awesome")
-                .show()
-                .unwrap();
 
             Ok(())
         })

@@ -25,7 +25,6 @@ uuid = { version = "1.10.0", features = ["serde", "v4"] }
 lazy_static = "1.5.0"
 serde_with = "3.0.0"
 tauri-plugin-fs = "2"
-tauri-plugin-notification = "2"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
