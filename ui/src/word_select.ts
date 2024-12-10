@@ -57,11 +57,43 @@ type WordData = {
     word_index: number,
 }
 
+type SelectingNoteListener =
+{
+    on_start: () => void,
+    on_end: () => void,
+}
+
+let note_listeners: SelectingNoteListener[] = [];
+export function add_note_listener(listener: SelectingNoteListener)
+{
+    note_listeners.push(listener);
+}
+
+export function remove_note_listener(listener: SelectingNoteListener)
+{
+    note_listeners.remove(listener);
+}
+
+function update_start_listeners()
+{
+    note_listeners.forEach(l => {
+        l.on_start();
+    });
+}
+
+function update_end_listeners()
+{
+    note_listeners.forEach(l => {
+        l.on_end();
+    })
+}
+
 let making_note = false;
 export function begin_making_note()
 {
     making_note = true;
     update_words_for_selection();
+    update_start_listeners();
 }
 
 let on_edit_fn: (() => void) | null = null;
@@ -71,6 +103,7 @@ export function begin_editing_note(on_edit: (() => void) | null)
     editing_note = true;
     on_edit_fn = on_edit;
     update_words_for_selection();
+    update_start_listeners();
 }
 
 export function is_selecting(): boolean
@@ -93,6 +126,7 @@ export function stop_selecting()
 
     update_words_for_selection();
     on_edit_fn = null;
+    update_end_listeners();
 }
 
 let is_dragging = false;

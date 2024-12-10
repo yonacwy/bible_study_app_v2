@@ -55,7 +55,7 @@ function on_delete(id: string)
 {
     deleting_id = id;
     confirm_popup.show_confirm_popup({
-        message: 'Are you sure you want to delete this popup?',
+        message: 'Are you sure you want to delete this highlight?',
         yes_text: 'Delete popup',
         no_text: 'Cancel delete popup',
         on_confirm: () => {

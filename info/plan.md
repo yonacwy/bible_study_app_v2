@@ -32,9 +32,13 @@
     - [x] Context menu highlighting selection not updating highlight dropdown preview 
   - [x] Note visual not showing properly in first verse
   - [x] Search text not showing correct pointer
+  - [x] Fix the confirm delete note popup message
+  - [x] Fix the confirm delete highlight popup message
 - [ ] Updates:
   - [x] Save files with versioning
-  - [ ] Visual for selecting notes and highlights
+  - [ ] Visual for selecting notes
+  - [x] Add `Jas` shorthand for James
+  - [x] Update icon
 - [ ] Misc
   - [x] Fix spelling of `categories`
 

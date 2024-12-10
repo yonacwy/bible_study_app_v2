@@ -26,6 +26,11 @@ const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 export async function init_header(): Promise<void>
 {
     highlight_utils.SELECTED_HIGHLIGHT.add_listener(on_highlight_changed);
+    word_select.add_note_listener({
+        on_start: () => utils.debug_print('starting selecting note'),
+        on_end: () => utils.debug_print('ending selecting note'),
+    });
+
     let word_popup = document.getElementById(WORD_POPUP_ID);
     if(word_popup !== null)
     {
@@ -87,12 +92,14 @@ export function update_nav_buttons_opacity()
 }
 
 const DEFAULT_BUTTON_COLOR: string = document.getElementById(HIGHLIGHT_SELECTOR_ID)?.style.backgroundColor ?? "white";
+const DISABLED_OPACITY: number = 0.3;
+
 export function on_highlight_changed(id: string | null)
 {
     word_select.update_words_for_selection();
     highlight_utils.get_categories().then(categories => {
         let color = DEFAULT_BUTTON_COLOR;
-        let opacity = 0.3;
+        let opacity = DISABLED_OPACITY;
         if(id !== null)
         {
             let category = categories[id];

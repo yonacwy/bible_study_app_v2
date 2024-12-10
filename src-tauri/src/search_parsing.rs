@@ -21,7 +21,6 @@ lazy_static::lazy_static! {
             ("prv", "proverbs"),
             ("sg", "song of solomon"),
             ("ss", "song of solomon"),
-            ("sg", "song of solomon"),
             ("sos", "song of solomon"),
             ("jl", "joel"),
             ("obd", "obadiah"),
@@ -32,6 +31,7 @@ lazy_static::lazy_static! {
             ("mk", "mark"),
             ("lk", "luke"),
             ("jn", "john"),
+            ("jas", "james"),
             ("php", "philippians"),
             ("phm", "philemon"),
         ]);
