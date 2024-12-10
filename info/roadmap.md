@@ -4,6 +4,7 @@
 - Multiple different Bible versions
 - Better markdown support (probably custom)
 - Better searching
+- Reading plans
 - Notebook support
   - Different Bibles
   - Import/Export

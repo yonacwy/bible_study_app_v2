@@ -24,19 +24,19 @@
 - [ ] ON BUILD: change file from short_kjv.txt to kjv.txt
 
 ### Version 0.4.2: Bugfixes
-- [ ] Bugfixes:
+- [x] Bugfixes:
   - [ ] ~~Crash with note creation~~
   - [x] Context menu:
     - [x] Erase highlights with none created
     - [x] Set highlight with none created
     - [x] Context menu highlighting selection not updating highlight dropdown preview 
   - [x] Note visual not showing properly in first verse
-  - [ ] Search text not showing correct pointer
+  - [x] Search text not showing correct pointer
 - [ ] Updates:
   - [x] Save files with versioning
   - [ ] Visual for selecting notes and highlights
 - [ ] Misc
-  - [ ] Fix spelling of `categories`
+  - [x] Fix spelling of `categories`
 
 
 ### Version 0.4.1: Various Bugfixes

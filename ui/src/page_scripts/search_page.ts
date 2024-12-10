@@ -43,7 +43,7 @@ export async function display_search(section: SearchSection): Promise<void>
     search.render_search_result(search_result, section.words, 'word-search-content', word_popup, side_popup_data, section.display_index, 
         () => {
             pages.update_nav_buttons_opacity();
-            word_select.update_words_for_selection;
+            word_select.update_words_for_selection();
         }, 
         (msg: string) => {
             utils.set_value('search-input', msg);
