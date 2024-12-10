@@ -53,7 +53,7 @@ fn main() {
             get_verse,
             get_book_name,
             get_chapter_view,
-            get_highlight_catagories,
+            get_highlight_categories,
             add_highlight_category,
             remove_highlight_category,
             set_highlight_category,

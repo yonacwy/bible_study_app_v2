@@ -90,12 +90,12 @@ const DEFAULT_BUTTON_COLOR: string = document.getElementById(HIGHLIGHT_SELECTOR_
 export function on_highlight_changed(id: string | null)
 {
     word_select.update_words_for_selection();
-    highlight_utils.get_catagories().then(catagories => {
+    highlight_utils.get_categories().then(categories => {
         let color = DEFAULT_BUTTON_COLOR;
         let opacity = 0.3;
         if(id !== null)
         {
-            let category = catagories[id];
+            let category = categories[id];
             color = utils.color_to_hex(category.color);
             opacity = 1.0;
         }
@@ -168,8 +168,8 @@ export async function init_chapter_selection_dropdown()
 
 export async function init_context_menu(target_id: string)
 {
-    let catagories = Object.values(await highlight_utils.get_catagories() as object) as HighlightCategory[];
-    let highlight_selections: ContextMenuCommand[] = catagories.map(v => {
+    let categories = Object.values(await highlight_utils.get_categories() as object) as HighlightCategory[];
+    let highlight_selections: ContextMenuCommand[] = categories.map(v => {
         let selection: ContextMenuCommand = {
             name: v.name,
             command: async () => { 
@@ -181,7 +181,7 @@ export async function init_context_menu(target_id: string)
         return selection;
     });
 
-    let erase_selections: ContextMenuCommand[] = catagories.map(v => {
+    let erase_selections: ContextMenuCommand[] = categories.map(v => {
         let selection: ContextMenuCommand = {
             name: v.name,
             command: async () => { 

@@ -45,13 +45,9 @@ pub fn migrate_save_latest(data: &str) -> MigrationResult {
         Err(err) => return MigrationResult::Error(err),
     };
 
-    if version == SaveVersion::SV0 && json.get(SAVE_FIELD_NAME).is_none() {
-        let obj = json.as_object_mut().unwrap();
-        obj.insert(
-            SAVE_FIELD_NAME.to_owned(),
-            serde_json::to_value(SaveVersion::SV1).unwrap(),
-        );
-    }
+    migrate_sv0(version, &mut json);
+
+    
 
     if CURRENT_SAVE_VERSION != version {
         MigrationResult::Different {
@@ -61,5 +57,34 @@ pub fn migrate_save_latest(data: &str) -> MigrationResult {
         }
     } else {
         MigrationResult::Same(serde_json::to_string(&json).unwrap())
+    }
+}
+
+fn migrate_sv0(version: SaveVersion, json: &mut Value) 
+{
+    if version != SaveVersion::SV0 { return; }
+
+    if json.get(SAVE_FIELD_NAME).is_none() 
+    {
+        let obj = json.as_object_mut().unwrap();
+        obj.insert(
+            SAVE_FIELD_NAME.to_owned(),
+            serde_json::to_value(SaveVersion::SV1).unwrap(),
+        );
+    }
+
+    // fixes the category renaming thing
+    const NOTEBOOK_PATH: &str = "notebook";
+    const OLD_CATEGORY_PATH: &str = "highlight_catagories";
+    const NEW_CATEGORY_PATH: &str = "highlight_categories";
+
+    if let Some(notebook) = json.get_mut(NOTEBOOK_PATH).and_then(|n| n.as_object_mut())
+    {
+        if notebook.contains_key(OLD_CATEGORY_PATH)
+        {
+            let data = notebook.get(OLD_CATEGORY_PATH).unwrap().clone();
+            notebook.remove(OLD_CATEGORY_PATH);
+            notebook.insert(NEW_CATEGORY_PATH.into(), data);
+        }
     }
 }

@@ -1,5 +1,5 @@
 import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils/index.js";
-import { get_catagories } from "./highlights.js";
+import { get_categories } from "./highlights.js";
 import { push_section, get_current_view_state } from "./view_states.js";
 import { BookView, ChapterIndex, ChapterView } from "./bindings.js";
 

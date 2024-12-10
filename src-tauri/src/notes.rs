@@ -34,7 +34,7 @@ pub struct WordAnnotations {
 #[serde_as]
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Notebook {
-    pub highlight_catagories: HashMap<String, HighlightCategory>,
+    pub highlight_categories: HashMap<String, HighlightCategory>,
     pub notes: HashMap<String, NoteData>,
 
     #[serde_as(as = "Vec<(_, _)>")]
@@ -50,7 +50,7 @@ pub struct Notebook {
 impl Notebook {
     pub fn refresh_highlights(&mut self) {
         let highlight_ids = self
-            .highlight_catagories
+            .highlight_categories
             .values()
             .map(|h| h.id.clone())
             .collect_vec();

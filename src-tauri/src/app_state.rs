@@ -52,7 +52,7 @@ impl AppData {
             Some(file) => Self::load(&file),
             None => {
                 let notebook = Notebook {
-                    highlight_catagories: HashMap::new(),
+                    highlight_categories: HashMap::new(),
                     notes: HashMap::new(),
                     favorite_verses: HashMap::new(),
                     section_headings: HashMap::new(),

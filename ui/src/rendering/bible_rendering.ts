@@ -37,13 +37,13 @@ export function render_word(data: WordData)
     return word_node
 }
 
-export function get_highest_priority_highlight(word_highlights: string[], catagories: any): string
+export function get_highest_priority_highlight(word_highlights: string[], categories: any): string
 {
     let max_highlight = word_highlights[0];
     for(let i = 1; i < word_highlights.length; i++)
     {
-        let priority = catagories[word_highlights[i]].priority;
-        let max_priority = catagories[max_highlight].priority
+        let priority = categories[word_highlights[i]].priority;
+        let max_priority = categories[max_highlight].priority
 
         if(priority > max_priority)
         {

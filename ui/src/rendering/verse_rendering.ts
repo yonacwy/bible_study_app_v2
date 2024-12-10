@@ -6,7 +6,7 @@ import * as highlighting from "../highlights.js"
 import * as wp from "../popups/word_popup.js";
 import * as sp from "../popups/side_popup.js";
 
-const HIGHLIGHT_CATAGORIES = await highlighting.get_catagories();
+const HIGHLIGHT_CATEGORIES = await highlighting.get_categories();
 
 export type VerseRenderArgs = {
     chapter: ChapterIndex,
@@ -42,8 +42,8 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
                     let overlap: any[] = utils.overlap(word_annotations.highlights, last_word_annotations.highlights);
                     if(overlap.length !== 0)
                     {
-                        let space_highlight = rendering.get_highest_priority_highlight(overlap, HIGHLIGHT_CATAGORIES);
-                        let space_color = HIGHLIGHT_CATAGORIES[space_highlight].color;
+                        let space_highlight = rendering.get_highest_priority_highlight(overlap, HIGHLIGHT_CATEGORIES);
+                        let space_color = HIGHLIGHT_CATEGORIES[space_highlight].color;
                         space = rendering.color(space, space_color);
                     }
                 }
@@ -61,8 +61,8 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
         {
             if(word_annotations.highlights.length !== 0)
             {
-                let id = rendering.get_highest_priority_highlight(word_annotations.highlights, HIGHLIGHT_CATAGORIES);
-                color = HIGHLIGHT_CATAGORIES[id].color;
+                let id = rendering.get_highest_priority_highlight(word_annotations.highlights, HIGHLIGHT_CATEGORIES);
+                color = HIGHLIGHT_CATEGORIES[id].color;
             }
 
             last_word_annotations = word_annotations;

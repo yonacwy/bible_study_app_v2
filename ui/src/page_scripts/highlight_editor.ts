@@ -12,7 +12,7 @@ export async function run()
 {
     editing_id = null;
     deleting_id = null;
-    highlights.render_catagories(on_delete, on_edit);
+    highlights.render_categories(on_delete, on_edit);
 
     utils.on_click('new-btn', (e) => {
         utils.set_display('highlight-popup', 'flex');
@@ -36,8 +36,8 @@ export async function run()
 let editing_id: string | null = null;
 function on_edit(id: string)
 {
-    highlights.get_catagories().then(catagories => {
-        let category: HighlightCategory = catagories[id];
+    highlights.get_categories().then(categories => {
+        let category: HighlightCategory = categories[id];
         let color = utils.color_to_hex(category.color);
         utils.set_value('color-in', color);
         utils.set_value('name-in', category.name);

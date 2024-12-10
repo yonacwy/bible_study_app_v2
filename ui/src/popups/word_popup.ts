@@ -1,8 +1,8 @@
 import { ChapterIndex, Color, HighlightCategory } from "../bindings.js";
-import { get_catagories, get_chapter_annotations, SELECTED_HIGHLIGHT } from "../highlights.js";
+import { get_categories, get_chapter_annotations, SELECTED_HIGHLIGHT } from "../highlights.js";
 import { color_to_hex, debug_print } from "../utils/index.js";
 
-const HIGHLIGHT_CATAGORIES = await get_catagories();
+const HIGHLIGHT_CATEGORIES = await get_categories();
 
 // if we are hovering over something while we erase it, this makes sure that the element hides itself
 let current_ids: string[] = [];
@@ -22,7 +22,7 @@ export function display_on_div(div: HTMLElement, highlight_ids: string[], has_no
     div.addEventListener('mouseenter', _ => {
         popup.replaceChildren();
         highlight_ids.forEach(id => {
-            let highlight = HIGHLIGHT_CATAGORIES[id] as HighlightCategory;
+            let highlight = HIGHLIGHT_CATEGORIES[id] as HighlightCategory;
             let child = document.createElement('div');
             child.classList.add('color-square');
             child.style.backgroundColor = color_to_hex(highlight.color);

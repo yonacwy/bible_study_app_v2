@@ -100,9 +100,9 @@ pub fn get_chapter_view(chapter: ChapterIndex) -> String {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_highlight_catagories() -> String {
+pub fn get_highlight_categories() -> String {
     AppData::get()
-        .read_notes(|notebook| serde_json::to_string(&notebook.highlight_catagories).unwrap())
+        .read_notes(|notebook| serde_json::to_string(&notebook.highlight_categories).unwrap())
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -122,14 +122,14 @@ pub fn add_highlight_category(color: &str, name: &str, description: &str, priori
             id: id.clone(),
         };
 
-        notebook.highlight_catagories.insert(id, category);
+        notebook.highlight_categories.insert(id, category);
     })
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn remove_highlight_category(id: &str) {
     AppData::get().read_notes(|notebook| {
-        notebook.highlight_catagories.remove(&id.to_string());
+        notebook.highlight_categories.remove(&id.to_string());
         notebook.refresh_highlights();
     })
 }
@@ -157,7 +157,7 @@ pub fn set_highlight_category(
         };
 
         notebook
-            .highlight_catagories
+            .highlight_categories
             .insert(id.to_string(), category);
     })
 }

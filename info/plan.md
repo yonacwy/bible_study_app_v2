@@ -33,7 +33,7 @@
   - [x] Note visual not showing properly in first verse
   - [ ] Search text not showing correct pointer
 - [ ] Updates:
-  - [ ] Save files with versioning
+  - [x] Save files with versioning
   - [ ] Visual for selecting notes and highlights
 - [ ] Misc
   - [ ] Fix spelling of `categories`
