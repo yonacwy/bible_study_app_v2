@@ -23,15 +23,81 @@
         </div>
     </header>
 
-    <!-- Tutorial Section -->
     <section class="section">
         <div class="container">
-            <h2>How to Use</h2>
-            <p>In progress</p>
+            <h2>Getting Started</h2>
+            <h3>Simple Install</h3>
+            <p>
+                If you just want to download the Ascribe installer, simply download the latest version from
+                the <a href="index.html">Ascribe Website</a>, us it to install the program, and off you go!
+            </p>
+
+            <p>
+                <strong>NOTE:</strong> Currently, there is no updater and save files may contain breaking
+                changes when upgrading to versions, so if you are updating the project, you need to uninstall
+                the old version, and install the new one, while deleting the <code>save.txt</code> file.
+                However, this should change as a updater is planned in the future
+            </p>
+
+            <p>
+                <strong>NOTE:</strong> As of version 0.4.2, there is a migration system in place for save
+                files, however if you are migrating from version 0.4.1 to 0.4.2, you need to rename your
+                <code>save.txt</code> to <code>save.json</code>. Also, version 0.4.1 is the lowest supported 
+                save version, any earlier save version may crash when loaded
+            </p>
+
+            <h3>Compiling from Source</h3>
+            <p>In order to compile and run the project from source, use the following steps:</p>
+            <ol>
+                <li>
+                    Download and install the <a href="https://www.rust-lang.org/">rustc</a> compiler
+                </li>
+                <li>
+                    Run the command <code>cargo install tauri-cli --version "^2.0.0 --locked"</code>, 
+                    which will install the Tauri CLI utilities library. see 
+                    <a href="https://v2.tauri.app/reference/cli/">this</a> example
+                </li>
+                <li>
+                    Download <a href="https://nodejs.org/en">Node.js</a>
+                </li>
+                <li>
+                    Run the command <code>npm install -g typescript</code>, which will install
+                    typescript globally on your machine. See <a href="https://www.typescriptlang.org/download/">this</a>
+                    example
+                </li>
+                <li>
+                    Clone the project on your machine from <a href="https://github.com/FishArmy100/bible_study_app_v2">its GitHub repository</a>
+                </li>
+                <li>
+                    Finally:
+                    <ul>
+                        <li>
+                            To run in debug mode: call <code>cargo tauri dev</code> in the project's root folder.
+                        </li>
+                        <li>
+                            To run in release mode: call <code>cargo tauri dev --release</code> in the project's root folder
+                        </li>
+                        <li>
+                            To build the projects installer: 
+                            <ol>
+                                <li>Call <code>cargo tauri build</code> in the project's root folder</li>
+                                <li>
+                                    Go to <code>src-tauri/target/release/bundle</code> where you will see
+                                    a list of installation folders, where you can select either <code>msi</code> 
+                                    or <code>nsis</code> installers.
+                                </li>
+                                <li>
+                                    When executed, it will be the same as installing the project from the provided installers
+                                    on this website.
+                                </li>
+                            </ol>
+                        </li>
+                    </ul>
+                </li>
+            </ol>
         </div>
     </section>
 
-    <!-- Footer -->
     <footer>
         <div class="container">
             <p>&copy; 2024 My Awesome Project</p>

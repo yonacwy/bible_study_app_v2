@@ -30,18 +30,17 @@
     - [x] Set highlight with none created
     - [x] Context menu highlighting selection not updating highlight dropdown preview 
   - [x] Note visual not showing properly in first verse
-  - [x] Search text not showing correct pointer
   - [x] Fix the confirm delete note popup message
   - [x] Fix the confirm delete highlight popup message
-- [ ] Updates:
+- [x] Updates:
   - [x] Save files with versioning
-  - [ ] Visual for selecting notes
-  - [ ] Visual when save file not found
+  - [x] Visual for selecting notes
+  - [x] Visual when save file not found
   - [x] Add `Jas` shorthand for James
   - [x] Update icon
 - [x] Misc
   - [x] Fix spelling of `categories`
-  - [ ] ON BUILD: change file from short_kjv.txt to kjv.txt
+  - [x] ON BUILD: change file from short_kjv.txt to kjv.txt
 
 
 ### Version 0.4.1: Various Bugfixes
