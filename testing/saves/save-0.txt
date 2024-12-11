@@ -1,0 +1,199 @@
+{
+  "notebook": {
+    "highlight_catagories": {
+      "fe0d6d3b-7c63-41f9-bd11-e10d1939f258": {
+        "color": {
+          "r": 255,
+          "g": 215,
+          "b": 0
+        },
+        "name": "Name of God",
+        "description": "",
+        "priority": 10,
+        "id": "fe0d6d3b-7c63-41f9-bd11-e10d1939f258"
+      }
+    },
+    "notes": {
+      "e207319f-96ec-4e78-b147-ee47d0fddc0d": {
+        "id": "e207319f-96ec-4e78-b147-ee47d0fddc0d",
+        "text": "",
+        "locations": [
+          {
+            "chapter": {
+              "book": 23,
+              "number": 0
+            },
+            "range": {
+              "verse_start": 0,
+              "word_start": 3,
+              "verse_end": 0,
+              "word_end": 3
+            }
+          }
+        ]
+      }
+    },
+    "favorite_verses": [],
+    "section_headings": [],
+    "annotations": [
+      [
+        {
+          "book": 0,
+          "number": 0
+        },
+        {
+          "3": {
+            "highlights": [],
+            "notes": []
+          },
+          "68": {
+            "highlights": [],
+            "notes": []
+          },
+          "2": {
+            "highlights": [],
+            "notes": []
+          },
+          "8": {
+            "highlights": [],
+            "notes": []
+          },
+          "31": {
+            "highlights": [],
+            "notes": []
+          },
+          "72": {
+            "highlights": [],
+            "notes": []
+          },
+          "70": {
+            "highlights": [],
+            "notes": []
+          },
+          "1": {
+            "highlights": [],
+            "notes": []
+          },
+          "7": {
+            "highlights": [],
+            "notes": []
+          },
+          "29": {
+            "highlights": [],
+            "notes": []
+          },
+          "30": {
+            "highlights": [],
+            "notes": []
+          },
+          "0": {
+            "highlights": [],
+            "notes": []
+          },
+          "6": {
+            "highlights": [],
+            "notes": []
+          },
+          "4": {
+            "highlights": [],
+            "notes": []
+          },
+          "71": {
+            "highlights": [],
+            "notes": []
+          }
+        }
+      ],
+      [
+        {
+          "book": 23,
+          "number": 0
+        },
+        {
+          "0": {
+            "highlights": [],
+            "notes": [
+              "e207319f-96ec-4e78-b147-ee47d0fddc0d"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 1,
+          "number": 0
+        },
+        {
+          "0": {
+            "highlights": [],
+            "notes": []
+          },
+          "2": {
+            "highlights": [],
+            "notes": []
+          },
+          "3": {
+            "highlights": [],
+            "notes": []
+          },
+          "1": {
+            "highlights": [],
+            "notes": []
+          }
+        }
+      ]
+    ]
+  },
+  "view_state_index": 4,
+  "view_states": [
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 0,
+        "number": 0
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 1,
+        "number": 0
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 0,
+        "number": 0
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 0,
+        "number": 0
+      },
+      "verse_range": {
+        "start": 4,
+        "end": 4
+      },
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 0,
+        "number": 0
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    }
+  ],
+  "editing_note": null
+}

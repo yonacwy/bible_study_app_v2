@@ -26,6 +26,7 @@ const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 export async function init_header(): Promise<void>
 {
     highlight_utils.SELECTED_HIGHLIGHT.add_listener(on_highlight_changed);
+
     let word_popup = document.getElementById(WORD_POPUP_ID);
     if(word_popup !== null)
     {
@@ -41,8 +42,16 @@ export async function init_header(): Promise<void>
         init_search_bar(),
         utils.init_toggle('erase-highlight-toggle', highlight_utils.ERASING_HIGHLIGHT),
         side_popup.init_popup_panel('popup-panel'),
+        utils.display_migration_popup(),
+        utils.display_no_save_popup(),
+        init_new_note_button(),
     ]);
 }
+
+
+const DEFAULT_BUTTON_COLOR: string = document.getElementById(HIGHLIGHT_SELECTOR_ID)?.style.backgroundColor ?? "white";
+const DISABLED_OPACITY: string = '0.3';
+const ENABLED_OPACITY: string = '1.0';
 
 export function init_nav_buttons()
 {
@@ -61,42 +70,60 @@ export function init_nav_buttons()
 
 export function update_nav_buttons_opacity() 
 {
-    const INACTIVE_OPACITY = 0.3;
     view_states.is_last_view_state().then(is_last => {
         if(is_last)
         {
-            utils.set_opacity('forward-btn', INACTIVE_OPACITY.toString());
+            utils.set_opacity('forward-btn', DISABLED_OPACITY);
         }
         else 
         {
-            utils.set_opacity('forward-btn', 1.0.toString());
+            utils.set_opacity('forward-btn', ENABLED_OPACITY);
         }
     });
 
     view_states.is_first_view_state().then(is_first => {
         if(is_first)
         {
-            utils.set_opacity('back-btn', INACTIVE_OPACITY.toString());
+            utils.set_opacity('back-btn', DISABLED_OPACITY);
         }
         else 
         {
-            utils.set_opacity('back-btn', 1.0.toString());
+            utils.set_opacity('back-btn', ENABLED_OPACITY);
         }
     });
 }
 
-const DEFAULT_BUTTON_COLOR: string = document.getElementById(HIGHLIGHT_SELECTOR_ID)?.style.backgroundColor ?? "white";
+function init_new_note_button()
+{
+    let button = document.getElementById('new-note-btn');
+    if (!button) return;
+
+    button.style.opacity = DISABLED_OPACITY;
+    word_select.add_note_listener({
+        on_start: () => {
+            button.style.opacity = ENABLED_OPACITY
+        },
+        on_end: () => {
+            button.style.opacity = DISABLED_OPACITY
+        },
+    });
+
+    button.addEventListener('click', e => {
+        word_select.begin_making_note();
+    })
+}
+
 export function on_highlight_changed(id: string | null)
 {
     word_select.update_words_for_selection();
-    highlight_utils.get_catagories().then(catagories => {
+    highlight_utils.get_categories().then(categories => {
         let color = DEFAULT_BUTTON_COLOR;
-        let opacity = 0.3;
+        let opacity = DISABLED_OPACITY;
         if(id !== null)
         {
-            let category = catagories[id];
+            let category = categories[id];
             color = utils.color_to_hex(category.color);
-            opacity = 1.0;
+            opacity = ENABLED_OPACITY;
         }
 
         let btn = document.getElementById('highlight-selector-btn');
@@ -106,6 +133,8 @@ export function on_highlight_changed(id: string | null)
             btn.style.opacity = opacity.toString();
         }
     });
+
+    highlight_utils.update_highlight_selection();
 }
 
 export function init_highlight_editor_button()
@@ -165,8 +194,8 @@ export async function init_chapter_selection_dropdown()
 
 export async function init_context_menu(target_id: string)
 {
-    let catagories = Object.values(await highlight_utils.get_catagories() as object) as HighlightCategory[];
-    let highlight_selections: ContextMenuCommand[] = catagories.map(v => {
+    let categories = Object.values(await highlight_utils.get_categories() as object) as HighlightCategory[];
+    let highlight_selections: ContextMenuCommand[] = categories.map(v => {
         let selection: ContextMenuCommand = {
             name: v.name,
             command: async () => { 
@@ -178,7 +207,7 @@ export async function init_context_menu(target_id: string)
         return selection;
     });
 
-    let erase_selections: ContextMenuCommand[] = catagories.map(v => {
+    let erase_selections: ContextMenuCommand[] = categories.map(v => {
         let selection: ContextMenuCommand = {
             name: v.name,
             command: async () => { 

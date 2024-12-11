@@ -17,7 +17,8 @@ Element.prototype.appendElement = function<K extends keyof HTMLElementTagNameMap
 declare global {
     export interface Array<T>
     {
-        remove_at(index: number): T
+        remove_at(index: number): T;
+        remove(value: T): T;
     }
 }
 
@@ -31,6 +32,12 @@ Array.prototype.remove_at = function<T>(index: number): T | undefined
     }
 
     return undefined;
+}
+
+Array.prototype.remove = function<T>(value: T)
+{
+    let index = this.indexOf(value);
+    this.remove_at(index);
 }
 
 export {};

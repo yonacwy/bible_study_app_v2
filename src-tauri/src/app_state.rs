@@ -1,46 +1,62 @@
 use serde::{Deserialize, Serialize};
 use std::{cell::RefCell, collections::HashMap, sync::Mutex};
-use tauri::{path::{BaseDirectory, PathResolver}, Runtime};
+use tauri::{
+    path::{BaseDirectory, PathResolver},
+    Runtime,
+};
 
-use crate::{bible::*, bible_parsing, notes::*, utils::Color};
+use crate::{
+    bible::*,
+    bible_parsing,
+    migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION},
+    notes::*,
+    utils::Color,
+};
 
 static mut DATA: Option<AppData> = None;
-const SAVE_NAME: &str = "save.txt";
+const SAVE_NAME: &str = "save.json";
 
-pub struct AppData 
-{
+pub struct AppData {
     pub bible: Bible,
+    pub save_version: SaveVersion,
     notebook: Mutex<RefCell<Notebook>>,
 
     view_state_index: Mutex<RefCell<usize>>,
     view_states: Mutex<RefCell<Vec<ViewState>>>,
     editing_note: Mutex<RefCell<Option<String>>>,
+
+    need_display_migration: Mutex<RefCell<bool>>,
+    need_display_no_save: Mutex<RefCell<bool>>,
 }
 
 #[derive(Serialize, Deserialize)]
-struct AppSave 
-{
+struct AppSave {
     notebook: Notebook,
+    save_version: SaveVersion,
     view_state_index: usize,
     view_states: Vec<ViewState>,
     editing_note: Option<String>,
 }
 
-impl AppData 
-{
-    pub fn init<R>(bible_text: &str, resolver: &PathResolver<R>) 
-        where R : Runtime
+impl AppData {
+    pub fn init<R>(bible_text: &str, resolver: &PathResolver<R>)
+    where
+        R: Runtime,
     {
         let file = resolver
-            .resolve(SAVE_NAME, BaseDirectory::Resource).ok()
+            .resolve(SAVE_NAME, BaseDirectory::Resource)
+            .ok()
             .and_then(|path| std::fs::read(path).ok())
             .and_then(|data| String::from_utf8(data).ok());
 
-        let mut save = match file {
-            Some(file) => Self::load(&file),
+        let (mut save, was_migrated, no_save) = match file {
+            Some(file) => {
+                let (save, migrated) = Self::load(&file);
+                (save, migrated, false)
+            },
             None => {
                 let notebook = Notebook {
-                    highlight_catagories: HashMap::new(),
+                    highlight_categories: HashMap::new(),
                     notes: HashMap::new(),
                     favorite_verses: HashMap::new(),
                     section_headings: HashMap::new(),
@@ -53,12 +69,13 @@ impl AppData
                     scroll: 0.0,
                 }];
 
-                AppSave {
+                (AppSave {
                     notebook,
+                    save_version: CURRENT_SAVE_VERSION,
                     view_state_index: 0,
                     view_states,
                     editing_note: None,
-                }
+                }, false, true)
             }
         };
 
@@ -91,53 +108,68 @@ impl AppData
         unsafe {
             DATA = Some(Self {
                 bible,
+                save_version: CURRENT_SAVE_VERSION,
                 notebook: Mutex::new(RefCell::new(save.notebook)),
                 view_state_index: Mutex::new(RefCell::new(save.view_state_index)),
                 view_states: Mutex::new(RefCell::new(save.view_states)),
                 editing_note: Mutex::new(RefCell::new(save.editing_note)),
+                need_display_migration: Mutex::new(RefCell::new(was_migrated)),
+                need_display_no_save: Mutex::new(RefCell::new(no_save)),
             })
         }
     }
 
-    pub fn save<R>(&self, resolver: &PathResolver<R>) 
-        where R : Runtime
+    pub fn save<R>(&self, resolver: &PathResolver<R>)
+    where
+        R: Runtime,
     {
         let view_state_index = self.get_view_state_index();
 
         let view_states = self.view_states.lock().unwrap().borrow().clone();
         let notebook = self.notebook.lock().unwrap().borrow().clone();
         let editing_note = self.editing_note.lock().unwrap().borrow().clone();
+        let save_version = self.save_version;
 
         let save = AppSave {
             notebook,
+            save_version,
             view_state_index,
             editing_note,
             view_states,
         };
 
         let save_json = serde_json::to_string_pretty(&save).unwrap();
-        let path = resolver.resolve(SAVE_NAME, BaseDirectory::Resource)
+        let path = resolver
+            .resolve(SAVE_NAME, BaseDirectory::Resource)
             .expect("Error getting save path");
         std::fs::write(path, save_json).expect("Failed to write to save path");
     }
 
-    fn load(json: &str) -> AppSave 
-    {
-        serde_json::from_str(json).unwrap()
+    fn load(json: &str) -> (AppSave, bool) {
+        let (migrated_json, was_migrated) = match migration::migrate_save_latest(json) {
+            MigrationResult::Same(str) => (str, false),
+            MigrationResult::Different {
+                start,
+                end,
+                migrated,
+            } => {
+                println!("Migrated from {:?} to {:?}", start, end);
+                (migrated, true)
+            }
+            MigrationResult::Error(err) => panic!("Error on save | {}", err),
+        };
+        (serde_json::from_str(&migrated_json).unwrap(), was_migrated)
     }
 
-    pub fn get() -> &'static Self 
-    {
+    pub fn get() -> &'static Self {
         unsafe { DATA.as_ref().unwrap() }
     }
 
-    pub fn get_view_state_index(&self) -> usize 
-    {
+    pub fn get_view_state_index(&self) -> usize {
         *self.view_state_index.lock().unwrap().borrow()
     }
 
-    pub fn set_view_state_index(&self, mut index: usize) 
-    {
+    pub fn set_view_state_index(&self, mut index: usize) {
         let length = self.view_states.lock().unwrap().borrow().len();
         if index >= length {
             index = length - 1;
@@ -171,6 +203,28 @@ impl AppData
         let binding = self.editing_note.lock().unwrap();
         let mut editing_note = binding.borrow_mut();
         f(&mut editing_note)
+    }
+
+    /// If the application migrated teh save on load, will only return true ONCE, then will always return false
+    pub fn should_display_migration(&self) -> bool 
+    {
+        let binding = self.need_display_migration.lock().unwrap();
+        let mut need_display_migration = binding.borrow_mut();
+        
+        let old = *need_display_migration;
+        *need_display_migration = false;
+        old
+    }
+
+    /// If the application migrated teh save on load, will only return true ONCE, then will always return false
+    pub fn should_display_no_save(&self) -> bool 
+    {
+        let binding = self.need_display_no_save.lock().unwrap();
+        let mut need_display_no_save = binding.borrow_mut();
+        
+        let old = *need_display_no_save;
+        *need_display_no_save = false;
+        old
     }
 }
 

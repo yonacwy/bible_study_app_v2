@@ -23,28 +23,28 @@ export function set_category(id: string, color: string, name: string, descriptio
     });
 }
 
-export async function get_catagories(): Promise<any>
+export async function get_categories(): Promise<any>
 {
-    return JSON.parse(await utils.invoke('get_highlight_catagories', {}));
+    return JSON.parse(await utils.invoke('get_highlight_categories', {}));
 }
 
-export function render_catagories(on_delete: (id: string) => void, on_edit: (id: string) => void)
+export function render_categories(on_delete: (id: string) => void, on_edit: (id: string) => void)
 {
-    utils.invoke('get_highlight_catagories', {}).then((catagories_json: string) => {
+    utils.invoke('get_highlight_categories', {}).then((categories_json: string) => {
         let container = document.getElementById('highlights');
         if (container === null) return;
-        let catagories = JSON.parse(catagories_json);
+        let categories = JSON.parse(categories_json);
 
-        if (catagories.length == 0)
+        if (categories.length == 0)
         {
             let messageDiv = document.createElement('div');
             messageDiv.innerHTML = "No Highlights created";
             return;
         }
 
-        for(let id in catagories)
+        for(let id in categories)
         {
-            let category: HighlightCategory = catagories[id];
+            let category: HighlightCategory = categories[id];
             let name = category.name;
             let description = category.description;
             let color = category.color;
@@ -85,29 +85,32 @@ export function render_catagories(on_delete: (id: string) => void, on_edit: (id:
     });
 }
 
+const HIGHLIGHTS_DROPDOWN_SELECTION_ID: string = 'highlights-dropdown';
+
 export async function create_highlight_selection() 
 {
-    let highlight_data = await get_catagories();
-    let container = document.getElementById('highlights-dropdown');
+    let highlight_data = await get_categories();
+    let container = document.getElementById(HIGHLIGHTS_DROPDOWN_SELECTION_ID);
     let current_highlight_id = SELECTED_HIGHLIGHT.get();
 
     if(container === null) return;
+    container.replaceChildren();
 
-    let highlight_catagories: any[] = [];
+    let highlight_categories: any[] = [];
     for(let id in highlight_data)
     {
-        highlight_catagories.push(highlight_data[id]);
+        highlight_categories.push(highlight_data[id]);
     }
 
-    highlight_catagories = highlight_catagories.sort((a, b) => {
+    highlight_categories = highlight_categories.sort((a, b) => {
         if (a.name < b.name) return -1;
         if (a.name > b.name) return 1;
         return 0;
     })
 
-    for(let i = 0; i < highlight_catagories.length; i++)
+    for(let i = 0; i < highlight_categories.length; i++)
     {
-        let highlight = highlight_catagories[i];
+        let highlight = highlight_categories[i];
 
         let highlight_div = document.createElement('div');
         highlight_div.classList.add('dropdown-option');
@@ -163,6 +166,37 @@ export async function create_highlight_selection()
 
     container.appendChild(none_div);
     SELECTED_HIGHLIGHT.update_listeners();
+}
+
+export async function update_highlight_selection()
+{
+    let highlight_data = await get_categories();
+    let container = document.getElementById(HIGHLIGHTS_DROPDOWN_SELECTION_ID);
+    let current_highlight_id = SELECTED_HIGHLIGHT.get();
+
+    if (!container) return;
+    
+    let nodes = container.getElementsByClassName('dropdown-option');
+
+    let highlight_categories: string[] = [];
+    for(let id in highlight_data)
+    {
+        highlight_categories.push(id);
+    }
+
+    for (let i = 0; i < nodes.length; i++)
+    {
+        nodes[i].classList.remove('selected-option');
+        if (current_highlight_id === highlight_categories[i])
+        {
+            nodes[i].classList.add('selected-option');
+        }
+
+        if (current_highlight_id === null && i === nodes.length - 1)
+        {
+            nodes[i].classList.add('selected-option');
+        }
+    }
 }
 
 export async function get_chapter_annotations(chapter: ChapterIndex): Promise<any>

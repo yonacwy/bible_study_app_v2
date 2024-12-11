@@ -57,20 +57,55 @@ type WordData = {
     word_index: number,
 }
 
+type SelectingNoteListener =
+{
+    on_start: () => void,
+    on_end: () => void,
+}
+
+let note_listeners: SelectingNoteListener[] = [];
+export function add_note_listener(listener: SelectingNoteListener)
+{
+    note_listeners.push(listener);
+}
+
+export function remove_note_listener(listener: SelectingNoteListener)
+{
+    note_listeners.remove(listener);
+}
+
+function update_start_listeners()
+{
+    note_listeners.forEach(l => {
+        l.on_start();
+    });
+}
+
+function update_end_listeners()
+{
+    note_listeners.forEach(l => {
+        l.on_end();
+    })
+}
+
 let making_note = false;
 export function begin_making_note()
 {
+    if(making_note || editing_note) return;
     making_note = true;
     update_words_for_selection();
+    update_start_listeners();
 }
 
 let on_edit_fn: (() => void) | null = null;
 let editing_note = false;
 export function begin_editing_note(on_edit: (() => void) | null)
 {
+    if (making_note || editing_note) return;
     editing_note = true;
     on_edit_fn = on_edit;
     update_words_for_selection();
+    update_start_listeners();
 }
 
 export function is_selecting(): boolean
@@ -93,6 +128,7 @@ export function stop_selecting()
 
     update_words_for_selection();
     on_edit_fn = null;
+    update_end_listeners();
 }
 
 let is_dragging = false;
@@ -179,9 +215,6 @@ async function on_stop_dragging(word_popup: HTMLElement | null, on_require_reren
         let view = await bible.get_chapter_view(begin.chapter);
         let [verse_start, word_start] = bible.expand_word_index(view, begin.word_index);
         let [verse_end, word_end] = bible.expand_word_index(view, end.word_index);
-
-        utils.debug_print(`start: ${begin.word_index}; end: ${end.word_index}`);
-        utils.debug_print(`e start: ${verse_start}:${word_start}; e end: ${verse_end}:${word_end}`);
 
         let verse_range = {
             verse_start: verse_start,

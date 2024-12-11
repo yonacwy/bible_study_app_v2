@@ -1,5 +1,5 @@
 # Plan:
-### Version 0.6.0 - Multiple Bible Support
+### Version 0.6.0: Multiple Bible Support
 - [ ] Multiple Bible Support
 - [ ] Special bible format?
 
@@ -21,18 +21,26 @@
 - [ ] CSS updates
   - [ ] Fix positioning issue when the window gets small
 - [ ] More tooltips
-- [ ] ON BUILD: change file from short_kjv.txt to kjv.txt
 
 ### Version 0.4.2: Bugfixes
-- [ ] Bugfixes:
-  - [ ] Crash with note creation
-  - [ ] Context menu:
-    - [ ] Erase highlights with none created
-    - [ ] Set highlight with none created
-  - [ ] Note visual not showing properly in first verse
-- [ ] Updates:
-  - [ ] Save files with versioning
-  - [ ] Visual for selecting notes and highlights
+- [x] Bugfixes:
+  - [ ] ~~Crash with note creation~~
+  - [x] Context menu:
+    - [x] Erase highlights with none created
+    - [x] Set highlight with none created
+    - [x] Context menu highlighting selection not updating highlight dropdown preview 
+  - [x] Note visual not showing properly in first verse
+  - [x] Fix the confirm delete note popup message
+  - [x] Fix the confirm delete highlight popup message
+- [x] Updates:
+  - [x] Save files with versioning
+  - [x] Visual for selecting notes
+  - [x] Visual when save file not found
+  - [x] Add `Jas` shorthand for James
+  - [x] Update icon
+- [x] Misc
+  - [x] Fix spelling of `categories`
+  - [x] ON BUILD: change file from short_kjv.txt to kjv.txt
 
 
 ### Version 0.4.1: Various Bugfixes

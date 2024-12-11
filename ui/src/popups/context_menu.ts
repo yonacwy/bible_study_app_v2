@@ -30,7 +30,7 @@ export function init_context_menu(target_id: string, args: ContextMenuArg[], sho
 
     let menu = document.getElementById('context-menu') as HTMLElement | null;
     if(menu === null) return;
-    build_menu(menu, args, true);
+    build_menu(menu, menu, args, true);
     target.addEventListener('contextmenu', async e => {
         e.preventDefault();
         let interrupt = await should_interrupt();
@@ -128,7 +128,7 @@ function move_sub_menus(root: HTMLElement)
     })
 }
 
-function build_menu(menu: HTMLElement, args: ContextMenuArg[], is_main: boolean)
+function build_menu(root_menu: HTMLElement, menu: HTMLElement, args: ContextMenuArg[], is_main: boolean)
 {
     let z_index = menu.style.zIndex + 1;
     args.forEach(arg => {
@@ -138,8 +138,8 @@ function build_menu(menu: HTMLElement, args: ContextMenuArg[], is_main: boolean)
             {
                 div.innerHTML = arg.name;
                 div.addEventListener('click', _ => {
-                    command.command()
-                    if(is_main) hide_popup(menu);
+                    command.command();
+                    hide_popup(root_menu);
                 });
             }
 
@@ -147,11 +147,14 @@ function build_menu(menu: HTMLElement, args: ContextMenuArg[], is_main: boolean)
             if(sub_menu.args !== undefined)
             {
                 div.appendElement('span', span => span.innerHTML = sub_menu.name);
-                div.appendElement('div', sub_menu_node => {
-                    sub_menu_node.style.zIndex = z_index;
-                    sub_menu_node.classList.add('sub-menu');
-                    build_menu(sub_menu_node, sub_menu.args, false);
-                })
+                if (sub_menu.args.length > 0)
+                {
+                    div.appendElement('div', sub_menu_node => {
+                        sub_menu_node.style.zIndex = z_index;
+                        sub_menu_node.classList.add('sub-menu');
+                        build_menu(root_menu, sub_menu_node, sub_menu.args, false);
+                    });
+                }
             }
         })
     });

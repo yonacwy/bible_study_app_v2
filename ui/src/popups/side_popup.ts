@@ -6,7 +6,7 @@ import * as view_states from "../view_states.js";
 
 const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";
-const CATAGORIES: any = await highlight_utils.get_catagories();
+const CATEGORIES: any = await highlight_utils.get_categories();
 
 export type PanelData = {
     popup_panel: HTMLElement,
@@ -96,9 +96,9 @@ function append_highlights(annotations: WordAnnotations, target: Element)
     for (let i = 0; i < annotations.highlights.length; i++) 
     {
         let id = annotations.highlights[i];
-        let name: string = CATAGORIES[id].name;
-        let color: Color = CATAGORIES[id].color;
-        let description: string = CATAGORIES[id].description;
+        let name: string = CATEGORIES[id].name;
+        let color: Color = CATEGORIES[id].color;
+        let description: string = CATEGORIES[id].description;
 
         target.appendElement('div', div => {
             div.classList.add('highlight-viewer');

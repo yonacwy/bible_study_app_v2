@@ -29,6 +29,49 @@
             <h2>Changelog</h2>
             <ul class="changelog">
                 <li>
+                    <strong>v0.4.2</strong> - More Bugfixes
+                    <ul>
+                        <li>
+                            Bugfixes:
+                            <ul>
+                                <li>Context Menu:</li>
+                                <ul>
+                                    <li>Erase highlights option looks weird when no highlights created</li>
+                                    <li>Create highlights option looks weird when no highlights created</li>
+                                    <li>Context menu highlighting section not updating highlight dropdown</li>
+                                </ul>
+                                <li>Note visual not showing properly in first verse for text</li>
+                                <li>Fixed the confirm delete note popup message</li>
+                                <li>Fixed the confirm delete highlight popup message</li>
+                            </ul>
+                        </li>
+                        <li>
+                            Updates:
+                            <ul>
+                                <li>
+                                    Save files with versioning
+                                    <ul>
+                                        <li>This was for migration and backwards compatibility</li>
+                                        <li>There is no standardized json format for the save files of this project currently</li>
+                                    </ul>
+                                </li>
+                                <li>Visual added for creating notes</li>
+                                <li>Visual when save files not found</li>
+                                <li>Visual when migrating save files</li>
+                                <li>"Jas" now works as a shorthand for the books of James</li>
+                                <li>Updated the Ascribe icon, thanks again to <a href="mailto:crosey97@gmail.com">Cassandra Creations</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            Code changes
+                            <ul>
+                                <li>Fixed spelling of <code>categories</code> (was <code>catagories</code>)</li>
+                                <li>ON BUILD: will now automatically change from <code>short_kjv.txt</code> in debug to <code>kjv.txt</code> in release</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
                     <strong>v0.4.1</strong> - Bugfix
                     <ul>
                         <li>Note reference locations was off</li>
@@ -105,7 +148,7 @@
                     <strong>v0.2.0</strong> - Highlight Support
                     <ul>
                         <li>
-                            Highlight Catagories
+                            Highlight Categories
                             <ul>
                                 <li>Data: Color, info, name, priority</li>
                                 <li>Can create/delete them</li>

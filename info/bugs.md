@@ -1,3 +1,2 @@
 # Bugs:
-- Note Selection not working.... again....
 - Crash when making new note when editing new note???

@@ -24,7 +24,7 @@ function init_delete_note_button(note_id: string)
 
     button?.addEventListener('click', _ => {
         confirm_popup.show_confirm_popup({
-            message: 'Are you sure you want to delete this popup?',
+            message: 'Are you sure you want to delete this note?',
             on_confirm: delete_note
         });
     });

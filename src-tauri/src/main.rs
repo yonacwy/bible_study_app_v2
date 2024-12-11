@@ -9,12 +9,18 @@ pub mod app_state;
 pub mod bible;
 pub mod bible_parsing;
 pub mod commands;
+pub mod migration;
 pub mod notes;
 mod search_parsing;
 pub mod utils;
 
 use commands::*;
-use tauri::{Manager, path::BaseDirectory};
+use tauri::{path::BaseDirectory, Manager};
+
+const BIBLE_PATH: &str = debug_release_val! { 
+    debug: "resources/small_kjv.txt",
+    release: "resources/kjv.txt",
+};
 
 fn main() {
     tauri::Builder::default()
@@ -22,7 +28,7 @@ fn main() {
         .setup(|app| {
             let resource_path = app
                 .path()
-                .resolve("resources/kjv.txt", BaseDirectory::Resource)
+                .resolve(BIBLE_PATH, BaseDirectory::Resource)
                 .expect("Failed to retrieve `kjv.txt` resource");
 
             let mut file = std::fs::File::open(&resource_path).unwrap();
@@ -52,7 +58,7 @@ fn main() {
             get_verse,
             get_book_name,
             get_chapter_view,
-            get_highlight_catagories,
+            get_highlight_categories,
             add_highlight_category,
             remove_highlight_category,
             set_highlight_category,
@@ -67,6 +73,8 @@ fn main() {
             update_note,
             get_editing_note,
             set_editing_note,
+            should_display_migration,
+            should_display_no_save,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
