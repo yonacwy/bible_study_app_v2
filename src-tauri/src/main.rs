@@ -17,13 +17,18 @@ pub mod utils;
 use commands::*;
 use tauri::{path::BaseDirectory, Manager};
 
+const BIBLE_PATH: &str = debug_release_val! { 
+    debug: "resources/small_kjv.txt",
+    release: "resources/kjv.txt",
+};
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
             let resource_path = app
                 .path()
-                .resolve("resources/small_kjv.txt", BaseDirectory::Resource)
+                .resolve(BIBLE_PATH, BaseDirectory::Resource)
                 .expect("Failed to retrieve `kjv.txt` resource");
 
             let mut file = std::fs::File::open(&resource_path).unwrap();
@@ -69,6 +74,7 @@ fn main() {
             get_editing_note,
             set_editing_note,
             should_display_migration,
+            should_display_no_save,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

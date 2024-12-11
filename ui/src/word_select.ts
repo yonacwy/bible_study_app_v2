@@ -91,6 +91,7 @@ function update_end_listeners()
 let making_note = false;
 export function begin_making_note()
 {
+    if(making_note || editing_note) return;
     making_note = true;
     update_words_for_selection();
     update_start_listeners();
@@ -100,6 +101,7 @@ let on_edit_fn: (() => void) | null = null;
 let editing_note = false;
 export function begin_editing_note(on_edit: (() => void) | null)
 {
+    if (making_note || editing_note) return;
     editing_note = true;
     on_edit_fn = on_edit;
     update_words_for_selection();

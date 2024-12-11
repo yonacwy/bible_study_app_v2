@@ -290,3 +290,9 @@ pub fn should_display_migration() -> bool
 {
     AppData::get().should_display_migration()
 }
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn should_display_no_save() -> bool 
+{
+    AppData::get().should_display_no_save()
+}

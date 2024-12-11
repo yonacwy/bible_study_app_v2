@@ -26,6 +26,7 @@ pub struct AppData {
     editing_note: Mutex<RefCell<Option<String>>>,
 
     need_display_migration: Mutex<RefCell<bool>>,
+    need_display_no_save: Mutex<RefCell<bool>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -48,8 +49,11 @@ impl AppData {
             .and_then(|path| std::fs::read(path).ok())
             .and_then(|data| String::from_utf8(data).ok());
 
-        let (mut save, was_migrated) = match file {
-            Some(file) => Self::load(&file),
+        let (mut save, was_migrated, no_save) = match file {
+            Some(file) => {
+                let (save, migrated) = Self::load(&file);
+                (save, migrated, false)
+            },
             None => {
                 let notebook = Notebook {
                     highlight_categories: HashMap::new(),
@@ -71,7 +75,7 @@ impl AppData {
                     view_state_index: 0,
                     view_states,
                     editing_note: None,
-                }, false)
+                }, false, true)
             }
         };
 
@@ -109,7 +113,8 @@ impl AppData {
                 view_state_index: Mutex::new(RefCell::new(save.view_state_index)),
                 view_states: Mutex::new(RefCell::new(save.view_states)),
                 editing_note: Mutex::new(RefCell::new(save.editing_note)),
-                need_display_migration: Mutex::new(RefCell::new(was_migrated))
+                need_display_migration: Mutex::new(RefCell::new(was_migrated)),
+                need_display_no_save: Mutex::new(RefCell::new(no_save)),
             })
         }
     }
@@ -208,6 +213,17 @@ impl AppData {
         
         let old = *need_display_migration;
         *need_display_migration = false;
+        old
+    }
+
+    /// If the application migrated teh save on load, will only return true ONCE, then will always return false
+    pub fn should_display_no_save(&self) -> bool 
+    {
+        let binding = self.need_display_no_save.lock().unwrap();
+        let mut need_display_no_save = binding.borrow_mut();
+        
+        let old = *need_display_no_save;
+        *need_display_no_save = false;
         old
     }
 }

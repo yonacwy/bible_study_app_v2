@@ -36,6 +36,7 @@
 - [ ] Updates:
   - [x] Save files with versioning
   - [ ] Visual for selecting notes
+  - [ ] Visual when save file not found
   - [x] Add `Jas` shorthand for James
   - [x] Update icon
 - [x] Misc

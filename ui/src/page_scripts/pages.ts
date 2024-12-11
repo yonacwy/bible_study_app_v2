@@ -26,10 +26,6 @@ const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 export async function init_header(): Promise<void>
 {
     highlight_utils.SELECTED_HIGHLIGHT.add_listener(on_highlight_changed);
-    word_select.add_note_listener({
-        on_start: () => utils.debug_print('starting selecting note'),
-        on_end: () => utils.debug_print('ending selecting note'),
-    });
 
     let word_popup = document.getElementById(WORD_POPUP_ID);
     if(word_popup !== null)
@@ -47,8 +43,15 @@ export async function init_header(): Promise<void>
         utils.init_toggle('erase-highlight-toggle', highlight_utils.ERASING_HIGHLIGHT),
         side_popup.init_popup_panel('popup-panel'),
         utils.display_migration_popup(),
+        utils.display_no_save_popup(),
+        init_new_note_button(),
     ]);
 }
+
+
+const DEFAULT_BUTTON_COLOR: string = document.getElementById(HIGHLIGHT_SELECTOR_ID)?.style.backgroundColor ?? "white";
+const DISABLED_OPACITY: string = '0.3';
+const ENABLED_OPACITY: string = '1.0';
 
 export function init_nav_buttons()
 {
@@ -67,32 +70,48 @@ export function init_nav_buttons()
 
 export function update_nav_buttons_opacity() 
 {
-    const INACTIVE_OPACITY = 0.3;
     view_states.is_last_view_state().then(is_last => {
         if(is_last)
         {
-            utils.set_opacity('forward-btn', INACTIVE_OPACITY.toString());
+            utils.set_opacity('forward-btn', DISABLED_OPACITY);
         }
         else 
         {
-            utils.set_opacity('forward-btn', 1.0.toString());
+            utils.set_opacity('forward-btn', ENABLED_OPACITY);
         }
     });
 
     view_states.is_first_view_state().then(is_first => {
         if(is_first)
         {
-            utils.set_opacity('back-btn', INACTIVE_OPACITY.toString());
+            utils.set_opacity('back-btn', DISABLED_OPACITY);
         }
         else 
         {
-            utils.set_opacity('back-btn', 1.0.toString());
+            utils.set_opacity('back-btn', ENABLED_OPACITY);
         }
     });
 }
 
-const DEFAULT_BUTTON_COLOR: string = document.getElementById(HIGHLIGHT_SELECTOR_ID)?.style.backgroundColor ?? "white";
-const DISABLED_OPACITY: number = 0.3;
+function init_new_note_button()
+{
+    let button = document.getElementById('new-note-btn');
+    if (!button) return;
+
+    button.style.opacity = DISABLED_OPACITY;
+    word_select.add_note_listener({
+        on_start: () => {
+            button.style.opacity = ENABLED_OPACITY
+        },
+        on_end: () => {
+            button.style.opacity = DISABLED_OPACITY
+        },
+    });
+
+    button.addEventListener('click', e => {
+        word_select.begin_making_note();
+    })
+}
 
 export function on_highlight_changed(id: string | null)
 {
@@ -104,7 +123,7 @@ export function on_highlight_changed(id: string | null)
         {
             let category = categories[id];
             color = utils.color_to_hex(category.color);
-            opacity = 1.0;
+            opacity = ENABLED_OPACITY;
         }
 
         let btn = document.getElementById('highlight-selector-btn');
