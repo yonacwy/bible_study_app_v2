@@ -5,7 +5,7 @@ use itertools::Itertools;
 use crate::{
     app_state::{AppData, ViewState},
     bible::{ChapterIndex, ReferenceLocation, Verse},
-    notes::{HighlightCategory, NoteData, WordAnnotations},
+    notes::{HighlightCategory, WordAnnotations},
     search_parsing::*,
     utils::Color,
 };

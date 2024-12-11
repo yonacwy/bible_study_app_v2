@@ -10,7 +10,6 @@ use crate::{
     bible_parsing,
     migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION},
     notes::*,
-    utils::Color,
 };
 
 static mut DATA: Option<AppData> = None;
