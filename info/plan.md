@@ -21,7 +21,6 @@
 - [ ] CSS updates
   - [ ] Fix positioning issue when the window gets small
 - [ ] More tooltips
-- [ ] ON BUILD: change file from short_kjv.txt to kjv.txt
 
 ### Version 0.4.2: Bugfixes
 - [x] Bugfixes:
@@ -39,8 +38,9 @@
   - [ ] Visual for selecting notes
   - [x] Add `Jas` shorthand for James
   - [x] Update icon
-- [ ] Misc
+- [x] Misc
   - [x] Fix spelling of `categories`
+  - [ ] ON BUILD: change file from short_kjv.txt to kjv.txt
 
 
 ### Version 0.4.1: Various Bugfixes
