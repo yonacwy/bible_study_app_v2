@@ -1,3 +1,5 @@
+@import (reference) "./styles.less";
+
 #left-pane, #right-pane {
     display: block;
     align-items: center;
@@ -27,8 +29,8 @@
 
 #pane-container {
     display: flex;
-    top: var(--header-height);
-    height: calc(100vh - var(--header-height));
+    top: @header-height;
+    height: 100vh - @header-height;
     width: 100%;
     position: relative;
 }
@@ -69,10 +71,10 @@
 .image-btn {
     padding: 1px;
     display: flex;
-    width: var(--button-size);
-    max-width: var(--button-size);
-    height: var(--button-size);
-    max-height: var(--button-size);
+    width: @button-size;
+    max-width: @button-size;
+    height: @button-size;
+    max-height: @button-size;
     box-sizing: border-box;
     justify-content: center;
     align-items: center;
@@ -116,7 +118,7 @@
     box-sizing: border-box;
     position: relative;
     padding: 0px;
-    height: var(--button-size);
+    height: @button-size;
     max-width: fit-content;
     width: fit-content;
     min-width: 0px;
@@ -126,10 +128,10 @@
 }
 
 .toolbar .reference-dropdown .reference-dropdown-title {
-    padding: calc((var(--button-size) - 1em) / 2);
+    padding: (@button-size - 1em) / 2;
     padding-right: 10px;
     margin: 0px;
-    margin-right: calc((var(--button-size) - 1em) / 2);
+    margin-right: (@button-size - 1em) / 2;
     width: auto;
     height: 100%;
     box-sizing: border-box;
@@ -159,7 +161,7 @@
 .toolbar .reference-dropdown .reference-dropdown-content .new-reference-btn {
     box-sizing: border-box;
     width: calc(100% - 4px);
-    height: var(--button-size);
+    height: @button-size;
     margin: 2px;
     background-color: #ddd;
     display: flex;
@@ -190,7 +192,7 @@
 }
 
 .toolbar .reference-dropdown .reference-dropdown-content .reference-link .reference-text {
-    max-width: calc(100% - 10px - var(--button-size));
+    max-width: 100% - 10px - @button-size;
     overflow: hidden;
 }
 
@@ -212,7 +214,7 @@
     border-radius: 0 0 8px 8px;
     box-sizing: border-box;
     width: 100%;
-    height: calc(100% - 10px * 2 - var(--button-size));
+    height: 100% - 10px * 2 - @button-size;
 }
 
 .editor textarea {

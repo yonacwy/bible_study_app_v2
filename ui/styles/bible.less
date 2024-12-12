@@ -1,3 +1,5 @@
+@import (reference) "./styles.less";
+
 .bible-chapter li {
     margin: 5px;
     padding: 5px;
@@ -15,7 +17,7 @@
 .chapter-button {
     display: block;
     position: fixed;
-    width: calc(20px + var(--content-margin) - 10px);
+    width: 10px + @content-margin;
     height: 30vh;
     top: calc(50vh - 15vh);
     padding: 0px;
@@ -30,7 +32,7 @@
 }
 
 .chapter-button img {
-    width: calc(100% - 2px);
+    width: 100% - 2px;
     aspect-ratio: 1 / 1;
     margin: 0px;
 }
