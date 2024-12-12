@@ -7,7 +7,7 @@
 - [ ] Notebook Support
 
 ### Version 0.4.3: Visualization Overall
-- [ ] Implementing SCSS
+- [ ] Implementing LESS
 - [ ] Settings
   - [ ] Different Font Support
   - [ ] Theme Support?
