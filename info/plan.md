@@ -10,6 +10,10 @@
 - [ ] Implementing LESS
 - [ ] Settings
   - [ ] Different Font Support
+    - [ ] [Gidole](https://fontlibrary.org/en/font/gidole-regular)
+    - [ ] [Gotica](https://fontlibrary.org/en/font/gotica)
+    - [ ] [Open Sauce Sans](https://fontlibrary.org/en/font/open-sauce-sans)
+    - [ ] [Fira Sans](https://fontlibrary.org/en/font/fira-sans)
   - [ ] Theme Support?
     - [ ] Light
     - [ ] Dark
