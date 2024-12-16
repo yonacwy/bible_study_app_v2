@@ -18,13 +18,22 @@
     - [ ] Light
     - [ ] Dark
   - [ ] Text Size
+  - [ ] Volume
 - [ ] Min Window Size
-- [ ] Updater
-  - [ ] Renaming save to .json
-  - [ ] Allow for save data migration?
 - [ ] CSS updates
   - [ ] Fix positioning issue when the window gets small
+- [ ] Sounds?
+  - [ ] Page flipping
+  - [ ] Button pushing
+  - [ ] Music??????????????
+- [ ] Key binds
+  - [ ] `Ctrl + N`: New note
+  - [ ] Left/Right/A/D: Chapter Navigation
+    - [ ] Add `Ctrl` to navigate through history
+  - [ ] Up/Down/W/S: Scrolling
+  - [ ] `Ctrl + S`: Search for highlighted section
 - [ ] More tooltips
+- [ ] Tutorial Page?
 
 ### Version 0.4.2: Bugfixes
 - [x] Bugfixes:
