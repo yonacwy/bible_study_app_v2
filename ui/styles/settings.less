@@ -1,0 +1,43 @@
+@import "./shared/defs.less";
+
+.settings
+{ 
+    margin-top: @header-height + 10px;
+    .setting 
+    {
+        background-color: white;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+
+        .rounded-border();
+        .drop-shadow-m();
+
+        h3 
+        {
+            text-align: center;
+            margin: 5px;
+        }
+
+        .slider-container
+        {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+
+            // the slider
+            input[type=range] 
+            {
+                border: 1px solid cyan;
+                width: calc(80% - @button-size - @button-margin * 2);
+                margin: 5px;
+            }
+
+            .value-text 
+            {
+                margin: 5px;
+                width: 2em;
+            }
+        }
+    }
+}

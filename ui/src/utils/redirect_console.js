@@ -1,5 +1,5 @@
 
-const redirect = false;
+const redirect = true;
 if(redirect)
 {
     console['log'] = (msg) => window.__TAURI__.core.invoke('debug_print', {message: msg});

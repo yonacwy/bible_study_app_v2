@@ -22,3 +22,4 @@ export type WordAnnotations = { highlights: Array<string>, notes: Array<string> 
 export type Color = { r: number, g: number, b: number };
 export type BibleSection = { book: number, chapter: number, verse_range: VerseRange | null };
 export type SearchSection = { words: string[], display_index: number };
+export type AppSettings = { text_scale: number, ui_scale: number, volume: number };
