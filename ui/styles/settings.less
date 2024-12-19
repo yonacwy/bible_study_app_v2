@@ -41,3 +41,61 @@
         }
     }
 }
+
+.settings-buttons 
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+
+    button {
+        margin: 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        color: white;
+    }
+
+    @apply-btn-color: #5bc0de;
+    @reset-btn-color: #d9534f;
+    @cancel-btn-color: #aaa;
+
+    button.apply-btn {
+        background-color: @apply-btn-color;
+
+        &:hover {
+            background-color: darken(@apply-btn-color, 10%)
+        };
+
+        &:active {
+            background-color: darken(@apply-btn-color, 20%)
+        }
+    };
+
+    button.cancel-btn {
+        background-color: @cancel-btn-color;
+
+        &:hover {
+            background-color: darken(@cancel-btn-color, 10%)
+        };
+
+        &:active {
+            background-color: darken(@cancel-btn-color, 20%)
+        }
+    }
+
+    button.reset-btn {
+        background-color: @reset-btn-color;
+
+        &:hover {
+            background-color: darken(@reset-btn-color, 10%)
+        };
+
+        &:active {
+            background-color: darken(@reset-btn-color, 20%)
+        }
+    }
+}

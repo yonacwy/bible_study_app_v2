@@ -13,6 +13,7 @@ pub mod migration;
 pub mod notes;
 mod search_parsing;
 pub mod utils;
+pub mod settings;
 
 use commands::*;
 use tauri::{path::BaseDirectory, Manager};
@@ -75,6 +76,8 @@ fn main() {
             set_editing_note,
             should_display_migration,
             should_display_no_save,
+            get_settings,
+            set_settings,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

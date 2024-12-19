@@ -7,7 +7,7 @@
 - [ ] Notebook Support
 
 ### Version 0.4.3: Visualization Overall
-- [ ] Implementing LESS
+- [x] Implementing LESS
 - [ ] Settings
   - [ ] Different Font Support
     - [ ] [Gidole](https://fontlibrary.org/en/font/gidole-regular)

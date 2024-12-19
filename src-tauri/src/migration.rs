@@ -1,8 +1,10 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use crate::settings::Settings;
+
 const SAVE_FIELD_NAME: &str = "save_version";
-pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV1;
+pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV2;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SaveVersion {
@@ -10,6 +12,8 @@ pub enum SaveVersion {
     SV0,
     #[serde(rename = "1")]
     SV1,
+    #[serde(rename = "2")]
+    SV2,
 }
 
 impl SaveVersion {
@@ -46,8 +50,7 @@ pub fn migrate_save_latest(data: &str) -> MigrationResult {
     };
 
     migrate_sv0(version, &mut json);
-
-    
+    migrate_sv1(&mut json);
 
     if CURRENT_SAVE_VERSION != version {
         MigrationResult::Different {
@@ -87,4 +90,21 @@ fn migrate_sv0(version: SaveVersion, json: &mut Value)
             notebook.insert(NEW_CATEGORY_PATH.into(), data);
         }
     }
+}
+
+/// The save version must be in SV1 format.
+/// Just adds the `settings` value to the save file
+fn migrate_sv1(json: &mut Value)
+{
+    if !json.get(SAVE_FIELD_NAME)
+       .and_then(|v| serde_json::from_value(v.clone()).ok())
+       .is_some_and(|v: SaveVersion| v == SaveVersion::SV1)
+    {
+        return;
+    }
+
+    const SETTINGS_NAME: &str = "settings";
+    let json_obj = json.as_object_mut().unwrap();
+    json_obj.insert(SAVE_FIELD_NAME.into(), serde_json::to_value(SaveVersion::SV2).unwrap());
+    json_obj.insert(SETTINGS_NAME.into(), serde_json::to_value(Settings::default()).unwrap());
 }

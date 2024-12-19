@@ -9,7 +9,7 @@ use crate::{
     bible::*,
     bible_parsing,
     migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION},
-    notes::*,
+    notes::*, settings::Settings,
 };
 
 static mut DATA: Option<AppData> = None;
@@ -26,6 +26,7 @@ pub struct AppData {
 
     need_display_migration: Mutex<RefCell<bool>>,
     need_display_no_save: Mutex<RefCell<bool>>,
+    settings: Mutex<RefCell<Settings>>
 }
 
 #[derive(Serialize, Deserialize)]
@@ -35,6 +36,7 @@ struct AppSave {
     view_state_index: usize,
     view_states: Vec<ViewState>,
     editing_note: Option<String>,
+    settings: Settings,
 }
 
 impl AppData {
@@ -74,6 +76,7 @@ impl AppData {
                     view_state_index: 0,
                     view_states,
                     editing_note: None,
+                    settings: Settings::default()
                 }, false, true)
             }
         };
@@ -114,6 +117,7 @@ impl AppData {
                 editing_note: Mutex::new(RefCell::new(save.editing_note)),
                 need_display_migration: Mutex::new(RefCell::new(was_migrated)),
                 need_display_no_save: Mutex::new(RefCell::new(no_save)),
+                settings: Mutex::new(RefCell::new(save.settings)),
             })
         }
     }
@@ -127,6 +131,7 @@ impl AppData {
         let view_states = self.view_states.lock().unwrap().borrow().clone();
         let notebook = self.notebook.lock().unwrap().borrow().clone();
         let editing_note = self.editing_note.lock().unwrap().borrow().clone();
+        let settings = self.settings.lock().unwrap().borrow().clone();
         let save_version = self.save_version;
 
         let save = AppSave {
@@ -135,6 +140,7 @@ impl AppData {
             view_state_index,
             editing_note,
             view_states,
+            settings,
         };
 
         let save_json = serde_json::to_string_pretty(&save).unwrap();
@@ -202,6 +208,15 @@ impl AppData {
         let binding = self.editing_note.lock().unwrap();
         let mut editing_note = binding.borrow_mut();
         f(&mut editing_note)
+    }
+
+    pub fn read_settings<F, R>(&self, mut f: F) -> R 
+    where 
+        F: FnMut(&mut Settings) -> R 
+    {
+        let binding = self.settings.lock().unwrap();
+        let mut settings = binding.borrow_mut();
+        f(&mut settings)
     }
 
     /// If the application migrated teh save on load, will only return true ONCE, then will always return false

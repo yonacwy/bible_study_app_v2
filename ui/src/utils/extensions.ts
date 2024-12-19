@@ -19,6 +19,7 @@ declare global {
     {
         remove_at(index: number): T;
         remove(value: T): T;
+        filter_map<R>(predicate: (v: T) => R | null): R[];
     }
 }
 
@@ -39,6 +40,19 @@ Array.prototype.remove = function<T>(value: T)
     let index = this.indexOf(value);
     this.remove_at(index);
 }
+
+Array.prototype.filter_map = function<T, R>(this: T[], predicate: (v: T) => R | null): R[] {
+    let array: R[] = [];
+    this.forEach((v) => {
+        const result = predicate(v);
+        if (result != null) 
+        {
+            array.push(result);
+        }
+    });
+
+    return array;
+};
 
 declare global {
     interface Math {
