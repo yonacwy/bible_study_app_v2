@@ -18,7 +18,7 @@ declare global {
     export interface Array<T>
     {
         remove_at(index: number): T;
-        remove(value: T): T;
+        remove(value: T): boolean;
         filter_map<R>(predicate: (v: T) => R | null): R[];
     }
 }
@@ -35,10 +35,16 @@ Array.prototype.remove_at = function<T>(index: number): T | undefined
     return undefined;
 }
 
-Array.prototype.remove = function<T>(value: T)
+Array.prototype.remove = function<T>(value: T): boolean
 {
     let index = this.indexOf(value);
+    if(index === -1)
+    {
+        return false;
+    }
+
     this.remove_at(index);
+    return true;
 }
 
 Array.prototype.filter_map = function<T, R>(this: T[], predicate: (v: T) => R | null): R[] {

@@ -1,4 +1,5 @@
 import { AppSettings } from "./bindings.js";
+import { EventListeners } from "./utils/events.js";
 import * as utils from "./utils/index.js"
 
 export const MAX_UI_SCALE: number = 2;
@@ -8,6 +9,8 @@ export const DEFAULT_UI_SCALE: number = 1;
 export const MAX_TEXT_SCALE: number = 2;
 export const MIN_TEXT_SCALE: number = 0.5;
 export const DEFAULT_TEXT_SCALE: number = 1;
+
+export const ON_SETTINGS_CHANGED: EventListeners<AppSettings> = new EventListeners();
 
 export async function get_volume(): Promise<number> 
 {
@@ -52,10 +55,14 @@ export async function get_settings(): Promise<AppSettings>
 
 export async function set_settings(settings: AppSettings): Promise<void>
 {
-    return await utils.invoke('set_settings', { settings: settings });
+    let result =  await utils.invoke('set_settings', { settings: settings });
+    ON_SETTINGS_CHANGED.invoke(settings);
+    return result;
 }
 
 export async function reset_settings()
 {
-    return await utils.invoke('set_settings', { settings: null });
+    let result = await utils.invoke('set_settings', { settings: null });
+    ON_SETTINGS_CHANGED.invoke(await get_settings());
+    return result;
 }

@@ -6,6 +6,9 @@
 ### Version 0.5.0
 - [ ] Notebook Support
 
+### Version 0.4.4: Adding Reading Plans
+- [ ] Adding built in reading plans
+
 ### Version 0.4.3: Visualization Overall
 - [x] Implementing LESS
 - [ ] Settings
@@ -25,7 +28,7 @@
 - [ ] Sounds?
   - [ ] Page flipping
   - [ ] Button pushing
-  - [ ] Music??????????????
+  - [ ] ~~Music??????????????~~
 - [ ] Key binds
   - [ ] `Ctrl + N`: New note
   - [ ] Left/Right/A/D: Chapter Navigation
