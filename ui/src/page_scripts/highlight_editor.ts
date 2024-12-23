@@ -5,6 +5,7 @@ import { HighlightCategory } from "../bindings.js";
 import * as confirm_popup from "../popups/confirm_popup.js";
 import * as header_utils from "./menu_header.js";
 import * as pages from "./pages.js";
+import * as settings from "../settings.js"
 
 export type HighlightEditorData = {
     old_path: string
@@ -27,6 +28,7 @@ export async function run()
 
     pages.init_back_button(data.old_path);
     pages.init_settings_buttons(data.old_path);
+    settings.init_less_sync();
 
     highlights.render_categories(on_delete, on_edit);
 

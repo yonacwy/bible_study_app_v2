@@ -66,3 +66,15 @@ export async function reset_settings()
     ON_SETTINGS_CHANGED.invoke(await get_settings());
     return result;
 }
+
+export async function init_less_sync()
+{
+    let on_changed = (settings: AppSettings) => {
+        less.modifyVars({
+            '@header-height': `35px * ${settings.ui_scale}`
+        });
+    }
+
+    ON_SETTINGS_CHANGED.add_listener(on_changed);
+    on_changed(await get_settings());
+}

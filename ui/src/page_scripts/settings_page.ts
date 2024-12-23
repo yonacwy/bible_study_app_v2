@@ -13,6 +13,7 @@ export async function run()
     init_settings_page_header(() => '');
     pages.init_back_button(data.old_path);
     pages.init_settings_buttons(data.old_path);
+    settings.init_less_sync();
     
     await sync_display_settings();
 
@@ -21,7 +22,6 @@ export async function run()
     init_text_scale();
 
     init_apply_buttons();
-
 
     document.body.style.visibility = 'visible';
 }
@@ -126,7 +126,6 @@ async function init_ui_scale()
     if (!slider || !button || !display) return null;
 
     const on_value_changed = (value: number) => {
-        utils.debug_print(`ui value: ${value}`);
         display.innerHTML = `${Math.round(value * 100)}%`;
         d_ui_scale = value;
         slider.value = Math.inv_lerp(settings.MIN_UI_SCALE, settings.MAX_UI_SCALE, value).toString();

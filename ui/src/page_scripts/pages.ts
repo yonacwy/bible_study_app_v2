@@ -10,6 +10,7 @@ import { ContextMenuCommand } from "../popups/context_menu.js";
 import { HighlightCategory } from "../bindings.js";
 import * as word_select from "../word_select.js";
 import { init_main_page_header } from "./menu_header.js";
+import * as settings from '../settings.js';
 
 export const SEARCH_INPUT_ID: string = "search-input";
 export const SEARCH_BUTTON_ID: string = "search-btn";
@@ -45,6 +46,7 @@ export async function init_header(): Promise<void>
         utils.display_migration_popup(),
         utils.display_no_save_popup(),
         init_new_note_button(),
+        settings.init_less_sync(),
     ]).then(_ => {
         init_settings_buttons(window.location.href);
     });
