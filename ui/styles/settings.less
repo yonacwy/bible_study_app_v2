@@ -1,4 +1,5 @@
 @import "./shared/defs.less";
+@import "./shared/font_sizing.less";
 
 .settings
 { 
@@ -57,11 +58,12 @@
     button {
         margin: 10px;
         padding: 10px 20px;
-        font-size: 16px;
         border: none;
         border-radius: 3px;
         cursor: pointer;
         color: white;
+
+        .font-small()
     }
 
     @apply-btn-color: #5bc0de;

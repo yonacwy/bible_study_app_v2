@@ -114,3 +114,13 @@ export async function display_no_save_popup()
         alert('No save found, creating a new save');
     }
 }
+
+export enum AudioClip
+{
+    Flip = 'flip',
+}
+
+export function play_audio(clip: AudioClip)
+{
+    invoke('play_clip', { clip_name: clip as string });
+}

@@ -15,7 +15,7 @@ impl Default for Settings
     fn default() -> Self 
     {
         Self { 
-            volume: 0.5, 
+            volume: 0.0, 
             text_scale: 1.0, 
             ui_scale: 1.0,
             font: None,

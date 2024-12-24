@@ -11,10 +11,12 @@ pub mod bible_parsing;
 pub mod commands;
 pub mod migration;
 pub mod notes;
-mod search_parsing;
+pub mod search_parsing;
 pub mod utils;
 pub mod settings;
+pub mod audio;
 
+use audio::AudioPlayer;
 use commands::*;
 use tauri::{path::BaseDirectory, Manager};
 
@@ -23,7 +25,8 @@ const BIBLE_PATH: &str = debug_release_val! {
     release: "resources/kjv.txt",
 };
 
-fn main() {
+fn main() 
+{
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
@@ -37,6 +40,8 @@ fn main() {
             let mut text = String::new();
             file.read_to_string(&mut text).unwrap();
             AppData::init(&text, app.path());
+
+            app.manage(AudioPlayer::new(app.path(), audio::DEFAULT_SOURCES));
 
             Ok(())
         })
@@ -78,6 +83,7 @@ fn main() {
             should_display_no_save,
             get_settings,
             set_settings,
+            audio::play_clip,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

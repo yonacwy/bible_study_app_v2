@@ -1,4 +1,5 @@
 @import "../shared/defs.less";
+@import "../shared/font_sizing.less";
 
 .editor 
 {
@@ -6,12 +7,13 @@
     overflow-y: auto;
     overflow-x: visible;
     outline: none;
-    font-size: 16px;
     line-height: 1.6;
     border-radius: 0 0 8px 8px;
     box-sizing: border-box;
     width: 100%;
     height: calc(100% - 10px * 2 - @button-size);
+
+    .font-small();
 
     textarea 
     {

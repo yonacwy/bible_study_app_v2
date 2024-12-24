@@ -1,13 +1,14 @@
 @import "./shared/defs.less";
 @import "./shared/button.less";
+@import "./shared/font_sizing.less";
 
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
-    font-size: 20px;
     visibility: hidden; /*Displays when everything is loaded*/
+    .font-medium();
 }
 
 body img {
@@ -55,8 +56,8 @@ main {
 }
 
 .content h1 {
-    font-size: 24px;
     margin-top: 0;
+    .font-large();
 }
 
 .hidden {

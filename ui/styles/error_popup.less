@@ -1,3 +1,5 @@
+@import "./shared/font_sizing.less";
+
 .error-popup {
     position: absolute;
     bottom: -30px; /* Adjusted for arrow */
@@ -6,12 +8,13 @@
     color: white;
     padding: 5px 10px;
     border-radius: 4px;
-    font-size: 12px;
     white-space: nowrap;
     display: none; /* Hidden by default */
     opacity: 1; /* For fade-out effect */
     transition: opacity 0.5s ease; /* Smooth fade-out */
     z-index: 5000;
+
+    .font-small()
 }
 
 .error-popup::after {

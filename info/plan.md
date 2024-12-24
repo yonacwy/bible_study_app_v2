@@ -17,11 +17,12 @@
     - [ ] [Gotica](https://fontlibrary.org/en/font/gotica)
     - [ ] [Open Sauce Sans](https://fontlibrary.org/en/font/open-sauce-sans)
     - [ ] [Fira Sans](https://fontlibrary.org/en/font/fira-sans)
-  - [ ] Theme Support?
-    - [ ] Light
-    - [ ] Dark
-  - [ ] Text Size
-  - [ ] Volume
+  - [ ] ~~Theme Support?~~
+    - [ ] ~~Light~~
+    - [ ] ~~Dark~~
+  - [x] Text Size
+  - [x] UI Size
+  - [x] Volume
 - [ ] Min Window Size
 - [ ] CSS updates
   - [ ] Fix positioning issue when the window gets small

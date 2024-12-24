@@ -71,7 +71,8 @@ export async function init_less_sync()
 {
     let on_changed = (settings: AppSettings) => {
         less.modifyVars({
-            '@header-height': `35px * ${settings.ui_scale}`
+            '@ui-scale': `${settings.ui_scale}`,
+            '@text-scale': `${settings.text_scale}`
         });
     }
 

@@ -84,6 +84,7 @@ export async function init_chapter_buttons()
 {
     utils.on_click(PREVIOUS_CHAPTER_BUTTON_ID, e => {
         bible.to_previous_chapter().then(() => {
+            utils.play_audio(utils.AudioClip.Flip);
             utils.reset_scroll();
             view_states.goto_current_view_state();
         })
@@ -91,6 +92,7 @@ export async function init_chapter_buttons()
 
     utils.on_click(NEXT_CHAPTER_BUTTON_ID, e => {
         bible.to_next_chapter().then(() => {
+            utils.play_audio(utils.AudioClip.Flip);
             utils.reset_scroll();
             view_states.goto_current_view_state();
         })
