@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashMap, sync::{Arc, Mutex}};
+use std::{collections::HashMap, sync::{Arc, Mutex}};
 
 use kira::{
     manager::{
@@ -29,7 +29,6 @@ impl AudioPlayer
 
         let sources: HashMap<_, _> = sources.iter().map(|(name, path)| {
             let r = resolver.resolve(path, BaseDirectory::Resource).unwrap();
-            println!("{}", r.to_str().unwrap());
             let sd = StaticSoundData::from_file(r).unwrap();
             (name.to_string(), sd)
         }).collect();

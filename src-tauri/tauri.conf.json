@@ -53,7 +53,9 @@
         "height": 600,
         "resizable": true,
         "title": "Ascribe",
-        "width": 800
+        "width": 800,
+        "minWidth": 550,
+        "minHeight": 375
       }
     ],
     "security": {
