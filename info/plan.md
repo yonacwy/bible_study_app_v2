@@ -23,12 +23,6 @@
 - [x] Min Window Size
 - [x] Sounds
   - [x] Page flipping
-- [ ] Key binds
-  - [ ] `Ctrl + N`: New note
-  - [ ] Left/Right/A/D: Chapter Navigation
-    - [ ] Add `Ctrl` to navigate through history
-  - [ ] Up/Down/W/S: Scrolling
-  - [ ] `Ctrl + S`: Search for highlighted section
 - [ ] More tooltips
 - [ ] Tutorial Page?
 

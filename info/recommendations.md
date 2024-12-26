@@ -2,7 +2,6 @@
 - Alternate text when hovering over buttons
 - Favorite Verses
 - Cross-references
-- Resizing text
 - Can copy and paste sections of the verses
 - Time autosave
 - Daily readings
@@ -15,6 +14,5 @@
 - Multiple windows
 - Multiple tabs
 - F11 fullscreen support
-- Backwards compatibility with older notes
-- Bug with Ctrl + F
 - Add dark mode/different themes
+- Hot Keys

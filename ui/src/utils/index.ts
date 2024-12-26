@@ -1,4 +1,3 @@
-import { Color } from "../bindings.js";
 import { Marked } from "../md/marked.js";
 export * from "./extensions.js";
 export * from "./string_utils.js";

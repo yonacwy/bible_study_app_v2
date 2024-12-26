@@ -4,7 +4,7 @@ use kira::{
     manager::{
         backend::DefaultBackend, error::PlaySoundError, AudioManager, AudioManagerSettings
     },
-    sound::static_sound::{StaticSoundData, StaticSoundHandle, StaticSoundSettings}, tween::Tween, Volume
+    sound::static_sound::{StaticSoundData, StaticSoundHandle}, tween::Tween, Volume
 };
 use tauri::{path::{BaseDirectory, PathResolver}, Runtime, State};
 
