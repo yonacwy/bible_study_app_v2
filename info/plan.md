@@ -11,12 +11,13 @@
 
 ### Version 0.4.3: Visualization Overall
 - [x] Implementing LESS
-- [ ] Settings
-  - [ ] Different Font Support
-    - [ ] [Gidole](https://fontlibrary.org/en/font/gidole-regular)
-    - [ ] [Gotica](https://fontlibrary.org/en/font/gotica)
-    - [ ] [Open Sauce Sans](https://fontlibrary.org/en/font/open-sauce-sans)
-    - [ ] [Fira Sans](https://fontlibrary.org/en/font/fira-sans)
+- [x] Settings
+  - [x] Different Font Support
+    - [x] Arial (Default)
+    - [x] [Jupiteroid](https://www.fontspace.com/jupiteroid-font-f90261)
+    - [x] Times New Roman
+    - [x] Brush Script
+    - [x] Courier New
   - [x] Text Size
   - [x] UI Size
   - [x] Volume

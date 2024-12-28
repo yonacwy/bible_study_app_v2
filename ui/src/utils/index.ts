@@ -123,3 +123,14 @@ export function play_audio(clip: AudioClip)
 {
     invoke('play_clip', { clip_name: clip as string });
 }
+
+export function map_keys<T, R>(obj: T, f: (k: keyof T, o: T) => R): R[]
+{
+    let array: R[] = [];
+    for(let key in obj)
+    {
+        array.push(f(key, obj))
+    }
+
+    return array;
+}

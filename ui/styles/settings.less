@@ -18,10 +18,41 @@
         .rounded-border();
         .drop-shadow-m();
 
+        &.inline {
+            display: flex;
+            align-items: center;
+
+            h3 {
+                margin: 10px;
+            }
+        }
+
         h3 
         {
             text-align: center;
             margin: 5px;
+        }
+
+        .dropdown
+        {
+            margin: 5px;
+            margin-left: auto;
+            border: 1px solid #ccc;
+            padding-left: 20px;
+            padding-right: 20px;
+            .rounded-border();
+
+            .dropdown-content
+            {
+                // box-sizing: border-box;
+                // width: 100%;
+
+                .dropdown-option 
+                {
+                    // box-sizing: border-box;
+                    // width: 100%;
+                }
+            }
         }
 
         .slider-container

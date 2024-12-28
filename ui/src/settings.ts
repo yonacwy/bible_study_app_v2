@@ -48,6 +48,18 @@ export async function set_text_scale(scale: number): Promise<void>
     return await set_settings(settings);
 }
 
+export async function get_font(): Promise<string | null>
+{
+    return (await get_settings()).font;
+}
+
+export async function set_font(font: string | null): Promise<void>
+{
+    let settings = await get_settings();
+    settings.font = font;
+    return await set_settings(settings);
+}
+
 export async function get_settings(): Promise<AppSettings>
 {
     return utils.invoke('get_settings', {}) as Promise<AppSettings>;
@@ -57,22 +69,24 @@ export async function set_settings(settings: AppSettings): Promise<void>
 {
     let result =  await utils.invoke('set_settings', { settings: settings });
     ON_SETTINGS_CHANGED.invoke(settings);
-    return result;
+    return await result;
 }
 
 export async function reset_settings()
 {
     let result = await utils.invoke('set_settings', { settings: null });
     ON_SETTINGS_CHANGED.invoke(await get_settings());
-    return result;
+    return await result;
 }
 
 export async function init_less_sync()
 {
     let on_changed = (settings: AppSettings) => {
+
         less.modifyVars({
             '@ui-scale': `${settings.ui_scale}`,
-            '@text-scale': `${settings.text_scale}`
+            '@text-scale': `${settings.text_scale}`,
+            '@font-family': `'${settings.font ?? 'default'}'`
         });
     }
 

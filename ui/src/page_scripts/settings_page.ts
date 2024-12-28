@@ -20,6 +20,7 @@ export async function run()
     init_volume();
     init_ui_scale();
     init_text_scale();
+    init_font_dropdown();
 
     init_apply_buttons();
 
@@ -29,6 +30,7 @@ export async function run()
 let d_volume: number = 0;
 let d_ui_scale: number = 0;
 let d_text_scale: number = 0;
+let d_font: string | null = null;
 
 let callbacks: (() => void)[] = []
 
@@ -37,6 +39,7 @@ async function sync_display_settings()
     d_volume = await settings.get_volume();
     d_ui_scale = await settings.get_ui_scale();
     d_text_scale = await settings.get_text_scale();
+    d_font = await settings.get_font();
 }
 
 function init_apply_buttons()
@@ -48,7 +51,7 @@ function init_apply_buttons()
             volume: d_volume,
             ui_scale: d_ui_scale,
             text_scale: d_text_scale,
-            font: null,
+            font: d_font,
         }).then(_ => {
             sync();
         });
@@ -74,9 +77,15 @@ async function init_volume()
 
     if (!slider || !button || !image || !display) return null;
 
-    const on_value_changed = (value: number) => {
+    const on_value_changed = async (value: number) => {
+
         display.innerHTML = `${Math.round(value * 100)}%`;
-        d_volume = +slider.value;
+
+        let setting_value = await settings.get_volume();
+        if(setting_value != value)
+            display.innerHTML += '*';
+
+        d_volume = value;
         slider.value = value.toString()
 
         if (value <= 0.0)
@@ -110,8 +119,8 @@ async function init_volume()
         }
         on_value_changed(+slider.value);
     })
+    
 
-    slider.value = (await settings.get_volume()).toString();
     on_value_changed(+slider.value);
     
     callbacks.push(() => on_value_changed(d_volume));
@@ -125,8 +134,13 @@ async function init_ui_scale()
 
     if (!slider || !button || !display) return null;
 
-    const on_value_changed = (value: number) => {
+    const on_value_changed = async (value: number) => {
         display.innerHTML = `${Math.round(value * 100)}%`;
+
+        let setting_value = await settings.get_ui_scale();
+        if(setting_value != value)
+            display.innerHTML += '*';
+
         d_ui_scale = value;
         slider.value = Math.inv_lerp(settings.MIN_UI_SCALE, settings.MAX_UI_SCALE, value).toString();
     }
@@ -152,8 +166,13 @@ async function init_text_scale()
 
     slider.value = `${Math.inv_lerp(settings.MIN_TEXT_SCALE, settings.MAX_TEXT_SCALE, d_text_scale)}`;
 
-    const on_value_changed = (value: number) => {
+    const on_value_changed = async (value: number) => {
         display.innerHTML = `${Math.round(value * 100)}%`;
+
+        let setting_value = await settings.get_text_scale();
+        if(setting_value != value)
+            display.innerHTML += '*';
+
         d_text_scale = value;
         slider.value = Math.inv_lerp(settings.MIN_TEXT_SCALE, settings.MAX_TEXT_SCALE, value).toString();
     }
@@ -168,4 +187,56 @@ async function init_text_scale()
     on_value_changed(d_text_scale);
 
     callbacks.push(() => on_value_changed(d_text_scale));
+}
+
+async function init_font_dropdown()
+{
+    
+    let content = document.getElementById('font-dropdown-content');
+    let selected_font_name = document.getElementById('selected-font-name');
+
+    if(!content || !selected_font_name) return;
+
+    const FONT_OPTIONS: [string, string | null][] = [
+        ['Arial (Default)', null],
+        ['Jupiteroid (Slow)', 'Jupiteroid'],
+        ['Times New Roman', 'roman'],
+        ['Brush Script', 'brush'],
+        ['Courier New', 'courier']
+    ];
+
+    let on_value_changed = async (font: string | null) => {
+        let current_index = FONT_OPTIONS.findIndex(o => o[1] === font);
+
+        if(current_index === -1)
+        {
+            utils.debug_print(`ERROR: unknown font ${font}`);
+            return;
+        }
+
+        selected_font_name.innerHTML = FONT_OPTIONS[current_index][0];
+        let settings_font = await settings.get_font();
+        if(settings_font != font)
+            selected_font_name.innerHTML += '*';
+        content.replaceChildren();
+    
+        for(let i = 0; i < FONT_OPTIONS.length; i++)
+        {
+            content.appendElement('div', option => {
+                option.classList.add('dropdown-option');
+    
+                if(i === current_index) 
+                    option.classList.add('selected-option');
+    
+                option.innerHTML = FONT_OPTIONS[i][0];
+                option.addEventListener('click', e => {
+                    d_font = FONT_OPTIONS[i][1];
+                    on_value_changed(d_font);
+                })
+            })
+        }
+    }
+    
+    on_value_changed(d_font);
+    callbacks.push(() => on_value_changed(d_font));
 }

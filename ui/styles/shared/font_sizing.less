@@ -1,5 +1,33 @@
 @import './extern.less';
 
+@font-face {
+    font-family: 'Jupiteroid';
+    src: url(../../fonts/Jupiteroid/JupiteroidRegular-8Oeg0.ttf);
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Jupiteroid';
+    src: url(../../fonts/Jupiteroid/JupiteroidBold-lxdBy.ttf);
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Jupiteroid';
+    src: url(../../fonts/Jupiteroid/JupiteroidBold-lxdBy.ttf);
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Jupiteroid';
+    src: url(../../fonts/Jupiteroid/JupiteroidBoldItalic-nALYP.ttf);
+    font-weight: bold;
+    font-style: italic;
+}
+
 .font-tiny {
     font-size: 10px * @text-scale;
 }
@@ -14,4 +42,24 @@
 
 .font-large {
     font-size: 24px * @text-scale;
+}
+
+.set-font() when (@font-family = 'Jupiteroid') {
+    font-family: 'Jupiteroid';
+}
+
+.set-font() when (@font-family = 'roman') {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.set-font() when (@font-family = 'courier') {
+    font-family: 'Courier New', Courier, monospace
+}
+
+.set-font() when (@font-family = 'brush') {
+    font-family: 'Brush Script MT', cursive;
+}
+
+.set-font() when (@font-family = 'default') {
+    font-family: Arial, sans-serif;
 }
