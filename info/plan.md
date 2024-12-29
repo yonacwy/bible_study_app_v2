@@ -6,8 +6,11 @@
 ### Version 0.5.0
 - [ ] Notebook Support
 
-### Version 0.4.4: Adding Reading Plans
+### Version 0.4.5: Adding Reading Plans
 - [ ] Adding built in reading plans
+
+### Version 0.4.4: Hotfix
+- [x] Fixed a bug with the volume slider
 
 ### Version 0.4.3: Visualization Overall
 - [x] Implementing LESS
