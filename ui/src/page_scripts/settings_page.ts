@@ -199,7 +199,6 @@ async function init_font_dropdown()
 
     const FONT_OPTIONS: [string, string | null][] = [
         ['Arial (Default)', null],
-        ['Jupiteroid (Slow)', 'Jupiteroid'],
         ['Times New Roman', 'roman'],
         ['Brush Script', 'brush'],
         ['Courier New', 'courier']
