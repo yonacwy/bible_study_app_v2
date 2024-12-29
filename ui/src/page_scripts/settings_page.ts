@@ -121,7 +121,7 @@ async function init_volume()
     })
     
 
-    on_value_changed(+slider.value);
+    on_value_changed(d_volume);
     
     callbacks.push(() => on_value_changed(d_volume));
 }
