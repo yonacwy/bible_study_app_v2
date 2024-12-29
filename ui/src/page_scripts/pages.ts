@@ -1,7 +1,6 @@
 import * as highlight_utils from "../highlights.js";
 import * as utils from "../utils/index.js";
 import * as view_states from "../view_states.js";
-import *  as bible from "../bible.js";
 import { build_chapter_selection_dropdown } from "../selection.js";
 import { show_error_popup } from "../popups/error_popup.js";
 import * as side_popup from "../popups/side_popup.js";
@@ -10,6 +9,8 @@ import * as context_menu from "../popups/context_menu.js";
 import { ContextMenuCommand } from "../popups/context_menu.js";
 import { HighlightCategory } from "../bindings.js";
 import * as word_select from "../word_select.js";
+import { init_main_page_header } from "./menu_header.js";
+import * as settings from '../settings.js';
 
 export const SEARCH_INPUT_ID: string = "search-input";
 export const SEARCH_BUTTON_ID: string = "search-btn";
@@ -25,6 +26,7 @@ const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 
 export async function init_header(): Promise<void>
 {
+    init_main_page_header();
     highlight_utils.SELECTED_HIGHLIGHT.add_listener(on_highlight_changed);
 
     let word_popup = document.getElementById(WORD_POPUP_ID);
@@ -36,7 +38,6 @@ export async function init_header(): Promise<void>
     await Promise.all([
         init_nav_buttons(),
         init_chapter_selection_dropdown(),
-        init_highlight_editor_button(),
         highlight_utils.create_highlight_selection(),
         update_nav_buttons_opacity(),
         init_search_bar(),
@@ -45,7 +46,10 @@ export async function init_header(): Promise<void>
         utils.display_migration_popup(),
         utils.display_no_save_popup(),
         init_new_note_button(),
-    ]);
+        settings.init_less_sync(),
+    ]).then(_ => {
+        init_settings_buttons(window.location.href);
+    });
 }
 
 
@@ -66,6 +70,13 @@ export function init_nav_buttons()
             view_states.goto_current_view_state();
         })
     });
+}
+
+export function init_settings_buttons(old_path: string)
+{
+    utils.on_click('help-btn', _ => window.location.href = utils.encode_to_url('help_page.html', { old_path: old_path }));
+    utils.on_click('highlight-settings', _ => window.location.href = utils.encode_to_url('highlight_editor.html', { old_path: old_path }));
+    utils.on_click('main-settings', _ => window.location.href = utils.encode_to_url('settings_page.html', { old_path: old_path }));
 }
 
 export function update_nav_buttons_opacity() 
@@ -135,15 +146,6 @@ export function on_highlight_changed(id: string | null)
     });
 
     highlight_utils.update_highlight_selection();
-}
-
-export function init_highlight_editor_button()
-{
-    document.getElementById(HIGHLIGHT_EDITOR_BUTTON_ID)?.addEventListener('click', e => {
-        window.location.href = utils.encode_to_url('highlight_editor.html', {
-            old_path: window.location.href
-        });
-    });
 }
 
 export function init_search_bar()
@@ -243,4 +245,11 @@ export async function init_context_menu(target_id: string)
             args: erase_selections
         }
     ], should_interrupt)
+}
+
+export function init_back_button(old_path: string)
+{
+    document.getElementById(BACK_BUTTON_ID)?.addEventListener('click', e => {
+        window.location.href = old_path;
+    });
 }

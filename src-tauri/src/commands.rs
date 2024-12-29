@@ -3,11 +3,7 @@ use std::collections::HashMap;
 use itertools::Itertools;
 
 use crate::{
-    app_state::{AppData, ViewState},
-    bible::{ChapterIndex, ReferenceLocation, Verse},
-    notes::{HighlightCategory, NoteData, WordAnnotations},
-    search_parsing::*,
-    utils::Color,
+    app_state::{AppData, ViewState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, WordAnnotations}, search_parsing::*, settings::Settings, utils::Color
 };
 
 #[tauri::command(rename_all = "snake_case")]
@@ -283,6 +279,27 @@ pub fn update_note(id: String, locations: Vec<ReferenceLocation>, text: String) 
             locations.clone(),
         );
     })
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn get_settings() -> Settings
+{
+    AppData::get().read_settings(|settings| {
+        settings.clone()
+    })
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn set_settings(settings: Option<Settings>)
+{
+    AppData::get().read_settings(|old| {
+
+        match &settings
+        {
+            Some(s) => *old = s.clone(),
+            None => *old = Settings::default()
+        };
+    });
 }
 
 #[tauri::command(rename_all = "snake_case")]

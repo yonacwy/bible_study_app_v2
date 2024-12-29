@@ -3,6 +3,9 @@ import * as highlights from "../highlights.js";
 import { show_error_popup } from "../popups/error_popup.js";
 import { HighlightCategory } from "../bindings.js";
 import * as confirm_popup from "../popups/confirm_popup.js";
+import * as header_utils from "./menu_header.js";
+import * as pages from "./pages.js";
+import * as settings from "../settings.js"
 
 export type HighlightEditorData = {
     old_path: string
@@ -10,8 +13,23 @@ export type HighlightEditorData = {
 
 export async function run()
 {
+    let data = utils.decode_from_url(window.location.href) as HighlightEditorData;
+
     editing_id = null;
     deleting_id = null;
+
+    header_utils.init_settings_page_header(() => {
+        return `
+        <button class="image-btn" id="new-btn" title="Create new highlight">
+            <img src="../images/light-plus.svg">
+        </button>
+        `;
+    });
+
+    pages.init_back_button(data.old_path);
+    pages.init_settings_buttons(data.old_path);
+    settings.init_less_sync();
+
     highlights.render_categories(on_delete, on_edit);
 
     utils.on_click('new-btn', (e) => {
@@ -19,12 +37,6 @@ export async function run()
     });
 
     utils.on_click('submit-btn', on_submit);
-
-    let data = utils.decode_from_url(window.location.href) as HighlightEditorData;
-
-    utils.on_click('back-btn', e => {
-        window.location.href = data.old_path
-    });
 
     utils.on_click('cancel-submit-btn', e => {
         utils.set_display('highlight-popup', 'none');
@@ -64,7 +76,7 @@ function on_delete(id: string)
                 utils.invoke('remove_highlight_category', { id: deleting_id });
                 if(highlights.SELECTED_HIGHLIGHT.get() === deleting_id)
                 {
-                    highlights.SELECTED_HIGHLIGHT.set(null);   
+                    highlights.SELECTED_HIGHLIGHT.set(null);
                 }
             }
 

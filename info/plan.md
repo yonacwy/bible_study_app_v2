@@ -6,21 +6,25 @@
 ### Version 0.5.0
 - [ ] Notebook Support
 
+### Version 0.4.4: Adding Reading Plans
+- [ ] Adding built in reading plans
+
 ### Version 0.4.3: Visualization Overall
-- [ ] Implementing SCSS
-- [ ] Settings
-  - [ ] Different Font Support
-  - [ ] Theme Support?
-    - [ ] Light
-    - [ ] Dark
-  - [ ] Text Size
-- [ ] Min Window Size
-- [ ] Updater
-  - [ ] Renaming save to .json
-  - [ ] Allow for save data migration?
-- [ ] CSS updates
-  - [ ] Fix positioning issue when the window gets small
-- [ ] More tooltips
+- [x] Implementing LESS
+- [x] Settings
+  - [x] Different Font Support
+    - [x] Arial (Default)
+    - [x] Times New Roman
+    - [x] Brush Script
+    - [x] Courier New
+  - [x] Text Size
+  - [x] UI Size
+  - [x] Volume
+- [x] Min Window Size
+- [x] Sounds
+  - [x] Page flipping
+- [x] More tooltips
+- [x] Tutorial Page (WIP)
 
 ### Version 0.4.2: Bugfixes
 - [x] Bugfixes:

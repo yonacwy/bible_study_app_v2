@@ -1,0 +1,139 @@
+@import "./shared/defs.less";
+@import "./shared/font_sizing.less";
+
+.settings
+{ 
+    margin-top: @header-height + 10px;
+
+    .setting 
+    {
+        margin-right: auto;
+        margin-left: auto;
+
+        background-color: white;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+        max-width: 400px;
+
+        .rounded-border();
+        .drop-shadow-m();
+
+        &.inline {
+            display: flex;
+            align-items: center;
+
+            h3 {
+                margin: 10px;
+            }
+        }
+
+        h3 
+        {
+            text-align: center;
+            margin: 5px;
+        }
+
+        .dropdown
+        {
+            margin: 5px;
+            margin-left: auto;
+            border: 1px solid #ccc;
+            padding-left: 20px;
+            padding-right: 20px;
+            .rounded-border();
+
+            .dropdown-content
+            {
+                // box-sizing: border-box;
+                // width: 100%;
+
+                .dropdown-option 
+                {
+                    // box-sizing: border-box;
+                    // width: 100%;
+                }
+            }
+        }
+
+        .slider-container
+        {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+
+            // the slider
+            input[type=range] 
+            {
+                border: 1px solid cyan;
+                width: calc(80% - @button-size - @button-margin * 2);
+                margin: 5px;
+            }
+
+            .value-text 
+            {
+                margin: 5px;
+                width: 2em;
+            }
+        }
+    }
+}
+
+.settings-buttons 
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+
+    button {
+        margin: 10px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        color: white;
+
+        .font-small()
+    }
+
+    @apply-btn-color: #5bc0de;
+    @reset-btn-color: #d9534f;
+    @cancel-btn-color: #aaa;
+
+    button.apply-btn {
+        background-color: @apply-btn-color;
+
+        &:hover {
+            background-color: darken(@apply-btn-color, 10%)
+        };
+
+        &:active {
+            background-color: darken(@apply-btn-color, 20%)
+        }
+    };
+
+    button.cancel-btn {
+        background-color: @cancel-btn-color;
+
+        &:hover {
+            background-color: darken(@cancel-btn-color, 10%)
+        };
+
+        &:active {
+            background-color: darken(@cancel-btn-color, 20%)
+        }
+    }
+
+    button.reset-btn {
+        background-color: @reset-btn-color;
+
+        &:hover {
+            background-color: darken(@reset-btn-color, 10%)
+        };
+
+        &:active {
+            background-color: darken(@reset-btn-color, 20%)
+        }
+    }
+}

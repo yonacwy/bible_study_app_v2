@@ -1,10 +1,14 @@
+@import "./shared/defs.less";
+@import "./shared/button.less";
+@import "./shared/font_sizing.less";
+
 body {
-    font-family: Arial, sans-serif;
+    .set-font();
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
-    font-size: 20px;
     visibility: hidden; /*Displays when everything is loaded*/
+    .font-medium();
 }
 
 body img {
@@ -16,13 +20,6 @@ body img {
     user-select: none;
 }
 
-:root {
-    --header-height: 35px;
-    --content-margin: 15px;
-    --button-margin: calc(var(--header-height) * 0.1);
-    --button-size: calc(var(--header-height) - var(--button-margin) * 2);
-}
-
 header {
     margin: 0px;
     padding: 0px;
@@ -30,30 +27,18 @@ header {
     top: 0;
     left: 0;
     width: 100%;
-    height: var(--header-height);
+    height: @header-height;
     background-color: #333;
     z-index: 1000; /* Ensures header is above other content */
     justify-content: left;
     align-items: center;
     display: flex;
-}
 
-header .image-btn {
-    padding: 1px;
-    display: inline-block;
-    
-    margin: var(--button-margin);
-    height: calc(var(--header-height) - var(--button-margin) * 2);
-    min-width: calc(var(--header-height) - var(--button-margin) * 2);
-
-    box-sizing: border-box;
-    margin-right: calc(var(--button-margin) / 2);
-}
-
-header .image-btn img {
-    margin: 0;
-    width: 100%;
-    height: 100%;
+    // not great, but no idea why :last-child is not working
+    .shift-right {
+        margin-left: auto;
+        margin-right: @button-margin;
+    }
 }
 
 main {
@@ -61,18 +46,18 @@ main {
 }
 
 .content {
-    margin-top: var(--header-height);
+    margin-top: @header-height;
     background-color: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin-right: var(--content-margin);
-    margin-left: var(--content-margin);
+    margin-right: @content-margin;
+    margin-left: @content-margin;
+    .drop-shadow-l();
 }
 
 .content h1 {
-    font-size: 24px;
     margin-top: 0;
+    .font-large();
 }
 
 .hidden {

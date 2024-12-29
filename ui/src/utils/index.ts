@@ -1,4 +1,3 @@
-import { Color } from "../bindings.js";
 import { Marked } from "../md/marked.js";
 export * from "./extensions.js";
 export * from "./string_utils.js";
@@ -113,4 +112,25 @@ export async function display_no_save_popup()
     {
         alert('No save found, creating a new save');
     }
+}
+
+export enum AudioClip
+{
+    Flip = 'flip',
+}
+
+export function play_audio(clip: AudioClip)
+{
+    invoke('play_clip', { clip_name: clip as string });
+}
+
+export function map_keys<T, R>(obj: T, f: (k: keyof T, o: T) => R): R[]
+{
+    let array: R[] = [];
+    for(let key in obj)
+    {
+        array.push(f(key, obj))
+    }
+
+    return array;
 }

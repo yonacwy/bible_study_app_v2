@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Less Variables</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/less.js/4.2.1/less.min.js"></script>
+</head>
+<body>
+    <h1>Dynamic Less Example</h1>
+    <button id="change-color">Change Color</button>
+    <button id="increase-font">Increase Font Size</button>
+    <style id="dynamic-styles"></style>
+
+    <script type="module">
+        // Initial LESS content
+        const lessContent = `
+            @primary-color: blue;
+            @font-size: 16px;
+
+            body {
+                color: @primary-color;
+                font-size: @font-size;
+            }
+        `;
+
+        // Compile and apply LESS to the DOM
+        async function applyStyles(lessVars) {
+            const compiled = await less.render(lessContent, { modifyVars: lessVars });
+            document.getElementById('dynamic-styles').innerHTML = compiled.css;
+        }
+
+        // Initial render
+        const initialVars = {
+            '@primary-color': 'blue',
+            '@font-size': '16px',
+        };
+        applyStyles(initialVars);
+
+        // Event listeners for dynamic updates
+        document.getElementById('change-color').addEventListener('click', () => {
+            initialVars['@primary-color'] = initialVars['@primary-color'] === 'blue' ? 'red' : 'blue';
+            applyStyles(initialVars);
+        });
+
+        document.getElementById('increase-font').addEventListener('click', () => {
+            const currentSize = parseInt(initialVars['@font-size']);
+            initialVars['@font-size'] = `${currentSize + 2}px`;
+            applyStyles(initialVars);
+        });
+    </script>
+</body>
+</html>

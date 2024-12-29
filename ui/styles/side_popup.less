@@ -1,8 +1,10 @@
+@import "./shared/defs.less";
+
 .popup-panel {
     position: fixed;
     right: 0;
-    top: var(--header-height);
-    height: calc(100% - var(--header-height));
+    top: @header-height;
+    height: calc(100% - @header-height);
     overflow: none;
     width: 250px;
     background-color: #f4f4f4;
@@ -119,8 +121,8 @@
     float: right;
     padding: 1px;
     display: flex;
-    width: var(--button-size);
-    height: var(--button-size);
+    width: @button-size;
+    height: @button-size;
     box-sizing: border-box;
     justify-content: center;
     align-items: center;

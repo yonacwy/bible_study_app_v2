@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet/less" type="text/css" href="../styles/styles.less">
+    <link rel="stylesheet/less" type="text/css" href="../styles/dropdown.less">
+    <link rel="stylesheet/less" type="text/css" href="../styles/settings.less">
+    
+    <script src="../src/vendor/less.js"></script>
+</head>
+<body>
+    <header>
+        <!-- Initialized by script -->
+    </header>
+    <main>
+        <div class="settings">
+            <div class="setting" title="Volume setting">
+                <h3>Volume</h3>
+                <div class="slider-container">
+                    <button class="image-btn" id="mute-btn" title="Mute volume">
+                        <img src="../images/volume/light-volume.svg" alt="">
+                    </button>
+                    <input type="range" min="0" max="1" step="0.001" value="0.5" id="volume-slider">
+                    <div class="value-text" id="volume-value-display">
+                        50%
+                    </div>
+                </div>
+            </div>
+            <div class="setting" title="Resize main UI">
+                <h3>UI Scale</h3>
+                <div class="slider-container">
+                    <button class="image-btn" id="ui-btn" title="Reset default">
+                        <img src="../images/light-arrow-up-big-small.svg" alt="">
+                    </button>
+                    <input type="range" min="0" max="1" step="0.001" value="0.5" id="ui-slider">
+                    <div class="value-text" id="ui-scale-display">
+                        50%
+                    </div>
+                </div>
+            </div>
+            <div class="setting" title="Resize text">
+                <h3>Text Scale</h3>
+                <div class="slider-container">
+                    <button class="image-btn" id="text-btn"  title="Reset default">
+                        <img src="../images/light-text-size.svg" alt="">
+                    </button>
+                    <input type="range" min="0" max="1" step="0.001" value="0.5" id="text-slider">
+                    <div class="value-text" id="text-scale-display">
+                        50%
+                    </div>
+                </div>
+            </div>
+            <div class="setting inline" title="Change font">
+                <h3>Selected Font</h3>
+                <div class="dropdown">
+                    <span id="selected-font-name">Default</span>
+                    <div class="dropdown-content" id="font-dropdown-content">
+                        <!-- Filled by Script -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="settings-buttons">
+            <button class="apply-btn" id="apply-btn" title="Apply changes">
+                Apply
+            </button>
+            <button class="cancel-btn" id="cancel-btn" title="Cancel changes">
+                Cancel
+            </button>
+            <button class="reset-btn" id="reset-btn" title="Reset to defaults">
+                Reset
+            </button>
+        </div>
+    </main>
+    <script type="module">
+        import { run } from "../dist/page_scripts/settings_page.js";
+        run();
+    </script>
+</body>
+</html>

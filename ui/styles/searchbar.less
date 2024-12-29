@@ -1,29 +1,32 @@
+@import "./shared/defs.less";
+@import "./shared/font_sizing.less";
 
 header .searchbar {
     display: flex;
     flex-direction: row;
     width: auto;
-    height: var(--button-size);
+    height: @button-size;
     width: auto;
-    margin: var(--button-margin);
+    margin: @button-margin;
 }
 
 header .searchbar input {
     height: auto;
     margin-right: 5px;
     padding-left: 2px;
+    .font-small();
 }
 
 header .searchbar img {
-    height: var(--button-size);
+    height: @button-size;
     aspect-ratio: 1/1;
     margin: 0px;
     padding: 0px;
 }
 
 header .searchbar button {
-    height: var(--button-size);
-    width: var(--button-size);
+    height: @button-size;
+    width: @button-size;
     margin: 0;
     padding: 0;
 }
