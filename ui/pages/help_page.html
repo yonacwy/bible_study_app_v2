@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet/less" type="text/css" href="../styles/styles.less">
     <link rel="stylesheet/less" type="text/css" href="../styles/dropdown.less">
-    
+    <link rel="stylesheet/less" type="text/css" href="../styles/wip.less">
+
     <script src="../src/vendor/less.js"></script>
 </head>
-<body>
+<!-- A bit of a mess, but is a work in progress screen, so should suffice for now -->
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
     <header>
         <!-- Initialized by script -->
     </header>
-    <main>
-        <p>Help Page</p>
+    <main style="display: flex; align-items: center; justify-content: center; flex: 1; flex-direction: column;">
+        <img class="wip-img" src="../images/light-bulldozer.svg" alt="Bulldozer" title="Work in Progress">
+        <h1>Work in Progress</h1>
     </main>
     <script type="module">
         import { run } from "../dist/page_scripts/help_page.js";

@@ -14,7 +14,6 @@
 - [x] Settings
   - [x] Different Font Support
     - [x] Arial (Default)
-    - [x] [Jupiteroid](https://www.fontspace.com/jupiteroid-font-f90261)
     - [x] Times New Roman
     - [x] Brush Script
     - [x] Courier New
@@ -24,8 +23,8 @@
 - [x] Min Window Size
 - [x] Sounds
   - [x] Page flipping
-- [ ] More tooltips
-- [ ] Tutorial Page?
+- [x] More tooltips
+- [x] Tutorial Page (WIP)
 
 ### Version 0.4.2: Bugfixes
 - [x] Bugfixes:
