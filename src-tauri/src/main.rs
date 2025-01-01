@@ -15,9 +15,11 @@ pub mod search_parsing;
 pub mod utils;
 pub mod settings;
 pub mod audio;
+pub mod readings;
 
 use audio::AudioPlayer;
 use commands::*;
+use readings::ReadingsDatabase;
 use tauri::{path::BaseDirectory, Manager};
 
 const BIBLE_PATH: &str = debug_release_val! { 
@@ -42,6 +44,7 @@ fn main()
             AppData::init(&text, app.path());
 
             app.manage(AudioPlayer::new(app.path(), audio::DEFAULT_SOURCES));
+            app.manage(ReadingsDatabase::new(app.path()));
 
             Ok(())
         })
@@ -84,6 +87,8 @@ fn main()
             get_settings,
             set_settings,
             audio::play_clip,
+            readings::get_reading,
+            get_book_from_name,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

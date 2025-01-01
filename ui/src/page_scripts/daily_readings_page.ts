@@ -2,6 +2,8 @@ import * as utils from "../utils/index.js";
 import { init_settings_page_header } from "./menu_header.js";
 import * as pages from "./pages.js";
 import * as settings from "../settings.js"
+import { VerseRange } from "../bindings.js";
+import * as bible from "../bible.js";
 
 export type DailyReadingsPageData = {
     old_path: string,
@@ -31,6 +33,7 @@ const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'Ju
 
 function generate_calender()
 {
+    generate_readings();
     const CALENDER_BODY = document.getElementById('calender-table');
     if(!CALENDER_BODY) return;
 
@@ -157,4 +160,52 @@ function generate_calender()
     {
         current_row.appendElement('td', td => td.innerHTML = '&nbsp;');
     }
+}
+
+async function generate_readings()
+{
+    let title = document.getElementById('reading-plan-title');
+    let readings_content = document.getElementById('reading-plan-content');
+    let dropdown_content = document.getElementById('reading-plan-dropdown-content');
+
+    if(!title || !readings_content || !dropdown_content) return;
+
+    let readings = await get_readings(selected_month, selected_day);
+    
+    readings_content.replaceChildren();
+    readings.forEach(r => {
+        readings_content.appendElement('li', li => {
+
+            li.innerHTML = '';
+            if(r.prefix !== null)
+            {
+                if (r.prefix === 1) li.innerHTML += '1st ';
+                else if (r.prefix === 2) li.innerHTML += '2nd ';
+                else if (r.prefix === 3) li.innerHTML += '3rd ';
+                else li.innerHTML += `${r.prefix}th `;
+            }
+
+            li.innerHTML += `${r.book} ${r.chapter + 1}`;
+            if(r.range !== null)
+            {
+                li.innerHTML += `:${r.range.start + 1}-${r.range.end + 1}`;
+            }
+
+            li.addEventListener('click', async e => {
+                utils.debug_print(`book: ${await bible.get_book_index(r.prefix, r.book)}; chapter: ${r.chapter}`);
+            })
+        })
+    })
+}
+
+export type Reading = {
+    prefix: number | null,
+    book: string,
+    chapter: number,
+    range: VerseRange | null
+};
+
+export async function get_readings(month: number, day: number): Promise<Reading[]>
+{
+    return await utils.invoke('get_reading', { month: month, day: day });
 }

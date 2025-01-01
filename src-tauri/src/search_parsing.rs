@@ -181,26 +181,12 @@ fn get_section_search(
     verse_end: Option<u32>,
     bible: &Bible,
 ) -> Result<SectionSearchResult, String> {
-    let book_data = get_book_title_data(bible);
 
-    let book_name = match ALTS_MAP.get(book_name) {
-        Some(s) => &s,
-        None => book_name,
+    let book = match get_book_from_name(prefix, book_name, bible) 
+    {
+        Ok(value) => value,
+        Err(value) => return Err(value),
     };
-
-    let possible_books = book_data
-        .iter()
-        .filter(|b| b.name.starts_with(book_name))
-        .collect_vec();
-
-    if possible_books.len() == 0 {
-        return Err(format!("The book of `{}`, does not exist", book_name));
-    }
-    let book = possible_books
-        .iter()
-        .find(|b| b.prefix == prefix)
-        .or_else(|| possible_books.first())
-        .unwrap();
 
     let chapter_index = if chapter > 0 {
         chapter - 1 // 0 based indexing conversion
@@ -247,6 +233,30 @@ fn get_section_search(
     })
 }
 
+pub fn get_book_from_name<'a>(prefix: Option<u32>, book_name: &str, bible: &Bible) -> Result<BookTitleData, String> 
+{
+    let book_name = book_name.to_ascii_lowercase();
+
+    let book_data = get_book_title_data(bible);
+    let book_name = match ALTS_MAP.get(book_name.as_str()) {
+        Some(s) => &s,
+        None => book_name.as_str(),
+    };
+    let possible_books = book_data
+        .iter()
+        .filter(|b| b.name.starts_with(book_name))
+        .collect_vec();
+    if possible_books.len() == 0 {
+        return Err(format!("The book of `{}`, does not exist", book_name));
+    }
+    let book = possible_books
+        .iter()
+        .find(|b| b.prefix == prefix)
+        .or_else(|| possible_books.first())
+        .unwrap();
+    Ok((**book).clone())
+}
+
 fn get_verse_range(verse_start: Option<u32>, verse_end: Option<u32>) -> Option<VerseRange> {
     let start = match verse_start {
         Some(start) => {
@@ -270,7 +280,8 @@ fn get_verse_range(verse_start: Option<u32>, verse_end: Option<u32>) -> Option<V
     Some(VerseRange { start, end })
 }
 
-struct BookTitleData {
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BookTitleData {
     prefix: Option<u32>,
     name: String,
     index: u32,

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<readings>
+<readings xmlns="readings">
     <month name="January" num="01">
         <day num="01">
             <reading num="1" passage="Genesis 1-2" />
