@@ -1,6 +1,7 @@
 declare global {
     export interface Element {
         appendElement<K extends keyof HTMLElementTagNameMap>(key: K, builder?: (k: HTMLElementTagNameMap[K]) => void): Element;
+        appendElementEx<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (k: HTMLElementTagNameMap[K]) => void): Element;
     }
 }
 
@@ -11,8 +12,16 @@ Element.prototype.appendElement = function<K extends keyof HTMLElementTagNameMap
         builder(child);
     }
     this.appendChild(child);
-    return this;
+    return child;
 };
+
+Element.prototype.appendElementEx = function<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (k: HTMLElementTagNameMap[K]) => void): Element {
+    let child = document.createElement(key);
+    child.classList.add(...classes);
+    builder(child);
+    this.appendChild(child);
+    return this;
+}
 
 declare global {
     export interface Array<T>

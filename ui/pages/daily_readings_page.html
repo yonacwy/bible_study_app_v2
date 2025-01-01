@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet/less" type="text/css" href="../styles/styles.less">
+    <link rel="stylesheet/less" type="text/css" href="../styles/dropdown.less">
+    <link rel="stylesheet/less" type="text/css" href="../styles/wip.less">
+    <link rel="stylesheet/less" type="text/css" href="../styles/calender.less">
+
+    <script src="../src/vendor/less.js"></script>
+</head>
+<body>
+    <header>
+        <!-- Initialized by script -->
+    </header>
+    <main>
+        <div class="calender-page-content">
+            <div class="calender" id="calender">
+                <table id="calender-table">
+                    <!-- Initialized by script -->
+                </table>
+            </div>
+            <hr>
+            <div class="day-readings">
+                <div class="day-readings-title">Daily Readings</div>
+                <ol>
+                    <li>Job 41, 42</li>
+                    <li>Mal 3, 4</li>
+                    <li>Rev 21, 22</li>
+                </ol>
+                <div class="readings-selector">
+                    <div class="dropdown">
+                        <div class="reading-plan-title">Robert Roberts</div>
+                        <div class="dropdown-content">
+                            <div class="dropdown-option selected-option">Robert Roberts</div>
+                            <div class="dropdown-option">Bible in One Year</div>
+                            <div class="dropdown-option">Proverbs</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script type="module">
+        import { run } from "../dist/page_scripts/daily_readings_page.js";
+        run();
+    </script>
+</body>
+</html>

@@ -6,6 +6,7 @@ export * from "./encoding.js";
 export * from "./toggle.js";
 export * from "./node_management.js";
 export * as storage from "./storage.js";
+export * from "./button.js";
 
 export const invoke: (fn_name: string, args: any) => Promise<any> = (window as any).__TAURI__.core.invoke;
 
