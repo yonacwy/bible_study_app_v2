@@ -44,11 +44,29 @@ impl ReadingsDatabase
         }
     }
 
-    pub fn get_readings(&self, month: u32, day: u32) -> Vec<Reading>
+    pub fn get_readings(&self, month: u32, day: u32, selected_reading: SelectedReading) -> Vec<Reading>
     {
+        match selected_reading
+        {
+            SelectedReading::RobertRoberts => self.get_rr_readings(month, day),
+            SelectedReading::BibleInAYear => vec![],
+            SelectedReading::Proverbs => Self::get_pro_readings(day),
+        }
+    }
 
+    fn get_pro_readings(day: u32) -> Vec<Reading>
+    {
+        vec![Reading {
+            prefix: None,
+            book: "Proverbs".into(),
+            chapter: day,
+            range: None
+        }]
+    }
+
+    fn get_rr_readings(&self, month: u32, day: u32) -> Vec<Reading>
+    {
         if month == 1 && day == 28 { return vec![]; } // fix for leap year
-        
         let month_readings = self.robert_roberts.children().find(|c| {
             c.is("month", NSChoice::Any) && 
             c.attr("num").is_some_and(|num| {
@@ -147,8 +165,21 @@ impl ReadingsDatabase
     }
 }
 
-#[tauri::command(rename_all = "snake_case")]
-pub fn get_reading(state: State<'_, ReadingsDatabase>, month: u32, day: u32) -> Vec<Reading>
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SelectedReading 
 {
-    state.get_readings(month, day)
+    #[serde(rename = "0")]
+    RobertRoberts,
+
+    #[serde(rename = "2")]
+    BibleInAYear,
+
+    #[serde(rename = "1")]
+    Proverbs,
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn get_reading(state: State<'_, ReadingsDatabase>, month: u32, day: u32, selected_reading: &str) -> Vec<Reading>
+{
+    state.get_readings(month, day, serde_json::from_str(selected_reading).unwrap())
 }

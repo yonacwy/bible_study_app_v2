@@ -26,7 +26,9 @@ pub struct AppData {
 
     need_display_migration: Mutex<RefCell<bool>>,
     need_display_no_save: Mutex<RefCell<bool>>,
-    settings: Mutex<RefCell<Settings>>
+    settings: Mutex<RefCell<Settings>>,
+
+    selected_reading: Mutex<RefCell<u32>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -37,6 +39,7 @@ struct AppSave {
     view_states: Vec<ViewState>,
     editing_note: Option<String>,
     settings: Settings,
+    selected_reading: u32,
 }
 
 impl AppData {
@@ -76,7 +79,8 @@ impl AppData {
                     view_state_index: 0,
                     view_states,
                     editing_note: None,
-                    settings: Settings::default()
+                    settings: Settings::default(),
+                    selected_reading: 0,
                 }, false, true)
             }
         };
@@ -118,6 +122,7 @@ impl AppData {
                 need_display_migration: Mutex::new(RefCell::new(was_migrated)),
                 need_display_no_save: Mutex::new(RefCell::new(no_save)),
                 settings: Mutex::new(RefCell::new(save.settings)),
+                selected_reading: Mutex::new(RefCell::new(save.selected_reading)),
             })
         }
     }
@@ -133,6 +138,7 @@ impl AppData {
         let editing_note = self.editing_note.lock().unwrap().borrow().clone();
         let settings = self.settings.lock().unwrap().borrow().clone();
         let save_version = self.save_version;
+        let selected_reading = self.selected_reading.lock().unwrap().borrow().clone();
 
         let save = AppSave {
             notebook,
@@ -141,6 +147,7 @@ impl AppData {
             editing_note,
             view_states,
             settings,
+            selected_reading,
         };
 
         let save_json = serde_json::to_string_pretty(&save).unwrap();
@@ -217,6 +224,14 @@ impl AppData {
         let binding = self.settings.lock().unwrap();
         let mut settings = binding.borrow_mut();
         f(&mut settings)
+    }
+
+    pub fn read_selected_reading<F, R>(&self, mut f: F) -> R 
+        where F: FnMut(&mut u32) -> R
+    {
+        let binding = self.selected_reading.lock().unwrap();
+        let mut selected_reading = binding.borrow_mut();
+        f(&mut *selected_reading)
     }
 
     /// If the application migrated teh save on load, will only return true ONCE, then will always return false

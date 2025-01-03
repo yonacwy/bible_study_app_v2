@@ -4,6 +4,7 @@ import * as pages from "./pages.js";
 import * as settings from "../settings.js"
 import { VerseRange } from "../bindings.js";
 import * as bible from "../bible.js";
+import * as view_states from "../view_states.js";
 
 export type DailyReadingsPageData = {
     old_path: string,
@@ -24,10 +25,9 @@ export function run()
 
 const CURRENT_DATE = new Date();
 
-let selected_year = CURRENT_DATE.getFullYear();;
+let selected_year = CURRENT_DATE.getFullYear();
 let selected_month = CURRENT_DATE.getMonth();
 let selected_day = CURRENT_DATE.getDate() - 1;
-
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -162,13 +162,30 @@ function generate_calender()
     }
 }
 
+const READING_PLANS = [
+    {
+        name: "Robert Roberts",
+        description: "Test Description for Robert Roberts",
+        id: 0,
+    },
+    {
+        name: "Proverbs",
+        description: "Test Description for Proverbs",
+        id: 1,
+    },
+    {
+        name: "Bible in One Year",
+        description: "Test Description for Bible in One Year",
+        id: 2,
+    }
+];
+
 async function generate_readings()
 {
-    let title = document.getElementById('reading-plan-title');
+    generate_readings_dropdown();
     let readings_content = document.getElementById('reading-plan-content');
-    let dropdown_content = document.getElementById('reading-plan-dropdown-content');
 
-    if(!title || !readings_content || !dropdown_content) return;
+    if(!readings_content) return;
 
     let readings = await get_readings(selected_month, selected_day);
     
@@ -185,16 +202,53 @@ async function generate_readings()
                 else li.innerHTML += `${r.prefix}th `;
             }
 
-            li.innerHTML += `${r.book} ${r.chapter + 1}`;
+            li.innerHTML += `${ bible.shorten_book_name(r.book) } ${r.chapter + 1}`;
             if(r.range !== null)
             {
                 li.innerHTML += `:${r.range.start + 1}-${r.range.end + 1}`;
             }
 
             li.addEventListener('click', async e => {
-                utils.debug_print(`book: ${await bible.get_book_index(r.prefix, r.book)}; chapter: ${r.chapter}`);
+                let book = await bible.get_book_index(r.prefix, r.book);
+                if(book === null) return; // make sure nothing breaks when in debug
+
+                let book_view = (await bible.load_view())[book];
+                if(book_view.chapter_count <= r.chapter) return; // make sure nothing breaks when in debug
+
+
+                view_states.push_section({
+                    book: book,
+                    chapter: r.chapter,
+                    verse_range: r.range
+                });
+                view_states.goto_current_view_state();
             })
         })
+    })
+}
+
+async function generate_readings_dropdown()
+{
+    let title = document.getElementById('reading-plan-title');
+    let dropdown_content = document.getElementById('reading-plan-dropdown-content');
+
+    if (!title || !dropdown_content) return;
+
+    dropdown_content.replaceChildren();
+    let selected_reading_id = await get_selected_reading();
+    let current_reading = READING_PLANS.find(r => r.id === selected_reading_id) ?? READING_PLANS[0];
+
+    title.innerHTML = current_reading.name;
+
+    READING_PLANS.forEach(r => {
+        dropdown_content.appendElementEx('div', ['dropdown-option'], option => {
+            option.innerHTML = r.name;
+            option.addEventListener('click', e => {
+                set_selected_reading(r.id).then(() => {
+                    generate_readings();
+                })
+            })
+        });
     })
 }
 
@@ -207,5 +261,15 @@ export type Reading = {
 
 export async function get_readings(month: number, day: number): Promise<Reading[]>
 {
-    return await utils.invoke('get_reading', { month: month, day: day });
+    return await utils.invoke('get_reading', { month: month, day: day, selected_reading: `"${await get_selected_reading()}"` });
+}
+
+export async function get_selected_reading(): Promise<number>
+{
+    return await utils.invoke('get_selected_reading', {});
+}
+
+export async function set_selected_reading(reading: number)
+{
+    return await utils.invoke('set_selected_reading', { selected_reading: reading });
 }

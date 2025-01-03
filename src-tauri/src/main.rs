@@ -89,6 +89,8 @@ fn main()
             audio::play_clip,
             readings::get_reading,
             get_book_from_name,
+            get_selected_reading,
+            set_selected_reading,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

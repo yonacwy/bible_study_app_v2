@@ -319,3 +319,19 @@ pub fn get_book_from_name(prefix: Option<u32>, name: &str) -> Option<BookTitleDa
 {
     search_parsing::get_book_from_name(prefix, name, &AppData::get().bible).ok()
 }
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn get_selected_reading() -> u32 
+{
+    AppData::get().read_selected_reading(|selected_reading| {
+        *selected_reading
+    })
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn set_selected_reading(selected_reading: u32)
+{
+    AppData::get().read_selected_reading(|sr| {
+        *sr = selected_reading;
+    })
+}
