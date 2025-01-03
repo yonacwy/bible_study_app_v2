@@ -3,15 +3,18 @@ use std::fs;
 use minidom::{Element, NSChoice};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use tauri::{path::{BaseDirectory, PathResolver}, Runtime, State};
 
 use crate::bible::VerseRange;
 
 pub const ROBERT_ROBERTS_PATH: &str = "resources/reading_plans/rr.xml";
+pub const CHRONOLOGICAL_PATH: &str = "resources/reading_plans/chron.json";
 
 pub struct ReadingsDatabase
 {
-    robert_roberts: Element
+    robert_roberts: Element,
+    chronological: Value,
 }
 
 #[derive(Debug)]
@@ -38,9 +41,14 @@ impl ReadingsDatabase
         let rr_data = fs::read_to_string(rr_p).unwrap();
         let robert_roberts: Element = rr_data.parse().unwrap();
 
+        let chron_p = resolver.resolve(CHRONOLOGICAL_PATH, BaseDirectory::Resource).unwrap();
+        let chron_data = fs::read_to_string(chron_p).unwrap();
+        let chronological: Value = serde_json::from_str(&chron_data).unwrap();
+
         Self 
         {
-            robert_roberts
+            robert_roberts,
+            chronological,
         }
     }
 
@@ -49,9 +57,41 @@ impl ReadingsDatabase
         match selected_reading
         {
             SelectedReading::RobertRoberts => self.get_rr_readings(month, day),
-            SelectedReading::BibleInAYear => vec![],
+            SelectedReading::Chronological => self.get_chronological_readings(month, day),
             SelectedReading::Proverbs => Self::get_pro_readings(day),
         }
+    }
+
+    fn get_chronological_readings(&self, month: u32, day: u32) -> Vec<Reading>
+    {
+        if month == 1 && day == 28 { return vec![]; } // fix for leap year
+
+        const MONTH_LENGTHS: [u32; 12] = [
+            31, // Jan
+            28, // Feb
+            31, // Mar
+            30, // Apr
+            31, // May
+            30, // Jun
+            31, // Jul
+            31, // Aug
+            30, // Sep
+            31, // Oct
+            30, // Nov
+            31, // Dec
+        ];
+
+        let index = if month == 0 { day } else { MONTH_LENGTHS[0..(month as usize)].iter().sum::<u32>() + day };
+
+        let day_readings = &self.chronological.get("data2").unwrap()
+            .as_array().unwrap()[index as usize];
+
+        let readings = day_readings.as_array().unwrap().iter()
+            .map(|r| Self::parse(r.as_str().unwrap()).unwrap())
+            .flatten()
+            .collect::<Vec<_>>();
+
+        readings
     }
 
     fn get_pro_readings(day: u32) -> Vec<Reading>
@@ -172,7 +212,7 @@ pub enum SelectedReading
     RobertRoberts,
 
     #[serde(rename = "2")]
-    BibleInAYear,
+    Chronological,
 
     #[serde(rename = "1")]
     Proverbs,
