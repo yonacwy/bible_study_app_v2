@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use itertools::Itertools;
 
 use crate::{
-    app_state::{AppData, ViewState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, WordAnnotations}, search_parsing::{self, *}, settings::Settings, utils::Color
+    app_state::{AppData, ViewState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, WordAnnotations}, searching::{self, *}, settings::Settings, utils::Color
 };
 
 #[tauri::command(rename_all = "snake_case")]
@@ -317,7 +317,7 @@ pub fn should_display_no_save() -> bool
 #[tauri::command(rename_all = "snake_case")]
 pub fn get_book_from_name(prefix: Option<u32>, name: &str) -> Option<BookTitleData>
 {
-    search_parsing::get_book_from_name(prefix, name, &AppData::get().bible).ok()
+    searching::get_book_from_name(prefix, name, &AppData::get().bible).ok()
 }
 
 #[tauri::command(rename_all = "snake_case")]

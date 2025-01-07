@@ -11,7 +11,7 @@ pub mod bible_parsing;
 pub mod commands;
 pub mod migration;
 pub mod notes;
-pub mod search_parsing;
+pub mod searching;
 pub mod utils;
 pub mod settings;
 pub mod audio;
