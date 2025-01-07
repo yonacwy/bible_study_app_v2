@@ -1,4 +1,4 @@
-# Recommendations:
+### Recommendations:
 - Alternate text when hovering over buttons
 - Favorite Verses
 - Cross-references
@@ -16,3 +16,6 @@
 - F11 fullscreen support
 - Add dark mode/different themes
 - Hot Keys
+
+### Dev Recomendations
+- At some point, `searching.rs` needs to be COMPLETELY overhauled

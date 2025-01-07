@@ -60,7 +60,9 @@ pub struct WordSearchResult {
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum ParsedSearchResult {
     Section { section: SectionSearchResult },
-    Word { words: Vec<String> },
+    // don't send over all the words yet, as we first need to move to another page, then we can load the search from this page
+    // essentially, doing the same thing as the section (key to a search)
+    Word { words: Vec<String> }, 
     Error { error: String },
 }
 
