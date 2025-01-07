@@ -57,7 +57,7 @@ pub struct WordSearchResult {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", tag = "type")]
+#[serde(rename_all = "snake_case", tag = "type")]
 pub enum ParsedSearchResult {
     Section { section: SectionSearchResult },
     Word { words: Vec<String> },
