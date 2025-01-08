@@ -13,7 +13,7 @@ use crate::{
 };
 
 static mut DATA: Option<AppData> = None;
-const SAVE_NAME: &str = "save.json";
+pub const SAVE_NAME: &str = "save.json";
 
 pub struct AppData {
     pub bible: Bible,

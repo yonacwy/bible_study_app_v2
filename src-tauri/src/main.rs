@@ -63,6 +63,7 @@ fn main()
             get_view_state_count,
             to_next_view_state,
             to_previous_view_state,
+            clear_view_states,
             get_chapter_text,
             get_verse,
             get_book_name,
@@ -91,6 +92,8 @@ fn main()
             get_book_from_name,
             get_selected_reading,
             set_selected_reading,
+            open_file_explorer,
+            open_save_in_file_explorer,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

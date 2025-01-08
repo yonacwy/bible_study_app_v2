@@ -7,6 +7,7 @@ export * from "./toggle.js";
 export * from "./node_management.js";
 export * as storage from "./storage.js";
 export * from "./button.js";
+export * from "./slider.js";
 
 export const invoke: (fn_name: string, args: any) => Promise<any> = (window as any).__TAURI__.core.invoke;
 
@@ -134,4 +135,20 @@ export function map_keys<T, R>(obj: T, f: (k: keyof T, o: T) => R): R[]
     }
 
     return array;
+}
+
+export function open_file_explorer(path: string)
+{
+    invoke('open_file_explorer', { path: path });
+}
+
+export function open_save_in_file_explorer()
+{
+    invoke('open_save_in_file_explorer', {}).then(e => {
+        let error = e as string | null;
+        if(error !== null)
+        {
+            alert('No save file has been created');
+        }
+    })
 }

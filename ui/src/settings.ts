@@ -36,18 +36,6 @@ export async function set_ui_scale(scale: number): Promise<void>
     return await set_settings(settings);
 }
 
-export async function get_text_scale(): Promise<number> 
-{
-    return (await get_settings()).text_scale;
-}
-
-export async function set_text_scale(scale: number): Promise<void>
-{
-    let settings = await get_settings();
-    settings.text_scale = Math.clamp(0, 1, scale);
-    return await set_settings(settings);
-}
-
 export async function get_font(): Promise<string | null>
 {
     return (await get_settings()).font;
@@ -85,7 +73,6 @@ export async function init_less_sync()
 
         less.modifyVars({
             '@ui-scale': `${settings.ui_scale}`,
-            '@text-scale': `${settings.text_scale}`,
             '@font-family': `'${settings.font ?? 'default'}'`
         });
     }

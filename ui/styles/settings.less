@@ -1,5 +1,27 @@
 @import "./shared/defs.less";
 @import "./shared/font_sizing.less";
+@import "./shared/extern.less";
+@import "./shared/slider.less";
+
+
+@setting-width: 400px * @ui-scale;
+
+@button-blue: #5bc0de;
+@button-red: #d9534f;
+@button-grey: #aaa;
+
+.setting-color-button(@color)
+{
+    background-color: @color;
+
+    &:hover {
+        background-color: darken(@color, 10%)
+    };
+
+    &:active {
+        background-color: darken(@color, 20%)
+    }
+}
 
 .settings
 { 
@@ -7,13 +29,15 @@
 
     .setting 
     {
+        @slider-width: @setting-width - @button-size - 2 * @button-margin - 24px * 5 * @ui-scale;
+
         margin-right: auto;
         margin-left: auto;
 
         background-color: white;
         border: 1px solid #ccc;
         margin-bottom: 10px;
-        max-width: 400px;
+        width: @setting-width;
 
         .rounded-border();
         .drop-shadow-m();
@@ -41,18 +65,6 @@
             padding-left: 20px;
             padding-right: 20px;
             .rounded-border();
-
-            .dropdown-content
-            {
-                // box-sizing: border-box;
-                // width: 100%;
-
-                .dropdown-option 
-                {
-                    // box-sizing: border-box;
-                    // width: 100%;
-                }
-            }
         }
 
         .slider-container
@@ -62,13 +74,7 @@
             justify-content: center;
             padding: 10px;
 
-            // the slider
-            input[type=range] 
-            {
-                border: 1px solid cyan;
-                width: calc(80% - @button-size - @button-margin * 2);
-                margin: 5px;
-            }
+            .styled-slider(@slider-width, 7px * @ui-scale, 7px * @ui-scale);
 
             .value-text 
             {
@@ -94,46 +100,74 @@
         cursor: pointer;
         color: white;
 
-        .font-small()
+        .font-small();
+        .set-font();
     }
 
-    @apply-btn-color: #5bc0de;
-    @reset-btn-color: #d9534f;
-    @cancel-btn-color: #aaa;
-
     button.apply-btn {
-        background-color: @apply-btn-color;
-
-        &:hover {
-            background-color: darken(@apply-btn-color, 10%)
-        };
-
-        &:active {
-            background-color: darken(@apply-btn-color, 20%)
-        }
+        .setting-color-button(@button-blue);
     };
 
     button.cancel-btn {
-        background-color: @cancel-btn-color;
-
-        &:hover {
-            background-color: darken(@cancel-btn-color, 10%)
-        };
-
-        &:active {
-            background-color: darken(@cancel-btn-color, 20%)
-        }
+        .setting-color-button(@button-grey)
     }
 
     button.reset-btn {
-        background-color: @reset-btn-color;
+        .setting-color-button(@button-red)
+    }
+}
 
-        &:hover {
-            background-color: darken(@reset-btn-color, 10%)
-        };
+.advanced-settings {
+    @spacing-px: 20px;
+    margin-top: 50px;
 
-        &:active {
-            background-color: darken(@reset-btn-color, 20%)
+    background-color: white;
+    border: 1px solid #ccc;
+    .rounded-border();
+    .drop-shadow-m();
+    display: flex;
+    flex-direction: column;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    width: @setting-width;
+
+    justify-content: center;
+    align-items: center;
+
+    padding-top: @spacing-px;
+    padding-bottom: @spacing-px;
+
+    button {
+        .font-medium();
+        .set-font();
+        width: @setting-width - @spacing-px * 4;
+        padding: 5px;
+
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        color: white;
+
+        &:last-child {
+            margin-top: @spacing-px;
         }
+        box-sizing: border-box;
+    }
+
+    button#clear-history {
+        .setting-color-button(@button-red);
+    }
+
+    button#open-save-path {
+        .setting-color-button(@button-grey);
+    }
+
+    h3 {
+        margin: 0px;
+        margin-bottom: @spacing-px;
+        padding: 0px;
+        .font-large();
     }
 }

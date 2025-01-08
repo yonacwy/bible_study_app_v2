@@ -2,6 +2,8 @@ import * as utils from "../utils/index.js";
 import { init_settings_page_header } from "./menu_header.js";
 import * as pages from "./pages.js";
 import * as settings from "../settings.js";
+import * as popup from "../popups/confirm_popup.js";
+import * as view_states from "../view_states.js";
 
 export type SettingsPageData = {
     old_path: string,
@@ -17,40 +19,48 @@ export async function run()
     
     await sync_display_settings();
 
-    init_volume();
-    init_ui_scale();
-    init_text_scale();
-    init_font_dropdown();
+    init_clear_history_button();
+    init_open_save_path();
+
+    Promise.all([
+        init_volume(),
+        init_ui_scale(),
+        init_font_dropdown(),
+    ]).then(_ => {
+        utils.init_sliders();
+    });
 
     init_apply_buttons();
+    
 
     document.body.style.visibility = 'visible';
 }
 
 let d_volume: number = 0;
 let d_ui_scale: number = 0;
-let d_text_scale: number = 0;
 let d_font: string | null = null;
 
-let callbacks: (() => void)[] = []
+let callbacks: (() => Promise<void>)[] = []
 
 async function sync_display_settings()
 {
     d_volume = await settings.get_volume();
     d_ui_scale = await settings.get_ui_scale();
-    d_text_scale = await settings.get_text_scale();
     d_font = await settings.get_font();
 }
 
 function init_apply_buttons()
 {
-    let sync = () => sync_display_settings().then(_ => callbacks.forEach(c => c()));
+    let sync = () => sync_display_settings().then(_ => {
+        Promise.all(callbacks.map(f => f())).then(() => {
+            utils.update_sliders();
+        });
+    });
 
     document.getElementById('apply-btn')?.addEventListener('click', e => {
         settings.set_settings({
             volume: d_volume,
             ui_scale: d_ui_scale,
-            text_scale: d_text_scale,
             font: d_font,
         }).then(_ => {
             sync();
@@ -62,9 +72,14 @@ function init_apply_buttons()
     });
 
     document.getElementById('reset-btn')?.addEventListener('click', e => {
-        settings.reset_settings().then(_ => {
-            sync();
-        })
+        popup.show_confirm_popup({
+            message: 'Do you want to reset all settings?',
+            on_confirm: () => {
+                settings.reset_settings().then(_ => {
+                    sync();
+                });
+            }
+        });
     })
 }
 
@@ -121,7 +136,7 @@ async function init_volume()
     })
     
 
-    on_value_changed(d_volume);
+    await on_value_changed(d_volume);
     
     callbacks.push(() => on_value_changed(d_volume));
 }
@@ -151,42 +166,9 @@ async function init_ui_scale()
         on_value_changed(settings.DEFAULT_UI_SCALE);
     });
 
-    on_value_changed(d_ui_scale);
+    await on_value_changed(d_ui_scale);
     
     callbacks.push(() => on_value_changed(d_ui_scale));
-}
-
-async function init_text_scale()
-{
-    let slider = document.getElementById('text-slider')  as HTMLInputElement | null;
-    let button = document.getElementById('text-btn');
-    let display = document.getElementById('text-scale-display');
-
-    if (!slider || !button || !display) return null;
-
-    slider.value = `${Math.inv_lerp(settings.MIN_TEXT_SCALE, settings.MAX_TEXT_SCALE, d_text_scale)}`;
-
-    const on_value_changed = async (value: number) => {
-        display.innerHTML = `${Math.round(value * 100)}%`;
-
-        let setting_value = await settings.get_text_scale();
-        if(setting_value != value)
-            display.innerHTML += '*';
-
-        d_text_scale = value;
-        slider.value = Math.inv_lerp(settings.MIN_TEXT_SCALE, settings.MAX_TEXT_SCALE, value).toString();
-    }
-
-    slider.addEventListener('input', () => on_value_changed(Math.lerp(settings.MIN_TEXT_SCALE, settings.MAX_TEXT_SCALE, +slider.value)));
-
-    button.addEventListener('click', e => {
-        on_value_changed(settings.DEFAULT_TEXT_SCALE);
-    });
-
-    slider.value = (await settings.get_text_scale()).toString();
-    on_value_changed(d_text_scale);
-
-    callbacks.push(() => on_value_changed(d_text_scale));
 }
 
 async function init_font_dropdown()
@@ -236,6 +218,25 @@ async function init_font_dropdown()
         }
     }
     
-    on_value_changed(d_font);
+    await on_value_changed(d_font);
     callbacks.push(() => on_value_changed(d_font));
+}
+
+function init_clear_history_button()
+{
+    document.getElementById('clear-history')?.addEventListener('click', e => {
+        popup.show_confirm_popup({
+            message: 'Do you wish to delete all bible search history? (this will not delete any notes or highlights)',
+            on_confirm: () => {
+                view_states.clear_view_states();
+            }
+        })
+    })
+}
+
+function init_open_save_path()
+{
+    document.getElementById('open-save-path')?.addEventListener('click', e => {
+        utils.open_save_in_file_explorer();
+    });
 }
