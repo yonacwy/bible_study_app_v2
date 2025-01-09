@@ -54,16 +54,18 @@
         h3 
         {
             text-align: center;
-            margin: 5px;
+            margin: 5px * @ui-scale;
         }
 
         .dropdown
         {
-            margin: 5px;
+            margin: 5px * @ui-scale;
+            padding: 10px * @ui-scale;
             margin-left: auto;
             border: 1px solid #ccc;
-            padding-left: 20px;
-            padding-right: 20px;
+            padding-left: 20px * @ui-scale;
+            padding-right: 20px * @ui-scale;
+            height: fit-content;
             .rounded-border();
         }
 
@@ -93,7 +95,7 @@
     margin-top: 30px;
 
     button {
-        margin: 10px;
+        margin: 10px * @ui-scale;
         padding: 10px 20px;
         border: none;
         border-radius: 3px;

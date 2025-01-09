@@ -1,5 +1,6 @@
 @import "./shared/defs.less";
 @import "./shared/font_sizing.less";
+@import "./shared/defs.less";
 
 .calender-page-content {
     margin-left: auto;
@@ -16,9 +17,8 @@
 
     gap: 10px;
 
-    @media only screen and (max-width: 800px) {
+    @media only screen and (max-width: (800px * @ui-scale)) {
         flex-direction: column;
-        margin-bottom: 500px;
 
         hr {
             height: 1px;
@@ -28,7 +28,7 @@
 }
 
 .calender {
-    width: 500px;
+    width: 500px * @ui-scale;
     display: flex;
     box-sizing: border-box;
 
@@ -94,7 +94,7 @@
 
     th, td {
         text-align: center;
-        padding: 10px;
+        padding: min(10px, 10px * @ui-scale);
     }
 
     td.hoverable:hover {
@@ -113,9 +113,9 @@
 
 .day-readings {
     background-color: white;
-    padding-right: 10px;
+    padding-right: 10px * @ui-scale;
     border-radius: 10px;
-    width: 200px;
+    width: 200px * @ui-scale;
     
     .drop-shadow-m();
 
@@ -128,13 +128,16 @@
     }
 
     ol {
+        padding: 0px;
+        padding-left: 40px * @ui-scale;
         li {
             font-weight: bold;
             text-decoration: underline;
-            padding: 5px;
+            padding: 5px * @ui-scale;
             width: fit-content;
             height: fit-content;
             border-radius: 5px;
+            margin-left: 0px;
             
             .font-medium();
 
@@ -145,7 +148,6 @@
 
         }
     }
-
 
     .readings-selector {
         margin-left: 5px; // fix cause of padding in parent
