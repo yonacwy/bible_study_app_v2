@@ -74,6 +74,7 @@ declare global {
         lerp(min: number, max: number, v: number): number;
         clamp(min: number, max: number, v: number): number;
         inv_lerp(min: number, max: number, v: number): number;
+        approx_eq(a: number, b: number, epsilon?: number): boolean;
     }
 }
 
@@ -91,6 +92,10 @@ Math.clamp = (min: number, max: number, v: number): number => {
 Math.inv_lerp = (min: number, max: number, v: number): number => {
     v = Math.clamp(min, max, v);
     return (v - min) / (max - min);
+}
+
+Math.approx_eq = (a: number, b: number, epsilon?: number): boolean => {
+    return Math.abs(a - b) < (epsilon ?? 0.01);
 }
 
 export {};
