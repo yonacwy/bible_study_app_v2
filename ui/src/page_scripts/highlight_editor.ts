@@ -67,9 +67,9 @@ function on_delete(id: string)
 {
     deleting_id = id;
     confirm_popup.show_confirm_popup({
-        message: 'Are you sure you want to delete this highlight?',
-        yes_text: 'Delete popup',
-        no_text: 'Cancel delete popup',
+        message: 'Are you sure you want to delete this highlight? (This will remove all references to it)',
+        yes_text: 'Delete highlight',
+        no_text: 'Cancel delete highlight',
         on_confirm: () => {
             if (deleting_id != null)
             {
@@ -99,7 +99,7 @@ function on_submit(_e: Event)
     if(name.length < 3)
     {
         was_error = true;
-        show_error_popup('name-err-msg', true, `Name must be at least ${NAME_MIN_LENGTH} characters long.`);   
+        show_error_popup('name-err-msg', true, `Name must be at least ${NAME_MIN_LENGTH} characters long.`);
     }
     else if(name.length > NAME_MAX_LENGTH)
     {

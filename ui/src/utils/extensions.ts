@@ -20,7 +20,7 @@ Element.prototype.appendElementEx = function<K extends keyof HTMLElementTagNameM
     child.classList.add(...classes);
     builder(child);
     this.appendChild(child);
-    return this;
+    return child;
 }
 
 declare global {

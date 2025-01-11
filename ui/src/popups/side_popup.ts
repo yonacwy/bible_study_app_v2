@@ -137,7 +137,7 @@ function append_highlights(annotations: WordAnnotations, target: Element)
                     title.classList.add('highlight-title');
                     title.innerHTML = name;
                 });
-                content.appendElement('p', desc => desc.innerHTML = description);
+                content.appendElement('div', desc => desc.innerHTML = utils.render_markdown(description));
             })
         });
     }

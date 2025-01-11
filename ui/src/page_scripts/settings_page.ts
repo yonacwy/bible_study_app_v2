@@ -119,6 +119,8 @@ async function init_volume()
         {
             image.src = '../images/volume/light-volume-high.svg';
         }
+
+        utils.update_sliders();
     }
 
     slider.addEventListener('input', () => on_value_changed(+slider.value));
@@ -158,6 +160,7 @@ async function init_ui_scale()
 
         d_ui_scale = value;
         slider.value = Math.inv_lerp(settings.MIN_UI_SCALE, settings.MAX_UI_SCALE, value).toString();
+        utils.update_sliders();
     }
 
     slider.addEventListener('input', () => on_value_changed(Math.lerp(settings.MIN_UI_SCALE, settings.MAX_UI_SCALE, +slider.value)));

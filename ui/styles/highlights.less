@@ -1,9 +1,11 @@
 @import "./shared/font_sizing.less";
+@import "./shared/defs.less";
 
 .highlight-container {
     display: flex;
     flex-direction: column;
     margin: 20px;
+    margin-top: @header-height;
 }
 
 .highlight {
@@ -14,35 +16,42 @@
     padding: 10px;
     margin: 10px 0;
     background-color: white;
+
+    .color-bar {
+        width: 10px;
+        border-radius: 8px 0 0 8px;
+        margin-right: 10px;
+    }
+    
 }
 
-.color-bar {
-    width: 10px;
-    border-radius: 8px 0 0 8px;
-    margin-right: 10px;
-}
-
-.highlight-content {
+.highlight-content 
+{
     display: flex;
     flex-direction: column;
     justify-content: center;
-}
 
-.highlight-content h2 {
-    margin: 0;
-    font-size: 1.5em;
-}
+    h2 
+    {
+        margin: 0;
+        font-size: 1.5em;
+    }
 
-.highlight-content p {
-    margin: 5px 0;
-}
+    p 
+    {
+        margin: 5px 0;
+    }
 
-.highlight-content span {
-    font-weight: bold;
-}
+    span 
+    {
+        font-weight: bold;
+    }
 
-.same-line {
-    flex-direction: row;
+    .highlight-button-container 
+    {
+        display: flex;
+        flex-direction: row;
+    }
 }
 
 .edit-highlight-popup {
@@ -52,37 +61,80 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    display: none;
+    display: flex;
     justify-content: center;
     align-items: center;
-}
+    z-index: 100000;
 
-.edit-highlight-popup .popup-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 5px;
-    text-align: center;
-    min-width: 500px;
-    max-height: 70%;
-    overflow: auto;
-}
+    .highlight-popup-content {
+        position: absolute;
+        display: block;
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+        width: 70%;
+        height: calc(70% - @header-height);
+        overflow: auto;
 
-.edit-highlight-popup button {
-    margin: 10px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
+        border: 1px solid chartreuse;
 
-    .font-small();
-}
+        .title-editor {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #333;
+            border-radius: 8px 8px 0 0;
+            padding: 10px;
 
-.edit-highlight-popup button.no {
-    background-color: #d9534f;
-    color: white;
-}
+            gap: 10px;
 
-.edit-highlight-popup button.yes {
-    background-color: #5bc0de;
-    color: white;
+            input[type=color] {
+                display: flex;
+            }
+
+            input[type=text] {
+                display: flex;
+                margin: 0px;
+                box-sizing: border-box;
+            }
+        }
+
+        .confirm-buttons 
+        {
+            position: absolute;
+            display: block;
+            border: 1px solid cyan;
+            margin-left: auto;
+            margin-right: auto;
+
+            left: 50%;
+            transform: translateX(-50%);
+
+            bottom: 0px;
+
+            button 
+            {
+                margin: 10px;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 3px;
+                cursor: pointer;
+            
+                .font-medium();
+        
+                &.no {
+                    background-color: #d9534f;
+                    color: white;
+                }
+        
+                &.yes {
+                    background-color: #5bc0de;
+                    color: white;
+                }
+            }
+        }
+
+        
+    }
 }
