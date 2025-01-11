@@ -40,7 +40,9 @@ export async function run()
 
     utils.on_click('cancel-submit-btn', e => {
         utils.set_display('highlight-popup', 'none');
-    })
+    });
+
+    utils.init_sliders();
 
     document.body.style.visibility = 'visible';
 }
@@ -59,6 +61,7 @@ function on_edit(id: string)
 
         editing_id = category.id;
         utils.set_display('highlight-popup', 'flex');
+        utils.update_sliders();
     })
 }
 

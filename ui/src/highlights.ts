@@ -59,7 +59,7 @@ export function render_categories(on_delete: (id: string) => void, on_edit: (id:
                     content_div.appendElement('h2', header => header.innerHTML = name);
                     content_div.appendElementEx('div', ['highlight-description'], desc => desc.innerHTML = utils.render_markdown(description));
                     content_div.appendElement('p', p => {
-                        p.innerHTML = `<span>Priority:</span> ${priority}`;
+                        p.innerHTML = `<span class="priority">Priority:</span> ${priority}`;
                     });
 
                     content_div.appendElementEx('div', ['highlight-button-container'], button_container => {
