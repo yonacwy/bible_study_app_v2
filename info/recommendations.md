@@ -16,6 +16,7 @@
 - F11 fullscreen support
 - Add dark mode/different themes
 - Hot Keys
+- Highlight opacity
 
 ### Dev Recomendations
 - At some point, `searching.rs` needs to be COMPLETELY overhauled

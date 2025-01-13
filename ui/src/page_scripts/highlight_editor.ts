@@ -43,6 +43,7 @@ export async function run()
     });
 
     utils.init_sliders();
+    init_view_toggle();
 
     document.body.style.visibility = 'visible';
 }
@@ -129,4 +130,44 @@ function on_submit(_e: Event)
         location.reload();
         editing_id = null;
     }
+}
+
+enum MdState 
+{
+    Viewing = 'v',
+    Editing = 'e',
+}
+
+function init_view_toggle()
+{
+    let current_state: MdState = MdState.Editing;
+
+    const button = document.getElementById('view-toggle-btn');
+    const image = button?.getElementsByTagName('img')[0];
+
+    if(!button || !image) return;
+
+    function opposite_state(state: MdState): MdState
+    {
+        if (state == MdState.Editing) return MdState.Viewing;
+        return MdState.Editing;
+    }
+
+    const BUTTON_DATA = {
+        'v': {
+            image: '../images/light-eye.svg',
+            title: 'Enter view mode',
+        },
+        'e': {
+            image: '../images/light-text.svg',
+            title: 'Enter edit mode',
+        }
+    }
+
+    button.addEventListener('click', e => {
+        current_state = opposite_state(current_state);
+        let data = BUTTON_DATA[opposite_state(current_state)];
+        button.title = data.title;
+        image.src = data.image;
+    })
 }
