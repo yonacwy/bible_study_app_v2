@@ -95,6 +95,6 @@ fn main()
             open_file_explorer,
             open_save_in_file_explorer,
         ])
-        .run(tauri::generate_context!())
+        .run(tauri::generate_context!()) 
         .expect("error while running tauri application");
 }

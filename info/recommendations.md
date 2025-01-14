@@ -18,5 +18,5 @@
 - Hot Keys
 - Highlight opacity
 
-### Dev Recomendations
+### Dev Recommendations
 - At some point, `searching.rs` needs to be COMPLETELY overhauled

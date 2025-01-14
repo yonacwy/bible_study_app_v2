@@ -144,8 +144,10 @@ function init_view_toggle()
 
     const button = document.getElementById('view-toggle-btn');
     const image = button?.getElementsByTagName('img')[0];
+    const text_input = document.getElementById('description-in') as HTMLTextAreaElement | null;
+    const text_view = document.getElementById('description-view');
 
-    if(!button || !image) return;
+    if(!button || !image || !text_input || !text_view) return;
 
     function opposite_state(state: MdState): MdState
     {
@@ -155,19 +157,42 @@ function init_view_toggle()
 
     const BUTTON_DATA = {
         'v': {
-            image: '../images/light-eye.svg',
+            image: '../images/light-text.svg',
             title: 'Enter view mode',
+            view: 'block',
+            edit: 'none',
         },
         'e': {
-            image: '../images/light-text.svg',
+            image: '../images/light-eye.svg',
             title: 'Enter edit mode',
+            view: 'none',
+            edit: 'block',
         }
+    }
+
+    let set_data = (state: MdState) =>
+    {
+        let data = BUTTON_DATA[state];
+        button.title = data.title;
+        image.src = data.image;
+        text_input.style.display = data.edit;
+        text_view.style.display = data.view;
     }
 
     button.addEventListener('click', e => {
         current_state = opposite_state(current_state);
-        let data = BUTTON_DATA[opposite_state(current_state)];
-        button.title = data.title;
-        image.src = data.image;
-    })
+
+        if(current_state === MdState.Viewing)
+        {
+            text_view.innerHTML = utils.render_markdown(text_input.value);
+        }
+        else 
+        {
+            text_view.innerHTML = '';
+        }
+
+        set_data(current_state);
+    });
+
+    set_data(current_state);
 }
