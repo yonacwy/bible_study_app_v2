@@ -117,3 +117,8 @@ export async function previous_view_state(): Promise<any>
 {
     return await utils.invoke('to_previous_view_state', {});
 }
+
+export async function clear_view_states(): Promise<void>
+{
+    return await utils.invoke('clear_view_states', {});
+}

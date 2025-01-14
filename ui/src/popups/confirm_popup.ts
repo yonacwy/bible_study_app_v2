@@ -19,19 +19,20 @@ export function show_confirm_popup(data: ConfirmPopupData)
             <button id="${YES_BUTTON_ID}" class="yes" title="${data.yes_text ?? 'Confirm'}">Confirm</button>
             <button id="${NO_BUTTON_ID}" class="no" title="${data.no_text ?? 'Cancel'}">Cancel</button>
         </div>
-    `
+    `;
 
     document.body.appendElement('div', popup => {
         popup.id = CONFIRM_POPUP_ID;
         popup.classList.add('popup');
         popup.innerHTML = html;
-    })
+    });
 
     document.getElementById(YES_BUTTON_ID)?.addEventListener('click', e => {
         data.on_confirm(e);
         document.getElementById(CONFIRM_POPUP_ID)?.remove();
     });
+
     document.getElementById(NO_BUTTON_ID)?.addEventListener('click', _ => {
         document.getElementById(CONFIRM_POPUP_ID)?.remove();
-    })
+    });
 }

@@ -165,3 +165,8 @@ export function flatten_verse_index(chapter: ChapterView, verse: number, word: n
     index += word;
     return index;
 }
+
+export async function get_book_index(prefix: number | null, name: string): Promise<number | null>
+{
+    return (await invoke('get_book_from_name', { prefix: prefix, name: name }))?.index ?? null;
+}

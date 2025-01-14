@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet/less" type="text/css" href="../styles/styles.less">
+    <link rel="stylesheet/less" type="text/css" href="../styles/dropdown.less">
+    <link rel="stylesheet/less" type="text/css" href="../styles/wip.less">
+    <link rel="stylesheet/less" type="text/css" href="../styles/calender.less">
+
+    <script src="../src/vendor/less.js"></script>
+</head>
+<body>
+    <header>
+        <!-- Initialized by script -->
+    </header>
+    <main>
+        <div class="calender-page-content">
+            <div class="calender" id="calender">
+                <table id="calender-table">
+                    <!-- Initialized by script -->
+                </table>
+            </div>
+            <hr>
+            <div class="day-readings">
+                <div class="readings-selector">
+                    <div class="dropdown">
+                        <div class="reading-plan-title" id="reading-plan-title"> <!-- Initialized by script --> </div>
+                        <div class="dropdown-content" id="reading-plan-dropdown-content">
+                            <!-- Initialized by script -->
+                        </div>
+                    </div>
+                </div>
+                <div class="day-readings-title">Daily Readings</div>
+                <ol id="reading-plan-content">
+                    <!-- Initialized by script -->
+                </ol>
+            </div>
+        </div>
+    </main>
+    <script type="module">
+        import { run } from "../dist/page_scripts/daily_readings_page.js";
+        run();
+    </script>
+</body>
+</html>

@@ -4,7 +4,7 @@ use serde_json::Value;
 use crate::settings::Settings;
 
 const SAVE_FIELD_NAME: &str = "save_version";
-pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV2;
+pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV3;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SaveVersion {
@@ -14,6 +14,8 @@ pub enum SaveVersion {
     SV1,
     #[serde(rename = "2")]
     SV2,
+    #[serde(rename = "3")]
+    SV3,
 }
 
 impl SaveVersion {
@@ -51,6 +53,7 @@ pub fn migrate_save_latest(data: &str) -> MigrationResult {
 
     migrate_sv0(version, &mut json);
     migrate_sv1(&mut json);
+    migrate_sv2(&mut json);
 
     if CURRENT_SAVE_VERSION != version {
         MigrationResult::Different {
@@ -107,4 +110,21 @@ fn migrate_sv1(json: &mut Value)
     let json_obj = json.as_object_mut().unwrap();
     json_obj.insert(SAVE_FIELD_NAME.into(), serde_json::to_value(SaveVersion::SV2).unwrap());
     json_obj.insert(SETTINGS_NAME.into(), serde_json::to_value(Settings::default()).unwrap());
+}
+
+/// The save version must be in SV1 format.
+/// Just adds the `selected_reading` value to the save file
+fn migrate_sv2(json: &mut Value)
+{
+    if !json.get(SAVE_FIELD_NAME)
+       .and_then(|v| serde_json::from_value(v.clone()).ok())
+       .is_some_and(|v: SaveVersion| v == SaveVersion::SV2)
+    {
+        return;
+    }
+
+    const SELECTED_READING_NAME: &str = "selected_reading";
+    let json_obj = json.as_object_mut().unwrap();
+    json_obj.insert(SAVE_FIELD_NAME.into(), serde_json::to_value(SaveVersion::SV3).unwrap());
+    json_obj.insert(SELECTED_READING_NAME.into(), serde_json::to_value(0u32).unwrap());
 }

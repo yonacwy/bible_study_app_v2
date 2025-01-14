@@ -1,0 +1,1852 @@
+<?xml version="1.0"?>
+<readings xmlns="readings">
+    <month name="January" num="01">
+        <day num="01">
+            <reading num="1" passage="Genesis 1-2" />
+            <reading num="2" passage="Psalms 1-2" />
+            <reading num="3" passage="Matthew 1-2" />
+        </day>
+        <day num="02">
+            <reading num="1" passage="Genesis 3-4" />
+            <reading num="2" passage="Psalms 3-5" />
+            <reading num="3" passage="Matthew 3-4" />
+        </day>
+        <day num="03">
+            <reading num="1" passage="Genesis 5-6" />
+            <reading num="2" passage="Psalms 6-8" />
+            <reading num="3" passage="Matthew 5" />
+        </day>
+        <day num="04">
+            <reading num="1" passage="Genesis 7-8" />
+            <reading num="2" passage="Psalms 9-10" />
+            <reading num="3" passage="Matthew 6" />
+        </day>
+        <day num="05">
+            <reading num="1" passage="Genesis 9-10" />
+            <reading num="2" passage="Psalms 11-13" />
+            <reading num="3" passage="Matthew 7" />
+        </day>
+        <day num="06">
+            <reading num="1" passage="Genesis 11-12" />
+            <reading num="2" passage="Psalms 14-16" />
+            <reading num="3" passage="Matthew 8" />
+        </day>	 	
+        <day num="07">
+            <reading num="1" passage="Genesis 13-14" />
+            <reading num="2" passage="Psalm 17" />
+            <reading num="3" passage="Matthew 9" />
+        </day>	 	
+        <day num="08">
+            <reading num="1" passage="Genesis 15-16" />
+            <reading num="2" passage="Psalm 18" />
+            <reading num="3" passage="Matthew 10" />
+        </day>	 	
+        <day num="09">
+            <reading num="1" passage="Genesis 17-18" />
+            <reading num="2" passage="Psalms 19-21" />
+            <reading num="3" passage="Matthew 11" />
+        </day>	 	
+        <day num="10">
+            <reading num="1" passage="Genesis 19" />
+            <reading num="2" passage="Psalm 22" />
+            <reading num="3" passage="Matthew 12" />
+        </day>
+        <day num="11">
+            <reading num="1" passage="Genesis 20-21" />
+            <reading num="2" passage="Psalms 23-25" />
+            <reading num="3" passage="Matthew 13" />
+        </day>	 	
+        <day num="12">
+            <reading num="1" passage="Genesis 22-23" />
+            <reading num="2" passage="Psalms 26-28" />
+            <reading num="3" passage="Matthew 14" />
+        </day>	 	
+        <day num="13">
+            <reading num="1" passage="Genesis 24" />
+            <reading num="2" passage="Psalms 29-30" />
+            <reading num="3" passage="Matthew 15" />
+        </day>	 	
+        <day num="14">
+            <reading num="1" passage="Genesis 25-26" />
+            <reading num="2" passage="Psalm 31" />
+            <reading num="3" passage="Matthew 16" />
+        </day>	 	
+        <day num="15">
+            <reading num="1" passage="Genesis 27" />
+            <reading num="2" passage="Psalm 32" />
+            <reading num="3" passage="Matthew 17" />
+        </day>
+        <day num="16">
+            <reading num="1" passage="Genesis 28-29" />
+            <reading num="2" passage="Psalm 33" />
+            <reading num="3" passage="Matthew 18" />
+        </day>	 	
+        <day num="17">
+            <reading num="1" passage="Genesis 30" />
+            <reading num="2" passage="Psalm 34" />
+            <reading num="3" passage="Matthew 19" />
+        </day>	 	
+        <day num="18">
+            <reading num="1" passage="Genesis 31" />
+            <reading num="2" passage="Psalm 35" />
+            <reading num="3" passage="Matthew 20" />
+        </day>	 	
+        <day num="19">
+            <reading num="1" passage="Genesis 32-33" />
+            <reading num="2" passage="Psalm 36" />
+            <reading num="3" passage="Matthew 21" />
+        </day>	 	
+        <day num="20">
+            <reading num="1" passage="Genesis 34-35" />
+            <reading num="2" passage="Psalm 37" />
+            <reading num="3" passage="Matthew 22" />
+        </day>
+        <day num="21">
+            <reading num="1" passage="Genesis 36" />
+            <reading num="2" passage="Psalm 38" />
+            <reading num="3" passage="Matthew 23" />
+        </day>	 	
+        <day num="22">
+            <reading num="1" passage="Genesis 37" />
+            <reading num="2" passage="Psalms 39-40" />
+            <reading num="3" passage="Matthew 24" />
+        </day>	 	
+        <day num="23">
+            <reading num="1" passage="Genesis 38" />
+            <reading num="2" passage="Psalms 41-43" />
+            <reading num="3" passage="Matthew 25" />
+        </day>	 	
+        <day num="24">
+            <reading num="1" passage="Genesis 39-40" />
+            <reading num="2" passage="Psalm 44" />
+            <reading num="3" passage="Matthew 26" />
+        </day>	 	
+        <day num="25">
+            <reading num="1" passage="Genesis 41" />
+            <reading num="2" passage="Psalm 45" />
+            <reading num="3" passage="Matthew 27" />
+        </day>
+        <day num="26">
+            <reading num="1" passage="Genesis 42-43" />
+            <reading num="2" passage="Psalms 46-48" />
+            <reading num="3" passage="Matthew 28" />
+        </day>	 	
+        <day num="27">
+            <reading num="1" passage="Genesis 44-45" />
+            <reading num="2" passage="Psalm 49" />
+            <reading num="3" passage="Romans 1-2" />
+        </day>	 	
+        <day num="28">
+            <reading num="1" passage="Genesis 46-47" />
+            <reading num="2" passage="Psalm 50" />
+            <reading num="3" passage="Romans 3-4" />
+        </day>	 	
+        <day num="29">
+            <reading num="1" passage="Genesis 48-50" />
+            <reading num="2" passage="Psalms 51-52" />
+            <reading num="3" passage="Romans 5-6" />
+        </day>	 	
+        <day num="30">
+            <reading num="1" passage="Exodus 1-2" />
+            <reading num="2" passage="Psalms 53-55" />
+            <reading num="3" passage="Romans 7-8" />
+        </day>
+        <day num="31">
+            <reading num="1" passage="Exodus 3-4" />
+            <reading num="2" passage="Psalms 56-57" />
+            <reading num="3" passage="Romans 9" />
+        </day>
+    </month>
+    <month name="February" num="02">
+        <day num="01">
+            <reading num="1" passage="Exodus 5-6" />
+            <reading num="2" passage="Psalms 58-59" />
+            <reading num="3" passage="Romans 10-11" />
+        </day>
+        <day num="02">
+            <reading num="1" passage="Exodus 7-8" />
+            <reading num="2" passage="Psalms 60-61" />
+            <reading num="3" passage="Romans 12" />
+        </day>
+        <day num="03">
+            <reading num="1" passage="Exodus 9" />
+            <reading num="2" passage="Psalms 62-63" />
+            <reading num="3" passage="Romans 13-14" />
+        </day>	 	
+        <day num="04">
+            <reading num="1" passage="Exodus 10" />
+            <reading num="2" passage="Psalms 64-65" />
+            <reading num="3" passage="Romans 15-16" />
+        </day>	 	
+        <day num="05">
+            <reading num="1" passage="Exodus 11-12" />
+            <reading num="2" passage="Psalms 66-67" />
+            <reading num="3" passage="Mark 1" />
+        </day>
+        <day num="06">
+            <reading num="1" passage="Exodus 13-14" />
+            <reading num="2" passage="Psalm 68" />
+            <reading num="3" passage="Mark 2" />
+        </day>	 	
+        <day num="07">
+            <reading num="1" passage="Exodus 15" />
+            <reading num="2" passage="Psalm 69" />
+            <reading num="3" passage="Mark 3" />
+        </day>	 	
+        <day num="08">
+            <reading num="1" passage="Exodus 16" />
+            <reading num="2" passage="Psalms 70-71" />
+            <reading num="3" passage="Mark 4" />
+        </day>	 	
+        <day num="09">
+            <reading num="1" passage="Exodus 17-18" />
+            <reading num="2" passage="Psalm 72" />
+            <reading num="3" passage="Mark 5" />
+        </day>	 	
+        <day num="10">
+            <reading num="1" passage="Exodus 19-20" />
+            <reading num="2" passage="Psalm 73" />
+            <reading num="3" passage="Mark 6" />
+        </day>
+        <day num="11">
+            <reading num="1" passage="Exodus 21" />
+            <reading num="2" passage="Psalm 74" />
+            <reading num="3" passage="Mark 7" />
+        </day>	 	
+        <day num="12">
+            <reading num="1" passage="Exodus 22" />
+            <reading num="2" passage="Psalms 75-76" />
+            <reading num="3" passage="Mark 8" />
+        </day>	 	
+        <day num="13">
+            <reading num="1" passage="Exodus 23" />
+            <reading num="2" passage="Psalm 77" />
+            <reading num="3" passage="Mark 9" />
+        </day>	 	
+        <day num="14">
+            <reading num="1" passage="Exodus 24-25" />
+            <reading num="2" passage="Psalm 78" />
+            <reading num="3" passage="Mark 10" />
+        </day>	 	
+        <day num="15">
+            <reading num="1" passage="Exodus 26" />
+            <reading num="2" passage="Psalms 79-80" />
+            <reading num="3" passage="Mark 11" />
+        </day>
+        <day num="16">
+            <reading num="1" passage="Exodus 27" />
+            <reading num="2" passage="Psalms 81-82" />
+            <reading num="3" passage="Mark 12" />
+        </day>	 	
+        <day num="17">
+            <reading num="1" passage="Exodus 28" />
+            <reading num="2" passage="Psalms 83-84" />
+            <reading num="3" passage="Mark 13" />
+        </day>	 	
+        <day num="18">
+            <reading num="1" passage="Exodus 29" />
+            <reading num="2" passage="Psalms 85-86" />
+            <reading num="3" passage="Mark 14" />
+        </day>	 	
+        <day num="19">
+            <reading num="1" passage="Exodus 30" />
+            <reading num="2" passage="Psalms 87-88" />
+            <reading num="3" passage="Mark 15-16" />
+        </day>	 	
+        <day num="20">
+            <reading num="1" passage="Exodus 31-32" />
+            <reading num="2" passage="Psalm 89" />
+            <reading num="3" passage="1 Corinthians 1-2" />
+        </day>
+        <day num="21">
+            <reading num="1" passage="Exodus 33-34" />
+            <reading num="2" passage="Psalms 90-91" />
+            <reading num="3" passage="1 Corinthians 3" />
+        </day>
+        <day num="22">
+            <reading num="1" passage="Exodus 35" />
+            <reading num="2" passage="Psalms 92-93" />
+            <reading num="3" passage="1 Corinthians 4-5" />
+        </day>	 	
+        <day num="23">
+            <reading num="1" passage="Exodus 36" />
+            <reading num="2" passage="Psalms 94-95" />
+            <reading num="3" passage="1 Corinthians 6" />
+        </day>	 	
+        <day num="24">
+            <reading num="1" passage="Exodus 37" />
+            <reading num="2" passage="Psalms 96-99" />
+            <reading num="3" passage="1 Corinthians 7" />
+        </day>	 	
+        <day num="25">
+            <reading num="1" passage="Exodus 38" />
+            <reading num="2" passage="Psalms 100-101" />
+            <reading num="3" passage="1 Corinthians 8-9" />
+        </day>
+        <day num="26">
+            <reading num="1" passage="Exodus 39-40" />
+            <reading num="2" passage="Psalm 102" />
+            <reading num="3" passage="1 Corinthians 10" />
+        </day>	 	
+        <day num="27">
+            <reading num="1" passage="Leviticus 1-2" />
+            <reading num="2" passage="Psalm 103" />
+            <reading num="3" passage="1 Corinthians 11" />
+        </day>	 	
+        <day num="28">
+            <reading num="1" passage="Leviticus 3-4" />
+            <reading num="2" passage="Psalm 104" />
+            <reading num="3" passage="1 Corinthians 12-13" />
+        </day>
+    </month>
+    <month name="March" num="03">
+        <day num="01">
+        	<reading num="1" passage="Leviticus 5-6" />
+        	<reading num="2" passage="Psalm 105" />
+        	<reading num="3" passage="1 Corinthians 14" />
+        </day>	 	
+        <day num="02">
+        	<reading num="1" passage="Leviticus 7" />
+        	<reading num="2" passage="Psalm 106" />
+        	<reading num="3" passage="1 Corinthians 15" />
+        </day>	 	
+        <day num="03">
+        	<reading num="1" passage="Leviticus 8" />
+        	<reading num="2" passage="Psalm 107" />
+        	<reading num="3" passage="1 Corinthians 16" />
+        </day>	 	
+        <day num="04">
+        	<reading num="1" passage="Leviticus 9-10" />
+        	<reading num="2" passage="Psalms 108-109" />
+        	<reading num="3" passage="2 Corinthians 1-2" />
+        </day>	 	
+        <day num="05">
+        	<reading num="1" passage="Leviticus 11" />
+        	<reading num="2" passage="Psalms 110-112" />
+        	<reading num="3" passage="2 Corinthians 3-4" />
+        </day>
+        <day num="06">
+        	<reading num="1" passage="Leviticus 12-13" />
+        	<reading num="2" passage="Psalms 113-114" />
+        	<reading num="3" passage="2 Corinthians 5-7" />
+        </day>	 	
+        <day num="07">
+        	<reading num="1" passage="Leviticus 14" />
+        	<reading num="2" passage="Psalms 115-116" />
+        	<reading num="3" passage="2 Corinthians 8-9" />
+        </day>	 	
+        <day num="08">
+        	<reading num="1" passage="Leviticus 15" />
+        	<reading num="2" passage="Psalms 117-118" />
+        	<reading num="3" passage="2 Corinthians 10-11" />
+        </day>	 	
+        <day num="09">
+        	<reading num="1" passage="Leviticus 16" />
+        	<reading num="2" passage="Psalm 119:1-40" />
+        	<reading num="3" passage="2 Corinthians 12-13" />
+        </day>	 	
+        <day num="10">
+        	<reading num="1" passage="Leviticus 17-18" />
+        	<reading num="2" passage="Psalm 119:41-80" />
+        	<reading num="3" passage="Luke 1" />
+        </day>
+        <day num="11">
+        	<reading num="1" passage="Leviticus 19" />
+        	<reading num="2" passage="Psalm 119:81-128" />
+        	<reading num="3" passage="Luke 2" />
+        </day>	 	
+        <day num="12">
+        	<reading num="1" passage="Leviticus 20" />
+        	<reading num="2" passage="Psalm 119:129-176" />
+        	<reading num="3" passage="Luke 3" />
+        </day>	 	
+        <day num="13">
+        	<reading num="1" passage="Leviticus 21" />
+        	<reading num="2" passage="Psalms 120-124" />
+        	<reading num="3" passage="Luke 4" />
+        </day>	 	
+        <day num="14">
+        	<reading num="1" passage="Leviticus 22" />
+        	<reading num="2" passage="Psalms 125-127" />
+        	<reading num="3" passage="Luke 5" />
+        </day>	 	
+        <day num="15">
+        	<reading num="1" passage="Leviticus 23" />
+        	<reading num="2" passage="Psalms 128-130" />
+        	<reading num="3" passage="Luke 6" />
+        </day>
+        <day num="16">
+        	<reading num="1" passage="Leviticus 24" />
+        	<reading num="2" passage="Psalms 131-134" />
+        	<reading num="3" passage="Luke 7" />
+        </day>	 	
+        <day num="17">
+        	<reading num="1" passage="Leviticus 25" />
+        	<reading num="2" passage="Psalms 135-136" />
+        	<reading num="3" passage="Luke 8" />
+        </day>	 	
+        <day num="18">
+        	<reading num="1" passage="Leviticus 26" />
+        	<reading num="2" passage="Psalms 137-139" />
+        	<reading num="3" passage="Luke 9" />
+        </day>	 	
+        <day num="19">
+        	<reading num="1" passage="Leviticus 27" />
+        	<reading num="2" passage="Psalms 140-142" />
+        	<reading num="3" passage="Luke 10" />
+        </day>	 	
+        <day num="20">
+        	<reading num="1" passage="Numbers 1" />
+        	<reading num="2" passage="Psalms 143-144" />
+        	<reading num="3" passage="Luke 11" />
+        </day>
+        <day num="21">
+        	<reading num="1" passage="Numbers 2" />
+        	<reading num="2" passage="Psalms 145-147" />
+        	<reading num="3" passage="Luke 12" />
+        </day>	 	
+        <day num="22">
+        	<reading num="1" passage="Numbers 3" />
+        	<reading num="2" passage="Psalms 148-150" />
+        	<reading num="3" passage="Luke 13-14" />
+        </day>	 	
+        <day num="23">
+        	<reading num="1" passage="Numbers 4" />
+        	<reading num="2" passage="Proverbs 1" />
+        	<reading num="3" passage="Luke 15" />
+        </day>	 	
+        <day num="24">
+        	<reading num="1" passage="Numbers 5" />
+        	<reading num="2" passage="Proverbs 2" />
+        	<reading num="3" passage="Luke 16" />
+        </day>	 	
+        <day num="25">
+        	<reading num="1" passage="Numbers 6" />
+        	<reading num="2" passage="Proverbs 3" />
+        	<reading num="3" passage="Luke 17" />
+        </day>
+        <day num="26">
+        	<reading num="1" passage="Numbers 7" />
+        	<reading num="2" passage="Proverbs 4" />
+        	<reading num="3" passage="Luke 18" />
+        </day>	 	
+        <day num="27">
+        	<reading num="1" passage="Numbers 8-9" />
+        	<reading num="2" passage="Proverbs 5" />
+        	<reading num="3" passage="Luke 19" />
+        </day>	 	
+        <day num="28">
+        	<reading num="1" passage="Numbers 10" />
+        	<reading num="2" passage="Proverbs 6" />
+        	<reading num="3" passage="Luke 20" />
+        </day>	 	
+        <day num="29">
+        	<reading num="1" passage="Numbers 11" />
+        	<reading num="2" passage="Proverbs 7" />
+        	<reading num="3" passage="Luke 21" />
+        </day>	 	
+        <day num="30">
+        	<reading num="1" passage="Numbers 12-13" />
+        	<reading num="2" passage="Proverbs 8-9" />
+        	<reading num="3" passage="Luke 22" />
+        </day>
+        <day num="31">
+        	<reading num="1" passage="Numbers 14" />
+        	<reading num="2" passage="Proverbs 10" />
+        	<reading num="3" passage="Luke 23" />
+        </day>
+    </month>
+    <month name="April" num="04">
+        <day num="01">
+            <reading num="1" passage="Numbers 15" />
+            <reading num="2" passage="Proverbs 11" />
+            <reading num="3" passage="Luke 24" />
+        </day>	 	
+        <day num="02">
+        	<reading num="1" passage="Numbers 16" />
+        	<reading num="2" passage="Proverbs 12" />
+        	<reading num="3" passage="Galatians 1-2" />
+        </day>	 	
+        <day num="03">
+        	<reading num="1" passage="Numbers 17-18" />
+        	<reading num="2" passage="Proverbs 13" />
+        	<reading num="3" passage="Galatians 3-4" />
+        </day>	 	
+        <day num="04">
+        	<reading num="1" passage="Numbers 19" />
+        	<reading num="2" passage="Proverbs 14" />
+        	<reading num="3" passage="Galatians 5-6" />
+        </day>	 	
+        <day num="05">
+        	<reading num="1" passage="Numbers 20-21" />
+        	<reading num="2" passage="Proverbs 15" />
+        	<reading num="3" passage="Ephesians 1-2" />
+        </day>
+        <day num="06">
+        	<reading num="1" passage="Numbers 22-23" />
+        	<reading num="2" passage="Proverbs 16" />
+        	<reading num="3" passage="Ephesians 3-4" />
+        </day>	 	
+        <day num="07">
+        	<reading num="1" passage="Numbers 24-25" />
+        	<reading num="2" passage="Proverbs 17" />
+        	<reading num="3" passage="Ephesians 5-6" />
+        </day>	 	
+        <day num="08">
+        	<reading num="1" passage="Numbers 26" />
+        	<reading num="2" passage="Proverbs 18" />
+        	<reading num="3" passage="Philippians 1-2" />
+        </day>	 	
+        <day num="09">
+        	<reading num="1" passage="Numbers 27" />
+        	<reading num="2" passage="Proverbs 19" />
+        	<reading num="3" passage="Philippians 3-4" />
+        </day>	 	
+        <day num="10">
+        	<reading num="1" passage="Numbers 28" />
+        	<reading num="2" passage="Proverbs 20" />
+        	<reading num="3" passage="John 1" />
+        </day>
+        <day num="11">
+        	<reading num="1" passage="Numbers 29-30" />
+        	<reading num="2" passage="Proverbs 21" />
+        	<reading num="3" passage="John 2-3" />
+        </day>	 	
+        <day num="12">
+        	<reading num="1" passage="Numbers 31" />
+        	<reading num="2" passage="Proverbs 22" />
+        	<reading num="3" passage="John 4" />
+        </day>	 	
+        <day num="13">
+        	<reading num="1" passage="Numbers 32" />
+        	<reading num="2" passage="Proverbs 23" />
+        	<reading num="3" passage="John 5" />
+        </day>	 	
+        <day num="14">
+        	<reading num="1" passage="Numbers 33" />
+        	<reading num="2" passage="Proverbs 24" />
+        	<reading num="3" passage="John 6" />
+        </day>	 	
+        <day num="15">
+        	<reading num="1" passage="Numbers 34" />
+        	<reading num="2" passage="Proverbs 25" />
+        	<reading num="3" passage="John 7" />
+        </day>
+        <day num="16">
+        	<reading num="1" passage="Numbers 35" />
+        	<reading num="2" passage="Proverbs 26" />
+        	<reading num="3" passage="John 8" />
+        </day>	 	
+        <day num="17">
+        	<reading num="1" passage="Numbers 36" />
+        	<reading num="2" passage="Proverbs 27" />
+        	<reading num="3" passage="John 9-10" />
+        </day>	 	
+        <day num="18">
+        	<reading num="1" passage="Deuteronomy 1" />
+        	<reading num="2" passage="Proverbs 28" />
+        	<reading num="3" passage="John 11" />
+        </day>	 	
+        <day num="19">
+        	<reading num="1" passage="Deuteronomy 2" />
+        	<reading num="2" passage="Proverbs 29" />
+        	<reading num="3" passage="John 12" />
+        </day>	 	
+        <day num="20">
+        	<reading num="1" passage="Deuteronomy 3" />
+        	<reading num="2" passage="Proverbs 30" />
+        	<reading num="3" passage="John 13-14" />
+        </day>
+        <day num="21">
+        	<reading num="1" passage="Deuteronomy 4" />
+        	<reading num="2" passage="Proverbs 31" />
+        	<reading num="3" passage="John 15-16" />
+        </day>	 	
+        <day num="22">
+        	<reading num="1" passage="Deuteronomy 5" />
+        	<reading num="2" passage="Ecclesiastes 1" />
+        	<reading num="3" passage="John 17-18" />
+        </day>	 	
+        <day num="23">
+        	<reading num="1" passage="Deuteronomy 6-7" />
+        	<reading num="2" passage="Ecclesiastes 2" />
+        	<reading num="3" passage="John 19" />
+        </day>	 	
+        <day num="24">
+        	<reading num="1" passage="Deuteronomy 8-9" />
+        	<reading num="2" passage="Ecclesiastes 3" />
+        	<reading num="3" passage="John 20-21" />
+        </day>	 	
+        <day num="25">
+        	<reading num="1" passage="Deuteronomy 10-11" />
+        	<reading num="2" passage="Ecclesiastes 4" />
+        	<reading num="3" passage="Acts 1" />
+        </day>
+        <day num="26">
+        	<reading num="1" passage="Deuteronomy 12" />
+        	<reading num="2" passage="Ecclesiastes 5" />
+        	<reading num="3" passage="Acts 2" />
+        </day>	 	
+        <day num="27">
+        	<reading num="1" passage="Deuteronomy 13-14" />
+        	<reading num="2" passage="Ecclesiastes 6" />
+        	<reading num="3" passage="Acts 3-4" />
+        </day>	 	
+        <day num="28">
+        	<reading num="1" passage="Deuteronomy 15" />
+        	<reading num="2" passage="Ecclesiastes 7" />
+        	<reading num="3" passage="Acts 5-6" />
+        </day>	 	
+        <day num="29">
+        	<reading num="1" passage="Deuteronomy 16" />
+        	<reading num="2" passage="Ecclesiastes 8" />
+        	<reading num="3" passage="Acts 7" />
+        </day>	 	
+        <day num="30">
+        	<reading num="1" passage="Deuteronomy 17" />
+        	<reading num="2" passage="Ecclesiastes 9" />
+        	<reading num="3" passage="Acts 8" />
+        </day>
+    </month>
+    <month name="May" num="05">
+		<day num="01">
+			<reading num="1" passage="Deuteronomy 18" />
+			<reading num="2" passage="Ecclesiastes 10" />
+			<reading num="3" passage="Acts 9" />
+		</day>	 	
+		<day num="02">
+			<reading num="1" passage="Deuteronomy 19" />
+			<reading num="2" passage="Ecclesiastes 11" />
+			<reading num="3" passage="Acts 10" />
+		</day>	 	
+		<day num="03">
+			<reading num="1" passage="Deuteronomy 20" />
+			<reading num="2" passage="Ecclesiastes 12" />
+			<reading num="3" passage="Acts 11-12" />
+		</day>	 	
+		<day num="04">
+			<reading num="1" passage="Deuteronomy 21" />
+			<reading num="2" passage="Song of Solomon 1" />
+			<reading num="3" passage="Acts 13" />
+		</day>	 	
+		<day num="05">
+			<reading num="1" passage="Deuteronomy 22" />
+			<reading num="2" passage="Song of Solomon 2" />
+			<reading num="3" passage="Acts 14-15" />
+		</day>
+		<day num="06">
+			<reading num="1" passage="Deuteronomy 23" />
+			<reading num="2" passage="Song of Solomon 3" />
+			<reading num="3" passage="Acts 16-17" />
+		</day>	 	
+		<day num="07">
+			<reading num="1" passage="Deuteronomy 24" />
+			<reading num="2" passage="Song of Solomon 4" />
+			<reading num="3" passage="Acts 18-19" />
+		</day>	 	
+		<day num="08">
+			<reading num="1" passage="Deuteronomy 25" />
+			<reading num="2" passage="Song of Solomon 5" />
+			<reading num="3" passage="Acts 20" />
+		</day>	 	
+		<day num="09">
+			<reading num="1" passage="Deuteronomy 26" />
+			<reading num="2" passage="Song of Solomon 6" />
+			<reading num="3" passage="Acts 21-22" />
+		</day>	 	
+		<day num="10">
+			<reading num="1" passage="Deuteronomy 27" />
+			<reading num="2" passage="Song of Solomon 7" />
+			<reading num="3" passage="Acts 23-24" />
+		</day>
+		<day num="11">
+			<reading num="1" passage="Deuteronomy 28" />
+			<reading num="2" passage="Song of Solomon 8" />
+			<reading num="3" passage="Acts 25-26" />
+		</day>	 	
+		<day num="12">
+			<reading num="1" passage="Deuteronomy 29" />
+			<reading num="2" passage="Isaiah 1" />
+			<reading num="3" passage="Acts 27" />
+		</day>	 	
+		<day num="13">
+			<reading num="1" passage="Deuteronomy 30" />
+			<reading num="2" passage="Isaiah 2" />
+			<reading num="3" passage="Acts 28" />
+		</day>	 	
+		<day num="14">
+			<reading num="1" passage="Deuteronomy 31" />
+			<reading num="2" passage="Isaiah 3-4" />
+			<reading num="3" passage="Colossians 1" />
+		</day>	 	
+		<day num="15">
+			<reading num="1" passage="Deuteronomy 32" />
+			<reading num="2" passage="Isaiah 5" />
+			<reading num="3" passage="Colossians 2" />
+		</day>
+		<day num="16">
+			<reading num="1" passage="Deuteronomy 33-34" />
+			<reading num="2" passage="Isaiah 6" />
+			<reading num="3" passage="Colossians 3-4" />
+		</day>	 	
+		<day num="17">
+			<reading num="1" passage="Joshua 1" />
+			<reading num="2" passage="Isaiah 7" />
+			<reading num="3" passage="1 Thessalonians 1-2" />
+		</day>	 	
+		<day num="18">
+			<reading num="1" passage="Joshua 2" />
+			<reading num="2" passage="Isaiah 8" />
+			<reading num="3" passage="1 Thessalonians 3-4" />
+		</day>	 	
+		<day num="19">
+			<reading num="1" passage="Joshua 3-4" />
+			<reading num="2" passage="Isaiah 9" />
+			<reading num="3" passage="1 Thessalonians 5" />
+		</day>	 	
+		<day num="20">
+			<reading num="1" passage="Joshua 5-6" />
+			<reading num="2" passage="Isaiah 10" />
+			<reading num="3" passage="2 Thessalonians 1-2" />
+		</day>
+		<day num="21">
+			<reading num="1" passage="Joshua 7" />
+			<reading num="2" passage="Isaiah 11" />
+			<reading num="3" passage="2 Thessalonians 3" />
+		</day>	 	
+		<day num="22">
+			<reading num="1" passage="Joshua 8" />
+			<reading num="2" passage="Isaiah 12" />
+			<reading num="3" passage="1 Timothy 1-3" />
+		</day>	 	
+		<day num="23">
+			<reading num="1" passage="Joshua 9" />
+			<reading num="2" passage="Isaiah 13" />
+			<reading num="3" passage="1 Timothy 4-5" />
+		</day>	 	
+		<day num="24">
+			<reading num="1" passage="Joshua 10" />
+			<reading num="2" passage="Isaiah 14" />
+			<reading num="3" passage="1 Timothy 6" />
+		</day>	 	
+		<day num="25">
+			<reading num="1" passage="Joshua 11" />
+			<reading num="2" passage="Isaiah 15" />
+			<reading num="3" passage="2 Timothy 1" />
+		</day>
+		<day num="26">
+			<reading num="1" passage="Joshua 12" />
+			<reading num="2" passage="Isaiah 16" />
+			<reading num="3" passage="2 Timothy 2" />
+		</day>	 	
+		<day num="27">
+			<reading num="1" passage="Joshua 13" />
+			<reading num="2" passage="Isaiah 17-18" />
+			<reading num="3" passage="2 Timothy 3-4" />
+		</day>	 	
+		<day num="28">
+			<reading num="1" passage="Joshua 14" />
+			<reading num="2" passage="Isaiah 19" />
+			<reading num="3" passage="Titus 1-3" />
+		</day>	 	
+		<day num="29">
+			<reading num="1" passage="Joshua 15" />
+			<reading num="2" passage="Isaiah 20-21" />
+			<reading num="3" passage="Philemon 1" />
+		</day>	 	
+		<day num="30">
+			<reading num="1" passage="Joshua 16" />
+			<reading num="2" passage="Isaiah 22" />
+			<reading num="3" passage="Hebrews 1-2" />
+		</day>
+		<day num="31">
+			<reading num="1" passage="Joshua 17" />
+			<reading num="2" passage="Isaiah 23" />
+			<reading num="3" passage="Hebrews 3-5" />
+		</day>
+	</month>
+	<month name="June" num="06">
+		<day num="01">
+			<reading num="1" passage="Joshua 18" />
+			<reading num="2" passage="Isaiah 24" />
+			<reading num="3" passage="Hebrews 6-7" />
+		</day>	 	
+		<day num="02">
+			<reading num="1" passage="Joshua 19" />
+			<reading num="2" passage="Isaiah 25" />
+			<reading num="3" passage="Hebrews 8-9" />
+		</day>	 	
+		<day num="03">
+			<reading num="1" passage="Joshua 20-21" />
+			<reading num="2" passage="Isaiah 26-27" />
+			<reading num="3" passage="Hebrews 10" />
+		</day>	 	
+		<day num="04">
+			<reading num="1" passage="Joshua 22" />
+			<reading num="2" passage="Isaiah 28" />
+			<reading num="3" passage="Hebrews 11" />
+		</day>	 	
+		<day num="05">
+			<reading num="1" passage="Joshua 23-24" />
+			<reading num="2" passage="Isaiah 29" />
+			<reading num="3" passage="Hebrews 12" />
+		</day>
+		<day num="06">
+			<reading num="1" passage="Judges 1" />
+			<reading num="2" passage="Isaiah 30" />
+			<reading num="3" passage="Hebrews 13" />
+		</day>	 	
+		<day num="07">
+			<reading num="1" passage="Judges 2-3" />
+			<reading num="2" passage="Isaiah 31" />
+			<reading num="3" passage="James 1" />
+		</day>	 	
+		<day num="08">
+			<reading num="1" passage="Judges 4-5" />
+			<reading num="2" passage="Isaiah 32" />
+			<reading num="3" passage="James 2" />
+		</day>	 	
+		<day num="09">
+			<reading num="1" passage="Judges 6" />
+			<reading num="2" passage="Isaiah 33" />
+			<reading num="3" passage="James 3-4" />
+		</day>	 	
+		<day num="10">
+			<reading num="1" passage="Judges 7-8" />
+			<reading num="2" passage="Isaiah 34" />
+			<reading num="3" passage="James 5" />
+		</day>
+		<day num="11">
+			<reading num="1" passage="Judges 9" />
+			<reading num="2" passage="Isaiah 35" />
+			<reading num="3" passage="1 Peter 1" />
+		</day>	 	
+		<day num="12">
+			<reading num="1" passage="Judges 10-11" />
+			<reading num="2" passage="Isaiah 36" />
+			<reading num="3" passage="1 Peter 2" />
+		</day>	 	
+		<day num="13">
+			<reading num="1" passage="Judges 12-13" />
+			<reading num="2" passage="Isaiah 37" />
+			<reading num="3" passage="1 Peter 3-5" />
+		</day>	 	
+		<day num="14">
+			<reading num="1" passage="Judges 14-15" />
+			<reading num="2" passage="Isaiah 38" />
+			<reading num="3" passage="2 Peter 1-2" />
+		</day>	 	
+		<day num="15">
+			<reading num="1" passage="Judges 16" />
+			<reading num="2" passage="Isaiah 39" />
+			<reading num="3" passage="2 Peter 3" />
+		</day>
+		<day num="16">
+			<reading num="1" passage="Judges 17-18" />
+			<reading num="2" passage="Isaiah 40" />
+			<reading num="3" passage="1 John 1-2" />
+		</day>	 	
+		<day num="17">
+			<reading num="1" passage="Judges 19" />
+			<reading num="2" passage="Isaiah 41" />
+			<reading num="3" passage="1 John 3-4" />
+		</day>	 	
+		<day num="18">
+			<reading num="1" passage="Judges 20" />
+			<reading num="2" passage="Isaiah 42" />
+			<reading num="3" passage="1 John 5" />
+		</day>	 	
+		<day num="19">
+			<reading num="1" passage="Judges 21" />
+			<reading num="2" passage="Isaiah 43" />
+			<reading num="3" passage="2 John-3 John" />
+		</day>	 	
+		<day num="20">
+			<reading num="1" passage="Ruth 1-2" />
+			<reading num="2" passage="Isaiah 44" />
+			<reading num="3" passage="Jude 1" />
+		</day>
+		<day num="21">
+			<reading num="1" passage="Ruth 3-4" />
+			<reading num="2" passage="Isaiah 45" />
+			<reading num="3" passage="Revelation 1-2" />
+		</day>	 	
+		<day num="22">
+			<reading num="1" passage="1 Samuel 1" />
+			<reading num="2" passage="Isaiah 46-47" />
+			<reading num="3" passage="Revelation 3-4" />
+		</day>	 	
+		<day num="23">
+			<reading num="1" passage="1 Samuel 2" />
+			<reading num="2" passage="Isaiah 48" />
+			<reading num="3" passage="Revelation 5-6" />
+		</day>	 	
+		<day num="24">
+			<reading num="1" passage="1 Samuel 3" />
+			<reading num="2" passage="Isaiah 49" />
+			<reading num="3" passage="Revelation 7-9" />
+		</day>	 	
+		<day num="25">
+			<reading num="1" passage="1 Samuel 4" />
+			<reading num="2" passage="Isaiah 50" />
+			<reading num="3" passage="Revelation 10-11" />
+		</day>
+		<day num="26">
+			<reading num="1" passage="1 Samuel 5-6" />
+			<reading num="2" passage="Isaiah 51" />
+			<reading num="3" passage="Revelation 12-13" />
+		</day>	 	
+		<day num="27">
+			<reading num="1" passage="1 Samuel 7-8" />
+			<reading num="2" passage="Isaiah 52" />
+			<reading num="3" passage="Revelation 14" />
+		</day>	 	
+		<day num="28">
+			<reading num="1" passage="1 Samuel 9" />
+			<reading num="2" passage="Isaiah 53" />
+			<reading num="3" passage="Revelation 15-16" />
+		</day>	 	
+		<day num="29">
+			<reading num="1" passage="1 Samuel 10" />
+			<reading num="2" passage="Isaiah 54" />
+			<reading num="3" passage="Revelation 17-18" />
+		</day>	 	
+		<day num="30">
+			<reading num="1" passage="1 Samuel 11-12" />
+			<reading num="2" passage="Isaiah 55" />
+			<reading num="3" passage="Revelation 19-20" />
+		</day>
+	</month>
+	<month name="July" num="07">
+		<day num="01">
+			<reading num="1" passage="1 Samuel 13" />
+			<reading num="2" passage="Isaiah 56-57" />
+			<reading num="3" passage="Revelation 21-22" />
+		</day>	 	
+		<day num="02">
+			<reading num="1" passage="1 Samuel 14" />
+			<reading num="2" passage="Isaiah 58" />
+			<reading num="3" passage="Matthew 1-2" />
+		</day>	 	
+		<day num="03">
+			<reading num="1" passage="1 Samuel 15" />
+			<reading num="2" passage="Isaiah 59" />
+			<reading num="3" passage="Matthew 3-4" />
+		</day>	 	
+		<day num="04">
+			<reading num="1" passage="1 Samuel 16" />
+			<reading num="2" passage="Isaiah 60" />
+			<reading num="3" passage="Matthew 5" />
+		</day>	 	
+		<day num="05">
+			<reading num="1" passage="1 Samuel 17" />
+			<reading num="2" passage="Isaiah 61" />
+			<reading num="3" passage="Matthew 6" />
+		</day>
+		<day num="06">
+			<reading num="1" passage="1 Samuel 18" />
+			<reading num="2" passage="Isaiah 62" />
+			<reading num="3" passage="Matthew 7" />
+		</day>	 	
+		<day num="07">
+			<reading num="1" passage="1 Samuel 19" />
+			<reading num="2" passage="Isaiah 63" />
+			<reading num="3" passage="Matthew 8" />
+		</day>	 	
+		<day num="08">
+			<reading num="1" passage="1 Samuel 20" />
+			<reading num="2" passage="Isaiah 64" />
+			<reading num="3" passage="Matthew 9" />
+		</day>	 	
+		<day num="09">
+			<reading num="1" passage="1 Samuel 21-22" />
+			<reading num="2" passage="Isaiah 65" />
+			<reading num="3" passage="Matthew 10" />
+		</day>	 	
+		<day num="10">
+			<reading num="1" passage="1 Samuel 23" />
+			<reading num="2" passage="Isaiah 66" />
+			<reading num="3" passage="Matthew 11" />
+		</day>
+		<day num="11">
+			<reading num="1" passage="1 Samuel 24" />
+			<reading num="2" passage="Jeremiah 1" />
+			<reading num="3" passage="Matthew 12" />
+		</day>	 	
+		<day num="12">
+			<reading num="1" passage="1 Samuel 25" />
+			<reading num="2" passage="Jeremiah 2" />
+			<reading num="3" passage="Matthew 13" />
+		</day>	 	
+		<day num="13">
+			<reading num="1" passage="1 Samuel 26-27" />
+			<reading num="2" passage="Jeremiah 3" />
+			<reading num="3" passage="Matthew 14" />
+		</day>	 	
+		<day num="14">
+			<reading num="1" passage="1 Samuel 28" />
+			<reading num="2" passage="Jeremiah 4" />
+			<reading num="3" passage="Matthew 15" />
+		</day>	 	
+		<day num="15">
+			<reading num="1" passage="1 Samuel 29-30" />
+			<reading num="2" passage="Jeremiah 5" />
+			<reading num="3" passage="Matthew 16" />
+		</day>
+		<day num="16">
+			<reading num="1" passage="1 Samuel 31" />
+			<reading num="2" passage="Jeremiah 6" />
+			<reading num="3" passage="Matthew 17" />
+		</day>	 	
+		<day num="17">
+			<reading num="1" passage="2 Samuel 1" />
+			<reading num="2" passage="Jeremiah 7" />
+			<reading num="3" passage="Matthew 18" />
+		</day>	 	
+		<day num="18">
+			<reading num="1" passage="2 Samuel 2" />
+			<reading num="2" passage="Jeremiah 8" />
+			<reading num="3" passage="Matthew 19" />
+		</day>	 	
+		<day num="19">
+			<reading num="1" passage="2 Samuel 3" />
+			<reading num="2" passage="Jeremiah 9" />
+			<reading num="3" passage="Matthew 20" />
+		</day>	 	
+		<day num="20">
+			<reading num="1" passage="2 Samuel 4-5" />
+			<reading num="2" passage="Jeremiah 10" />
+			<reading num="3" passage="Matthew 21" />
+		</day>
+		<day num="21">
+			<reading num="1" passage="2 Samuel 6" />
+			<reading num="2" passage="Jeremiah 11" />
+			<reading num="3" passage="Matthew 22" />
+		</day>	 	
+		<day num="22">
+			<reading num="1" passage="2 Samuel 7" />
+			<reading num="2" passage="Jeremiah 12" />
+			<reading num="3" passage="Matthew 23" />
+		</day>	 	
+		<day num="23">
+			<reading num="1" passage="2 Samuel 8-9" />
+			<reading num="2" passage="Jeremiah 13" />
+			<reading num="3" passage="Matthew 24" />
+		</day>	 	
+		<day num="24">
+			<reading num="1" passage="2 Samuel 10" />
+			<reading num="2" passage="Jeremiah 14" />
+			<reading num="3" passage="Matthew 25" />
+		</day>	 	
+		<day num="25">
+			<reading num="1" passage="2 Samuel 11" />
+			<reading num="2" passage="Jeremiah 15" />
+			<reading num="3" passage="Matthew 26" />
+		</day>
+		<day num="26">
+			<reading num="1" passage="2 Samuel 12" />
+			<reading num="2" passage="Jeremiah 16" />
+			<reading num="3" passage="Matthew 27" />
+		</day>	 	
+		<day num="27">
+			<reading num="1" passage="2 Samuel 13" />
+			<reading num="2" passage="Jeremiah 17" />
+			<reading num="3" passage="Matthew 28" />
+		</day>	 	
+		<day num="28">
+			<reading num="1" passage="2 Samuel 14" />
+			<reading num="2" passage="Jeremiah 18" />
+			<reading num="3" passage="Romans 1-2" />
+		</day>	 	
+		<day num="29">
+			<reading num="1" passage="2 Samuel 15" />
+			<reading num="2" passage="Jeremiah 19" />
+			<reading num="3" passage="Romans 3-4" />
+		</day>	 	
+		<day num="30">
+			<reading num="1" passage="2 Samuel 16" />
+			<reading num="2" passage="Jeremiah 20" />
+			<reading num="3" passage="Romans 5-6" />
+		</day>
+		<day num="31">
+			<reading num="1" passage="2 Samuel 17" />
+			<reading num="2" passage="Jeremiah 21" />
+			<reading num="3" passage="Romans 7-8" />
+		</day>
+	</month>
+	<month name="August" num="08">
+		<day num="01">
+			<reading num="1" passage="2 Samuel 18" />
+			<reading num="2" passage="Jeremiah 22" />
+			<reading num="3" passage="Romans 9" />
+		</day>	 	
+		<day num="02">
+			<reading num="1" passage="2 Samuel 19" />
+			<reading num="2" passage="Jeremiah 23" />
+			<reading num="3" passage="Romans 10-11" />
+		</day>	 	
+		<day num="03">
+			<reading num="1" passage="2 Samuel 20-21" />
+			<reading num="2" passage="Jeremiah 24" />
+			<reading num="3" passage="Romans 12" />
+		</day>	 	
+		<day num="04">
+			<reading num="1" passage="2 Samuel 22" />
+			<reading num="2" passage="Jeremiah 25" />
+			<reading num="3" passage="Romans 13-14" />
+		</day>	 	
+		<day num="05">
+			<reading num="1" passage="2 Samuel 23" />
+			<reading num="2" passage="Jeremiah 26" />
+			<reading num="3" passage="Romans 15-16" />
+		</day>
+		<day num="06">
+			<reading num="1" passage="2 Samuel 24" />
+			<reading num="2" passage="Jeremiah 27" />
+			<reading num="3" passage="Mark 1" />
+		</day>	 	
+		<day num="07">
+			<reading num="1" passage="1 Kings 1" />
+			<reading num="2" passage="Jeremiah 28" />
+			<reading num="3" passage="Mark 2" />
+		</day>	 	
+		<day num="08">
+			<reading num="1" passage="1 Kings 2" />
+			<reading num="2" passage="Jeremiah 29" />
+			<reading num="3" passage="Mark 3" />
+		</day>	 	
+		<day num="09">
+			<reading num="1" passage="1 Kings 3" />
+			<reading num="2" passage="Jeremiah 30" />
+			<reading num="3" passage="Mark 4" />
+		</day>	 	
+		<day num="10">
+			<reading num="1" passage="1 Kings 4-5" />
+			<reading num="2" passage="Jeremiah 31" />
+			<reading num="3" passage="Mark 5" />
+		</day>
+		<day num="11">
+			<reading num="1" passage="1 Kings 6" />
+			<reading num="2" passage="Jeremiah 32" />
+			<reading num="3" passage="Mark 6" />
+		</day>	 	
+		<day num="12">
+			<reading num="1" passage="1 Kings 7" />
+			<reading num="2" passage="Jeremiah 33" />
+			<reading num="3" passage="Mark 7" />
+		</day>	 	
+		<day num="13">
+			<reading num="1" passage="1 Kings 8" />
+			<reading num="2" passage="Jeremiah 34" />
+			<reading num="3" passage="Mark 8" />
+		</day>	 	
+		<day num="14">
+			<reading num="1" passage="1 Kings 9" />
+			<reading num="2" passage="Jeremiah 35" />
+			<reading num="3" passage="Mark 9" />
+		</day>	 	
+		<day num="15">
+			<reading num="1" passage="1 Kings 10" />
+			<reading num="2" passage="Jeremiah 36" />
+			<reading num="3" passage="Mark 10" />
+		</day>
+		<day num="16">
+			<reading num="1" passage="1 Kings 11" />
+			<reading num="2" passage="Jeremiah 37" />
+			<reading num="3" passage="Mark 11" />
+		</day>	 	
+		<day num="17">
+			<reading num="1" passage="1 Kings 12" />
+			<reading num="2" passage="Jeremiah 38" />
+			<reading num="3" passage="Mark 12" />
+		</day>	 	
+		<day num="18">
+			<reading num="1" passage="1 Kings 13" />
+			<reading num="2" passage="Jeremiah 39" />
+			<reading num="3" passage="Mark 13" />
+		</day>	 	
+		<day num="19">
+			<reading num="1" passage="1 Kings 14" />
+			<reading num="2" passage="Jeremiah 40" />
+			<reading num="3" passage="Mark 14" />
+		</day>	 	
+		<day num="20">
+			<reading num="1" passage="1 Kings 15" />
+			<reading num="2" passage="Jeremiah 41" />
+			<reading num="3" passage="Mark 15" />
+		</day>
+		<day num="21">
+			<reading num="1" passage="1 Kings 16" />
+			<reading num="2" passage="Jeremiah 42" />
+			<reading num="3" passage="Mark 16" />
+		</day>	 	
+		<day num="22">
+			<reading num="1" passage="1 Kings 17" />
+			<reading num="2" passage="Jeremiah 43" />
+			<reading num="3" passage="1 Corinthians 1-2" />
+		</day>	 	
+		<day num="23">
+			<reading num="1" passage="1 Kings 18" />
+			<reading num="2" passage="Jeremiah 44" />
+			<reading num="3" passage="1 Corinthians 3" />
+		</day>	 	
+		<day num="24">
+			<reading num="1" passage="1 Kings 19" />
+			<reading num="2" passage="Jeremiah 45-46" />
+			<reading num="3" passage="1 Corinthians 4-5" />
+		</day>	 	
+		<day num="25">
+			<reading num="1" passage="1 Kings 20" />
+			<reading num="2" passage="Jeremiah 47" />
+			<reading num="3" passage="1 Corinthians 6" />
+		</day>
+		<day num="26">
+			<reading num="1" passage="1 Kings 21" />
+			<reading num="2" passage="Jeremiah 48" />
+			<reading num="3" passage="1 Corinthians 7" />
+		</day>	 	
+		<day num="27">
+			<reading num="1" passage="1 Kings 22" />
+			<reading num="2" passage="Jeremiah 49" />
+			<reading num="3" passage="1 Corinthians 8-9" />
+		</day>	 	
+		<day num="28">
+			<reading num="1" passage="2 Kings 1-2" />
+			<reading num="2" passage="Jeremiah 50" />
+			<reading num="3" passage="1 Corinthians 10" />
+		</day>	 	
+		<day num="29">
+			<reading num="1" passage="2 Kings 3" />
+			<reading num="2" passage="Jeremiah 51" />
+			<reading num="3" passage="1 Corinthians 11" />
+		</day>	 	
+		<day num="30">
+			<reading num="1" passage="2 Kings 4" />
+			<reading num="2" passage="Jeremiah 52" />
+			<reading num="3" passage="1 Corinthians 12-13" />
+		</day>
+		<day num="31">
+			<reading num="1" passage="2 Kings 5" />
+			<reading num="2" passage="Lamentations 1" />
+			<reading num="3" passage="1 Corinthians 14" />
+        </day>
+    </month>
+    <month name="September" num="09">
+        <day num="01">
+            <reading num="1" passage="2 Kings 6" />
+            <reading num="2" passage="Lamentations 2" />
+            <reading num="3" passage="1 Corinthians 15" />
+        </day>
+        <day num="02">
+            <reading num="1" passage="2 Kings 7" />
+            <reading num="2" passage="Lamentations 3" />
+            <reading num="3" passage="1 Corinthians 16" />
+        </day>
+        <day num="03">
+            <reading num="1" passage="2 Kings 8" />
+            <reading num="2" passage="Lamentations 4" />
+            <reading num="3" passage="2 Corinthians 1-2" />
+        </day>
+        <day num="04">
+            <reading num="1" passage="2 Kings 9" />
+            <reading num="2" passage="Lamentations 5" />
+            <reading num="3" passage="2 Corinthians 3-4" />
+        </day>
+        <day num="05">
+            <reading num="1" passage="2 Kings 10" />
+            <reading num="2" passage="Ezekiel 1" />
+            <reading num="3" passage="2 Corinthians 5-7" />
+        </day>
+        <day num="06">
+            <reading num="1" passage="2 Kings 11-12" />
+            <reading num="2" passage="Ezekiel 2" />
+            <reading num="3" passage="2 Corinthians 8-9" />
+        </day>
+        <day num="07">
+            <reading num="1" passage="2 Kings 13" />
+            <reading num="2" passage="Ezekiel 3" />
+            <reading num="3" passage="2 Corinthians 10-11" />
+        </day>
+        <day num="08">
+            <reading num="1" passage="2 Kings 14" />
+            <reading num="2" passage="Ezekiel 4" />
+            <reading num="3" passage="2 Corinthians 12-13" />
+        </day>
+        <day num="09">
+            <reading num="1" passage="2 Kings 15" />
+            <reading num="2" passage="Ezekiel 5" />
+            <reading num="3" passage="Luke 1" />
+        </day>
+        <day num="10">
+            <reading num="1" passage="2 Kings 16" />
+            <reading num="2" passage="Ezekiel 6" />
+            <reading num="3" passage="Luke 2" />
+        </day>
+        <day num="11">
+            <reading num="1" passage="2 Kings 17" />
+            <reading num="2" passage="Ezekiel 7" />
+            <reading num="3" passage="Luke 3" />
+        </day>
+        <day num="12">
+            <reading num="1" passage="2 Kings 18" />
+            <reading num="2" passage="Ezekiel 8" />
+            <reading num="3" passage="Luke 4" />
+        </day>
+        <day num="13">
+            <reading num="1" passage="2 Kings 19" />
+            <reading num="2" passage="Ezekiel 9" />
+            <reading num="3" passage="Luke 5" />
+        </day>
+        <day num="14">
+            <reading num="1" passage="2 Kings 20" />
+            <reading num="2" passage="Ezekiel 10" />
+            <reading num="3" passage="Luke 6" />
+        </day>
+        <day num="15">
+            <reading num="1" passage="2 Kings 21" />
+            <reading num="2" passage="Ezekiel 11" />
+            <reading num="3" passage="Luke 7" />
+        </day>
+        <day num="16">
+            <reading num="1" passage="2 Kings 22-23" />
+            <reading num="2" passage="Ezekiel 12" />
+            <reading num="3" passage="Luke 8" />
+        </day>
+        <day num="17">
+            <reading num="1" passage="2 Kings 24-25" />
+            <reading num="2" passage="Ezekiel 13" />
+            <reading num="3" passage="Luke 9" />
+        </day>
+        <day num="18">
+            <reading num="1" passage="1 Chronicles 1" />
+            <reading num="2" passage="Ezekiel 14" />
+            <reading num="3" passage="Luke 10" />
+        </day>
+        <day num="19">
+            <reading num="1" passage="1 Chronicles 2" />
+            <reading num="2" passage="Ezekiel 15" />
+            <reading num="3" passage="Luke 11" />
+        </day>
+        <day num="20">
+            <reading num="1" passage="1 Chronicles 3" />
+            <reading num="2" passage="Ezekiel 16" />
+            <reading num="3" passage="Luke 12" />
+        </day>
+        <day num="21">
+            <reading num="1" passage="1 Chronicles 4" />
+            <reading num="2" passage="Ezekiel 17" />
+            <reading num="3" passage="Luke 13-14" />
+        </day>
+        <day num="22">
+            <reading num="1" passage="1 Chronicles 5" />
+            <reading num="2" passage="Ezekiel 18" />
+            <reading num="3" passage="Luke 15" />
+        </day>
+        <day num="23">
+            <reading num="1" passage="1 Chronicles 6" />
+            <reading num="2" passage="Ezekiel 19" />
+            <reading num="3" passage="Luke 16" />
+        </day>
+        <day num="24">
+            <reading num="1" passage="1 Chronicles 7" />
+            <reading num="2" passage="Ezekiel 20" />
+            <reading num="3" passage="Luke 17" />
+        </day>
+        <day num="25">
+            <reading num="1" passage="1 Chronicles 8" />
+            <reading num="2" passage="Ezekiel 21" />
+            <reading num="3" passage="Luke 18" />
+        </day>
+        <day num="26">
+            <reading num="1" passage="1 Chronicles 9" />
+            <reading num="2" passage="Ezekiel 22" />
+            <reading num="3" passage="Luke 19" />
+        </day>
+        <day num="27">
+            <reading num="1" passage="1 Chronicles 10" />
+            <reading num="2" passage="Ezekiel 23" />
+            <reading num="3" passage="Luke 20" />
+        </day>
+        <day num="28">
+            <reading num="1" passage="1 Chronicles 11" />
+            <reading num="2" passage="Ezekiel 24" />
+            <reading num="3" passage="Luke 21" />
+        </day>
+        <day num="29">
+            <reading num="1" passage="1 Chronicles 12" />
+            <reading num="2" passage="Ezekiel 25" />
+            <reading num="3" passage="Luke 22" />
+        </day>
+        <day num="30">
+            <reading num="1" passage="1 Chronicles 13-14" />
+            <reading num="2" passage="Ezekiel 26" />
+            <reading num="3" passage="Luke 23" />
+        </day>
+    </month>
+    <month name="October" num="10">
+        <day num="01">
+            <reading num="1" passage="1 Chronicles 15" />
+            <reading num="2" passage="Ezekiel 27" />
+            <reading num="3" passage="Luke 24" />
+        </day>
+        <day num="02">
+            <reading num="1" passage="1 Chronicles 16" />
+            <reading num="2" passage="Ezekiel 28" />
+            <reading num="3" passage="Galatians 1-2" />
+        </day>
+        <day num="03">
+            <reading num="1" passage="1 Chronicles 17" />
+            <reading num="2" passage="Ezekiel 29" />
+            <reading num="3" passage="Galatians 3-4" />
+        </day>
+        <day num="04">
+            <reading num="1" passage="1 Chronicles 18-19" />
+            <reading num="2" passage="Ezekiel 30" />
+            <reading num="3" passage="Galatians 5-6" />
+        </day>
+        <day num="05">
+            <reading num="1" passage="1 Chronicles 20-21" />
+            <reading num="2" passage="Ezekiel 31" />
+            <reading num="3" passage="Ephesians 1-2" />
+        </day>
+        <day num="06">
+            <reading num="1" passage="1 Chronicles 22" />
+            <reading num="2" passage="Ezekiel 32" />
+            <reading num="3" passage="Ephesians 3-4" />
+        </day>
+        <day num="07">
+            <reading num="1" passage="1 Chronicles 23" />
+            <reading num="2" passage="Ezekiel 33" />
+            <reading num="3" passage="Ephesians 5-6" />
+        </day>
+        <day num="08">
+            <reading num="1" passage="1 Chronicles 24-25" />
+            <reading num="2" passage="Ezekiel 34" />
+            <reading num="3" passage="Philippians 1-2" />
+        </day>
+        <day num="09">
+            <reading num="1" passage="1 Chronicles 26" />
+            <reading num="2" passage="Ezekiel 35" />
+            <reading num="3" passage="Philippians 3-4" />
+        </day>
+        <day num="10">
+            <reading num="1" passage="1 Chronicles 27" />
+            <reading num="2" passage="Ezekiel 36" />
+            <reading num="3" passage="John 1" />
+        </day>
+        <day num="11">
+            <reading num="1" passage="1 Chronicles 28" />
+            <reading num="2" passage="Ezekiel 37" />
+            <reading num="3" passage="John 2-3" />
+        </day>
+        <day num="12">
+            <reading num="1" passage="1 Chronicles 29" />
+            <reading num="2" passage="Ezekiel 38" />
+            <reading num="3" passage="John 4" />
+        </day>
+        <day num="13">
+            <reading num="1" passage="2 Chronicles 1-2" />
+            <reading num="2" passage="Ezekiel 39" />
+            <reading num="3" passage="John 5" />
+        </day>
+        <day num="14">
+            <reading num="1" passage="2 Chronicles 3-4" />
+            <reading num="2" passage="Ezekiel 40" />
+            <reading num="3" passage="John 6" />
+        </day>
+        <day num="15">
+            <reading num="1" passage="2 Chronicles 5-6" />
+            <reading num="2" passage="Ezekiel 41" />
+            <reading num="3" passage="John 7" />
+        </day>
+        <day num="16">
+            <reading num="1" passage="2 Chronicles 7" />
+            <reading num="2" passage="Ezekiel 42" />
+            <reading num="3" passage="John 8" />
+        </day>
+        <day num="17">
+            <reading num="1" passage="2 Chronicles 8" />
+            <reading num="2" passage="Ezekiel 43" />
+            <reading num="3" passage="John 9-10" />
+        </day>
+        <day num="18">
+            <reading num="1" passage="2 Chronicles 9" />
+            <reading num="2" passage="Ezekiel 44" />
+            <reading num="3" passage="John 11" />
+        </day>
+        <day num="19">
+            <reading num="1" passage="2 Chronicles 10-11" />
+            <reading num="2" passage="Ezekiel 45" />
+            <reading num="3" passage="John 12" />
+        </day>
+        <day num="20">
+            <reading num="1" passage="2 Chronicles 12-13" />
+            <reading num="2" passage="Ezekiel 46" />
+            <reading num="3" passage="John 13-14" />
+        </day>
+        <day num="21">
+            <reading num="1" passage="2 Chronicles 14-15" />
+            <reading num="2" passage="Ezekiel 47" />
+            <reading num="3" passage="John 15-16" />
+        </day>
+        <day num="22">
+            <reading num="1" passage="2 Chronicles 16-17" />
+            <reading num="2" passage="Ezekiel 48" />
+            <reading num="3" passage="John 17-18" />
+        </day>
+        <day num="23">
+            <reading num="1" passage="2 Chronicles 18-19" />
+            <reading num="2" passage="Daniel 1" />
+            <reading num="3" passage="John 19" />
+        </day>
+        <day num="24">
+            <reading num="1" passage="2 Chronicles 20" />
+            <reading num="2" passage="Daniel 2" />
+            <reading num="3" passage="John 20" />
+        </day>
+        <day num="25">
+            <reading num="1" passage="2 Chronicles 21-22" />
+            <reading num="2" passage="Daniel 3" />
+            <reading num="3" passage="Acts 1" />
+        </day>
+        <day num="26">
+            <reading num="1" passage="2 Chronicles 23" />
+            <reading num="2" passage="Daniel 4" />
+            <reading num="3" passage="Acts 2" />
+        </day>
+        <day num="27">
+            <reading num="1" passage="2 Chronicles 24" />
+            <reading num="2" passage="Daniel 5" />
+            <reading num="3" passage="Acts 3-4" />
+        </day>
+        <day num="28">
+            <reading num="1" passage="2 Chronicles 25" />
+            <reading num="2" passage="Daniel 6" />
+            <reading num="3" passage="Acts 5-6" />
+        </day>
+        <day num="29">
+            <reading num="1" passage="2 Chronicles 26-27" />
+            <reading num="2" passage="Daniel 7" />
+            <reading num="3" passage="Acts 7" />
+        </day>
+        <day num="30">
+            <reading num="1" passage="2 Chronicles 28" />
+            <reading num="2" passage="Daniel 8" />
+            <reading num="3" passage="Acts 8" />
+        </day>
+        <day num="31">
+            <reading num="1" passage="2 Chronicles 29" />
+            <reading num="2" passage="Daniel 9" />
+            <reading num="3" passage="Acts 9" />
+        </day>
+    </month>
+    <month name="November" num="11">
+        <day num="01">
+            <reading num="1" passage="2 Chronicles 30" />
+            <reading num="2" passage="Daniel 10" />
+            <reading num="3" passage="Acts 10" />
+        </day>
+        <day num="02">
+            <reading num="1" passage="2 Chronicles 31" />
+            <reading num="2" passage="Daniel 11" />
+            <reading num="3" passage="Acts 11-12" />
+        </day>
+        <day num="03">
+            <reading num="1" passage="2 Chronicles 32" />
+            <reading num="2" passage="Daniel 12" />
+            <reading num="3" passage="Acts 13" />
+        </day>
+        <day num="04">
+            <reading num="1" passage="2 Chronicles 33" />
+            <reading num="2" passage="Hosea 1" />
+            <reading num="3" passage="Acts 14-15" />
+        </day>
+        <day num="05">
+            <reading num="1" passage="2 Chronicles 34" />
+            <reading num="2" passage="Hosea 2" />
+            <reading num="3" passage="Acts 16-17" />
+        </day>
+        <day num="06">
+            <reading num="1" passage="2 Chronicles 35" />
+            <reading num="2" passage="Hosea 3" />
+            <reading num="3" passage="Acts 18-19" />
+        </day>
+        <day num="07">
+            <reading num="1" passage="2 Chronicles 36" />
+            <reading num="2" passage="Hosea 4" />
+            <reading num="3" passage="Acts 20" />
+        </day>
+        <day num="08">
+            <reading num="1" passage="Ezra 1-2" />
+            <reading num="2" passage="Hosea 5" />
+            <reading num="3" passage="Acts 21-22" />
+        </day>
+        <day num="09">
+            <reading num="1" passage="Ezra 3-4" />
+            <reading num="2" passage="Hosea 6" />
+            <reading num="3" passage="Acts 23-24" />
+        </day>
+        <day num="10">
+            <reading num="1" passage="Ezra 5-6" />
+            <reading num="2" passage="Hosea 7" />
+            <reading num="3" passage="Acts 25-26" />
+        </day>
+        <day num="11">
+            <reading num="1" passage="Ezra 7" />
+            <reading num="2" passage="Hosea 8" />
+            <reading num="3" passage="Acts 27" />
+        </day>
+        <day num="12">
+            <reading num="1" passage="Ezra 8" />
+            <reading num="2" passage="Hosea 9" />
+            <reading num="3" passage="Acts 28" />
+        </day>
+        <day num="13">
+            <reading num="1" passage="Ezra 9" />
+            <reading num="2" passage="Hosea 10" />
+            <reading num="3" passage="Colossians 1" />
+        </day>
+        <day num="14">
+            <reading num="1" passage="Ezra 10" />
+            <reading num="2" passage="Hosea 11" />
+            <reading num="3" passage="Colossians 2" />
+        </day>
+        <day num="15">
+            <reading num="1" passage="Nehemiah 1-2" />
+            <reading num="2" passage="Hosea 12" />
+            <reading num="3" passage="Colossians 3-4" />
+        </day>
+        <day num="16">
+            <reading num="1" passage="Nehemiah 3" />
+            <reading num="2" passage="Hosea 13" />
+            <reading num="3" passage="1 Thessalonians 1-2" />
+        </day>
+        <day num="17">
+            <reading num="1" passage="Nehemiah 4" />
+            <reading num="2" passage="Hosea 14" />
+            <reading num="3" passage="1 Thessalonians 3-4" />
+        </day>
+        <day num="18">
+            <reading num="1" passage="Nehemiah 5-6" />
+            <reading num="2" passage="Joel 1" />
+            <reading num="3" passage="1 Thessalonians 5" />
+        </day>
+        <day num="19">
+            <reading num="1" passage="Nehemiah 7" />
+            <reading num="2" passage="Joel 2" />
+            <reading num="3" passage="2 Thessalonians 1-2" />
+        </day>
+        <day num="20">
+            <reading num="1" passage="Nehemiah 8" />
+            <reading num="2" passage="Joel 3" />
+            <reading num="3" passage="2 Thessalonians 3" />
+        </day>
+        <day num="21">
+            <reading num="1" passage="Nehemiah 9" />
+            <reading num="2" passage="Amos 1" />
+            <reading num="3" passage="1 Timothy 1-3" />
+        </day>
+        <day num="22">
+            <reading num="1" passage="Nehemiah 10" />
+            <reading num="2" passage="Amos 2" />
+            <reading num="3" passage="1 Timothy 4-5" />
+        </day>
+        <day num="23">
+            <reading num="1" passage="Nehemiah 11" />
+            <reading num="2" passage="Amos 3" />
+            <reading num="3" passage="1 Timothy 6" />
+        </day>
+        <day num="24">
+            <reading num="1" passage="Nehemiah 12" />
+            <reading num="2" passage="Amos 4" />
+            <reading num="3" passage="2 Timothy 1" />
+        </day>
+        <day num="25">
+            <reading num="1" passage="Nehemiah 13" />
+            <reading num="2" passage="Amos 5" />
+            <reading num="3" passage="2 Timothy 2" />
+        </day>
+        <day num="26">
+            <reading num="1" passage="Esther 1" />
+            <reading num="2" passage="Amos 6" />
+            <reading num="3" passage="2 Timothy 3-4" />
+        </day>
+        <day num="27">
+            <reading num="1" passage="Esther 2" />
+            <reading num="2" passage="Amos 7" />
+            <reading num="3" passage="Titus 1-3" />
+        </day>
+        <day num="28">
+            <reading num="1" passage="Esther 3-4" />
+            <reading num="2" passage="Amos 8" />
+            <reading num="3" passage="Philemon 1" />
+        </day>
+        <day num="29">
+            <reading num="1" passage="Esther 5-6" />
+            <reading num="2" passage="Amos 9" />
+            <reading num="3" passage="Hebrews 1-2" />
+        </day>
+        <day num="30">
+            <reading num="1" passage="Esther 7-8" />
+            <reading num="2" passage="Obadiah 1" />
+            <reading num="3" passage="Hebrews 3-5" />
+        </day>
+    </month>
+    <month name="December" num="12">
+        <day num="01">
+            <reading num="1" passage="Esther 9-10" />
+            <reading num="2" passage="Jonah 1" />
+            <reading num="3" passage="Hebrews 6-7" />
+        </day>
+        <day num="02">
+            <reading num="1" passage="Job 1-2" />
+            <reading num="2" passage="Jonah 2-3" />
+            <reading num="3" passage="Hebrews 8-9" />
+        </day>
+        <day num="03">
+            <reading num="1" passage="Job 3-4" />
+            <reading num="2" passage="Jonah 4" />
+            <reading num="3" passage="Hebrews 10" />
+        </day>
+        <day num="04">
+            <reading num="1" passage="Job 5" />
+            <reading num="2" passage="Micah 1" />
+            <reading num="3" passage="Hebrews 11" />
+        </day>
+        <day num="05">
+            <reading num="1" passage="Job 6-7" />
+            <reading num="2" passage="Micah 2" />
+            <reading num="3" passage="Hebrews 12" />
+        </day>
+        <day num="06">
+            <reading num="1" passage="Job 8" />
+            <reading num="2" passage="Micah 3-4" />
+            <reading num="3" passage="Hebrews 13" />
+        </day>
+        <day num="07">
+            <reading num="1" passage="Job 9" />
+            <reading num="2" passage="Micah 5" />
+            <reading num="3" passage="James 1" />
+        </day>
+        <day num="08">
+            <reading num="1" passage="Job 10" />
+            <reading num="2" passage="Micah 6" />
+            <reading num="3" passage="James 2" />
+        </day>
+        <day num="09">
+            <reading num="1" passage="Job 11" />
+            <reading num="2" passage="Micah 7" />
+            <reading num="3" passage="James 3-4" />
+        </day>
+        <day num="10">
+            <reading num="1" passage="Job 12" />
+            <reading num="2" passage="Nahum 1-2" />
+            <reading num="3" passage="James 5" />
+        </day>
+        <day num="11">
+            <reading num="1" passage="Job 13" />
+            <reading num="2" passage="Nahum 3" />
+            <reading num="3" passage="1 Peter 1" />
+        </day>
+        <day num="12">
+            <reading num="1" passage="Job 14" />
+            <reading num="2" passage="Habakkuk 1" />
+            <reading num="3" passage="1 Peter 2" />
+        </day>
+        <day num="13">
+            <reading num="1" passage="Job 15" />
+            <reading num="2" passage="Habakkuk 2" />
+            <reading num="3" passage="1 Peter 3-5" />
+        </day>
+        <day num="14">
+            <reading num="1" passage="Job 16-17" />
+            <reading num="2" passage="Habakkuk 3" />
+            <reading num="3" passage="2 Peter 1-2" />
+        </day>
+        <day num="15">
+            <reading num="1" passage="Job 18-19" />
+            <reading num="2" passage="Zephaniah 1" />
+            <reading num="3" passage="2 Peter 3" />
+        </day>
+        <day num="16">
+            <reading num="1" passage="Job 20" />
+            <reading num="2" passage="Zephaniah 2" />
+            <reading num="3" passage="1 John 1-2" />
+        </day>
+        <day num="17">
+            <reading num="1" passage="Job 21" />
+            <reading num="2" passage="Zephaniah 3" />
+            <reading num="3" passage="1 John 3-4" />
+        </day>
+        <day num="18">
+            <reading num="1" passage="Job 22" />
+            <reading num="2" passage="Haggai 1-2" />
+            <reading num="3" passage="1 John 5" />
+        </day>
+        <day num="19">
+            <reading num="1" passage="Job 23-24" />
+            <reading num="2" passage="Zechariah 1" />
+            <reading num="3" passage="2 John-3 John" />
+        </day>
+        <day num="20">
+            <reading num="1" passage="Job 25-27" />
+            <reading num="2" passage="Zechariah 2-3" />
+            <reading num="3" passage="Jude 1" />
+        </day>
+        <day num="21">
+            <reading num="1" passage="Job 28" />
+            <reading num="2" passage="Zechariah 4-5" />
+            <reading num="3" passage="Revelation 1-2" />
+        </day>
+        <day num="22">
+            <reading num="1" passage="Job 29-30" />
+            <reading num="2" passage="Zechariah 6-7" />
+            <reading num="3" passage="Revelation 3-4" />
+        </day>
+        <day num="23">
+            <reading num="1" passage="Job 31-32" />
+            <reading num="2" passage="Zechariah 8" />
+            <reading num="3" passage="Revelation 5-6" />
+        </day>
+        <day num="24">
+            <reading num="1" passage="Job 33" />
+            <reading num="2" passage="Zechariah 9" />
+            <reading num="3" passage="Revelation 7-9" />
+        </day>
+        <day num="25">
+            <reading num="1" passage="Job 34" />
+            <reading num="2" passage="Zechariah 10" />
+            <reading num="3" passage="Revelation 10-11" />
+        </day>
+        <day num="26">
+            <reading num="1" passage="Job 35-36" />
+            <reading num="2" passage="Zechariah 11" />
+            <reading num="3" passage="Revelation 12-13" />
+        </day>
+        <day num="27">
+            <reading num="1" passage="Job 37" />
+            <reading num="2" passage="Zechariah 12" />
+            <reading num="3" passage="Revelation 14" />
+        </day>
+        <day num="28">
+            <reading num="1" passage="Job 38" />
+            <reading num="2" passage="Zechariah 13-14" />
+            <reading num="3" passage="Revelation 15-16" />
+        </day>
+        <day num="29">
+            <reading num="1" passage="Job 39" />
+            <reading num="2" passage="Malachi 1" />
+            <reading num="3" passage="Revelation 17-18" />
+        </day>
+        <day num="30">
+            <reading num="1" passage="Job 40" />
+            <reading num="2" passage="Malachi 2" />
+            <reading num="3" passage="Revelation 19-20" />
+        </day>
+        <day num="31">
+            <reading num="1" passage="Job 41-42" />
+            <reading num="2" passage="Malachi 3-4" />
+            <reading num="3" passage="Revelation 21-22" />
+        </day>
+    </month>
+</readings>

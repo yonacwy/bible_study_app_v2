@@ -40,7 +40,10 @@ export async function run()
 
     utils.on_click('cancel-submit-btn', e => {
         utils.set_display('highlight-popup', 'none');
-    })
+    });
+
+    utils.init_sliders();
+    init_view_toggle();
 
     document.body.style.visibility = 'visible';
 }
@@ -59,6 +62,7 @@ function on_edit(id: string)
 
         editing_id = category.id;
         utils.set_display('highlight-popup', 'flex');
+        utils.update_sliders();
     })
 }
 
@@ -67,9 +71,9 @@ function on_delete(id: string)
 {
     deleting_id = id;
     confirm_popup.show_confirm_popup({
-        message: 'Are you sure you want to delete this highlight?',
-        yes_text: 'Delete popup',
-        no_text: 'Cancel delete popup',
+        message: 'Are you sure you want to delete this highlight? (This will remove all references to it)',
+        yes_text: 'Delete highlight',
+        no_text: 'Cancel delete highlight',
         on_confirm: () => {
             if (deleting_id != null)
             {
@@ -99,7 +103,7 @@ function on_submit(_e: Event)
     if(name.length < 3)
     {
         was_error = true;
-        show_error_popup('name-err-msg', true, `Name must be at least ${NAME_MIN_LENGTH} characters long.`);   
+        show_error_popup('name-err-msg', true, `Name must be at least ${NAME_MIN_LENGTH} characters long.`);
     }
     else if(name.length > NAME_MAX_LENGTH)
     {
@@ -126,4 +130,69 @@ function on_submit(_e: Event)
         location.reload();
         editing_id = null;
     }
+}
+
+enum MdState 
+{
+    Viewing = 'v',
+    Editing = 'e',
+}
+
+function init_view_toggle()
+{
+    let current_state: MdState = MdState.Editing;
+
+    const button = document.getElementById('view-toggle-btn');
+    const image = button?.getElementsByTagName('img')[0];
+    const text_input = document.getElementById('description-in') as HTMLTextAreaElement | null;
+    const text_view = document.getElementById('description-view');
+
+    if(!button || !image || !text_input || !text_view) return;
+
+    function opposite_state(state: MdState): MdState
+    {
+        if (state == MdState.Editing) return MdState.Viewing;
+        return MdState.Editing;
+    }
+
+    const BUTTON_DATA = {
+        'v': {
+            image: '../images/light-text.svg',
+            title: 'Enter view mode',
+            view: 'block',
+            edit: 'none',
+        },
+        'e': {
+            image: '../images/light-eye.svg',
+            title: 'Enter edit mode',
+            view: 'none',
+            edit: 'block',
+        }
+    }
+
+    let set_data = (state: MdState) =>
+    {
+        let data = BUTTON_DATA[state];
+        button.title = data.title;
+        image.src = data.image;
+        text_input.style.display = data.edit;
+        text_view.style.display = data.view;
+    }
+
+    button.addEventListener('click', e => {
+        current_state = opposite_state(current_state);
+
+        if(current_state === MdState.Viewing)
+        {
+            text_view.innerHTML = utils.render_markdown(text_input.value);
+        }
+        else 
+        {
+            text_view.innerHTML = '';
+        }
+
+        set_data(current_state);
+    });
+
+    set_data(current_state);
 }

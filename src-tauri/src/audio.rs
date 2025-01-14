@@ -1,11 +1,5 @@
 use std::{collections::HashMap, sync::{Arc, Mutex}};
-
-use kira::{
-    manager::{
-        backend::DefaultBackend, error::PlaySoundError, AudioManager, AudioManagerSettings
-    },
-    sound::static_sound::{StaticSoundData, StaticSoundHandle}, tween::Tween, Volume
-};
+use kira::{sound::static_sound::{StaticSoundData, StaticSoundHandle}, AudioManager, AudioManagerSettings, DefaultBackend, PlaySoundError, Tween };
 use tauri::{path::{BaseDirectory, PathResolver}, Runtime, State};
 
 use crate::app_state::AppData;
@@ -57,7 +51,7 @@ pub fn play_clip(state: State<'_, AudioPlayer>, clip_name: &str)
 
     match state.play(clip_name)
     {
-        Some(Ok(mut handle)) => handle.set_volume(Volume::Amplitude(volume as f64), Tween::default()),
+        Some(Ok(mut handle)) => handle.set_volume(volume, Tween::default()),
         Some(Err(e)) => println!("Error with playing audio: '{}'", e.to_string()),
         None => println!("Error: failed to load audio clip '{}'", clip_name),
     }

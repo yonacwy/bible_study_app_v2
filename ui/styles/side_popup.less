@@ -1,4 +1,5 @@
 @import "./shared/defs.less";
+@import "./shared/font_sizing.less";
 
 .popup-panel {
     position: fixed;
@@ -11,9 +12,15 @@
     color: black;
     transform: translateX(100%);
     transition: transform 0.3s ease;
-    z-index: 1000;
-    min-width: 200px;
-    max-width: 500px;
+    z-index: 500;
+
+    // set by code
+    // min-width: 200px;
+    // max-width: 500px;
+
+    
+    overflow-y: auto;
+
 }
 
 .popup-panel.open {
@@ -22,31 +29,29 @@
 
 .popup-panel-content {
     padding: 20px;
+    box-sizing: border-box;
 }
 
 .resizer {
-    position: absolute;
+    position: fixed;
     top: 0;
     width: 5px;
-    height: 100%;
     cursor: ew-resize;
     z-index: 1002;
+    height: 100%;
     background-color: #333;
 }
 
 .popup-panel .close-image {
-    width: 20px;
-    height: 20px;
     position: absolute;
     top: 0;
     right: 0;
-    padding: 0;
     margin: 5px;
 }
 
 .popup-panel .panel-title {
     text-align: center;
-    font-size: 2em;
+    .font-large();
     font-weight: bold;
     border-bottom: 1px solid #333;
 }
@@ -83,10 +88,12 @@
     margin: 0px;
     font-weight: bold;
     border-bottom: 1px solid #333;
+    .font-medium();
 }
 
-.popup-panel-content .highlight-viewer .highlight-content p {
+.popup-panel-content .highlight-viewer .highlight-content div {
     margin: 5px 0;
+    .font-small();
 }
 
 .popup-panel-content .note-viewer {
@@ -109,12 +116,18 @@
     margin-bottom: 10px;
     border-bottom: 1px solid #333;
     min-height: 20px;
+    .font-small();
 }
 
 .popup-panel-content .note-viewer .reference-buttons {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(130px * @ui-scale, 1fr));
     gap: 5px;
+
+    button {
+        .font-small();
+        .hyphens-auto();
+    }
 }
 
 .popup-panel-content .note-viewer .edit-btn {

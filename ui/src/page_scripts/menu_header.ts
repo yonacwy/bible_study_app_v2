@@ -64,6 +64,9 @@ export const SETTINGS_DROPDOWN: string = `
         <button class="image-btn" id="main-settings" title="Settings">
             <img src="../images/light-gear-complex.svg" alt="">
         </button>
+        <button class="image-btn" id="readings-btn" title="Daily Readings">
+            <img src="../images/light-calendar-lines.svg" alt=""> 
+        </button>
         <button class="image-btn" id="help-btn" title="Help">
             <img src="../images/light-info.svg" alt=""> 
         </button>

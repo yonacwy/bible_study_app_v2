@@ -1,6 +1,7 @@
 declare global {
     export interface Element {
         appendElement<K extends keyof HTMLElementTagNameMap>(key: K, builder?: (k: HTMLElementTagNameMap[K]) => void): Element;
+        appendElementEx<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (k: HTMLElementTagNameMap[K]) => void): Element;
     }
 }
 
@@ -11,8 +12,16 @@ Element.prototype.appendElement = function<K extends keyof HTMLElementTagNameMap
         builder(child);
     }
     this.appendChild(child);
-    return this;
+    return child;
 };
+
+Element.prototype.appendElementEx = function<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (k: HTMLElementTagNameMap[K]) => void): Element {
+    let child = document.createElement(key);
+    child.classList.add(...classes);
+    builder(child);
+    this.appendChild(child);
+    return child;
+}
 
 declare global {
     export interface Array<T>
@@ -65,6 +74,7 @@ declare global {
         lerp(min: number, max: number, v: number): number;
         clamp(min: number, max: number, v: number): number;
         inv_lerp(min: number, max: number, v: number): number;
+        approx_eq(a: number, b: number, epsilon?: number): boolean;
     }
 }
 
@@ -82,6 +92,10 @@ Math.clamp = (min: number, max: number, v: number): number => {
 Math.inv_lerp = (min: number, max: number, v: number): number => {
     v = Math.clamp(min, max, v);
     return (v - min) / (max - min);
+}
+
+Math.approx_eq = (a: number, b: number, epsilon?: number): boolean => {
+    return Math.abs(a - b) < (epsilon ?? 0.01);
 }
 
 export {};

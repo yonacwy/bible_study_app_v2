@@ -3,6 +3,7 @@ import * as highlight_utils from "../highlights.js";
 import * as utils from "../utils/index.js";
 import * as notes from "../notes.js";
 import * as view_states from "../view_states.js";
+import { get_ui_scale } from "../settings.js";
 
 const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";
@@ -17,9 +18,30 @@ export async function init_popup_panel(id: string)
 {
     const panel = document.getElementById(id);
     if (panel === null) return;
+
     const resizer = panel.getElementsByClassName('resizer')[0];
+    if (!resizer) return;
+
     resizer.addEventListener('mousedown', e => {
-        init_resize(e, panel);
+        init_resize(e);
+    });
+
+    let min = await get_min_panel_size();
+    panel.style.width = `${min}px`;
+    
+    resizing_panel = panel;
+    resizer_line = resizer as HTMLElement;
+    
+    resizing_panel.addEventListener('scroll', e => {
+        update_resizer_size();
+    });
+
+    resizing_panel.addEventListener('mousemove', e => {
+        update_resizer_size();
+    });
+
+    window.addEventListener('resize', e => {
+        update_resizer_size();
     });
 }
 
@@ -28,7 +50,7 @@ export function display_on_div(div: HTMLElement, word: string, annotations: Word
     div.addEventListener('click', e => {
         if(annotations === null          ||
             annotations === undefined     ||
-           (annotations.notes.length === 0 && annotations.highlights.length === 0)      ||
+           (annotations.notes.length === 0 && annotations.highlights.length === 0) ||
            highlight_utils.SELECTED_HIGHLIGHT.get() !== null
         )
         {
@@ -51,7 +73,8 @@ async function build_popup_content(word: string, annotations: WordAnnotations, t
     });
 
     append_highlights(annotations, target);
-    await append_notes(annotations, target, on_search);
+    let r = await append_notes(annotations, target, on_search);
+    return r;
 }
 
 async function append_notes(annotations: WordAnnotations, target: Element, on_search: (msg: string) => void) 
@@ -114,7 +137,7 @@ function append_highlights(annotations: WordAnnotations, target: Element)
                     title.classList.add('highlight-title');
                     title.innerHTML = name;
                 });
-                content.appendElement('p', desc => desc.innerHTML = description);
+                content.appendElement('div', desc => desc.innerHTML = utils.render_markdown(description));
             })
         });
     }
@@ -123,26 +146,46 @@ function append_highlights(annotations: WordAnnotations, target: Element)
 
 let is_resizing = false;
 let resizing_panel: HTMLElement | null = null;
+let resizer_line: HTMLElement | null = null;
 
-function init_resize(e: Event, panel: HTMLElement) 
+function init_resize(e: Event) 
 {
     is_resizing = true;
-    resizing_panel = panel;
+
     document.addEventListener('mousemove', resize_panel);
     document.addEventListener('mouseup', stop_resize);
     e.preventDefault();
 }
 
-function resize_panel(e: Event) 
+async function get_min_panel_size(): Promise<number> 
+{
+    let min = 200;
+    let ui_scale = await get_ui_scale();
+    // when the ui is scaled up, will add up to 50px extra to the minimum content size
+    // this fixes some issues with the reference buttons not displaying properly
+    min += 150 * Math.inv_lerp(0.5, 2.0, ui_scale);
+    return min;
+}
+
+async function resize_panel(e: Event) 
 {
     if (is_resizing && resizing_panel !== null) 
     {
+        let min = await get_min_panel_size();
+
         let new_width = window.innerWidth - (e as DragEvent).clientX;
-        new_width = utils.clamp(200, 500, new_width);
+        new_width = utils.clamp(min, 500, new_width);
 
         resizing_panel.style.width = new_width + 'px';
         sessionStorage.setItem(WIDTH_STORAGE_NAME, `${new_width}`);
     }
+}
+
+function update_resizer_size()
+{
+    if(!resizing_panel || !resizer_line) return;
+    let top = resizing_panel.scrollTop;
+    resizer_line.style.top = `${top}px`;
 }
 
 function stop_resize() 
@@ -150,5 +193,4 @@ function stop_resize()
     is_resizing = false;
     document.removeEventListener('mousemove', resize_panel);
     document.removeEventListener('mouseup', stop_resize);
-    resizing_panel = null;
 }

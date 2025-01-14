@@ -49,38 +49,32 @@ export function render_categories(on_delete: (id: string) => void, on_edit: (id:
             let description = category.description;
             let color = category.color;
             let priority = category.priority;
-            
-            let highlightDiv = document.createElement('div');
-            highlightDiv.className = 'highlight';
-            
-            let colorBar = document.createElement('div');
-            colorBar.className = 'color-bar';
-            colorBar.style.backgroundColor = `rgb(${color.r}, ${color.g}, ${color.b})`;
 
-            let contentDiv = document.createElement('div');
-            contentDiv.className = 'highlight-content';
+            container.appendElementEx('div', ['highlight'], highlight_div => {
+                highlight_div.appendElementEx('div', ['color-bar'], color_bar => {
+                    color_bar.style.backgroundColor = utils.color_to_hex(color);
+                });
 
-            contentDiv.innerHTML = `
-                <h2>${name}</h2>
-                <p>${description}</p>
-                <p><span>Priority:</span> ${priority}</p>
-                <div class="same-line">
-                    <button class="edit-btn" id="edit-btn-n${category.id}" title="Edit this highlight category">Edit</button>
-                    <button class="delete-btn" id="delete-btn-n${category.id}" title="Delete this highlight category">Delete</button>
-                </div>
-            `;
+                highlight_div.appendElementEx('div', ['highlight-content'], content_div => {
+                    content_div.appendElement('h2', header => header.innerHTML = name);
+                    content_div.appendElementEx('div', ['highlight-description'], desc => desc.innerHTML = utils.render_markdown(description));
+                    content_div.appendElement('p', p => {
+                        p.innerHTML = `<span class="priority">Priority:</span> ${priority}`;
+                    });
 
-            highlightDiv.appendChild(colorBar);
-            highlightDiv.appendChild(contentDiv);
-            container.appendChild(highlightDiv);
+                    content_div.appendElementEx('div', ['highlight-button-container'], button_container => {
+                        let edit_btn = utils.create_image_button(button_container, '../images/light-pencil.svg', e => {
+                            on_edit(category.id);
+                        });
+                        edit_btn.title = 'Edit category';
 
-            utils.on_click(`delete-btn-n${category.id}`, e => {
-                on_delete(category.id);
+                        let delete_btn = utils.create_image_button(button_container, '../images/light-trash-can.svg', e => {
+                            on_delete(category.id);
+                        });
+                        delete_btn.title = 'Delete category';
+                    })
+                });
             });
-
-            utils.on_click(`edit-btn-n${category.id}`, e => {
-                on_edit(category.id);
-            })
         };
     });
 }

@@ -15,11 +15,13 @@
 }
 
 .chapter-button {
+    @chapter-button-height: calc(10vh + 20vh * @ui-scale);
+
     display: block;
     position: fixed;
     width: 10px + @content-margin;
-    height: 30vh;
-    top: calc(50vh - 15vh);
+    height: @chapter-button-height;
+    top: calc(50vh - @chapter-button-height / 2);
     padding: 0px;
 }
 

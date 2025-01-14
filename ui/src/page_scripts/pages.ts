@@ -77,6 +77,7 @@ export function init_settings_buttons(old_path: string)
     utils.on_click('help-btn', _ => window.location.href = utils.encode_to_url('help_page.html', { old_path: old_path }));
     utils.on_click('highlight-settings', _ => window.location.href = utils.encode_to_url('highlight_editor.html', { old_path: old_path }));
     utils.on_click('main-settings', _ => window.location.href = utils.encode_to_url('settings_page.html', { old_path: old_path }));
+    utils.on_click('readings-btn', _ => window.location.href = utils.encode_to_url('daily_readings_page.html', { old_path: old_path }));
 }
 
 export function update_nav_buttons_opacity() 
