@@ -1,13 +1,19 @@
 # Plan:
-### Version 0.6.0: Multiple Bible Support
-- [ ] Multiple Bible Support
-- [ ] Special bible format?
 
-### Version 0.5.0
+
+### Version 0.6.0
 - [ ] Notebook Support
 
+### Version 0.5.0: Multiple Bible Support
+- [ ] Multiple Bible Support
+  - [ ] A notebook for each bible (for now)
+  - [ ] Can swap between bibles
+  - [ ] Can search in different bibles
+- [ ] Readings work with the different bibles (select which one)
+
 ### Version 0.4.5: Adding Reading Plans
-- [ ] Adding built in reading plans
+- [x] Adding built in reading plans
+- [x] Also did other stuff
 
 ### Version 0.4.4: Hotfix
 - [x] Fixed a bug with the volume slider
