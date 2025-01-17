@@ -17,7 +17,7 @@ export async function get_chapter_view(chapter: ChapterIndex): Promise<ChapterVi
     return view;
 }
 
-export async function get_chapter(): Promise<any>
+export async function get_chapter(): Promise<ChapterIndex | null>
 {
     let view_state = await get_current_view_state();
     if(view_state.type !== 'chapter')
@@ -50,13 +50,15 @@ export async function get_chapter_words(chapter: ChapterIndex): Promise<string[]
 export async function to_next_chapter(): Promise<void>
 {
     let current_chapter = await get_chapter();
+    if (!current_chapter) return;
+
     let view = await load_view();
 
     if(current_chapter.number < view[current_chapter.book].chapter_count - 1)
     {
         current_chapter.number++;
     }
-    else if(current_chapter.book < view.length)
+    else if(current_chapter.book < view.length - 1)
     {
         current_chapter.book++;
         current_chapter.number = 0;
@@ -72,6 +74,8 @@ export async function to_next_chapter(): Promise<void>
 export async function to_previous_chapter(): Promise<void>
 {
     let current_chapter = await get_chapter();
+    if (!current_chapter) return;
+
     let view = await load_view();
 
     if(current_chapter.number > 0)
