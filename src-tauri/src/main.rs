@@ -23,8 +23,8 @@ use readings::ReadingsDatabase;
 use tauri::{path::BaseDirectory, Manager};
 
 const BIBLE_PATH: &str = debug_release_val! { 
-    debug: "resources/small_kjv.txt",
-    release: "resources/kjv.txt",
+    debug: "resources/bibles/small_kjv.txt",
+    release: "resources/bibles/kjv.txt",
 };
 
 fn main() 
