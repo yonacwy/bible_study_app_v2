@@ -1,24 +1,49 @@
 use serde::{Deserialize, Serialize};
-use std::{cell::RefCell, collections::HashMap, sync::Mutex};
+use std::{cell::RefCell, collections::HashMap, io::Read, sync::Mutex};
 use tauri::{
     path::{BaseDirectory, PathResolver},
     Runtime,
 };
 
 use crate::{
-    bible::*,
-    bible_parsing,
-    migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION},
-    notes::*, settings::Settings,
+    bible::*, bible_parsing, debug_release_val, migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION}, notes::*, settings::Settings
 };
 
 static mut DATA: Option<AppData> = None;
 pub const SAVE_NAME: &str = "save.json";
 
+pub const DEFAULT_BIBLE: &str = "KJV";
+
+pub const BIBLE_PATHS: &[&str] = &[
+    debug_release_val! { 
+        debug: "resources/bibles/small_kjv.txt",
+        release: "resources/bibles/kjv.txt",
+    },
+    debug_release_val! { 
+        debug: "resources/bibles/small_asv.txt",
+        release: "resources/bibles/asv.txt",
+    },
+    debug_release_val! { 
+        debug: "resources/bibles/small_bbe.txt",
+        release: "resources/bibles/bbe.txt",
+    },
+    debug_release_val! { 
+        debug: "resources/bibles/small_ylt.txt",
+        release: "resources/bibles/ylt.txt",
+    },
+    debug_release_val! { 
+        debug: "resources/bibles/small_sparv.txt",
+        release: "resources/bibles/sparv.txt",
+    },
+];
+
 pub struct AppData {
-    pub bible: Bible,
+    bibles: HashMap<String, Bible>,
+    current_bible_version: Mutex<RefCell<String>>,
+    
     pub save_version: SaveVersion,
-    notebook: Mutex<RefCell<Notebook>>,
+    
+    notebooks: Mutex<RefCell<HashMap<String, Notebook>>>,
 
     view_state_index: Mutex<RefCell<usize>>,
     view_states: Mutex<RefCell<Vec<ViewState>>>,
@@ -33,7 +58,8 @@ pub struct AppData {
 
 #[derive(Serialize, Deserialize)]
 struct AppSave {
-    notebook: Notebook,
+    current_bible_version: String,
+    notebooks: HashMap<String, Notebook>,
     save_version: SaveVersion,
     view_state_index: usize,
     view_states: Vec<ViewState>,
@@ -43,7 +69,7 @@ struct AppSave {
 }
 
 impl AppData {
-    pub fn init<R>(bible_text: &str, resolver: &PathResolver<R>)
+    pub fn init<R>(resolver: &PathResolver<R>)
     where
         R: Runtime,
     {
@@ -53,20 +79,14 @@ impl AppData {
             .and_then(|path| std::fs::read(path).ok())
             .and_then(|data| String::from_utf8(data).ok());
 
+        let bibles = Self::load_bibles(resolver);
+
         let (mut save, was_migrated, no_save) = match file {
             Some(file) => {
                 let (save, migrated) = Self::load(&file);
                 (save, migrated, false)
             },
             None => {
-                let notebook = Notebook {
-                    highlight_categories: HashMap::new(),
-                    notes: HashMap::new(),
-                    favorite_verses: HashMap::new(),
-                    section_headings: HashMap::new(),
-                    annotations: HashMap::new(),
-                };
-
                 let view_states = vec![ViewState::Chapter {
                     chapter: ChapterIndex { book: 0, number: 0 },
                     verse_range: None,
@@ -74,7 +94,8 @@ impl AppData {
                 }];
 
                 (AppSave {
-                    notebook,
+                    notebooks: HashMap::new(),
+                    current_bible_version: DEFAULT_BIBLE.to_owned(),
                     save_version: CURRENT_SAVE_VERSION,
                     view_state_index: 0,
                     view_states,
@@ -85,11 +106,18 @@ impl AppData {
             }
         };
 
-        let bible = bible_parsing::parse_bible(bible_text).unwrap();
-
         if save.view_state_index >= save.view_states.len() {
             save.view_state_index = save.view_states.len() - 1;
         }
+
+        let current_bible_version = if bibles.contains_key(&save.current_bible_version)
+        {
+            save.current_bible_version.clone()
+        }
+        else 
+        {
+            DEFAULT_BIBLE.to_owned()
+        };
 
         if let ViewState::Chapter {
             chapter,
@@ -97,6 +125,8 @@ impl AppData {
             verse_range,
         } = &mut save.view_states[save.view_state_index]
         {
+            let bible = &bibles.get(&save.current_bible_version).map_or(bibles.get(DEFAULT_BIBLE).unwrap(), |b| b);
+
             if chapter.book >= bible.books.len() as u32
                 || chapter.number >= bible.books[chapter.book as usize].chapters.len() as u32
                 || verse_range.map_or(false, |r| {
@@ -113,9 +143,10 @@ impl AppData {
 
         unsafe {
             DATA = Some(Self {
-                bible,
+                bibles,
+                current_bible_version: Mutex::new(RefCell::new(current_bible_version)),
                 save_version: CURRENT_SAVE_VERSION,
-                notebook: Mutex::new(RefCell::new(save.notebook)),
+                notebooks: Mutex::new(RefCell::new(save.notebooks)),
                 view_state_index: Mutex::new(RefCell::new(save.view_state_index)),
                 view_states: Mutex::new(RefCell::new(save.view_states)),
                 editing_note: Mutex::new(RefCell::new(save.editing_note)),
@@ -134,14 +165,16 @@ impl AppData {
         let view_state_index = self.get_view_state_index();
 
         let view_states = self.view_states.lock().unwrap().borrow().clone();
-        let notebook = self.notebook.lock().unwrap().borrow().clone();
+        let notebooks = self.notebooks.lock().unwrap().borrow().clone();
+        let current_bible_version = self.current_bible_version.lock().unwrap().borrow().clone();
         let editing_note = self.editing_note.lock().unwrap().borrow().clone();
         let settings = self.settings.lock().unwrap().borrow().clone();
         let save_version = self.save_version;
         let selected_reading = self.selected_reading.lock().unwrap().borrow().clone();
 
         let save = AppSave {
-            notebook,
+            notebooks,
+            current_bible_version,
             save_version,
             view_state_index,
             editing_note,
@@ -199,13 +232,44 @@ impl AppData {
         f(&mut view_states)
     }
 
+    pub fn get_current_bible_version(&self) -> String
+    {
+        let binding = self.current_bible_version.lock().unwrap();
+        let current_bible = binding.borrow();
+        current_bible.clone()
+    }
+
+    pub fn get_current_bible(&self) -> &Bible
+    {
+        let bible_version = self.get_current_bible_version();
+        self.bibles.get(&bible_version).map_or(self.bibles.get(DEFAULT_BIBLE).unwrap(), |b| b)
+    }
+    
+    pub fn set_current_bible_version(&self, version: String)
+    {
+        if self.get_bibles().find(|v| **v == version).is_some()
+        {
+            let mut binding = self.current_bible_version.lock().unwrap();
+            *binding.get_mut() = version;
+        }
+    }
+
+    pub fn get_bibles(&self) -> impl Iterator<Item = &String>
+    {
+        self.bibles.keys().into_iter()
+    }
+
     pub fn read_notes<F, R>(&self, mut f: F) -> R
     where
         F: FnMut(&mut Notebook) -> R,
     {
-        let binding = self.notebook.lock().unwrap();
-        let mut notebook = binding.borrow_mut();
-        f(&mut notebook)
+        let binding = self.notebooks.lock().unwrap();
+        let mut notebooks = binding.borrow_mut();
+
+        let current_bible_version = self.get_current_bible_version();
+
+        let notebook = notebooks.entry(current_bible_version).or_default();
+        f(notebook)
     }
 
     pub fn read_editing_note<F, R>(&self, mut f: F) -> R
@@ -254,6 +318,23 @@ impl AppData {
         let old = *need_display_no_save;
         *need_display_no_save = false;
         old
+    }
+
+    fn load_bibles<R>(path_resolver: &PathResolver<R>) -> HashMap<String, Bible>
+        where R : Runtime,
+    {
+        BIBLE_PATHS.iter().map(|relative_path| {
+            let path = path_resolver
+                .resolve(relative_path, BaseDirectory::Resource)
+                .expect("Failed to retrieve `kjv.txt` resource");
+
+            let mut file = std::fs::File::open(&path).unwrap();
+
+            let mut text = String::new();
+            file.read_to_string(&mut text).unwrap();
+            let bible = bible_parsing::parse_bible(&text).unwrap();
+            (bible.name.clone(), bible)
+        }).collect::<HashMap<_, _>>()
     }
 }
 

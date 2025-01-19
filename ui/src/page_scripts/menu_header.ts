@@ -6,6 +6,16 @@ export function get_header(): HTMLElement
 export function init_main_page_header()
 {
     get_header().innerHTML = `
+        <div class="text-dropdown" id="bible-version-dropdown">
+            <div class="dropdown-title">KJV</div>
+            <div class="dropdown-content">
+                <div class="dropdown-option">KJV</div>
+                <div class="dropdown-option">ASV</div>
+                <div class="dropdown-option">BBE</div>
+                <div class="dropdown-option">YLT</div>
+                <div class="dropdown-option">SpaRV</div>
+            </div>
+        </div>
         <div class="dropdown">
             <button class="image-btn" title="Bible chapter selection">
                 <img src="../images/light-books.svg">
