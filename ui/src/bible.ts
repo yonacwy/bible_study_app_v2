@@ -95,6 +95,24 @@ export async function to_previous_chapter(): Promise<void>
     });
 }
 
+export async function get_current_bible_version(): Promise<string>
+{
+    return await invoke('get_current_bible_version', {});
+}
+
+// This function both sets the current bible version, AND reloads the frontend
+export function set_bible_version(version: string)
+{
+    invoke('set_current_bible_version', { version: version }).then(_ => {
+        location.reload();
+    });
+}
+
+export async function get_bible_versions(): Promise<string[]>
+{
+    return await invoke('get_bible_versions', {});
+}
+
 export async function get_verse_word_offset(book: number, chapter: number, verse_index: number): Promise<number>
 {
     let view = JSON.parse(await invoke('get_chapter_view', { chapter: {

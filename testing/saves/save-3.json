@@ -1,0 +1,1775 @@
+{
+  "notebook": {
+    "highlight_categories": {
+      "dc453176-9814-4ab1-87a9-6c499a5b738c": {
+        "color": {
+          "r": 36,
+          "g": 214,
+          "b": 0
+        },
+        "name": "Key Name",
+        "description": "Name of an important person, place, or thing",
+        "priority": 5,
+        "id": "dc453176-9814-4ab1-87a9-6c499a5b738c"
+      },
+      "242eaf2c-2387-4e79-918f-4b42d3415b9f": {
+        "color": {
+          "r": 255,
+          "g": 215,
+          "b": 0
+        },
+        "name": "Name of God",
+        "description": "Different Names of God",
+        "priority": 10,
+        "id": "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+      }
+    },
+    "notes": {
+      "9950406f-9575-4e07-91f8-4555dac3c2ad": {
+        "id": "9950406f-9575-4e07-91f8-4555dac3c2ad",
+        "text": "There is only **one** truth and doctrine",
+        "locations": [
+          {
+            "chapter": {
+              "book": 53,
+              "number": 0
+            },
+            "range": {
+              "verse_start": 2,
+              "word_start": 21,
+              "verse_end": 2,
+              "word_end": 24
+            }
+          }
+        ]
+      },
+      "33f0d4f2-97c6-43b5-8151-02d11c8aefc5": {
+        "id": "33f0d4f2-97c6-43b5-8151-02d11c8aefc5",
+        "text": "Someone who is new to the Faith",
+        "locations": [
+          {
+            "chapter": {
+              "book": 53,
+              "number": 2
+            },
+            "range": {
+              "verse_start": 5,
+              "word_start": 2,
+              "verse_end": 5,
+              "word_end": 2
+            }
+          }
+        ]
+      },
+      "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4": {
+        "id": "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4",
+        "text": "God knew Christ would exist even before creation",
+        "locations": [
+          {
+            "chapter": {
+              "book": 50,
+              "number": 0
+            },
+            "range": {
+              "verse_start": 15,
+              "word_start": 29,
+              "verse_end": 15,
+              "word_end": 34
+            }
+          },
+          {
+            "chapter": {
+              "book": 42,
+              "number": 0
+            },
+            "range": {
+              "verse_start": 2,
+              "word_start": 0,
+              "verse_end": 2,
+              "word_end": 5
+            }
+          },
+          {
+            "chapter": {
+              "book": 48,
+              "number": 2
+            },
+            "range": {
+              "verse_start": 8,
+              "word_start": 26,
+              "verse_end": 8,
+              "word_end": 31
+            }
+          }
+        ]
+      },
+      "0f4d9dab-7673-4f03-837e-c8a6a114750a": {
+        "id": "0f4d9dab-7673-4f03-837e-c8a6a114750a",
+        "text": "Quoting Ps 78:2",
+        "locations": [
+          {
+            "chapter": {
+              "book": 39,
+              "number": 12
+            },
+            "range": {
+              "verse_start": 34,
+              "word_start": 7,
+              "verse_end": 34,
+              "word_end": 10
+            }
+          }
+        ]
+      },
+      "70943c78-cb1d-4205-b6f6-92a665cd4962": {
+        "id": "70943c78-cb1d-4205-b6f6-92a665cd4962",
+        "text": "Woman was formed from Man",
+        "locations": [
+          {
+            "chapter": {
+              "book": 53,
+              "number": 1
+            },
+            "range": {
+              "verse_start": 12,
+              "word_start": 0,
+              "verse_end": 12,
+              "word_end": 6
+            }
+          },
+          {
+            "chapter": {
+              "book": 0,
+              "number": 1
+            },
+            "range": {
+              "verse_start": 6,
+              "word_start": 4,
+              "verse_end": 6,
+              "word_end": 5
+            }
+          },
+          {
+            "chapter": {
+              "book": 0,
+              "number": 1
+            },
+            "range": {
+              "verse_start": 21,
+              "word_start": 9,
+              "verse_end": 21,
+              "word_end": 14
+            }
+          }
+        ]
+      },
+      "d29a292b-af79-44c4-8231-3bf2869030de": {
+        "id": "d29a292b-af79-44c4-8231-3bf2869030de",
+        "text": "## The Beginning of the World\n--- \n<strong>Testing</strong>",
+        "locations": [
+          {
+            "chapter": {
+              "book": 0,
+              "number": 0
+            },
+            "range": {
+              "verse_start": 0,
+              "word_start": 0,
+              "verse_end": 0,
+              "word_end": 2
+            }
+          },
+          {
+            "chapter": {
+              "book": 44,
+              "number": 3
+            },
+            "range": {
+              "verse_start": 0,
+              "word_start": 0,
+              "verse_end": 0,
+              "word_end": 2
+            }
+          }
+        ]
+      },
+      "db5c0cf9-e7d5-453e-954b-1f12e6c22563": {
+        "id": "db5c0cf9-e7d5-453e-954b-1f12e6c22563",
+        "text": "Quoting from Isaiah 53:4",
+        "locations": [
+          {
+            "chapter": {
+              "book": 39,
+              "number": 7
+            },
+            "range": {
+              "verse_start": 16,
+              "word_start": 7,
+              "verse_end": 16,
+              "word_end": 9
+            }
+          }
+        ]
+      },
+      "617d52fa-8ae3-4e7c-bf4c-e824493a2ce2": {
+        "id": "617d52fa-8ae3-4e7c-bf4c-e824493a2ce2",
+        "text": "Watch what you say.",
+        "locations": [
+          {
+            "chapter": {
+              "book": 19,
+              "number": 5
+            },
+            "range": {
+              "verse_start": 0,
+              "word_start": 5,
+              "verse_end": 0,
+              "word_end": 8
+            }
+          }
+        ]
+      },
+      "1f4b97a1-5433-4206-8938-c449ba02a196": {
+        "id": "1f4b97a1-5433-4206-8938-c449ba02a196",
+        "text": "- Moses was a dude\n",
+        "locations": [
+          {
+            "chapter": {
+              "book": 2,
+              "number": 13
+            },
+            "range": {
+              "verse_start": 0,
+              "word_start": 5,
+              "verse_end": 0,
+              "word_end": 5
+            }
+          }
+        ]
+      },
+      "41bd5da2-c90c-4432-9f7d-e68acce7abae": {
+        "id": "41bd5da2-c90c-4432-9f7d-e68acce7abae",
+        "text": "",
+        "locations": [
+          {
+            "chapter": {
+              "book": 19,
+              "number": 22
+            },
+            "range": {
+              "verse_start": 12,
+              "word_start": 3,
+              "verse_end": 12,
+              "word_end": 3
+            }
+          }
+        ]
+      },
+      "fd56bee5-b42f-4601-ba2d-25d004934aa9": {
+        "id": "fd56bee5-b42f-4601-ba2d-25d004934aa9",
+        "text": "Paul quoting from Psalm 44:22\n- Rom 8:36: Question for WHY God brings suffering???\n- Rom 8:37: The response of Paul, it refines us???\n\nCould also be referencing the trials of Israel that is written in Ps 44, and how God will remember the suffering?",
+        "locations": [
+          {
+            "chapter": {
+              "book": 44,
+              "number": 7
+            },
+            "range": {
+              "verse_start": 35,
+              "word_start": 18,
+              "verse_end": 35,
+              "word_end": 21
+            }
+          },
+          {
+            "chapter": {
+              "book": 18,
+              "number": 43
+            },
+            "range": {
+              "verse_start": 21,
+              "word_start": 15,
+              "verse_end": 21,
+              "word_end": 18
+            }
+          }
+        ]
+      },
+      "019e1a42-de21-4a67-9c13-2cde75ac76a7": {
+        "id": "019e1a42-de21-4a67-9c13-2cde75ac76a7",
+        "text": "",
+        "locations": [
+          {
+            "chapter": {
+              "book": 18,
+              "number": 21
+            },
+            "range": {
+              "verse_start": 0,
+              "word_start": 2,
+              "verse_end": 0,
+              "word_end": 2
+            }
+          }
+        ]
+      },
+      "5cfaf2e3-7239-43a3-9676-55bd934d43b9": {
+        "id": "5cfaf2e3-7239-43a3-9676-55bd934d43b9",
+        "text": "God already knows that who will be in the kingdom, but as WE don't know, it is still free will for us. God also knew that Christ would exist even before creation (See Col 1:16)",
+        "locations": [
+          {
+            "chapter": {
+              "book": 44,
+              "number": 7
+            },
+            "range": {
+              "verse_start": 28,
+              "word_start": 8,
+              "verse_end": 28,
+              "word_end": 8
+            }
+          },
+          {
+            "chapter": {
+              "book": 44,
+              "number": 7
+            },
+            "range": {
+              "verse_start": 29,
+              "word_start": 4,
+              "verse_end": 29,
+              "word_end": 4
+            }
+          },
+          {
+            "chapter": {
+              "book": 59,
+              "number": 0
+            },
+            "range": {
+              "verse_start": 1,
+              "word_start": 4,
+              "verse_end": 1,
+              "word_end": 4
+            }
+          }
+        ]
+      }
+    },
+    "favorite_verses": [],
+    "section_headings": [],
+    "annotations": [
+      [
+        {
+          "book": 0,
+          "number": 0
+        },
+        {
+          "68": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "1": {
+            "highlights": [],
+            "notes": [
+              "d29a292b-af79-44c4-8231-3bf2869030de"
+            ]
+          },
+          "0": {
+            "highlights": [],
+            "notes": [
+              "d29a292b-af79-44c4-8231-3bf2869030de"
+            ]
+          },
+          "51": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "40": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "2": {
+            "highlights": [],
+            "notes": [
+              "d29a292b-af79-44c4-8231-3bf2869030de"
+            ]
+          },
+          "61": {
+            "highlights": [],
+            "notes": []
+          },
+          "3": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          }
+        }
+      ],
+      [
+        {
+          "book": 19,
+          "number": 22
+        },
+        {
+          "190": {
+            "highlights": [],
+            "notes": [
+              "41bd5da2-c90c-4432-9f7d-e68acce7abae"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 0,
+          "number": 1
+        },
+        {
+          "561": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          },
+          "562": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          },
+          "161": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          },
+          "557": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          },
+          "559": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          },
+          "560": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          },
+          "558": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          },
+          "160": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 18,
+          "number": 43
+        },
+        {
+          "407": {
+            "highlights": [],
+            "notes": [
+              "fd56bee5-b42f-4601-ba2d-25d004934aa9"
+            ]
+          },
+          "409": {
+            "highlights": [],
+            "notes": [
+              "fd56bee5-b42f-4601-ba2d-25d004934aa9"
+            ]
+          },
+          "408": {
+            "highlights": [],
+            "notes": [
+              "fd56bee5-b42f-4601-ba2d-25d004934aa9"
+            ]
+          },
+          "406": {
+            "highlights": [],
+            "notes": [
+              "fd56bee5-b42f-4601-ba2d-25d004934aa9"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 50,
+          "number": 0
+        },
+        {
+          "347": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "343": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "344": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "342": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "345": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "346": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 18,
+          "number": 37
+        },
+        {
+          "7": {
+            "highlights": [],
+            "notes": []
+          }
+        }
+      ],
+      [
+        {
+          "book": 19,
+          "number": 5
+        },
+        {
+          "228": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "5": {
+            "highlights": [],
+            "notes": [
+              "617d52fa-8ae3-4e7c-bf4c-e824493a2ce2"
+            ]
+          },
+          "6": {
+            "highlights": [],
+            "notes": [
+              "617d52fa-8ae3-4e7c-bf4c-e824493a2ce2"
+            ]
+          },
+          "7": {
+            "highlights": [],
+            "notes": [
+              "617d52fa-8ae3-4e7c-bf4c-e824493a2ce2"
+            ]
+          },
+          "8": {
+            "highlights": [],
+            "notes": [
+              "617d52fa-8ae3-4e7c-bf4c-e824493a2ce2"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 42,
+          "number": 0
+        },
+        {
+          "26": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "30": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "28": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "27": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "29": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "25": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 48,
+          "number": 2
+        },
+        {
+          "193": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "190": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "194": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "191": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "189": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          },
+          "192": {
+            "highlights": [],
+            "notes": [
+              "4a0c5a86-e017-4fdf-a8c5-9943c7e223d4"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 39,
+          "number": 12
+        },
+        {
+          "829": {
+            "highlights": [],
+            "notes": [
+              "0f4d9dab-7673-4f03-837e-c8a6a114750a"
+            ]
+          },
+          "830": {
+            "highlights": [],
+            "notes": [
+              "0f4d9dab-7673-4f03-837e-c8a6a114750a"
+            ]
+          },
+          "832": {
+            "highlights": [],
+            "notes": [
+              "0f4d9dab-7673-4f03-837e-c8a6a114750a"
+            ]
+          },
+          "831": {
+            "highlights": [],
+            "notes": [
+              "0f4d9dab-7673-4f03-837e-c8a6a114750a"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 15,
+          "number": 6
+        },
+        {
+          "216": {
+            "highlights": [],
+            "notes": []
+          },
+          "215": {
+            "highlights": [],
+            "notes": []
+          },
+          "217": {
+            "highlights": [],
+            "notes": []
+          },
+          "218": {
+            "highlights": [],
+            "notes": []
+          }
+        }
+      ],
+      [
+        {
+          "book": 53,
+          "number": 1
+        },
+        {
+          "208": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          },
+          "214": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          },
+          "209": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          },
+          "212": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          },
+          "211": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          },
+          "213": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          },
+          "210": {
+            "highlights": [],
+            "notes": [
+              "70943c78-cb1d-4205-b6f6-92a665cd4962"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 39,
+          "number": 7
+        },
+        {
+          "369": {
+            "highlights": [],
+            "notes": [
+              "db5c0cf9-e7d5-453e-954b-1f12e6c22563"
+            ]
+          },
+          "370": {
+            "highlights": [],
+            "notes": [
+              "db5c0cf9-e7d5-453e-954b-1f12e6c22563"
+            ]
+          },
+          "371": {
+            "highlights": [],
+            "notes": [
+              "db5c0cf9-e7d5-453e-954b-1f12e6c22563"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 43,
+          "number": 16
+        },
+        {
+          "8": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "255": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "470": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "426": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "6": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "12": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "430": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "300": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          }
+        }
+      ],
+      [
+        {
+          "book": 59,
+          "number": 0
+        },
+        {
+          "21": {
+            "highlights": [],
+            "notes": [
+              "5cfaf2e3-7239-43a3-9676-55bd934d43b9"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 43,
+          "number": 17
+        },
+        {
+          "6": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "31": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "20": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "28": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "17": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "82": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "24": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "88": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "84": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          }
+        }
+      ],
+      [
+        {
+          "book": 14,
+          "number": 1
+        },
+        {
+          "0": {
+            "highlights": [],
+            "notes": []
+          },
+          "1": {
+            "highlights": [],
+            "notes": []
+          },
+          "3": {
+            "highlights": [],
+            "notes": []
+          },
+          "2": {
+            "highlights": [],
+            "notes": []
+          }
+        }
+      ],
+      [
+        {
+          "book": 53,
+          "number": 0
+        },
+        {
+          "63": {
+            "highlights": [],
+            "notes": [
+              "9950406f-9575-4e07-91f8-4555dac3c2ad"
+            ]
+          },
+          "64": {
+            "highlights": [],
+            "notes": [
+              "9950406f-9575-4e07-91f8-4555dac3c2ad"
+            ]
+          },
+          "65": {
+            "highlights": [],
+            "notes": [
+              "9950406f-9575-4e07-91f8-4555dac3c2ad"
+            ]
+          },
+          "66": {
+            "highlights": [],
+            "notes": [
+              "9950406f-9575-4e07-91f8-4555dac3c2ad"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 18,
+          "number": 33
+        },
+        {
+          "8": {
+            "highlights": [],
+            "notes": []
+          }
+        }
+      ],
+      [
+        {
+          "book": 53,
+          "number": 2
+        },
+        {
+          "98": {
+            "highlights": [],
+            "notes": [
+              "33f0d4f2-97c6-43b5-8151-02d11c8aefc5"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 23,
+          "number": 0
+        },
+        {
+          "0": {
+            "highlights": [],
+            "notes": []
+          }
+        }
+      ],
+      [
+        {
+          "book": 0,
+          "number": 8
+        },
+        {
+          "405": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "516": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "474": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "419": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "1": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "3": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "530": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "604": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "566": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "608": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "627": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "532": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "648": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "512": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "613": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "181": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "484": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "606": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "278": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "448": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "633": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "422": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          }
+        }
+      ],
+      [
+        {
+          "book": 2,
+          "number": 13
+        },
+        {
+          "372": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "5": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": [
+              "1f4b97a1-5433-4206-8938-c449ba02a196"
+            ]
+          },
+          "1079": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "769": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "1076": {
+            "highlights": [
+              "dc453176-9814-4ab1-87a9-6c499a5b738c"
+            ],
+            "notes": []
+          },
+          "607": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "798": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "516": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "1073": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "2": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "983": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          },
+          "1044": {
+            "highlights": [
+              "242eaf2c-2387-4e79-918f-4b42d3415b9f"
+            ],
+            "notes": []
+          }
+        }
+      ],
+      [
+        {
+          "book": 44,
+          "number": 3
+        },
+        {
+          "0": {
+            "highlights": [],
+            "notes": [
+              "d29a292b-af79-44c4-8231-3bf2869030de"
+            ]
+          },
+          "2": {
+            "highlights": [],
+            "notes": [
+              "d29a292b-af79-44c4-8231-3bf2869030de"
+            ]
+          },
+          "1": {
+            "highlights": [],
+            "notes": [
+              "d29a292b-af79-44c4-8231-3bf2869030de"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 57,
+          "number": 9
+        },
+        {
+          "311": {
+            "highlights": [],
+            "notes": []
+          },
+          "147": {
+            "highlights": [],
+            "notes": []
+          },
+          "255": {
+            "highlights": [],
+            "notes": []
+          }
+        }
+      ],
+      [
+        {
+          "book": 18,
+          "number": 21
+        },
+        {
+          "0": {
+            "highlights": [],
+            "notes": [
+              "019e1a42-de21-4a67-9c13-2cde75ac76a7"
+            ]
+          }
+        }
+      ],
+      [
+        {
+          "book": 44,
+          "number": 7
+        },
+        {
+          "837": {
+            "highlights": [],
+            "notes": [
+              "fd56bee5-b42f-4601-ba2d-25d004934aa9"
+            ]
+          },
+          "839": {
+            "highlights": [],
+            "notes": [
+              "fd56bee5-b42f-4601-ba2d-25d004934aa9"
+            ]
+          },
+          "660": {
+            "highlights": [],
+            "notes": [
+              "5cfaf2e3-7239-43a3-9676-55bd934d43b9"
+            ]
+          },
+          "838": {
+            "highlights": [],
+            "notes": [
+              "fd56bee5-b42f-4601-ba2d-25d004934aa9"
+            ]
+          },
+          "683": {
+            "highlights": [],
+            "notes": [
+              "5cfaf2e3-7239-43a3-9676-55bd934d43b9"
+            ]
+          },
+          "836": {
+            "highlights": [],
+            "notes": [
+              "fd56bee5-b42f-4601-ba2d-25d004934aa9"
+            ]
+          }
+        }
+      ]
+    ]
+  },
+  "save_version": "3",
+  "view_state_index": 39,
+  "view_states": [
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 30
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 31
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 30
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 0,
+        "number": 27
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 0,
+        "number": 28
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 0,
+        "number": 27
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 0,
+        "number": 28
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 0,
+        "number": 27
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 32
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 31
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 32
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 31
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 32
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 31
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 32
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 39,
+        "number": 15
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 39,
+        "number": 16
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 39,
+        "number": 17
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "search",
+      "words": [
+        "those",
+        "who",
+        "fear",
+        "him"
+      ],
+      "display_index": 0,
+      "scroll": 0.0
+    },
+    {
+      "type": "search",
+      "words": [
+        "encamp"
+      ],
+      "display_index": 0,
+      "scroll": 0.0
+    },
+    {
+      "type": "search",
+      "words": [
+        "encamp",
+        "arround"
+      ],
+      "display_index": 0,
+      "scroll": 0.0
+    },
+    {
+      "type": "search",
+      "words": [
+        "encamp",
+        "around"
+      ],
+      "display_index": 0,
+      "scroll": 0.0
+    },
+    {
+      "type": "search",
+      "words": [
+        "encamp",
+        "angels"
+      ],
+      "display_index": 0,
+      "scroll": 0.0
+    },
+    {
+      "type": "search",
+      "words": [
+        "encamp"
+      ],
+      "display_index": 0,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 33
+      },
+      "verse_range": {
+        "start": 6,
+        "end": 6
+      },
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 34
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 33
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 34
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 33
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 34
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 35
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 36
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 37
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 33
+      },
+      "verse_range": {
+        "start": 0,
+        "end": 0
+      },
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 37
+      },
+      "verse_range": {
+        "start": 0,
+        "end": 0
+      },
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 33
+      },
+      "verse_range": {
+        "start": 0,
+        "end": 0
+      },
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 37
+      },
+      "verse_range": {
+        "start": 0,
+        "end": 0
+      },
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 0,
+        "number": 15
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 0,
+        "number": 29
+      },
+      "verse_range": null,
+      "scroll": 0.0
+    },
+    {
+      "type": "chapter",
+      "chapter": {
+        "book": 18,
+        "number": 33
+      },
+      "verse_range": {
+        "start": 5,
+        "end": 5
+      },
+      "scroll": 0.0
+    }
+  ],
+  "editing_note": null,
+  "settings": {
+    "volume": 0.0,
+    "ui_scale": 1.3055,
+    "font": null
+  },
+  "selected_reading": 0
+}

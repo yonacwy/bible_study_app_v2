@@ -22,26 +22,12 @@ use commands::*;
 use readings::ReadingsDatabase;
 use tauri::{path::BaseDirectory, Manager};
 
-const BIBLE_PATH: &str = debug_release_val! { 
-    debug: "resources/bibles/small_kjv.txt",
-    release: "resources/bibles/kjv.txt",
-};
-
 fn main() 
 {
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
-            let resource_path = app
-                .path()
-                .resolve(BIBLE_PATH, BaseDirectory::Resource)
-                .expect("Failed to retrieve `kjv.txt` resource");
-
-            let mut file = std::fs::File::open(&resource_path).unwrap();
-
-            let mut text = String::new();
-            file.read_to_string(&mut text).unwrap();
-            AppData::init(&text, app.path());
+            AppData::init(app.path());
 
             app.manage(AudioPlayer::new(app.path(), audio::DEFAULT_SOURCES));
             app.manage(ReadingsDatabase::new(app.path()));
@@ -94,6 +80,9 @@ fn main()
             set_selected_reading,
             open_file_explorer,
             open_save_in_file_explorer,
+            get_current_bible_version,
+            set_current_bible_version,
+            get_bible_versions,
         ])
         .run(tauri::generate_context!()) 
         .expect("error while running tauri application");
