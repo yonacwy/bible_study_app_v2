@@ -6,10 +6,15 @@
 
 ### Version 0.5.0: Multiple Bible Support
 - [ ] Multiple Bible Support
-  - [ ] A notebook for each bible (for now)
-  - [ ] Can swap between bibles
-  - [ ] Can search in different bibles
+  - [x] A notebook for each bible (for now)
+  - [x] Can swap between bibles
+  - [x] Can search in different bibles
+  - [ ] Conserve scroll when swapping
 - [ ] Readings work with the different bibles (select which one)
+- [ ] Splash Screen (to hide loading)
+- [ ] Bugfixes
+  - [ ] Volume slider works properly again
+  - [ ] Fixed crash with 
 
 ### Version 0.4.5: Adding Reading Plans
 - [x] Adding built in reading plans

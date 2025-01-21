@@ -1,0 +1,81 @@
+@import "./shared/defs.less";
+
+body
+{
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #1a1a1a;
+    overflow: hidden;
+
+    .splash-screen
+    {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+
+        img 
+        {
+            animation: fadeIn 2s ease;
+        }
+
+        .loading-bar
+        {
+            position: relative;
+            width: 500px;
+            height: 10px;
+            background-color: #444;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 20px;
+
+            .progress
+            {
+                height: 100%;
+                width: 0;
+                background-color: #5bc0de;
+                transition: width 0.2s ease;
+            }
+        }
+
+        .status-text 
+        {
+            margin-top: 10px;
+            color: #ccc;
+        }
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #ccc;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+  
+    @keyframes spin {
+        0% 
+        {
+            transform: rotate(0deg);
+        }
+        100% 
+        {
+            transform: rotate(360deg);
+        }
+    }
+}
+
+@keyframes fadeIn 
+{
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}

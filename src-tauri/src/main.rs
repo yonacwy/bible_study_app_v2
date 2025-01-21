@@ -1,8 +1,5 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
-use std::io::Read;
-
 use app_state::AppData;
 
 pub mod app_state;
@@ -20,7 +17,7 @@ pub mod readings;
 use audio::AudioPlayer;
 use commands::*;
 use readings::ReadingsDatabase;
-use tauri::{path::BaseDirectory, Manager};
+use tauri::Manager;
 
 fn main() 
 {

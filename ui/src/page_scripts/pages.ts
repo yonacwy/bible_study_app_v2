@@ -211,7 +211,7 @@ export async function init_bible_version_dropdown()
     title.innerHTML = selected_version;
 
     content.replaceChildren();
-    versions.forEach(v => {
+    versions.sort().forEach(v => {
         content.appendElementEx('div', ['dropdown-option'], option => {
             if (v === selected_version) 
             {
