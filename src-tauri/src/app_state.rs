@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{cell::RefCell, collections::HashMap, io::Read, sync::Mutex};
+use std::{cell::RefCell, collections::HashMap, io::Read, path::{Path, PathBuf}, sync::Mutex, thread::spawn};
 use tauri::{
     path::{BaseDirectory, PathResolver},
     Runtime,
@@ -69,7 +69,7 @@ struct AppSave {
 }
 
 impl AppData {
-    pub fn init<R>(resolver: &PathResolver<R>)
+    pub fn init<R>(resolver: &PathResolver<R>, )
     where
         R: Runtime,
     {
@@ -79,7 +79,10 @@ impl AppData {
             .and_then(|path| std::fs::read(path).ok())
             .and_then(|data| String::from_utf8(data).ok());
 
-        let bibles = Self::load_bibles(resolver);
+        let bible_paths = Self::get_bible_paths(resolver);
+
+        
+        let bibles = Self::load_bibles(&bible_paths);
 
         let (mut save, was_migrated, no_save) = match file {
             Some(file) => {
@@ -320,14 +323,18 @@ impl AppData {
         old
     }
 
-    fn load_bibles<R>(path_resolver: &PathResolver<R>) -> HashMap<String, Bible>
-        where R : Runtime,
+    fn get_bible_paths<R>(path_resolver: &PathResolver<R>) -> Vec<PathBuf>
+        where R : Runtime
     {
         BIBLE_PATHS.iter().map(|relative_path| {
-            let path = path_resolver
-                .resolve(relative_path, BaseDirectory::Resource)
-                .expect("Failed to retrieve `kjv.txt` resource");
+            path_resolver.resolve(relative_path, BaseDirectory::Resource)
+                .expect(&format!("Failed to resolve path `{}`", relative_path))
+        }).collect()
+    }
 
+    fn load_bibles(paths: &Vec<PathBuf>) -> HashMap<String, Bible>
+    {
+        paths.iter().map(|path| {
             let mut file = std::fs::File::open(&path).unwrap();
 
             let mut text = String::new();
