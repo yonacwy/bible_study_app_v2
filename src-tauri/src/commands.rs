@@ -8,6 +8,12 @@ use crate::{
 };
 
 #[tauri::command(rename_all = "snake_case")]
+pub fn is_initialized() -> bool
+{
+    AppData::is_initialized()
+}
+
+#[tauri::command(rename_all = "snake_case")]
 pub fn debug_print(message: &str) {
     println!("Debug from JS: `{}`", message);
 }

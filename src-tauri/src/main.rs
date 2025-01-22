@@ -80,6 +80,7 @@ fn main()
             get_current_bible_version,
             set_current_bible_version,
             get_bible_versions,
+            is_initialized,
         ])
         .run(tauri::generate_context!()) 
         .expect("error while running tauri application");

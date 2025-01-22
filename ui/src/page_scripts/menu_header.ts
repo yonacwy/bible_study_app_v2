@@ -6,16 +6,7 @@ export function get_header(): HTMLElement
 export function init_main_page_header()
 {
     get_header().innerHTML = `
-        <div class="text-dropdown" id="bible-version-dropdown">
-            <div class="dropdown-title">KJV</div>
-            <div class="dropdown-content">
-                <div class="dropdown-option">KJV</div>
-                <div class="dropdown-option">ASV</div>
-                <div class="dropdown-option">BBE</div>
-                <div class="dropdown-option">YLT</div>
-                <div class="dropdown-option">SpaRV</div>
-            </div>
-        </div>
+        ${BIBLE_VERSION_DROPDOWN}
         <div class="dropdown">
             <button class="image-btn" title="Bible chapter selection">
                 <img src="../images/light-books.svg">
@@ -61,6 +52,13 @@ export function init_settings_page_header(middle: () => string)
         ${SETTINGS_DROPDOWN}
     `;
 }
+
+export const BIBLE_VERSION_DROPDOWN: string = `
+<div class="text-dropdown" id="bible-version-dropdown">
+    <div class="dropdown-title">KJV</div>
+    <div class="dropdown-content"></div>
+</div>
+`
 
 export const SETTINGS_DROPDOWN: string = `
 <div class="dropdown shift-right">

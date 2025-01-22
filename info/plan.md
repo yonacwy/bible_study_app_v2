@@ -10,11 +10,11 @@
   - [x] Can swap between bibles
   - [x] Can search in different bibles
   - [ ] Conserve scroll when swapping
-- [ ] Readings work with the different bibles (select which one)
-- [ ] Splash Screen (to hide loading)
-- [ ] Bugfixes
-  - [ ] Volume slider works properly again
-  - [ ] Fixed crash with 
+- [x] Readings work with the different bibles (select which one)
+- [x] Splash Screen (to hide loading)
+- [x] Bugfixes
+  - [x] Volume slider works properly again
+  - [x] Fixed crash with going past last chapter
 
 ### Version 0.4.5: Adding Reading Plans
 - [x] Adding built in reading plans

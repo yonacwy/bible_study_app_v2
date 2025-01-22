@@ -38,6 +38,11 @@ export function overlap<T>(a: T[], b: T[]): T[]
     return a.filter(i => b.includes(i))
 }
 
+export async function is_app_initialized(): Promise<boolean>
+{
+    return await invoke('is_initialized', {});
+}
+
 export function reset_scroll()
 {
     window.scrollTo(0, 0);

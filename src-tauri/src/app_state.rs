@@ -69,19 +69,27 @@ struct AppSave {
 }
 
 impl AppData {
-    pub fn init<R>(resolver: &PathResolver<R>, )
+    pub fn init<R>(resolver: &PathResolver<R>)
     where
-        R: Runtime,
+        R : Runtime,
     {
-        let file = resolver
+        let save_path = resolver
             .resolve(SAVE_NAME, BaseDirectory::Resource)
-            .ok()
-            .and_then(|path| std::fs::read(path).ok())
-            .and_then(|data| String::from_utf8(data).ok());
+            .ok();
 
         let bible_paths = Self::get_bible_paths(resolver);
 
-        
+        spawn(|| {
+            Self::init_internal(save_path, bible_paths);
+        });
+    }
+
+    fn init_internal(save_path: Option<PathBuf>, bible_paths: Vec<PathBuf>)
+    {
+        let file = save_path
+            .and_then(|path| std::fs::read(path).ok())
+            .and_then(|data| String::from_utf8(data).ok());
+
         let bibles = Self::load_bibles(&bible_paths);
 
         let (mut save, was_migrated, no_save) = match file {
@@ -158,6 +166,14 @@ impl AppData {
                 settings: Mutex::new(RefCell::new(save.settings)),
                 selected_reading: Mutex::new(RefCell::new(save.selected_reading)),
             })
+        }
+    }
+
+    pub fn is_initialized() -> bool
+    {
+        unsafe 
+        {
+            DATA.is_some()
         }
     }
 

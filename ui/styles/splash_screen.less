@@ -20,29 +20,11 @@ body
         justify-content: center;
         text-align: center;
         color: white;
+        gap: 20px;
 
         img 
         {
-            animation: fadeIn 2s ease;
-        }
-
-        .loading-bar
-        {
-            position: relative;
-            width: 500px;
-            height: 10px;
-            background-color: #444;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 20px;
-
-            .progress
-            {
-                height: 100%;
-                width: 0;
-                background-color: #5bc0de;
-                transition: width 0.2s ease;
-            }
+            animation: fade-in 2s ease;
         }
 
         .status-text 
@@ -50,16 +32,20 @@ body
             margin-top: 10px;
             color: #ccc;
         }
-    }
 
-    .spinner {
-        width: 50px;
-        height: 50px;
-        border: 5px solid #ccc;
-        border-top: 5px solid #3498db;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto;
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #ccc;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .text {
+            font-size: 20px;
+        }
     }
   
     @keyframes spin {
@@ -74,8 +60,7 @@ body
     }
 }
 
-@keyframes fadeIn 
-{
+@keyframes fade-in {
     0% { opacity: 0; }
     100% { opacity: 1; }
 }
