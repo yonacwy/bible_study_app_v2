@@ -11,7 +11,7 @@ export function run()
     utils.init_format_copy_event_listener();
 
     Promise.all([
-        pages.init_header(),
+        pages.init_header('word-search-content'),
         display_search(section),
         pages.init_context_menu('word-search-content'),
     ]).then(() => {

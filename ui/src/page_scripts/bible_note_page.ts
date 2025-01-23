@@ -17,7 +17,7 @@ export function run()
     };
 
     Promise.all([
-        pages.init_header(),
+        pages.init_header('chapter-content'),
         init_note_page(data.note, () => {
             utils.conserve_scroll(() => {
                 return bible_page.display_chapter(chapter, data.section.verse_range);

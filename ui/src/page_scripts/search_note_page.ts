@@ -12,7 +12,7 @@ export function run()
     utils.init_format_copy_event_listener();
 
     Promise.all([
-        pages.init_header(),
+        pages.init_header('word-search-content'),
         search_page.display_search(data.section),
         init_note_page(data.note, () => {
             utils.conserve_scroll(() => {

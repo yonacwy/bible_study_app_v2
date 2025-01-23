@@ -22,7 +22,7 @@ export async function run()
     utils.init_format_copy_event_listener();
 
     Promise.all([
-        pages.init_header(),
+        pages.init_header('window'),
         pages.init_context_menu('chapter-content'),
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range),

@@ -25,7 +25,7 @@ export const HIGHLIGHT_EDITOR_BUTTON_ID: string = "highlight-settings";
 
 const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 
-export async function init_header(): Promise<void>
+export async function init_header(bible_content_id: string): Promise<void>
 {
     init_main_page_header();
     highlight_utils.SELECTED_HIGHLIGHT.add_listener(on_highlight_changed);
@@ -48,9 +48,10 @@ export async function init_header(): Promise<void>
         utils.display_no_save_popup(),
         init_new_note_button(),
         settings.init_less_sync(),
-        init_bible_version_dropdown(),
+        init_bible_version_dropdown(bible_content_id),
     ]).then(_ => {
         init_settings_buttons(window.location.href);
+        utils.scrolling.load_scroll();
     });
 }
 
@@ -197,7 +198,7 @@ export async function init_chapter_selection_dropdown()
     });
 }
 
-export async function init_bible_version_dropdown()
+export async function init_bible_version_dropdown(bible_content_id: string | null)
 {
     let dropdown = document.getElementById('bible-version-dropdown');
     let title = dropdown?.getElementsByClassName('dropdown-title')[0];
@@ -221,6 +222,10 @@ export async function init_bible_version_dropdown()
             option.innerHTML = v;
 
             option.addEventListener('click', e => {
+                if (bible_content_id)
+                {
+                    utils.scrolling.save_scroll(bible_content_id);
+                }
                 bible.set_bible_version(v);
             })
         })

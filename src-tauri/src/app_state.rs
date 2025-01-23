@@ -225,8 +225,12 @@ impl AppData {
         (serde_json::from_str(&migrated_json).unwrap(), was_migrated)
     }
 
-    pub fn get() -> &'static Self {
-        unsafe { DATA.as_ref().unwrap() }
+    pub fn get() -> &'static Self 
+    {
+        unsafe 
+        { 
+            DATA.as_ref().unwrap() 
+        }
     }
 
     pub fn get_view_state_index(&self) -> usize {
