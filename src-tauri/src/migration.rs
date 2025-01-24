@@ -1,10 +1,12 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::settings::Settings;
+use crate::{app_state::DEFAULT_BIBLE, settings::Settings};
 
 const SAVE_FIELD_NAME: &str = "save_version";
-pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV3;
+pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV4;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SaveVersion {
@@ -16,6 +18,8 @@ pub enum SaveVersion {
     SV2,
     #[serde(rename = "3")]
     SV3,
+    #[serde(rename = "4")]
+    SV4,
 }
 
 impl SaveVersion {
@@ -54,6 +58,7 @@ pub fn migrate_save_latest(data: &str) -> MigrationResult {
     migrate_sv0(version, &mut json);
     migrate_sv1(&mut json);
     migrate_sv2(&mut json);
+    migrate_sv3(&mut json);
 
     if CURRENT_SAVE_VERSION != version {
         MigrationResult::Different {
@@ -127,4 +132,39 @@ fn migrate_sv2(json: &mut Value)
     let json_obj = json.as_object_mut().unwrap();
     json_obj.insert(SAVE_FIELD_NAME.into(), serde_json::to_value(SaveVersion::SV3).unwrap());
     json_obj.insert(SELECTED_READING_NAME.into(), serde_json::to_value(0u32).unwrap());
+}
+
+fn migrate_sv3(json: &mut Value)
+{
+    if !check_save_field(json, SaveVersion::SV3) { return; }
+
+    let json = json.as_object_mut().unwrap();
+
+    // Loading the notebooks
+    {
+        const NOTEBOOK_FIELD_NAME: &str = "notebook";
+        const NOTEBOOKS_FIELD_NAME: &str = "notebooks";
+        let notebook = json.remove(NOTEBOOK_FIELD_NAME).unwrap();
+        
+        let mut notebooks = HashMap::new();
+        notebooks.insert(DEFAULT_BIBLE.to_owned(), notebook);
+        let notebooks = serde_json::to_value(notebooks).unwrap();
+
+        json.insert(NOTEBOOKS_FIELD_NAME.to_owned(), notebooks);
+    }
+
+    {
+        // sets the current bible version
+        const CURRENT_BIBLE_VERSION_FIELD: &str = "current_bible_version";
+        json.insert(CURRENT_BIBLE_VERSION_FIELD.to_owned(), Value::String(DEFAULT_BIBLE.to_owned()));
+    }
+
+    json.insert(SAVE_FIELD_NAME.to_owned(), serde_json::to_value(SaveVersion::SV4).unwrap());
+}
+
+fn check_save_field(json: &mut Value, expected: SaveVersion) -> bool
+{
+    json.get(SAVE_FIELD_NAME)
+       .and_then(|v| serde_json::from_value(v.clone()).ok())
+       .is_some_and(|v: SaveVersion| v == expected)
 }

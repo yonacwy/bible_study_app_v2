@@ -12,7 +12,7 @@ export function run()
     utils.init_format_copy_event_listener();
 
     Promise.all([
-        pages.init_header('word-search-content'),
+        pages.init_header(),
         search_page.display_search(data.section),
         init_note_page(data.note, () => {
             utils.conserve_scroll(() => {
@@ -22,5 +22,6 @@ export function run()
         pages.init_context_menu('left-pane'),
     ]).then(() => {
         document.body.style.visibility = 'visible';
+        utils.scrolling.load_scroll();
     })
 }

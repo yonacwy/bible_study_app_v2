@@ -12,6 +12,7 @@ import * as word_select from "../word_select.js";
 import { init_main_page_header } from "./menu_header.js";
 import * as settings from '../settings.js';
 import * as bible from '../bible.js';
+import { get_editing_note } from "../notes.js";
 
 export const SEARCH_INPUT_ID: string = "search-input";
 export const SEARCH_BUTTON_ID: string = "search-btn";
@@ -25,7 +26,7 @@ export const HIGHLIGHT_EDITOR_BUTTON_ID: string = "highlight-settings";
 
 const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 
-export async function init_header(bible_content_id: string): Promise<void>
+export async function init_header(): Promise<void>
 {
     init_main_page_header();
     highlight_utils.SELECTED_HIGHLIGHT.add_listener(on_highlight_changed);
@@ -35,6 +36,12 @@ export async function init_header(bible_content_id: string): Promise<void>
     {
         init_word_popup(word_popup);
     }
+
+    // Used so that it reloads the page when the bible version is changed
+    bible.add_version_changed_listener(async _ => {
+        // Cant do location.reload(), because if we are editing the note, the editing note is set to null, and we need to account for that
+        view_states.goto_current_view_state();
+    });
 
     await Promise.all([
         init_nav_buttons(),
@@ -48,10 +55,9 @@ export async function init_header(bible_content_id: string): Promise<void>
         utils.display_no_save_popup(),
         init_new_note_button(),
         settings.init_less_sync(),
-        init_bible_version_dropdown(bible_content_id),
+        init_bible_version_dropdown(),
     ]).then(_ => {
         init_settings_buttons(window.location.href);
-        utils.scrolling.load_scroll();
     });
 }
 
@@ -198,7 +204,7 @@ export async function init_chapter_selection_dropdown()
     });
 }
 
-export async function init_bible_version_dropdown(bible_content_id: string | null)
+export async function init_bible_version_dropdown(on_version_changed?: () => void)
 {
     let dropdown = document.getElementById('bible-version-dropdown');
     let title = dropdown?.getElementsByClassName('dropdown-title')[0];
@@ -222,10 +228,6 @@ export async function init_bible_version_dropdown(bible_content_id: string | nul
             option.innerHTML = v;
 
             option.addEventListener('click', e => {
-                if (bible_content_id)
-                {
-                    utils.scrolling.save_scroll(bible_content_id);
-                }
                 bible.set_bible_version(v);
             })
         })

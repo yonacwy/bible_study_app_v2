@@ -272,8 +272,15 @@ impl AppData {
     {
         if self.get_bibles().find(|v| **v == version).is_some()
         {
-            let mut binding = self.current_bible_version.lock().unwrap();
-            *binding.get_mut() = version;
+            let mut version_binding = self.current_bible_version.lock().unwrap();
+
+            let current_version = version_binding.get_mut();
+            // if switching to the same version, don't need to do anything
+            if *current_version == version { return; }
+            *current_version = version;
+
+            let mut note_binding = self.editing_note.lock().unwrap();
+            *note_binding.get_mut() = None; 
         }
     }
 

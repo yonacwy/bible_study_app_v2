@@ -21,14 +21,18 @@ export async function run()
     let data = utils.decode_from_url(window.location.href) as BibleSection;
     utils.init_format_copy_event_listener();
 
+    bible.add_version_changed_listener(_ => {
+        utils.scrolling.save_scroll(null);
+    })
+
     Promise.all([
-        pages.init_header('window'),
+        pages.init_header(),
         pages.init_context_menu('chapter-content'),
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range),
-        
     ]).then(_ => {
         document.body.style.visibility = 'visible';
+        utils.scrolling.load_scroll();
     });
 }
 
@@ -64,7 +68,7 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
         document.getElementById('search-btn')?.click();
     }
 
-    return bible_renderer.render_chapter(chapter, content, word_popup, panel_data, word_select.update_words_for_selection, on_search).then(() => {
+    return await bible_renderer.render_chapter(chapter, content, word_popup, panel_data, word_select.update_words_for_selection, on_search).then(() => {
         if(verse_range !== null)
         {
             let start = verse_range.start;

@@ -17,7 +17,7 @@ export function run()
     pages.init_back_button(data.old_path);
     pages.init_settings_buttons(data.old_path);
     settings.init_less_sync();
-    pages.init_bible_version_dropdown(null);
+    pages.init_bible_version_dropdown();
 
     generate_calender();
 

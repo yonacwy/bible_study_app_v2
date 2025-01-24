@@ -1,6 +1,7 @@
 import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils/index.js";
 import { push_section, get_current_view_state } from "./view_states.js";
 import { BookView, ChapterIndex, ChapterView } from "./bindings.js";
+import { EventListeners, Listener } from "./utils/events.js";
 
 export async function load_view(): Promise<BookView[]>
 {
@@ -99,11 +100,18 @@ export async function get_current_bible_version(): Promise<string>
     return await invoke('get_current_bible_version', {});
 }
 
-// This function both sets the current bible version, AND reloads the frontend
+
+const BIBLE_VERSION_CHANGE_EVENT_LISTENERS: EventListeners<string> = new EventListeners<string>();
+
+export function add_version_changed_listener(listener: Listener<string>)
+{
+    BIBLE_VERSION_CHANGE_EVENT_LISTENERS.add_listener(listener);
+}
+
 export function set_bible_version(version: string)
 {
     invoke('set_current_bible_version', { version: version }).then(_ => {
-        location.reload();
+        BIBLE_VERSION_CHANGE_EVENT_LISTENERS.invoke(version);
     });
 }
 

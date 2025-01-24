@@ -13,27 +13,28 @@ export function save_scroll(id: string | null)
     let scroll = window.scrollY;
     if(id !== null)
     {
-        document.getElementById(id)?.scrollTop;
+        let element_scroll = document.getElementById(id)?.scrollTop;
+        if(element_scroll !== undefined)
+        {
+            scroll = element_scroll;
+        }
     }
 
-    if(scroll)
-    {
-        STORED_SCROLL.set({
-            id,
-            scroll
-        });
-    }
+    STORED_SCROLL.set({
+        id,
+        scroll
+    });
 }
 
 export function load_scroll()
 {
     let stored = STORED_SCROLL.get();
-    debug_print(`stored scroll: ${JSON.stringify(stored)}`);
+    STORED_SCROLL.set(null);
     if(stored)
     {
         if (stored.id === null)
         {
-            window.scrollY = stored.scroll;
+            window.scrollTo(0, stored.scroll);
             return;
         }
         
