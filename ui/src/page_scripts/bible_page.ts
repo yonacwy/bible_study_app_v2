@@ -6,6 +6,7 @@ import * as pages from "./pages.js";
 import * as view_states from "../view_states.js";
 import * as side_popup from "../popups/side_popup.js";
 import * as word_select from "../word_select.js";
+import { range_inclusive } from "../utils/ranges.js";
 
 const CONTENT_ID: string = "chapter-text-content";
 const CHAPTER_NAME_ID: string = "chapter-name"
@@ -57,7 +58,20 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
     let name = chapter_view[chapter.book].name;
     let number = chapter.number + 1;
     
-    utils.set_value(pages.SEARCH_INPUT_ID, `${name} ${number}`);
+    let input_value = `${name} ${number}`;
+    if (verse_range !== null)
+    {
+        if (verse_range.start === verse_range.end)
+        {
+            input_value += `:${verse_range.start + 1}`; // need to do index conversion
+        }
+        else 
+        {
+            input_value += `:${verse_range.start + 1}-${verse_range.end + 1}`; // need to do index conversion
+        }
+    }
+
+    utils.set_value(pages.SEARCH_INPUT_ID, input_value);
     utils.set_html(CHAPTER_NAME_ID, `${name} ${number}`);
 
     let on_search = (msg: string): void => {
@@ -69,11 +83,33 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
         if(verse_range !== null)
         {
             let start = verse_range.start;
-            let element = document.getElementById(CONTENT_ID)?.getElementsByClassName(`verse-index-${start}`)[0];
-            if (element !== undefined)
+            let content = document.getElementById(CONTENT_ID);
+            if (content) 
             {
-                element.scrollIntoView();
-                window.scrollBy(0, -40);
+                let elements = range_inclusive(verse_range.start, verse_range.end)
+                    .map(i => content.getElementsByClassName(`verse-index-${i}`)[0])
+                    .filter(v => v != null)
+                    .toArray();
+
+                function on_element_clicked()
+                {
+                    elements.forEach(e => {
+                        e.removeEventListener('click', on_element_clicked);
+                        e.classList.remove('searched');
+                    });
+                }
+
+                elements.forEach(e => {
+                    e.addEventListener('click', on_element_clicked);
+                    e.classList.add('searched');
+                })
+
+                let element = content.getElementsByClassName(`verse-index-${start}`)[0];
+                if (element !== undefined)
+                {
+                    element.scrollIntoView();
+                    window.scrollBy(0, -40);
+                }
             }
         }
 

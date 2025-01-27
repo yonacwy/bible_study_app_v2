@@ -9,6 +9,7 @@ export * as storage from "./storage.js";
 export * from "./button.js";
 export * from "./slider.js";
 export * as scrolling from "./scrolling.js";
+export * as ranges from "./ranges.js";
 
 export const invoke: (fn_name: string, args: any) => Promise<any> = (window as any).__TAURI__.core.invoke;
 

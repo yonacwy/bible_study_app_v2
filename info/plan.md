@@ -32,7 +32,7 @@
   - [x] Fixed crash with going past last chapter
 - [x] Proper migration
 - [ ] When creating new note, scroll into view
-- [ ] When searching for verses, scroll into view
+- [x] When searching for verses, scroll into view
 
 ### Version 0.4.5: Adding Reading Plans
 - [x] Adding built in reading plans
