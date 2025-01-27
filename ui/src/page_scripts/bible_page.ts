@@ -1,13 +1,10 @@
 import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
 import * as bible_renderer from "../rendering/bible_render.js";
-import { BibleSection, ChapterIndex, HighlightCategory, VerseRange } from "../bindings.js";
+import { BibleSection, ChapterIndex, VerseRange } from "../bindings.js";
 import * as pages from "./pages.js";
 import * as view_states from "../view_states.js";
 import * as side_popup from "../popups/side_popup.js";
-import * as context_menu from "../popups/context_menu.js";
-import * as highlights from "../highlights.js";
-import { ContextMenuCommand } from "../popups/context_menu.js";
 import * as word_select from "../word_select.js";
 
 const CONTENT_ID: string = "chapter-text-content";
