@@ -22,6 +22,5 @@ export function run()
         pages.init_context_menu('left-pane'),
     ]).then(() => {
         document.body.style.visibility = 'visible';
-        utils.scrolling.load_scroll();
     })
 }
