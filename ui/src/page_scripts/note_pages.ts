@@ -221,6 +221,11 @@ async function delete_reference(index: number, on_text_require_rerender: () => v
     });
 }
 
+function scroll_to_editing()
+{
+    
+}
+
 
 enum PaneSideType 
 {
