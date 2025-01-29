@@ -50,6 +50,7 @@ export async function render_search_result(result: any[], searched: string[], re
 
         let result_node = document.createElement('div');
         result_node.classList.add('verse');
+        result_node.id = await format_reference_id(result_data.book, result_data.chapter, result_data.verse);
         result_node.appendChild(verse_node);
         result_node.appendChild(reference_node);
         new_children.push(result_node);
@@ -149,9 +150,15 @@ async function spawn_verse(position: VersePosition, searched: string[], word_pop
     return verse_node;
 }
 
+export async function format_reference_id(book: number, chapter: number, verse: number): Promise<string>
+{
+    let book_title = await bible.get_book_name(book);
+    return `${book_title} ${chapter + 1}:${verse + 1}`;
+}
+
 async function spawn_reference(book: number, chapter: number, verse: number, on_search: (text: string) => void)
 {
-    let book_title = await utils.invoke('get_book_name', { book: book });
+    let book_title = await bible.get_book_name(book);
     let verse_reference_text = `${book_title} ${chapter + 1}:${verse + 1}`;
 
     let reference = document.createElement('div');

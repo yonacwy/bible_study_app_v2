@@ -29,6 +29,7 @@ declare global {
         remove_at(index: number): T;
         remove(value: T): boolean;
         filter_map<R>(predicate: (v: T) => R | null): R[];
+        find_map<R>(predicate: (v: T) => R | null): R | undefined;
     }
 }
 
@@ -68,6 +69,20 @@ Array.prototype.filter_map = function<T, R>(this: T[], predicate: (v: T) => R | 
 
     return array;
 };
+
+Array.prototype.find_map = function<T, R>(this: T[], predicate: (v: T) => R | null): R | undefined
+{
+    for(let i = 0; i < this.length; i++)
+    {
+        let v = predicate(this[i]);
+        if (v !== null)
+        {
+            return v;
+        }
+    }
+
+    return undefined;
+}
 
 declare global {
     interface Math {

@@ -120,6 +120,11 @@ export async function get_bible_versions(): Promise<string[]>
     return await invoke('get_bible_versions', {});
 }
 
+export async function get_book_name(book_index: number): Promise<string>
+{
+    return await invoke('get_book_name', { book: book_index });
+}
+
 export async function get_verse_word_offset(book: number, chapter: number, verse_index: number): Promise<number>
 {
     let view = JSON.parse(await invoke('get_chapter_view', { chapter: {

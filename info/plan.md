@@ -31,7 +31,7 @@
   - [x] Volume slider works properly again
   - [x] Fixed crash with going past last chapter
 - [x] Proper migration
-- [ ] When creating new note, scroll into view
+- [x] When creating new note, scroll into view
 - [x] When searching for verses, scroll into view
 - [ ] Fix close side popup in search view
 

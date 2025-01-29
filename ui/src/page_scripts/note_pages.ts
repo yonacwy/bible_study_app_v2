@@ -4,6 +4,7 @@ import * as view_states from "../view_states.js";
 import * as confirm_popup from "../popups/confirm_popup.js";
 import * as word_select from "../word_select.js";
 import * as bible from "../bible.js";
+import { format_reference_id } from "../rendering/word_search.js";
 
 const DELETE_NOTE_BUTTON = 'delete-note-btn'
 
@@ -227,10 +228,11 @@ export async function scroll_to_editing()
     let editing = notes.get_did_create_note();
     if(!editing) return;
 
-    let view_state_type = await view_states.get_current_view_state();
+    let view_state_type = await view_states.get_view_state_type();
 
     if (view_state_type == view_states.ViewStateType.Chapter)
     {
+        utils.debug_print('got here again')
         let chapter = await bible.get_chapter();
         if(!chapter) return;
 
@@ -244,7 +246,17 @@ export async function scroll_to_editing()
     }
     else if (view_state_type == view_states.ViewStateType.Search)
     {
-        
+        utils.debug_print('got here');
+        let ids = await Promise.all(utils.ranges.range_inclusive(editing.range.verse_start, editing.range.verse_end)
+            .map(async v => format_reference_id(editing.chapter.book, editing.chapter.number, v))
+            .toArray());
+
+        let verse = ids.find_map(id => document.getElementById(id));
+        if (verse !== undefined)
+        {
+            verse.scrollIntoView();
+            leftPane.scrollBy(0, -40);
+        }
     }
 }
 
