@@ -33,7 +33,7 @@
 - [x] Proper migration
 - [x] When creating new note, scroll into view
 - [x] When searching for verses, scroll into view
-- [ ] Fix close side popup in search view
+- [x] Fix close side popup in search view
 
 ### Version 0.4.5: Adding Reading Plans
 - [x] Adding built in reading plans
