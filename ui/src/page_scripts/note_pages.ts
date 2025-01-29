@@ -3,6 +3,8 @@ import * as notes from "../notes.js";
 import * as view_states from "../view_states.js";
 import * as confirm_popup from "../popups/confirm_popup.js";
 import * as word_select from "../word_select.js";
+import * as bible from "../bible.js";
+import { format_reference_id } from "../rendering/word_search.js";
 
 const DELETE_NOTE_BUTTON = 'delete-note-btn'
 
@@ -15,7 +17,7 @@ export async function init_note_page(note_id: string, on_text_require_rerender: 
         init_delete_note_button(note_id),
         init_close_editor_btn(),
         init_save_callbacks(),
-    ])
+    ]);
 }
 
 function init_delete_note_button(note_id: string)
@@ -219,6 +221,43 @@ async function delete_reference(index: number, on_text_require_rerender: () => v
             });
         }
     });
+}
+
+export async function scroll_to_editing()
+{
+    let editing = notes.get_did_create_note();
+    if(!editing) return;
+
+    let view_state_type = await view_states.get_view_state_type();
+
+    if (view_state_type == view_states.ViewStateType.Chapter)
+    {
+        utils.debug_print('got here again')
+        let chapter = await bible.get_chapter();
+        if(!chapter) return;
+
+        let view = await bible.get_chapter_view(chapter);
+        let word_index = bible.flatten_verse_index(view, editing.range.verse_start, editing.range.word_start);
+        
+        let words = leftPane.getElementsByClassName('bible-word');
+        if(!words) return;
+        words[word_index].scrollIntoView();
+        leftPane.scrollBy(0, -40);
+    }
+    else if (view_state_type == view_states.ViewStateType.Search)
+    {
+        utils.debug_print('got here');
+        let ids = await Promise.all(utils.ranges.range_inclusive(editing.range.verse_start, editing.range.verse_end)
+            .map(async v => format_reference_id(editing.chapter.book, editing.chapter.number, v))
+            .toArray());
+
+        let verse = ids.find_map(id => document.getElementById(id));
+        if (verse !== undefined)
+        {
+            verse.scrollIntoView();
+            leftPane.scrollBy(0, -40);
+        }
+    }
 }
 
 

@@ -1,13 +1,43 @@
 # Plan:
-### Version 0.6.0: Multiple Bible Support
-- [ ] Multiple Bible Support
-- [ ] Special bible format?
 
-### Version 0.5.0
+
+### Version 0.6.0
 - [ ] Notebook Support
 
+### Version 0.5.1: Text to Speech
+- [ ] Text to speech
+  - [ ] Change speed
+  - [ ] Change volume
+  - [ ] Auto play
+    - [ ] Time based
+    - [ ] Chapter number based
+    - [ ] Readings based?
+  - [ ] Voice selector?
+- [ ] Multiple Theme Support
+  - [ ] Dark
+  - [ ] Light
+  - [ ] Parchment
+- [ ] Create better info page
+
+### Version 0.5.0: Multiple Bible Support
+- [x] Multiple Bible Support
+  - [x] A notebook for each bible (for now)
+  - [x] Can swap between bibles
+  - [x] Can search in different bibles
+  - [x] Conserve scroll when swapping
+- [x] Readings work with the different bibles (select which one)
+- [x] Splash Screen (to hide loading)
+- [x] Bugfixes
+  - [x] Volume slider works properly again
+  - [x] Fixed crash with going past last chapter
+- [x] Proper migration
+- [x] When creating new note, scroll into view
+- [x] When searching for verses, scroll into view
+- [x] Fix close side popup in search view
+
 ### Version 0.4.5: Adding Reading Plans
-- [ ] Adding built in reading plans
+- [x] Adding built in reading plans
+- [x] Also did other stuff
 
 ### Version 0.4.4: Hotfix
 - [x] Fixed a bug with the volume slider

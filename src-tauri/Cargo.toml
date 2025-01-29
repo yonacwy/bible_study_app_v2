@@ -1,6 +1,6 @@
 [package]
 name = "app"
-version = "0.4.5"
+version = "0.5.0"
 description = "A Tauri App"
 authors = ["you"]
 license = ""
@@ -8,6 +8,9 @@ repository = ""
 default-run = "app"
 edition = "2021"
 rust-version = "1.60"
+
+[workspace]
+members = ["crates/bible-gen"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

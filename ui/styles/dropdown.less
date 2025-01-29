@@ -8,7 +8,6 @@
     justify-content: center;
     padding: 0px;
     height: @header-height;
-    aspect-ratio: 100%;
 }
 
 .small-dropdown-content {
@@ -133,4 +132,50 @@
 .dropdown-option .expanded-option-title:hover {
     background-color: #f1f1f1;
     cursor: pointer;
+}
+
+.text-dropdown
+{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0px;
+    height: @header-height;
+
+    .set-font();
+    .font-small();
+
+    .dropdown-title 
+    {
+        background-color: white;
+        height: calc(@button-size - 2px); // includes radius
+        border-radius: 3px;
+        border: 1px solid #777;
+        line-height: @button-size;
+        padding-left: 2px * @ui-scale;
+        padding-right: 2px * @ui-scale;
+    }
+
+    &:hover .dropdown-content {
+        display: block;
+        opacity: 1;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        z-index: 1000; /* Ensures dropdown is above other content */
+        top: 100%; /* Position directly below the button */
+        left: 0; /* Align with the button */
+        margin-top: 0px; /* Smaller gap between button and dropdown */
+        transition: opacity 0.3s ease; /* Smooth transition */
+        opacity: 0;
+        max-height: 300px;
+        overflow: auto;
+    
+        .drop-shadow-l();
+    }
 }

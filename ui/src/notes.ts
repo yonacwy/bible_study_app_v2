@@ -2,6 +2,21 @@ import { NoteData, ReferenceLocation } from "./bindings";
 import * as utils from "./utils/index.js";
 import * as bible from "./bible.js";
 
+const CREATED_NOTE_STORAGE: utils.storage.ValueStorage<ReferenceLocation> = new utils.storage.ValueStorage<ReferenceLocation>("created-note");
+// Will return true ONCE when called after creating a note. 
+// All subsequent calls before creating another note will return null
+export function get_did_create_note(): ReferenceLocation | null
+{
+    let value = CREATED_NOTE_STORAGE.get();
+    if (value !== null)
+    {
+        CREATED_NOTE_STORAGE.set(null);
+        return value;
+    }
+
+    return null;
+}
+
 export async function get_note(id: string): Promise<NoteData>
 {
     return JSON.parse(await utils.invoke('get_note', { id: id }));
@@ -19,6 +34,7 @@ export async function delete_note(id: string): Promise<void>
 
 export async function create_note(location: ReferenceLocation): Promise<string>
 {
+    CREATED_NOTE_STORAGE.set(location);
     return await utils.invoke('add_note', { text: '', locations: [location] });
 }
 

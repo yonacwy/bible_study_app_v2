@@ -3,13 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet/less" type="text/css" href="./styles/splash_screen.less">
+    <script src="./src/vendor/less.js"></script>
 </head>
 <body>
+    <div class="splash-screen">
+        <img src="./images/Square310x310Logo.png" alt="">
+        <div class="text">Loading Application...</div>
+        <div class="spinner"></div>
+    </div>
     <script type="module">
         import * as view_states from './dist/view_states.js';
         import * as utils from './dist/utils/index.js';
-        
-        view_states.goto_current_view_state();
+
+        while (!await utils.is_app_initialized())  { }
+
+        setTimeout(() => 
+        {
+            view_states.goto_current_view_state();
+        }, 500);
     </script>
 </body>
 </html>

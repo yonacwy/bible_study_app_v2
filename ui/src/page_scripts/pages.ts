@@ -11,6 +11,8 @@ import { HighlightCategory } from "../bindings.js";
 import * as word_select from "../word_select.js";
 import { init_main_page_header } from "./menu_header.js";
 import * as settings from '../settings.js';
+import * as bible from '../bible.js';
+import { get_editing_note } from "../notes.js";
 
 export const SEARCH_INPUT_ID: string = "search-input";
 export const SEARCH_BUTTON_ID: string = "search-btn";
@@ -35,6 +37,12 @@ export async function init_header(): Promise<void>
         init_word_popup(word_popup);
     }
 
+    // Used so that it reloads the page when the bible version is changed
+    bible.add_version_changed_listener(async _ => {
+        // Cant do location.reload(), because if we are editing the note, the editing note is set to null, and we need to account for that
+        view_states.goto_current_view_state();
+    });
+
     await Promise.all([
         init_nav_buttons(),
         init_chapter_selection_dropdown(),
@@ -47,6 +55,7 @@ export async function init_header(): Promise<void>
         utils.display_no_save_popup(),
         init_new_note_button(),
         settings.init_less_sync(),
+        init_bible_version_dropdown(),
     ]).then(_ => {
         init_settings_buttons(window.location.href);
     });
@@ -193,6 +202,36 @@ export async function init_chapter_selection_dropdown()
         utils.set_value(SEARCH_INPUT_ID, `${name} ${number}`);
         document.getElementById(SEARCH_BUTTON_ID)?.click();
     });
+}
+
+export async function init_bible_version_dropdown(on_version_changed?: () => void)
+{
+    let dropdown = document.getElementById('bible-version-dropdown');
+    let title = dropdown?.getElementsByClassName('dropdown-title')[0];
+    let content = dropdown?.getElementsByClassName('dropdown-content')[0];
+
+    if (!dropdown || !title || !content) return;
+
+    let selected_version = await bible.get_current_bible_version();
+    let versions = await bible.get_bible_versions();
+
+    title.innerHTML = selected_version;
+
+    content.replaceChildren();
+    versions.sort().forEach(v => {
+        content.appendElementEx('div', ['dropdown-option'], option => {
+            if (v === selected_version) 
+            {
+                option.classList.add('selected-option');
+            }
+
+            option.innerHTML = v;
+
+            option.addEventListener('click', e => {
+                bible.set_bible_version(v);
+            })
+        })
+    })
 }
 
 export async function init_context_menu(target_id: string)

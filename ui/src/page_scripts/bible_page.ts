@@ -1,14 +1,12 @@
 import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
 import * as bible_renderer from "../rendering/bible_render.js";
-import { BibleSection, ChapterIndex, HighlightCategory, VerseRange } from "../bindings.js";
+import { BibleSection, ChapterIndex, VerseRange } from "../bindings.js";
 import * as pages from "./pages.js";
 import * as view_states from "../view_states.js";
 import * as side_popup from "../popups/side_popup.js";
-import * as context_menu from "../popups/context_menu.js";
-import * as highlights from "../highlights.js";
-import { ContextMenuCommand } from "../popups/context_menu.js";
 import * as word_select from "../word_select.js";
+import { range_inclusive } from "../utils/ranges.js";
 
 const CONTENT_ID: string = "chapter-text-content";
 const CHAPTER_NAME_ID: string = "chapter-name"
@@ -21,14 +19,18 @@ export async function run()
     let data = utils.decode_from_url(window.location.href) as BibleSection;
     utils.init_format_copy_event_listener();
 
+    bible.add_version_changed_listener(_ => {
+        utils.scrolling.save_scroll(null);
+    })
+
     Promise.all([
         pages.init_header(),
         pages.init_context_menu('chapter-content'),
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range),
-        
     ]).then(_ => {
         document.body.style.visibility = 'visible';
+        utils.scrolling.load_scroll();
     });
 }
 
@@ -56,7 +58,20 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
     let name = chapter_view[chapter.book].name;
     let number = chapter.number + 1;
     
-    utils.set_value(pages.SEARCH_INPUT_ID, `${name} ${number}`);
+    let input_value = `${name} ${number}`;
+    if (verse_range !== null)
+    {
+        if (verse_range.start === verse_range.end)
+        {
+            input_value += `:${verse_range.start + 1}`; // need to do index conversion
+        }
+        else 
+        {
+            input_value += `:${verse_range.start + 1}-${verse_range.end + 1}`; // need to do index conversion
+        }
+    }
+
+    utils.set_value(pages.SEARCH_INPUT_ID, input_value);
     utils.set_html(CHAPTER_NAME_ID, `${name} ${number}`);
 
     let on_search = (msg: string): void => {
@@ -64,15 +79,37 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
         document.getElementById('search-btn')?.click();
     }
 
-    return bible_renderer.render_chapter(chapter, content, word_popup, panel_data, word_select.update_words_for_selection, on_search).then(() => {
+    return await bible_renderer.render_chapter(chapter, content, word_popup, panel_data, word_select.update_words_for_selection, on_search).then(() => {
         if(verse_range !== null)
         {
             let start = verse_range.start;
-            let element = document.getElementById(CONTENT_ID)?.getElementsByClassName(`verse-index-${start}`)[0];
-            if (element !== undefined)
+            let content = document.getElementById(CONTENT_ID);
+            if (content) 
             {
-                element.scrollIntoView();
-                window.scrollBy(0, -40);
+                let elements = range_inclusive(verse_range.start, verse_range.end)
+                    .map(i => content.getElementsByClassName(`verse-index-${i}`)[0])
+                    .filter(v => v != null)
+                    .toArray();
+
+                function on_element_clicked()
+                {
+                    elements.forEach(e => {
+                        e.removeEventListener('click', on_element_clicked);
+                        e.classList.remove('searched');
+                    });
+                }
+
+                elements.forEach(e => {
+                    e.addEventListener('click', on_element_clicked);
+                    e.classList.add('searched');
+                })
+
+                let element = content.getElementsByClassName(`verse-index-${start}`)[0];
+                if (element !== undefined)
+                {
+                    element.scrollIntoView();
+                    window.scrollBy(0, -40);
+                }
             }
         }
 

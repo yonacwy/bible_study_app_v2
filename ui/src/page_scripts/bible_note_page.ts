@@ -2,7 +2,7 @@ import { BibleSection, ChapterIndex } from "../bindings.js";
 import * as utils from "../utils/index.js";
 import * as pages from "./pages.js";
 import * as bible_page from "./bible_page.js";
-import { init_note_page } from "./note_pages.js";
+import { init_note_page, scroll_to_editing } from "./note_pages.js";
 
 export type BibleNotePageData = { note: string, section: BibleSection };
 
@@ -28,6 +28,7 @@ export function run()
         
         pages.init_context_menu('left-pane'),
     ]).then(_ => {
+        scroll_to_editing();
         document.body.style.visibility = 'visible';
     });
 }

@@ -1,5 +1,5 @@
 use std::{collections::HashMap, sync::{Arc, Mutex}};
-use kira::{sound::static_sound::{StaticSoundData, StaticSoundHandle}, AudioManager, AudioManagerSettings, DefaultBackend, PlaySoundError, Tween };
+use kira::{sound::static_sound::{StaticSoundData, StaticSoundHandle}, AudioManager, AudioManagerSettings, Decibels, DefaultBackend, PlaySoundError, Tween, Tweenable };
 use tauri::{path::{BaseDirectory, PathResolver}, Runtime, State};
 
 use crate::app_state::AppData;
@@ -49,9 +49,11 @@ pub fn play_clip(state: State<'_, AudioPlayer>, clip_name: &str)
 {
     let volume = AppData::get().read_settings(|settings| settings.volume);
 
+    let decibels = Tweenable::interpolate(Decibels::SILENCE.as_amplitude(), Decibels::IDENTITY.as_amplitude(), volume as f64).log10() * 20.0;
+
     match state.play(clip_name)
     {
-        Some(Ok(mut handle)) => handle.set_volume(volume, Tween::default()),
+        Some(Ok(mut handle)) => handle.set_volume(decibels, Tween::default()),
         Some(Err(e)) => println!("Error with playing audio: '{}'", e.to_string()),
         None => println!("Error: failed to load audio clip '{}'", clip_name),
     }

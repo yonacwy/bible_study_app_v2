@@ -18,5 +18,20 @@
 - Hot Keys
 - Highlight opacity
 
+### Prof Guercio
+- Highlight selected verses for search
+- Text to speech
+  - Text to speech speed
+- Modify annotation controls to be more intuitive/user friendly
+  - No grey, unless inactive
+- See all notes
+- General app information
+  - Version
+  - Details about project
+  - Features
+  - Contact
+  - Link to website
+- Markdown syntax explainer/demo/where can use
+
 ### Dev Recommendations
 - At some point, `searching.rs` needs to be COMPLETELY overhauled

@@ -117,7 +117,8 @@ impl Notebook {
         self.notes.remove(id);
     }
 
-    pub fn get_note(&self, id: &str) -> &NoteData {
+    pub fn get_note(&self, id: &str) -> &NoteData 
+    {
         self.notes.get(id).unwrap()
     }
 }

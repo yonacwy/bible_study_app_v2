@@ -103,6 +103,29 @@ export async function goto_current_view_state()
     }
 }
 
+export enum ViewStateType
+{
+    Chapter,
+    Search,
+}
+
+export async function get_view_state_type(): Promise<ViewStateType | null>
+{
+    let current = await get_current_view_state();
+    if (current.type == 'chapter')
+    {
+        return ViewStateType.Chapter;
+    }
+    else if (current.type == 'search')
+    {
+        return ViewStateType.Search;
+    }
+    else 
+    {
+        return null;
+    }
+}
+
 export async function get_current_view_state(): Promise<any>
 {
     return await utils.invoke('get_current_view_state', {});
