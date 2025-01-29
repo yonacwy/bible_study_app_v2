@@ -222,6 +222,32 @@ async function delete_reference(index: number, on_text_require_rerender: () => v
     });
 }
 
+export async function scroll_to_editing()
+{
+    let editing = notes.get_did_create_note();
+    if(!editing) return;
+
+    let view_state_type = await view_states.get_current_view_state();
+
+    if (view_state_type == view_states.ViewStateType.Chapter)
+    {
+        let chapter = await bible.get_chapter();
+        if(!chapter) return;
+
+        let view = await bible.get_chapter_view(chapter);
+        let word_index = bible.flatten_verse_index(view, editing.range.verse_start, editing.range.word_start);
+        
+        let words = leftPane.getElementsByClassName('bible-word');
+        if(!words) return;
+        words[word_index].scrollIntoView();
+        leftPane.scrollBy(0, -40);
+    }
+    else if (view_state_type == view_states.ViewStateType.Search)
+    {
+        
+    }
+}
+
 
 enum PaneSideType 
 {
