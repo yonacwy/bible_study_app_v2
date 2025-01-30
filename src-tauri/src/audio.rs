@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::{Arc, Mutex}};
 use kira::{sound::static_sound::{StaticSoundData, StaticSoundHandle}, AudioManager, AudioManagerSettings, Decibels, DefaultBackend, PlaySoundError, Tween, Tweenable };
 use tauri::{path::{BaseDirectory, PathResolver}, Runtime, State};
 
-use crate::app_state::AppData;
+use crate::app_state::{AppData, AppState};
 
 pub const DEFAULT_SOURCES: &[(&str, &str)] = &[
     ("flip", "resources/sounds/pageturn-102978.mp3")
@@ -45,9 +45,9 @@ impl AudioPlayer
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn play_clip(state: State<'_, AudioPlayer>, clip_name: &str)
+pub fn play_clip(state: State<'_, AudioPlayer>, app_state: State<'_, AppState>, clip_name: &str)
 {
-    let volume = AppData::get().read_settings(|settings| settings.volume);
+    let volume = app_state.get().as_ref().unwrap().read_settings(|settings| settings.volume);
 
     let decibels = Tweenable::interpolate(Decibels::SILENCE.as_amplitude(), Decibels::IDENTITY.as_amplitude(), volume as f64).log10() * 20.0;
 

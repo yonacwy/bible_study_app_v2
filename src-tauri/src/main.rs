@@ -1,6 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use app_state::AppData;
+use app_state::{AppData, AppState};
 
 pub mod app_state;
 pub mod bible;
@@ -24,16 +24,17 @@ fn main()
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
-            AppData::init(app.path());
 
             app.manage(AudioPlayer::new(app.path(), audio::DEFAULT_SOURCES));
             app.manage(ReadingsDatabase::new(app.path()));
+            app.manage(AppState::create(app.path()));
 
             Ok(())
         })
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::Destroyed => {
-                AppData::get().save(window.path());
+                let state = window.app_handle().state::<AppState>();
+                state.get().as_ref().unwrap().save(window.path());
             }
             _ => {}
         })

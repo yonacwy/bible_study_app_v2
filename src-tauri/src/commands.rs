@@ -1,16 +1,16 @@
 use std::collections::HashMap;
 
 use itertools::Itertools;
-use tauri::{path::BaseDirectory, Manager, Runtime};
+use tauri::{path::BaseDirectory, Manager, Runtime, State};
 
 use crate::{
-    app_state::{self, AppData, ViewState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
+    app_state::{self, AppData, ViewState, AppState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
 };
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn is_initialized() -> bool
+pub fn is_initialized(app_state: State<'_, AppState>) -> bool
 {
-    AppData::is_initialized()
+    app_state.is_initialized()
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -19,22 +19,24 @@ pub fn debug_print(message: &str) {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_bible_view() -> String {
-    let view = AppData::get().get_current_bible().get_view();
+pub fn get_bible_view(app_state: State<'_, AppState>) -> String {
+    let view = app_state.get().as_ref().unwrap().get_current_bible().get_view();
     serde_json::to_string(&view).unwrap()
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_current_view_state() -> ViewState {
-    let index = AppData::get().get_view_state_index();
-    AppData::get().read_view_states(|states| states[index].clone())
+pub fn get_current_view_state(app_state: State<'_, AppState>) -> ViewState {
+    let app_state = app_state.get_ref();
+
+    let index = app_state.get_view_state_index();
+    app_state.read_view_states(|states| states[index].clone())
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn push_view_state(view_state: ViewState) 
+pub fn push_view_state(app_state: State<'_, AppState>, view_state: ViewState) 
 {
-    let index = get_view_state_index();
-    AppData::get().read_view_states(|states| {
+    let index = get_view_state_index(app_state.clone());
+    app_state.get_ref().read_view_states(|states| {
         if states.last().is_some_and(|s| *s == view_state) {
             return;
         }
@@ -47,91 +49,92 @@ pub fn push_view_state(view_state: ViewState)
         states.push(view_state.clone());
     });
 
-    to_next_view_state();
+    to_next_view_state(app_state);
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_view_state_count() -> u32 
+pub fn get_view_state_count(app_state: State<'_, AppState>) -> u32 
 {
-    AppData::get().read_view_states(|states| states.len() as u32)
+    app_state.get_ref().read_view_states(|states| states.len() as u32)
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_view_state_index() -> u32 
+pub fn get_view_state_index(app_state: State<'_, AppState>) -> u32 
 {
-    AppData::get().get_view_state_index() as u32
+    app_state.get_ref().get_view_state_index() as u32
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn to_next_view_state() 
+pub fn to_next_view_state(app_state: State<'_, AppState>) 
 {
-    let current = get_view_state_index();
-    let max = get_view_state_count() - 1;
+    let current = get_view_state_index(app_state.clone());
+    let max = get_view_state_count(app_state.clone()) - 1;
 
     if current < max 
     {
-        AppData::get().set_view_state_index(current as usize + 1);
+        app_state.get_ref().set_view_state_index(current as usize + 1);
     }
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn to_previous_view_state() 
+pub fn to_previous_view_state(app_state: State<'_, AppState>) 
 {
-    let current = get_view_state_index();
+    let current = get_view_state_index(app_state.clone());
     if current > 0 {
-        AppData::get().set_view_state_index(current as usize - 1);
+        app_state.get_ref().set_view_state_index(current as usize - 1);
     }
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn clear_view_states()
+pub fn clear_view_states(app_state: State<'_, AppState>)
 {
-    let current = AppData::get().get_view_state_index();
+    let app_state = app_state.get_ref();
+    let current = app_state.get_view_state_index();
 
-    AppData::get().read_view_states(|view_states| {
+    app_state.read_view_states(|view_states| {
         let last = view_states[current].clone();
         view_states.clear();
         view_states.push(last);
     });
 
-    AppData::get().set_view_state_index(0);
+    app_state.set_view_state_index(0);
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_chapter_text(chapter: ChapterIndex) -> String 
+pub fn get_chapter_text(app_state: State<'_, AppState>, chapter: ChapterIndex) -> String 
 {
-    let chapter =
-        &AppData::get().get_current_bible().books[chapter.book as usize].chapters[chapter.number as usize];
+    let app_state = app_state.get_ref();
+    let chapter = &app_state.get_current_bible().books[chapter.book as usize].chapters[chapter.number as usize];
     serde_json::to_string(chapter).unwrap()
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_verse(book: u32, chapter: u32, verse: u32) -> Verse {
-    AppData::get().get_current_bible().books[book as usize].chapters[chapter as usize].verses[verse as usize]
+pub fn get_verse(app_state: State<'_, AppState>, book: u32, chapter: u32, verse: u32) -> Verse {
+    app_state.get_ref().get_current_bible().books[book as usize].chapters[chapter as usize].verses[verse as usize]
         .clone()
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_book_name(book: u32) -> String {
-    AppData::get().get_current_bible().books[book as usize].name.clone()
+pub fn get_book_name(app_state: State<'_, AppState>, book: u32) -> String {
+    app_state.get_ref().get_current_bible().books[book as usize].name.clone()
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_chapter_view(chapter: ChapterIndex) -> String {
-    let view = AppData::get().get_current_bible().books[chapter.book as usize].chapters[chapter.number as usize]
+pub fn get_chapter_view(app_state: State<'_, AppState>, chapter: ChapterIndex) -> String {
+    let view = app_state.get_ref().get_current_bible().books[chapter.book as usize].chapters[chapter.number as usize]
         .get_view();
     serde_json::to_string(&view).unwrap()
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_highlight_categories() -> String {
-    AppData::get()
+pub fn get_highlight_categories(app_state: State<'_, AppState>) -> String {
+    app_state.get_ref()
         .read_notes(|notebook| serde_json::to_string(&notebook.highlight_categories).unwrap())
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn add_highlight_category(color: &str, name: &str, description: &str, priority: &str) {
-    AppData::get().read_notes(|notebook| {
+pub fn add_highlight_category(app_state: State<'_, AppState>, color: &str, name: &str, description: &str, priority: &str) {
+    app_state.get_ref().read_notes(|notebook| {
         let color = Color::from_hex(color).unwrap();
         let name = name.to_string();
         let description = description.to_string();
@@ -151,8 +154,8 @@ pub fn add_highlight_category(color: &str, name: &str, description: &str, priori
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn remove_highlight_category(id: &str) {
-    AppData::get().read_notes(|notebook| {
+pub fn remove_highlight_category(app_state: State<'_, AppState>, id: &str) {
+    app_state.get_ref().read_notes(|notebook| {
         notebook.highlight_categories.remove(&id.to_string());
         notebook.refresh_highlights();
     })
@@ -160,13 +163,14 @@ pub fn remove_highlight_category(id: &str) {
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn set_highlight_category(
+    app_state: State<'_, AppState>,
     id: &str,
     color: &str,
     name: &str,
     description: &str,
     priority: &str,
 ) {
-    AppData::get().read_notes(|notebook| {
+    app_state.get_ref().read_notes(|notebook| {
         let color = Color::from_hex(color).unwrap();
         let name = name.to_string();
         let description = description.to_string();
@@ -187,8 +191,8 @@ pub fn set_highlight_category(
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_chapter_annotations(chapter: ChapterIndex) -> String {
-    AppData::get().read_notes(|notebook| {
+pub fn get_chapter_annotations(app_state: State<'_, AppState>, chapter: ChapterIndex) -> String {
+    app_state.get_ref().read_notes(|notebook| {
         if let Some(highlights) = notebook.annotations.get(&chapter) {
             serde_json::to_string(highlights).unwrap()
         } else {
@@ -198,8 +202,8 @@ pub fn get_chapter_annotations(chapter: ChapterIndex) -> String {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn highlight_word(chapter: ChapterIndex, word_position: u32, highlight_id: &str) {
-    AppData::get().read_notes(|notebook| {
+pub fn highlight_word(app_state: State<'_, AppState>, chapter: ChapterIndex, word_position: u32, highlight_id: &str) {
+    app_state.get_ref().read_notes(|notebook| {
         let chapter_annotations = match notebook.annotations.get_mut(&chapter) {
             Some(highlights) => highlights,
             None => {
@@ -230,8 +234,8 @@ pub fn highlight_word(chapter: ChapterIndex, word_position: u32, highlight_id: &
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn erase_highlight(chapter: ChapterIndex, word_position: u32, highlight_id: &str) {
-    AppData::get().read_notes(|notebook| {
+pub fn erase_highlight(app_state: State<'_, AppState>, chapter: ChapterIndex, word_position: u32, highlight_id: &str) {
+    app_state.get_ref().read_notes(|notebook| {
         let Some(chapter_highlights) = notebook.annotations.get_mut(&chapter) else {
             return;
         };
@@ -245,24 +249,29 @@ pub fn erase_highlight(chapter: ChapterIndex, word_position: u32, highlight_id: 
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn parse_bible_search(text: &str) -> ParsedSearchResult {
-    let bible = &AppData::get().get_current_bible();
+pub fn parse_bible_search(app_state: State<'_, AppState>, text: &str) -> ParsedSearchResult {
+    let app_state = app_state.get_ref();
+    let bible = app_state.get_current_bible();
     parse_search(text, bible)
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn run_word_search(words: Vec<String>) -> Vec<WordSearchResult> {
-    let bible = &AppData::get().get_current_bible();
+pub fn run_word_search(app_state: State<'_, AppState>, words: Vec<String>) -> Vec<WordSearchResult> {
+    let app_state = app_state.get_ref();
+    let bible = app_state.get_current_bible();
     let words = words.iter().map(|w| w.as_str()).collect_vec();
     search_bible(&words, bible)
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn add_note(text: String, locations: Vec<ReferenceLocation>) -> String {
-    AppData::get().read_notes(move |notebook| {
+pub fn add_note(app_state: State<'_, AppState>, text: String, locations: Vec<ReferenceLocation>) -> String {
+    let app_state = app_state.get_ref();
+    let current_bible = app_state.get_current_bible();
+
+    app_state.read_notes(move |notebook| {
         let id = uuid::Uuid::new_v4().to_string();
         notebook.add_note(
-            &AppData::get().get_current_bible(),
+            current_bible,
             id.clone(),
             text.to_owned(),
             locations.to_owned(),
@@ -272,36 +281,39 @@ pub fn add_note(text: String, locations: Vec<ReferenceLocation>) -> String {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn remove_note(id: &str) {
-    AppData::get().read_notes(|notebook| {
+pub fn remove_note(app_state: State<'_, AppState>, id: &str) {
+    app_state.get_ref().read_notes(|notebook| {
         notebook.remove_note(id);
     });
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_note(id: &str) -> String {
-    AppData::get().read_notes(|notebook| {
+pub fn get_note(app_state: State<'_, AppState>, id: &str) -> String {
+    app_state.get_ref().read_notes(|notebook| {
         let note = notebook.get_note(id);
         serde_json::to_string(note).unwrap()
     })
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_editing_note() -> Option<String> {
-    AppData::get().read_editing_note(|editing_note| editing_note.clone())
+pub fn get_editing_note(app_state: State<'_, AppState>) -> Option<String> {
+    app_state.get_ref().read_editing_note(|editing_note| editing_note.clone())
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn set_editing_note(note: Option<String>) {
-    AppData::get().read_editing_note(|editing_note| *editing_note = note.clone())
+pub fn set_editing_note(app_state: State<'_, AppState>, note: Option<String>) {
+    app_state.get_ref().read_editing_note(|editing_note| *editing_note = note.clone())
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn update_note(id: String, locations: Vec<ReferenceLocation>, text: String) {
-    AppData::get().read_notes(move |notebook| {
+pub fn update_note(app_state: State<'_, AppState>, id: String, locations: Vec<ReferenceLocation>, text: String) {
+    let app_state = app_state.get_ref();
+    let current_bible = app_state.get_current_bible();
+
+    app_state.read_notes(move |notebook| {
         notebook.remove_note(&id);
         notebook.add_note(
-            &AppData::get().get_current_bible(),
+            current_bible,
             id.clone(),
             text.clone(),
             locations.clone(),
@@ -310,17 +322,17 @@ pub fn update_note(id: String, locations: Vec<ReferenceLocation>, text: String) 
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_settings() -> Settings
+pub fn get_settings(app_state: State<'_, AppState>) -> Settings
 {
-    AppData::get().read_settings(|settings| {
+    app_state.get_ref().read_settings(|settings| {
         settings.clone()
     })
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn set_settings(settings: Option<Settings>)
+pub fn set_settings(app_state: State<'_, AppState>, settings: Option<Settings>)
 {
-    AppData::get().read_settings(|old| {
+    app_state.get_ref().read_settings(|old| {
 
         match &settings
         {
@@ -331,35 +343,35 @@ pub fn set_settings(settings: Option<Settings>)
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn should_display_migration() -> bool 
+pub fn should_display_migration(app_state: State<'_, AppState>) -> bool 
 {
-    AppData::get().should_display_migration()
+    app_state.get_ref().should_display_migration()
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn should_display_no_save() -> bool 
+pub fn should_display_no_save(app_state: State<'_, AppState>) -> bool 
 {
-    AppData::get().should_display_no_save()
+    app_state.get_ref().should_display_no_save()
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_book_from_name(prefix: Option<u32>, name: &str) -> Option<BookTitleData>
+pub fn get_book_from_name(app_state: State<'_, AppState>, prefix: Option<u32>, name: &str) -> Option<BookTitleData>
 {
-    searching::get_book_from_name(prefix, name, &AppData::get().get_current_bible()).ok()
+    searching::get_book_from_name(prefix, name, &app_state.get_ref().get_current_bible()).ok()
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_selected_reading() -> u32 
+pub fn get_selected_reading(app_state: State<'_, AppState>) -> u32 
 {
-    AppData::get().read_selected_reading(|selected_reading| {
+    app_state.get_ref().read_selected_reading(|selected_reading| {
         *selected_reading
     })
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn set_selected_reading(selected_reading: u32)
+pub fn set_selected_reading(app_state: State<'_, AppState>, selected_reading: u32)
 {
-    AppData::get().read_selected_reading(|sr| {
+    app_state.get_ref().read_selected_reading(|sr| {
         *sr = selected_reading;
     })
 }
@@ -390,21 +402,21 @@ pub fn open_save_in_file_explorer<R>(app: tauri::AppHandle<R>) -> Option<String>
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_current_bible_version() -> String
+pub fn get_current_bible_version(app_state: State<'_, AppState>) -> String
 {
-    AppData::get().get_current_bible_version()
+    app_state.get_ref().get_current_bible_version()
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn set_current_bible_version(version: String)
+pub fn set_current_bible_version(app_state: State<'_, AppState>, version: String)
 {
-    AppData::get().set_current_bible_version(version);
+    app_state.get_ref().set_current_bible_version(version);
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn get_bible_versions() -> Vec<String>
+pub fn get_bible_versions(app_state: State<'_, AppState>) -> Vec<String>
 {
-    AppData::get().get_bibles()
+    app_state.get_ref().get_bibles()
         .map(|v| v.clone())
         .collect()
 }
