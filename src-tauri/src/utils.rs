@@ -68,3 +68,11 @@ pub fn open_file_explorer(path: &str) -> Result<(), Box<dyn Error>>
     open::that(path)?;
     Ok(())
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AppInfo
+{
+    pub version: String,
+    pub bibles: Vec<String>,
+    pub save_version: String,
+}

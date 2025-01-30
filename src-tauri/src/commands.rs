@@ -4,7 +4,7 @@ use itertools::Itertools;
 use tauri::{path::BaseDirectory, Manager, Runtime, State};
 
 use crate::{
-    app_state::{self, AppData, ViewState, AppState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
+    app_state::{self, ViewState, AppState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
 };
 
 #[tauri::command(rename_all = "snake_case")]
