@@ -19,8 +19,28 @@ use commands::*;
 use readings::ReadingsDatabase;
 use tauri::Manager;
 
-fn main() 
+fn make_tts() -> tts::Tts
 {
+    use tts::Tts;
+    Tts::default().unwrap()
+}
+
+fn test(tts: &mut tts::Tts) -> Result<(), tts::Error>
+{
+    use tts::*;
+    tts.speak("Hello, world.", true)?;
+    Ok(())
+}
+
+fn main() -> Result<(), tts::Error>
+{
+    // let mut tts = make_tts();
+    // test(&mut tts)?;
+
+    // // audio::test()?;
+
+    let tts = audio::test();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
@@ -85,4 +105,6 @@ fn main()
         ])
         .run(tauri::generate_context!()) 
         .expect("error while running tauri application");
+
+    Ok(())
 }
