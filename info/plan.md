@@ -11,8 +11,11 @@
   - [ ] Auto play
     - [ ] Time based
     - [ ] Chapter number based
-    - [ ] Readings based?
-  - [ ] Voice selector?
+    - [ ] Readings based
+  - [ ] Voice selector
+  - [ ] Skip
+  - [ ] Replay
+  - [ ] Player visual
 - [ ] Multiple Theme Support
   - [ ] Dark
   - [ ] Light
