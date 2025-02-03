@@ -42,7 +42,7 @@
   },
   "productName": "Ascribe",
   "mainBinaryName": "Ascribe",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "identifier": "com.bible-study-app.dev",
   "plugins": {},
   "app": {

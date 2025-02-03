@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{cell::RefCell, collections::HashMap, io::Read, path::{Path, PathBuf}, sync::Mutex, thread::spawn};
+use std::{cell::RefCell, collections::HashMap, io::Read, ops::{Deref, DerefMut}, path::{Path, PathBuf}, sync::{Arc, Mutex, MutexGuard}, thread::spawn};
 use tauri::{
     path::{BaseDirectory, PathResolver},
     Runtime,
@@ -9,7 +9,6 @@ use crate::{
     bible::*, bible_parsing, debug_release_val, migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION}, notes::*, settings::Settings
 };
 
-static mut DATA: Option<AppData> = None;
 pub const SAVE_NAME: &str = "save.json";
 
 pub const DEFAULT_BIBLE: &str = "KJV";
@@ -36,6 +35,54 @@ pub const BIBLE_PATHS: &[&str] = &[
         release: "resources/bibles/sparv.txt",
     },
 ];
+
+pub struct AppStateRef<'a>(MutexGuard<'a, Option<AppData>>);
+
+impl<'a> Deref for AppStateRef<'a>
+{
+    type Target = AppData;
+
+    fn deref(&self) -> &Self::Target 
+    {
+        self.0.as_ref().unwrap()
+    }
+}
+
+pub struct AppState(Arc<Mutex<Option<AppData>>>);
+
+impl AppState
+{
+    pub fn create<R>(resolver: &PathResolver<R>) -> Self 
+        where R : Runtime
+    {
+        let data = Arc::new(Mutex::new(None));
+
+        let builder = AppData::get_builder(resolver);
+
+        let cloned = data.clone();
+        spawn(move || {
+            let built = builder();
+            *cloned.lock().unwrap() = Some(built);
+        });
+
+        Self(data)
+    }
+
+    pub fn get_ref(&self) -> AppStateRef<'_>
+    {
+        AppStateRef(self.get())
+    }
+
+    pub fn get(&self) -> MutexGuard<'_, Option<AppData>>
+    {
+        self.0.lock().unwrap()
+    }
+
+    pub fn is_initialized(&self) -> bool
+    {
+        self.0.lock().unwrap().is_some()
+    }
+}
 
 pub struct AppData {
     bibles: HashMap<String, Bible>,
@@ -69,7 +116,7 @@ struct AppSave {
 }
 
 impl AppData {
-    pub fn init<R>(resolver: &PathResolver<R>)
+    pub fn get_builder<R>(resolver: &PathResolver<R>) -> Box<dyn FnOnce() -> Self + Send + Sync + 'static>
     where
         R : Runtime,
     {
@@ -79,12 +126,10 @@ impl AppData {
 
         let bible_paths = Self::get_bible_paths(resolver);
 
-        spawn(|| {
-            Self::init_internal(save_path, bible_paths);
-        });
+        Box::new(|| Self::new(save_path, bible_paths))
     }
 
-    fn init_internal(save_path: Option<PathBuf>, bible_paths: Vec<PathBuf>)
+    fn new(save_path: Option<PathBuf>, bible_paths: Vec<PathBuf>) -> Self
     {
         let file = save_path
             .and_then(|path| std::fs::read(path).ok())
@@ -152,28 +197,18 @@ impl AppData {
             }
         }
 
-        unsafe {
-            DATA = Some(Self {
-                bibles,
-                current_bible_version: Mutex::new(RefCell::new(current_bible_version)),
-                save_version: CURRENT_SAVE_VERSION,
-                notebooks: Mutex::new(RefCell::new(save.notebooks)),
-                view_state_index: Mutex::new(RefCell::new(save.view_state_index)),
-                view_states: Mutex::new(RefCell::new(save.view_states)),
-                editing_note: Mutex::new(RefCell::new(save.editing_note)),
-                need_display_migration: Mutex::new(RefCell::new(was_migrated)),
-                need_display_no_save: Mutex::new(RefCell::new(no_save)),
-                settings: Mutex::new(RefCell::new(save.settings)),
-                selected_reading: Mutex::new(RefCell::new(save.selected_reading)),
-            })
-        }
-    }
-
-    pub fn is_initialized() -> bool
-    {
-        unsafe 
-        {
-            DATA.is_some()
+        Self {
+            bibles,
+            current_bible_version: Mutex::new(RefCell::new(current_bible_version)),
+            save_version: CURRENT_SAVE_VERSION,
+            notebooks: Mutex::new(RefCell::new(save.notebooks)),
+            view_state_index: Mutex::new(RefCell::new(save.view_state_index)),
+            view_states: Mutex::new(RefCell::new(save.view_states)),
+            editing_note: Mutex::new(RefCell::new(save.editing_note)),
+            need_display_migration: Mutex::new(RefCell::new(was_migrated)),
+            need_display_no_save: Mutex::new(RefCell::new(no_save)),
+            settings: Mutex::new(RefCell::new(save.settings)),
+            selected_reading: Mutex::new(RefCell::new(save.selected_reading)),
         }
     }
 
@@ -223,14 +258,6 @@ impl AppData {
             MigrationResult::Error(err) => panic!("Error on save | {}", err),
         };
         (serde_json::from_str(&migrated_json).unwrap(), was_migrated)
-    }
-
-    pub fn get() -> &'static Self 
-    {
-        unsafe 
-        { 
-            DATA.as_ref().unwrap() 
-        }
     }
 
     pub fn get_view_state_index(&self) -> usize {
