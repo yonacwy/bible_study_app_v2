@@ -17,6 +17,8 @@
         import * as utils from './dist/utils/index.js';
 
         while (!await utils.is_app_initialized())  { }
+        
+        utils.invoke('speak_text', { text: 'Hello world!' });
 
         setTimeout(() => 
         {

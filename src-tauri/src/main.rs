@@ -14,7 +14,7 @@ pub mod settings;
 pub mod audio;
 pub mod readings;
 
-use audio::AudioPlayer;
+use audio::{AppTts, AudioPlayer};
 use commands::*;
 use readings::ReadingsDatabase;
 use tauri::Manager;
@@ -26,6 +26,7 @@ fn main() -> Result<(), tts::Error>
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
 
+            app.manage(AppTts::new().unwrap());
             app.manage(AudioPlayer::new(app.path(), audio::DEFAULT_SOURCES));
             app.manage(ReadingsDatabase::new(app.path()));
             app.manage(AppState::create(app.path()));
@@ -83,6 +84,7 @@ fn main() -> Result<(), tts::Error>
             set_current_bible_version,
             get_bible_versions,
             is_initialized,
+            audio::speak_text,
         ])
         .run(tauri::generate_context!()) 
         .expect("error while running tauri application");

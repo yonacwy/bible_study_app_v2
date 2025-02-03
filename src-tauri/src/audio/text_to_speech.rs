@@ -1,5 +1,6 @@
 use std::sync::{Arc, Mutex};
 
+use tauri::State;
 use tts::*;
 
 pub struct AppTts
@@ -45,15 +46,8 @@ impl AppTts
     }
 }
 
-pub enum SpeechEvent
-{
-    Started,
-    Ended,
-    Stopped,
-}
-
 #[tauri::command(rename_all = "snake_case")]
-pub fn speak_text(text: String, speech_id: String)
+pub fn speak_text(tts: State<'_, AppTts>, text: String)
 {
-    
+    tts.speak(&text);
 }
