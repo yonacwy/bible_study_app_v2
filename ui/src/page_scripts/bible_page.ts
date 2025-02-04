@@ -27,7 +27,14 @@ export async function run()
     audio_player.init_player();
 
     Promise.all([
-        pages.init_header(),
+        pages.init_header(e => {
+            let last = e.children[e.children.length - 1];
+            let button = utils.spawn_image_button('../images/volume/light-volume.svg', _ => {
+                audio_player.show_player();
+            });
+
+            e.insertBefore(button, last);
+        }),
         pages.init_context_menu('chapter-content'),
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range),

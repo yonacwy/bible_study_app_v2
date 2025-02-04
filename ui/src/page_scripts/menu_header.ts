@@ -3,9 +3,10 @@ export function get_header(): HTMLElement
     return document.getElementsByTagName('header')[0];
 }
 
-export function init_main_page_header()
+export function init_main_page_header(extra?: (e: HTMLElement) => void)
 {
-    get_header().innerHTML = `
+    let header = get_header();
+    header.innerHTML = `
         ${BIBLE_VERSION_DROPDOWN}
         <div class="dropdown">
             <button class="image-btn" title="Bible chapter selection">
@@ -40,6 +41,11 @@ export function init_main_page_header()
         </button>
         ${SETTINGS_DROPDOWN}
     `;
+
+    if(extra !== undefined)
+    {
+        extra(header);
+    }
 }
 
 export function init_settings_page_header(middle: () => string)

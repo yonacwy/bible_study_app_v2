@@ -26,9 +26,9 @@ export const HIGHLIGHT_EDITOR_BUTTON_ID: string = "highlight-settings";
 
 const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 
-export async function init_header(): Promise<void>
+export async function init_header(extra?: (e: HTMLElement) => void): Promise<void>
 {
-    init_main_page_header();
+    init_main_page_header(extra);
     highlight_utils.SELECTED_HIGHLIGHT.add_listener(on_highlight_changed);
 
     let word_popup = document.getElementById(WORD_POPUP_ID);

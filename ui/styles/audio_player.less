@@ -10,8 +10,12 @@
     z-index: 1000000000;
     padding: 10px;
 
-    top: 100px;
-    left: 100px;
+    &.spawned {
+        bottom: 10px;
+        left: 50%;
+        transform: translate(-50%, 0%);
+    }
+    
     background-color: white;
     border: #333;
 
@@ -21,8 +25,13 @@
     
     .styled-slider(300px, 7px, 7px);
 
+    &.hidden {
+        display: none;
+    }
+
     .play-time {
         margin: 5px;
+        text-wrap: nowrap;
         .select-none();
         .font-small();
     }
