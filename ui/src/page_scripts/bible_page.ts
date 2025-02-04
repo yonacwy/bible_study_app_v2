@@ -7,6 +7,7 @@ import * as view_states from "../view_states.js";
 import * as side_popup from "../popups/side_popup.js";
 import * as word_select from "../word_select.js";
 import { range_inclusive } from "../utils/ranges.js";
+import * as audio_player from "../popups/audio_player.js";
 
 const CONTENT_ID: string = "chapter-text-content";
 const CHAPTER_NAME_ID: string = "chapter-name"
@@ -21,7 +22,9 @@ export async function run()
 
     bible.add_version_changed_listener(_ => {
         utils.scrolling.save_scroll(null);
-    })
+    });
+
+    audio_player.init_player();
 
     Promise.all([
         pages.init_header(),

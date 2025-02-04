@@ -1,0 +1,29 @@
+@import "./shared/defs.less";
+@import "./shared/font_sizing.less";
+@import "./shared/slider.less";
+
+.audio-player {
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000000000;
+    padding: 10px;
+
+    top: 100px;
+    left: 100px;
+    background-color: white;
+    border: #333;
+
+    .rounded-border();
+    .drop-shadow-s();
+
+    
+    .styled-slider(300px, 7px, 7px);
+
+    .play-time {
+        margin: 5px;
+        .select-none();
+        .font-small();
+    }
+}
