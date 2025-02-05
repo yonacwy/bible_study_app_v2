@@ -60,6 +60,7 @@ function build_play_button(parent: HTMLElement)
         {
             is_playing = true;
             image.src = '../images/light-pause.svg';
+            utils.invoke('speak_text', {});
         }
     })
 }

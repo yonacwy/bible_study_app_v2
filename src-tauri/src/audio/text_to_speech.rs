@@ -45,6 +45,7 @@ impl TtsPlayer
         self.sound_handle = Some(sound_handle.clone());
 
         self.player_thread = Some(spawn(move || {
+            let mut old_elapsed = 0.0;
             loop 
             {
                 let elapsed = sound_handle.lock().unwrap().position() as f32;
@@ -52,8 +53,12 @@ impl TtsPlayer
                 match sound_handle.lock().unwrap().state()
                 {
                     PlaybackState::Playing => {
-                        let progress = (elapsed / duration) * 100.0;
-                        println!("time: {:.2}%", progress);
+                        if elapsed - old_elapsed > 0.05
+                        {
+                            old_elapsed = elapsed;
+                            let progress = (elapsed / duration) * 100.0;
+                            println!("time: {:.2}%", progress);
+                        }
                     },
                     PlaybackState::Stopped => break,
                     _ => {}
