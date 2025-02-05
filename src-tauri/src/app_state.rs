@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{cell::RefCell, collections::HashMap, io::Read, ops::{Deref, DerefMut}, path::{Path, PathBuf}, sync::{Arc, Mutex, MutexGuard}, thread::spawn};
+use std::{cell::RefCell, collections::HashMap, io::Read, ops::Deref, path::PathBuf, sync::{Arc, Mutex, MutexGuard}, thread::spawn};
 use tauri::{
     path::{BaseDirectory, PathResolver},
     Runtime,

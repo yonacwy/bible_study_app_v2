@@ -1,7 +1,7 @@
 use std::{sync::{Arc, Mutex}, thread::{spawn, JoinHandle}};
 
 use kira::{sound::{static_sound::{StaticSoundData, StaticSoundHandle}, PlaybackState}, AudioManager, AudioManagerSettings, DefaultBackend, Tween};
-use tauri::{path::{BaseDirectory, PathResolver}, AppHandle, Runtime, State};
+use tauri::{path::{BaseDirectory, PathResolver}, Runtime, State};
 
 pub struct TtsPlayer
 {
@@ -35,7 +35,7 @@ impl TtsPlayer
         if let Some(handle) = self.player_thread.take()
         {
             self.sound_handle.take().unwrap().lock().unwrap().stop(Tween::default());
-            handle.join();
+            handle.join().unwrap();
         }
 
         let duration = self.source.duration().as_secs_f32();
@@ -74,10 +74,54 @@ impl TtsPlayer
             handle.lock().unwrap().stop(Tween::default());
         }
     }
+    
+    pub fn get_state(&mut self) -> PlaybackState
+    {
+        self.sound_handle.as_ref().map_or(PlaybackState::Stopped, |h| h.lock().unwrap().state())
+    }
+
+    pub fn pause(&mut self)
+    {
+        if let Some(handle) = &self.sound_handle
+        {
+            handle.lock().unwrap().pause(Tween::default());
+        }
+    }
+    
+    pub fn resume(&mut self)
+    {
+        if let Some(handle) = &self.sound_handle
+        {
+            handle.lock().unwrap().resume(Tween::default());
+        }
+    }
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn speak_text(state: State<'_, Mutex<TtsPlayer>>)
+pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, command: &str) -> Option<String>
 {
-    state.lock().unwrap().play();
+    match command 
+    {
+        "play" => state.lock().unwrap().play(),
+        "pause" => state.lock().unwrap().pause(),
+        "resume" => state.lock().unwrap().resume(),
+        "stop" => state.lock().unwrap().stop(),
+        "get_state" => {
+            let value = match state.lock().unwrap().get_state()
+            {
+                PlaybackState::Playing => "playing",
+                PlaybackState::Pausing => "pausing",
+                PlaybackState::Paused => "paused",
+                PlaybackState::WaitingToResume => "waiting_to_resume",
+                PlaybackState::Resuming => "resuming",
+                PlaybackState::Stopping => "stopping",
+                PlaybackState::Stopped => "stopped",
+            }.to_owned();
+
+            return Some(value)
+        }
+        _ => println!("Error: Unknown TTS command")
+    }
+
+    None
 }

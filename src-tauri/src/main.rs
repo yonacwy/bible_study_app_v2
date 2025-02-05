@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use std::sync::Mutex;
 
-use app_state::{AppData, AppState};
+use app_state::AppState;
 
 pub mod app_state;
 pub mod bible;
@@ -86,7 +86,7 @@ fn main() -> Result<(), tts::Error>
             set_current_bible_version,
             get_bible_versions,
             is_initialized,
-            audio::speak_text,
+            audio::run_tts_command,
         ])
         .run(tauri::generate_context!()) 
         .expect("error while running tauri application");

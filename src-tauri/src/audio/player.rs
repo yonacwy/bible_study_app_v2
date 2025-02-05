@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::{Arc, Mutex}};
 use kira::{sound::static_sound::{StaticSoundData, StaticSoundHandle}, AudioManager, AudioManagerSettings, Decibels, DefaultBackend, PlaySoundError, Tween, Tweenable };
 use tauri::{path::{BaseDirectory, PathResolver}, Runtime, State};
 
-use crate::app_state::{AppData, AppState};
+use crate::app_state::AppState;
 
 pub const DEFAULT_SOURCES: &[(&str, &str)] = &[
     ("flip", "resources/sounds/pageturn-102978.mp3")

@@ -1,10 +1,12 @@
 import * as utils from '../utils/index.js';
 
-let is_playing = true;
+let is_playing = false;
 
 export function show_player()
 {
     document.getElementById('audio-player')?.classList.remove('hidden');
+    utils.tts.play();
+    utils.tts.pause();
 }
 
 export function init_player()
@@ -14,7 +16,7 @@ export function init_player()
         player_div.classList.add('spawned');
         handle_dragging(player_div);
 
-        build_play_button(player_div);
+        let play_button = build_play_button(player_div);
 
         let audio_slider = player_div.appendElement('input', audio_range => {
             audio_range.type = 'range';
@@ -37,32 +39,41 @@ export function init_player()
             player_div.classList.add('hidden');
             audio_slider.value = '0';
             reset_player_position(player_div);
+
+            utils.tts.stop();
+            is_playing = false;
+            
+            (play_button.querySelector('img') as HTMLImageElement).src = "../images/light-play.svg";
         })
     });
     
     utils.init_sliders();
 }
 
-function build_play_button(parent: HTMLElement)
+function build_play_button(parent: HTMLElement): HTMLButtonElement
 {
-    let play_button = utils.create_image_button(parent, '../images/light-pause.svg', e => {
+    let play_button = utils.create_image_button(parent, '../images/light-play.svg', e => {
         e.stopPropagation();
     });
 
     let image = play_button.querySelector('img') as HTMLImageElement;
     play_button.addEventListener('click', e => {
+
         if(is_playing)
         {
             is_playing = false;
             image.src = '../images/light-play.svg';
+            utils.tts.pause();
         }
         else 
         {
             is_playing = true;
             image.src = '../images/light-pause.svg';
-            utils.invoke('speak_text', {});
+            utils.tts.resume();
         }
-    })
+    });
+
+    return play_button;
 }
 
 function reset_player_position(element: HTMLElement)
