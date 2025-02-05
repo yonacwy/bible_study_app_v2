@@ -1,5 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+use std::sync::Mutex;
+
 use app_state::{AppData, AppState};
 
 pub mod app_state;
@@ -14,7 +16,7 @@ pub mod settings;
 pub mod audio;
 pub mod readings;
 
-use audio::{AppTts, AudioPlayer};
+use audio::{TtsPlayer, AudioPlayer};
 use commands::*;
 use readings::ReadingsDatabase;
 use tauri::Manager;
@@ -26,7 +28,7 @@ fn main() -> Result<(), tts::Error>
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
 
-            app.manage(AppTts::new().unwrap());
+            app.manage(Mutex::new(TtsPlayer::new(app.path())));
             app.manage(AudioPlayer::new(app.path(), audio::DEFAULT_SOURCES));
             app.manage(ReadingsDatabase::new(app.path()));
             app.manage(AppState::create(app.path()));

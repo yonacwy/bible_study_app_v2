@@ -1,53 +1,78 @@
-use std::sync::{Arc, Mutex};
+use std::{sync::{Arc, Mutex}, thread::{spawn, JoinHandle}};
 
-use tauri::State;
-use tts::*;
+use kira::{sound::{static_sound::{StaticSoundData, StaticSoundHandle}, PlaybackState}, AudioManager, AudioManagerSettings, DefaultBackend, Tween};
+use tauri::{path::{BaseDirectory, PathResolver}, AppHandle, Runtime, State};
 
-pub struct AppTts
+pub struct TtsPlayer
 {
-    tts: Arc<Mutex<Tts>>,
+    manager: AudioManager::<DefaultBackend>,
+    source: StaticSoundData,
+    sound_handle: Option<Arc<Mutex<StaticSoundHandle>>>,
+    player_thread: Option<JoinHandle<()>>,
 }
 
-impl AppTts
+impl TtsPlayer 
 {
-    pub fn new() -> Result<Self, String>
+    pub fn new<R>(resolver: &PathResolver<R>) -> Self
+        where R : Runtime
     {
-        let tts = match Tts::default()
+        let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
+        let r = resolver.resolve("resources/sounds/sample-wav-files-sample3.wav", BaseDirectory::Resource).unwrap();
+        let source = StaticSoundData::from_file(r).unwrap();
+
+        Self 
         {
-            Ok(ok) => ok,
-            Err(err) => return Err(err.to_string())
-        };
-
-        Ok(Self {
-            tts: Arc::new(Mutex::new(tts))
-        })
+            manager,
+            source,
+            sound_handle: None,
+            player_thread: None,
+        }
     }
 
-    pub fn speak(&self, text: &str)
+    pub fn play(&mut self)
     {
-        self.tts.lock().unwrap().speak(text, true).unwrap();
+        // if we are still playing, we stop the player thread
+        if let Some(handle) = self.player_thread.take()
+        {
+            self.sound_handle.take().unwrap().lock().unwrap().stop(Tween::default());
+            handle.join();
+        }
+
+        let duration = self.source.duration().as_secs_f32();
+        
+        let sound_handle = self.manager.play(self.source.clone()).unwrap();
+        let sound_handle = Arc::new(Mutex::new(sound_handle));
+        self.sound_handle = Some(sound_handle.clone());
+
+        self.player_thread = Some(spawn(move || {
+            loop 
+            {
+                let elapsed = sound_handle.lock().unwrap().position() as f32;
+
+                match sound_handle.lock().unwrap().state()
+                {
+                    PlaybackState::Playing => {
+                        let progress = (elapsed / duration) * 100.0;
+                        println!("time: {:.2}%", progress);
+                    },
+                    PlaybackState::Stopped => break,
+                    _ => {}
+                }
+            }
+        }))
     }
 
-    pub fn stop(&self)
+    pub fn stop(&mut self)
     {
-        self.tts.lock().unwrap().stop().unwrap();
-    }
-
-    pub fn get_voices(&self) -> Option<Vec<String>>
-    {
-        self.tts.lock().unwrap().voices().ok().map(|voices|  {
-            voices.iter().map(|v| v.name()).collect()
-        })
-    }
-
-    pub fn set_voice(&self)
-    {
-        todo!()
+        if let Some(handle) = &self.sound_handle
+        {
+            handle.lock().unwrap().stop(Tween::default());
+        }
     }
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn speak_text(tts: State<'_, AppTts>, text: String)
+pub fn speak_text(state: State<'_, Mutex<TtsPlayer>>)
 {
-    tts.speak(&text);
+    state.lock().unwrap().play();
 }
