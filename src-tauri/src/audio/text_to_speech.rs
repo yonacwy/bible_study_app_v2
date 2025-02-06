@@ -1,6 +1,7 @@
 use std::{sync::{Arc, Mutex}, thread::{spawn, JoinHandle}};
 
-use kira::{sound::{static_sound::{StaticSoundData, StaticSoundHandle}, PlaybackState}, AudioManager, AudioManagerSettings, DefaultBackend, Tween};
+use kira::{sound::{static_sound::{StaticSoundData, StaticSoundHandle, StaticSoundSettings}, PlaybackState}, AudioManager, AudioManagerSettings, DefaultBackend, Frame, Tween};
+use piper_rs::synth::PiperSpeechSynthesizer;
 use tauri::{path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Runtime, State};
 
 pub struct TtsPlayer
@@ -16,9 +17,30 @@ impl TtsPlayer
     pub fn new<R>(resolver: &PathResolver<R>) -> Self
         where R : Runtime
     {
+        let tts_dir = resolver.resolve("resources/tts-data/espeak-ng-data", BaseDirectory::Resource).unwrap();
+        std::env::set_var("PIPER_ESPEAKNG_DATA_DIRECTORY", tts_dir.into_os_string());
+        let config_path = resolver.resolve("resources/tts-data/voices/en_US-joe-medium.onnx.json", BaseDirectory::Resource).unwrap();
+        let model = piper_rs::from_config_path(config_path.as_path()).unwrap();
+        let synth = PiperSpeechSynthesizer::new(model).unwrap();
+
+        let synthesized: Vec<f32> = synth.synthesize_parallel("Hello World!".into(), None).unwrap()
+            .into_iter()
+            .map(|r| r.unwrap().into_vec())
+            .flatten()
+            .collect();
+
+        let frames: Arc<[Frame]> = synthesized.iter().map(|f| Frame::from_mono(*f)).collect();
+        let source = StaticSoundData {
+            sample_rate: 22050,
+            frames,
+            settings: StaticSoundSettings::new(),
+            slice: None,
+        };
+
+
         let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
-        let r = resolver.resolve("resources/sounds/sample-wav-files-sample3.wav", BaseDirectory::Resource).unwrap();
-        let source = StaticSoundData::from_file(r).unwrap();
+        // let r = resolver.resolve("resources/sounds/sample-wav-files-sample3.wav", BaseDirectory::Resource).unwrap();
+        // let source = StaticSoundData::from_file(r).unwrap();
 
         Self 
         {
