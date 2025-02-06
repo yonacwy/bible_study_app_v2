@@ -16,8 +16,14 @@ export const invoke: (fn_name: string, args: any) => Promise<any> = (window as a
 
 export const emit_event: (event_name: string, data: any) => Promise<void> = (window as any).__TAURI__.event.emit;
 
+export type AppEvent = {
+    event: string,
+    payload: any,
+    id: number,
+}
+
 export type UnlistenFn = () => void;
-export type EventCallback = (value: any) => void;
+export type EventCallback = (value: AppEvent) => void;
 export const listen_event: (event_name: string, handler: EventCallback) => Promise<UnlistenFn> = (window as any).__TAURI__.event.listen;
 
 export type AsyncableFn = (() => void) | (() => Promise<void>);

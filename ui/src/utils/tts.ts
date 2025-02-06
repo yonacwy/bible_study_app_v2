@@ -2,22 +2,32 @@ import * as utils from "./index.js";
 
 export function play()
 {
-    invoke_command('play');
+    invoke_tts_command('play');
 }
 
 export function pause()
 {
-    invoke_command('pause');
+    invoke_tts_command('pause');
 }
 
 export function resume()
 {
-    invoke_command('resume');
+    invoke_tts_command('resume');
 }
 
 export function stop()
 {
-    invoke_command('stop');
+    invoke_tts_command('stop');
+}
+
+export async function get_duration(): Promise<number>
+{
+    return +(await invoke_tts_command("get_duration") as string)
+}
+
+export function set_time(time: number)
+{
+    invoke_tts_command("set_time", time);
 }
 
 export enum TtsState
@@ -33,7 +43,7 @@ export enum TtsState
 
 export async function get_state(): Promise<TtsState>
 {
-    let state_string = await invoke_command('get_state') as string;
+    let state_string = await invoke_tts_command('get_state') as string;
     
     if (state_string === "playing")
         return TtsState.Playing;
@@ -54,7 +64,12 @@ export async function get_state(): Promise<TtsState>
     return TtsState.Stopped;
 }
 
-export async function invoke_command(cmd: string): Promise<string | null>
+async function invoke_tts_command(cmd: string, args?: any): Promise<string | null>
 {
-    return await utils.invoke('run_tts_command', { command: cmd }) as string | null;
+    let a: string | null = null;
+    if(args !== undefined)
+    {
+        a = JSON.stringify(args);
+    }
+    return await utils.invoke('run_tts_command', { command: cmd, args: a }) as string | null;
 }

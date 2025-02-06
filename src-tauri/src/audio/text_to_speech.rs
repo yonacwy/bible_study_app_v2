@@ -1,7 +1,7 @@
 use std::{sync::{Arc, Mutex}, thread::{spawn, JoinHandle}};
 
 use kira::{sound::{static_sound::{StaticSoundData, StaticSoundHandle}, PlaybackState}, AudioManager, AudioManagerSettings, DefaultBackend, Tween};
-use tauri::{path::{BaseDirectory, PathResolver}, Runtime, State};
+use tauri::{path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Runtime, State};
 
 pub struct TtsPlayer
 {
@@ -29,7 +29,7 @@ impl TtsPlayer
         }
     }
 
-    pub fn play(&mut self)
+    pub fn play(&mut self, app_handle: AppHandle)
     {
         // if we are still playing, we stop the player thread
         if let Some(handle) = self.player_thread.take()
@@ -40,7 +40,8 @@ impl TtsPlayer
 
         let duration = self.source.duration().as_secs_f32();
         
-        let sound_handle = self.manager.play(self.source.clone()).unwrap();
+        let mut sound_handle = self.manager.play(self.source.clone()).unwrap();
+        sound_handle.set_volume(-20.0, Tween::default());
         let sound_handle = Arc::new(Mutex::new(sound_handle));
         self.sound_handle = Some(sound_handle.clone());
 
@@ -53,11 +54,12 @@ impl TtsPlayer
                 match sound_handle.lock().unwrap().state()
                 {
                     PlaybackState::Playing => {
+                        if elapsed < old_elapsed { old_elapsed = elapsed }
                         if elapsed - old_elapsed > 0.05
                         {
                             old_elapsed = elapsed;
                             let progress = (elapsed / duration) * 100.0;
-                            println!("time: {:.2}%", progress);
+                            app_handle.emit("tts_progress", progress).unwrap();
                         }
                     },
                     PlaybackState::Stopped => break,
@@ -95,14 +97,29 @@ impl TtsPlayer
             handle.lock().unwrap().resume(Tween::default());
         }
     }
+
+    pub fn get_duration(&mut self) -> f32
+    {
+        self.source.duration().as_secs_f32()
+    }
+
+    pub fn set_time(&mut self, time: f32)
+    {
+        if let Some(handle) = &self.sound_handle
+        {
+            handle.lock().unwrap().seek_to(time as f64);
+        }
+    }
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, command: &str) -> Option<String>
+pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, app_handle: AppHandle, command: &str, args: Option<String>) -> Option<String>
 {
+    println!("got here!: {command}");
+    let args: Option<serde_json::Value> = args.map(|a| serde_json::from_str(&a).unwrap());
     match command 
     {
-        "play" => state.lock().unwrap().play(),
+        "play" => state.lock().unwrap().play(app_handle),
         "pause" => state.lock().unwrap().pause(),
         "resume" => state.lock().unwrap().resume(),
         "stop" => state.lock().unwrap().stop(),
@@ -120,6 +137,15 @@ pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, command: &str) -> Opt
 
             return Some(value)
         }
+        "get_duration" => return Some(state.lock().unwrap().get_duration().to_string()),
+        "set_time" => {
+            let Some(value) = args.map(|a| a.as_f64()).flatten().map(|v| v as f32) else {
+                println!("Error: invalid `set_time` command argument");
+                return None;
+            };
+
+            state.lock().unwrap().set_time(value);
+        },
         _ => println!("Error: Unknown TTS command")
     }
 

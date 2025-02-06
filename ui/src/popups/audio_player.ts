@@ -18,6 +18,8 @@ export function init_player()
 
         let play_button = build_play_button(player_div);
 
+        let is_updating = false;
+
         let audio_slider = player_div.appendElement('input', audio_range => {
             audio_range.type = 'range';
             audio_range.min = '0';
@@ -25,15 +27,49 @@ export function init_player()
             audio_range.value = '0';
             audio_range.step = '0.001';
 
+            utils.listen_event('tts_progress', async elapsed => {
+                if(!is_updating)
+                {
+                    let percent = (elapsed.payload as number) / await utils.tts.get_duration();
+                    audio_range.value = `${percent}`;
+                    utils.update_sliders();
+                }
+            });
+
+            audio_range.addEventListener('input', e => {
+                is_updating = true;
+            });
+
+            document.addEventListener('mouseup', async e => {
+                if(is_updating)
+                {
+                    utils.debug_print('set value');
+                    is_updating = false;
+                    utils.tts.set_time(+audio_range.value * await utils.tts.get_duration())
+                }
+            })
+
             audio_range.addEventListener('mousedown', e => {
                 e.stopPropagation();
             });
         })
 
-        player_div.appendElementEx('div', ['play-time'], time_text => {
+        let time_text = player_div.appendElementEx('div', ['play-time'], time_text => {
             time_text.innerHTML = '--:--';
-            // time_text.addEventListener('mousedown', e => e.stopPropagation());
+
+            utils.listen_event('tts_progress', elapsed => {
+                if(!is_updating)
+                {
+                    let current = (elapsed.payload as number);
+                    set_time_text(current, time_text);
+                }
+            })
         });
+
+        audio_slider.addEventListener('input', async e => {
+            let current = +audio_slider.value * await utils.tts.get_duration();
+            set_time_text(current, time_text);
+        })
 
         utils.create_image_button(player_div, '../images/light-xmark.svg', e => {
             player_div.classList.add('hidden');
@@ -48,6 +84,14 @@ export function init_player()
     });
     
     utils.init_sliders();
+}
+
+function set_time_text(current: number, element: HTMLElement)
+{
+    let mins = Math.floor(current / 60);
+    let secs = Math.round((current - mins * 60));
+    let secs_str = secs < 10 ? `0${secs}` : `${secs}`;
+    element.innerHTML = `${mins}:${secs_str}`;
 }
 
 function build_play_button(parent: HTMLElement): HTMLButtonElement
