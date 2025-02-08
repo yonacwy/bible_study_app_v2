@@ -4,17 +4,59 @@ use kira::{sound::{static_sound::{StaticSoundData, StaticSoundHandle, StaticSoun
 use piper_rs::synth::PiperSpeechSynthesizer;
 use tauri::{path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Runtime, State};
 
+pub enum TtsPlayerState
+{
+    Generating,
+    Playing,
+    Paused,
+    Idle,
+}
+
+enum TtsPlayerThread
+{
+    Generating
+    {
+        handle: JoinHandle<StaticSoundData>
+    },
+    Playing
+    {
+        player_thread: JoinHandle<()>,
+        source_handle: Arc<Mutex<StaticSoundHandle>>,
+    },
+    Idle,
+}
+
+impl TtsPlayerThread
+{
+    fn stop(&mut self)
+    {
+        match std::mem::replace(self, TtsPlayerThread::Idle) 
+        {
+            TtsPlayerThread::Generating { handle:_ } => {},
+            TtsPlayerThread::Playing 
+            { 
+                player_thread, 
+                source_handle 
+            } => {
+                source_handle.lock().unwrap();
+                player_thread.join().unwrap();
+            },
+            TtsPlayerThread::Idle => {},
+        }
+    }
+}
+
 pub struct TtsPlayer
 {
     manager: AudioManager::<DefaultBackend>,
-    source: StaticSoundData,
-    sound_handle: Option<Arc<Mutex<StaticSoundHandle>>>,
-    player_thread: Option<JoinHandle<()>>,
+    thread_handle: TtsPlayerThread,
+    synthesizer: Arc<Mutex<PiperSpeechSynthesizer>>,
+    app_handle: Arc<AppHandle>,
 }
 
 impl TtsPlayer 
 {
-    pub fn new<R>(resolver: &PathResolver<R>) -> Self
+    pub fn new<R>(resolver: &PathResolver<R>, app_handle: AppHandle) -> Self
         where R : Runtime
     {
         let tts_dir = resolver.resolve("resources/tts-data/espeak-ng-data", BaseDirectory::Resource).unwrap();
@@ -23,106 +65,66 @@ impl TtsPlayer
         let model = piper_rs::from_config_path(config_path.as_path()).unwrap();
         let synth = PiperSpeechSynthesizer::new(model).unwrap();
 
-        let synthesized: Vec<f32> = synth.synthesize_parallel("Hello World!".into(), None).unwrap()
+        let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
+
+        Self 
+        {
+            manager,
+            thread_handle: TtsPlayerThread::Idle,
+            synthesizer: Arc::new(Mutex::new(synth)),
+            app_handle: Arc::new(app_handle),
+        }
+    }
+
+    pub fn play_text(&mut self, text: &str)
+    {
+        self.stop();
+        let app_handle = self.app_handle.clone();
+        let synth = self.synthesizer.clone();
+
+        let handle = spawn(move || {
+            let synthesized: Vec<f32> = synth.lock().unwrap().synthesize_parallel("Hello World!".into(), None).unwrap()
             .into_iter()
             .map(|r| r.unwrap().into_vec())
             .flatten()
             .collect();
 
-        let frames: Arc<[Frame]> = synthesized.iter().map(|f| Frame::from_mono(*f)).collect();
-        let source = StaticSoundData {
-            sample_rate: 22050,
-            frames,
-            settings: StaticSoundSettings::new(),
-            slice: None,
+            let frames: Arc<[Frame]> = synthesized.iter().map(|f| Frame::from_mono(*f)).collect();
+            let source = StaticSoundData {
+                sample_rate: 22050,
+                frames,
+                settings: StaticSoundSettings::new(),
+                slice: None,
+            };
+
+            app_handle.emit("tts_event", "generated");
+            source
+
+        });
+
+        self.thread_handle = TtsPlayerThread::Generating { 
+            handle
         };
-
-
-        let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
-        // let r = resolver.resolve("resources/sounds/sample-wav-files-sample3.wav", BaseDirectory::Resource).unwrap();
-        // let source = StaticSoundData::from_file(r).unwrap();
-
-        Self 
-        {
-            manager,
-            source,
-            sound_handle: None,
-            player_thread: None,
-        }
-    }
-
-    pub fn play(&mut self, app_handle: AppHandle)
-    {
-        // if we are still playing, we stop the player thread
-        if let Some(handle) = self.player_thread.take()
-        {
-            self.sound_handle.take().unwrap().lock().unwrap().stop(Tween::default());
-            handle.join().unwrap();
-        }
-
-        let duration = self.source.duration().as_secs_f32();
-        
-        let mut sound_handle = self.manager.play(self.source.clone()).unwrap();
-        sound_handle.set_volume(-20.0, Tween::default());
-        let sound_handle = Arc::new(Mutex::new(sound_handle));
-        self.sound_handle = Some(sound_handle.clone());
-
-        self.player_thread = Some(spawn(move || {
-            let mut old_elapsed = 0.0;
-            loop 
-            {
-                let elapsed = sound_handle.lock().unwrap().position() as f32;
-
-                match sound_handle.lock().unwrap().state()
-                {
-                    PlaybackState::Playing => {
-                        if elapsed < old_elapsed { old_elapsed = elapsed }
-                        if elapsed - old_elapsed > 0.05
-                        {
-                            old_elapsed = elapsed;
-                            let progress = (elapsed / duration) * 100.0;
-                            app_handle.emit("tts_progress", progress).unwrap();
-                        }
-                    },
-                    PlaybackState::Stopped => break,
-                    _ => {}
-                }
-            }
-        }))
     }
 
     pub fn stop(&mut self)
     {
-        if let Some(handle) = &self.sound_handle
-        {
-            handle.lock().unwrap().stop(Tween::default());
-        }
-    }
-    
-    pub fn get_state(&mut self) -> PlaybackState
-    {
-        self.sound_handle.as_ref().map_or(PlaybackState::Stopped, |h| h.lock().unwrap().state())
+        self.thread_handle.stop();
     }
 
     pub fn pause(&mut self)
     {
-        if let Some(handle) = &self.sound_handle
-        {
-            handle.lock().unwrap().pause(Tween::default());
-        }
+        
     }
     
     pub fn resume(&mut self)
     {
-        if let Some(handle) = &self.sound_handle
-        {
-            handle.lock().unwrap().resume(Tween::default());
-        }
+        
     }
 
     pub fn get_duration(&mut self) -> f32
     {
-        self.source.duration().as_secs_f32()
+        
     }
 
     pub fn set_time(&mut self, time: f32)
@@ -141,7 +143,7 @@ pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, app_handle: AppHandle
     let args: Option<serde_json::Value> = args.map(|a| serde_json::from_str(&a).unwrap());
     match command 
     {
-        "play" => state.lock().unwrap().play(app_handle),
+        "play" => state.lock().unwrap().play_text(app_handle),
         "pause" => state.lock().unwrap().pause(),
         "resume" => state.lock().unwrap().resume(),
         "stop" => state.lock().unwrap().stop(),

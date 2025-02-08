@@ -34,6 +34,7 @@ open = "3.2.0"
 tts = { version = "0.26.3" }
 env_logger = "0.10.2"
 piper-rs = "0.1.9"
+float-lerp = "0.2.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
