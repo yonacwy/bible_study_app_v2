@@ -1,57 +1,22 @@
-use std::{sync::{Arc, Mutex}, thread::{spawn, JoinHandle}};
+use std::{collections::HashMap, sync::{Arc, Mutex}, thread::{spawn, JoinHandle}};
 
 use kira::{sound::{static_sound::{StaticSoundData, StaticSoundHandle, StaticSoundSettings}, PlaybackState}, AudioManager, AudioManagerSettings, DefaultBackend, Frame, Tween};
 use piper_rs::synth::PiperSpeechSynthesizer;
 use tauri::{path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Runtime, State};
 
-pub enum TtsPlayerState
+enum TtsSoundSource
 {
-    Generating,
-    Playing,
-    Paused,
-    Idle,
-}
-
-enum TtsPlayerThread
-{
-    Generating
-    {
-        handle: JoinHandle<StaticSoundData>
-    },
-    Playing
-    {
-        player_thread: JoinHandle<()>,
-        source_handle: Arc<Mutex<StaticSoundHandle>>,
-    },
-    Idle,
-}
-
-impl TtsPlayerThread
-{
-    fn stop(&mut self)
-    {
-        match std::mem::replace(self, TtsPlayerThread::Idle) 
-        {
-            TtsPlayerThread::Generating { handle:_ } => {},
-            TtsPlayerThread::Playing 
-            { 
-                player_thread, 
-                source_handle 
-            } => {
-                source_handle.lock().unwrap();
-                player_thread.join().unwrap();
-            },
-            TtsPlayerThread::Idle => {},
-        }
-    }
+    Generating(JoinHandle<StaticSoundData>),
+    Generated(StaticSoundData)
 }
 
 pub struct TtsPlayer
 {
     manager: AudioManager::<DefaultBackend>,
-    thread_handle: TtsPlayerThread,
+    sources: HashMap<String, TtsSoundSource>,
     synthesizer: Arc<Mutex<PiperSpeechSynthesizer>>,
-    app_handle: Arc<AppHandle>,
+    sound_handle: Option<StaticSoundHandle>,
+    app_handle: AppHandle,
 }
 
 impl TtsPlayer 
@@ -70,24 +35,31 @@ impl TtsPlayer
         Self 
         {
             manager,
-            thread_handle: TtsPlayerThread::Idle,
+            sources: HashMap::new(),
             synthesizer: Arc::new(Mutex::new(synth)),
-            app_handle: Arc::new(app_handle),
+            sound_handle: None,
+            app_handle,
         }
     }
 
-    pub fn play_text(&mut self, text: &str)
+    pub fn play_text(&mut self, text: String) -> bool
     {
         self.stop();
+        if let Some(data) = self.
+    }
+
+    fn generate_sound_data(&mut self, text: String)
+    {
         let app_handle = self.app_handle.clone();
         let synth = self.synthesizer.clone();
+        let key = text.clone();
 
         let handle = spawn(move || {
-            let synthesized: Vec<f32> = synth.lock().unwrap().synthesize_parallel("Hello World!".into(), None).unwrap()
-            .into_iter()
-            .map(|r| r.unwrap().into_vec())
-            .flatten()
-            .collect();
+            let synthesized: Vec<f32> = synth.lock().unwrap().synthesize_parallel(text, None).unwrap()
+                .into_iter()
+                .map(|r| r.unwrap().into_vec())
+                .flatten()
+                .collect();
 
             let frames: Arc<[Frame]> = synthesized.iter().map(|f| Frame::from_mono(*f)).collect();
             let source = StaticSoundData {
@@ -97,14 +69,12 @@ impl TtsPlayer
                 slice: None,
             };
 
-            app_handle.emit("tts_event", "generated");
+            app_handle.emit();
             source
 
         });
 
-        self.thread_handle = TtsPlayerThread::Generating { 
-            handle
-        };
+        self.sources.insert(key, TtsSoundSource::Generating(handle));
     }
 
     pub fn stop(&mut self)
