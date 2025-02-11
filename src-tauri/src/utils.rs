@@ -1,4 +1,4 @@
-use std::{error::Error, hash::{DefaultHasher, Hash, Hasher}, path::Path};
+use std::{error::Error, hash::{DefaultHasher, Hash, Hasher}, path::Path, sync::{Arc, Mutex}};
 
 use serde::{Deserialize, Serialize};
 
@@ -38,6 +38,11 @@ where
     s.finish()
 }
 
+pub fn get_uuid() -> String 
+{
+    uuid::Uuid::new_v4().to_string()
+}
+
 #[macro_export]
 macro_rules! debug_release_val 
 {
@@ -75,4 +80,12 @@ pub struct AppInfo
     pub version: String,
     pub bibles: Vec<String>,
     pub save_version: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct Shared<T>(Arc<Mutex<T>>);
+
+impl<T> Shared<T>
+{
+    
 }
