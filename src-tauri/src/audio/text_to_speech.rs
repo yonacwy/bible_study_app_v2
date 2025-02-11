@@ -2,12 +2,51 @@ use std::{collections::HashMap, sync::{Arc, Mutex}, thread::{spawn, JoinHandle}}
 
 use kira::{sound::{static_sound::{StaticSoundData, StaticSoundHandle, StaticSoundSettings}, PlaybackState}, AudioManager, AudioManagerSettings, DefaultBackend, Frame, Tween};
 use piper_rs::synth::PiperSpeechSynthesizer;
+use serde::{Deserialize, Serialize};
 use tauri::{path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Runtime, State};
 
 enum TtsSoundSource
 {
     Generating(JoinHandle<StaticSoundData>),
-    Generated(StaticSoundData)
+    Generated
+    {
+        data: StaticSoundData,
+        id: String,
+    }
+}
+
+enum TtsPlayerThread
+{
+    Inactive,
+    Playing
+    {
+        thread: JoinHandle<()>,
+        sound_handle: StaticSoundHandle,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case", tag = "type")]
+pub enum TtsEvent 
+{
+    Generating 
+    {
+        id: String 
+    },
+    Ready
+    {
+        id: String 
+    },
+    Played 
+    {
+        id: String,
+    },
+    Playing 
+    {
+        id: String,
+        time: f32,
+        
+    }
 }
 
 pub struct TtsPlayer
@@ -15,7 +54,7 @@ pub struct TtsPlayer
     manager: AudioManager::<DefaultBackend>,
     sources: HashMap<String, TtsSoundSource>,
     synthesizer: Arc<Mutex<PiperSpeechSynthesizer>>,
-    sound_handle: Option<StaticSoundHandle>,
+    player_thread: Arc<Mutex<TtsPlayerThread>>,
     app_handle: AppHandle,
 }
 
@@ -37,15 +76,27 @@ impl TtsPlayer
             manager,
             sources: HashMap::new(),
             synthesizer: Arc::new(Mutex::new(synth)),
-            sound_handle: None,
+            player_thread: TtsPlayerThread::Inactive,
             app_handle,
         }
     }
 
-    pub fn play_text(&mut self, text: String) -> bool
+    pub fn play_text(&mut self, text: String)
     {
         self.stop();
-        if let Some(data) = self.
+        if let Some(TtsSoundSource::Generated(data)) = self.sources.get(&text) 
+        {
+            let mut handle = self.manager.play(data.clone()).unwrap();
+            handle.pause(Tween::default());
+            self.player_thread = TtsPlayerThread::Playing { 
+                thread: (), 
+                sound_handle: () 
+            };
+        }
+        else 
+        {
+            self.generate_sound_data(text);    
+        }
     }
 
     fn generate_sound_data(&mut self, text: String)
@@ -69,7 +120,6 @@ impl TtsPlayer
                 slice: None,
             };
 
-            app_handle.emit();
             source
 
         });
@@ -79,7 +129,7 @@ impl TtsPlayer
 
     pub fn stop(&mut self)
     {
-        self.thread_handle.stop();
+        
     }
 
     pub fn pause(&mut self)
@@ -92,17 +142,9 @@ impl TtsPlayer
         
     }
 
-    pub fn get_duration(&mut self) -> f32
-    {
-        
-    }
-
     pub fn set_time(&mut self, time: f32)
     {
-        if let Some(handle) = &self.sound_handle
-        {
-            handle.lock().unwrap().seek_to(time as f64);
-        }
+        
     }
 }
 
@@ -113,34 +155,7 @@ pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, app_handle: AppHandle
     let args: Option<serde_json::Value> = args.map(|a| serde_json::from_str(&a).unwrap());
     match command 
     {
-        "play" => state.lock().unwrap().play_text(app_handle),
-        "pause" => state.lock().unwrap().pause(),
-        "resume" => state.lock().unwrap().resume(),
-        "stop" => state.lock().unwrap().stop(),
-        "get_state" => {
-            let value = match state.lock().unwrap().get_state()
-            {
-                PlaybackState::Playing => "playing",
-                PlaybackState::Pausing => "pausing",
-                PlaybackState::Paused => "paused",
-                PlaybackState::WaitingToResume => "waiting_to_resume",
-                PlaybackState::Resuming => "resuming",
-                PlaybackState::Stopping => "stopping",
-                PlaybackState::Stopped => "stopped",
-            }.to_owned();
-
-            return Some(value)
-        }
-        "get_duration" => return Some(state.lock().unwrap().get_duration().to_string()),
-        "set_time" => {
-            let Some(value) = args.map(|a| a.as_f64()).flatten().map(|v| v as f32) else {
-                println!("Error: invalid `set_time` command argument");
-                return None;
-            };
-
-            state.lock().unwrap().set_time(value);
-        },
-        _ => println!("Error: Unknown TTS command")
+        _ => {}
     }
 
     None
