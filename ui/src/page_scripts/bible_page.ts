@@ -33,7 +33,7 @@ export async function run()
                 audio_player.show_player();
             });
 
-            e.insertBefore(button, last);
+            e.insertBefore(button.button, last);
         }),
         pages.init_context_menu('chapter-content'),
         init_chapter_buttons(),

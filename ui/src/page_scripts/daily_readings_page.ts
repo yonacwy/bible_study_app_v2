@@ -91,7 +91,7 @@ function generate_calender()
                     generate_calender();
                 });
 
-                reset_button.title = 'Go to current date'
+                reset_button.button.title = 'Go to current date'
             });
 
             caption_content.appendElementEx('button', ['image-btn', 'last'], button => {

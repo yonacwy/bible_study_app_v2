@@ -16,15 +16,18 @@ export const invoke: (fn_name: string, args: any) => Promise<any> = (window as a
 
 export const emit_event: (event_name: string, data: any) => Promise<void> = (window as any).__TAURI__.event.emit;
 
-export type AppEvent = {
+export type AppEvent<T> = {
     event: string,
-    payload: any,
+    payload: T,
     id: number,
 }
 
 export type UnlistenFn = () => void;
-export type EventCallback = (value: AppEvent) => void;
-export const listen_event: (event_name: string, handler: EventCallback) => Promise<UnlistenFn> = (window as any).__TAURI__.event.listen;
+export type EventCallback<T> = (value: AppEvent<T>) => void;
+export async function listen_event<T>(event_name: string, handler: EventCallback<T>): Promise<UnlistenFn>
+{
+    return (window as any).__TAURI__.event.listen(event_name, handler);
+}
 
 export type AsyncableFn = (() => void) | (() => Promise<void>);
 
@@ -165,4 +168,12 @@ export function open_save_in_file_explorer()
             alert('No save file has been created');
         }
     })
+}
+
+export function spawn_element<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (e: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K]
+{
+    let element = document.createElement(key);
+    element.classList.add(...classes);
+    builder(element);
+    return element;
 }

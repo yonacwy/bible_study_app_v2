@@ -66,12 +66,12 @@ export function render_categories(on_delete: (id: string) => void, on_edit: (id:
                         let edit_btn = utils.create_image_button(button_container, '../images/light-pencil.svg', e => {
                             on_edit(category.id);
                         });
-                        edit_btn.title = 'Edit category';
+                        edit_btn.button.title = 'Edit category';
 
                         let delete_btn = utils.create_image_button(button_container, '../images/light-trash-can.svg', e => {
                             on_delete(category.id);
                         });
-                        delete_btn.title = 'Delete category';
+                        delete_btn.button.title = 'Delete category';
                     })
                 });
             });
