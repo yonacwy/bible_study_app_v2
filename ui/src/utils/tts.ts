@@ -125,6 +125,27 @@ export class TtsPlayer
         return await is_playing();
     }
 
+    public async get_duration(): Promise<number>
+    {
+        let duration = await get_duration();
+
+        if(!duration) return 0;
+
+        return duration;
+    }
+
+    public async set_time(time: number)
+    {
+        if(this.ready)
+        {
+            set_time(time)
+        }
+        else 
+        {
+            utils.debug_print('error: player not ready');
+        }
+    }
+
     private on_event(e: utils.AppEvent<TtsEvent>)
     {
         switch(e.payload.type)
@@ -180,30 +201,42 @@ async function request_tts(text: string): Promise<TtsRequest>
     return JSON.parse(json) as TtsRequest;
 }
 
-async function set_playing_id(id: string)
+async function set_playing_id(id: string): Promise<void>
 {
-    return await invoke_tts_command('set', id);
+    return await invoke_tts_command('set', id).then(_ => {});
 }
 
-async function play()
+async function play(): Promise<void>
 {
-    return await invoke_tts_command('play');
+    return await invoke_tts_command('play').then(_ => {});
 }
 
-async function pause()
+async function pause(): Promise<void>
 {
-    return await invoke_tts_command('pause');
+    return await invoke_tts_command('pause').then(_ => {});
 }
 
-async function stop()
+async function stop(): Promise<void>
 {
-    return await invoke_tts_command('stop');
+    return await invoke_tts_command('stop').then(_ => {});
 }
 
 async function is_playing(): Promise<boolean>
 {
     let json = await invoke_tts_command('is_playing') as string;
     return JSON.parse(json)
+}
+
+async function set_time(time: number): Promise<void>
+{
+    return await invoke_tts_command('set_time', time).then(_ => {});
+}
+
+async function get_duration(): Promise<number | null> 
+{
+    let json = await invoke_tts_command('get_duration');
+    if(json === null) return null;
+    return JSON.parse(json) as number;
 }
 
 async function invoke_tts_command(cmd: string, args?: any): Promise<string | null>

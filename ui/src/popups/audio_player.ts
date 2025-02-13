@@ -53,15 +53,19 @@ type AudioPlayerData = {
     generating_indicator: HTMLElement,
     progress_bar: HTMLInputElement,
     progress_text: HTMLElement,
+
+    is_setting_time: boolean
 }
 
 let AUDIO_PLAYER_DATA: AudioPlayerData | null = null;
 
-const PLAYER = new utils.tts.TtsPlayer(e => {
+const PLAYER = new utils.tts.TtsPlayer(async e => {
     if(!AUDIO_PLAYER_DATA) return;
 
     if(e.type === 'ready')
     {
+        update_progress_visual(0.0, await PLAYER.get_duration());
+
         AUDIO_PLAYER_DATA.play_button.button.classList.remove('hidden');
         AUDIO_PLAYER_DATA.generating_indicator.classList.add('hidden');
     }
@@ -72,9 +76,12 @@ const PLAYER = new utils.tts.TtsPlayer(e => {
     }
     if(e.type === 'playing')
     {
-        let event_data = e.data as TtsPlayingEvent;
-        update_progress_visual(event_data.elapsed, event_data.duration);
-        utils.update_sliders();
+        if(!AUDIO_PLAYER_DATA.is_setting_time)
+        {
+            let event_data = e.data as TtsPlayingEvent;
+            update_progress_visual(event_data.elapsed, event_data.duration);
+            utils.update_sliders();
+        }
     }
     if(e.type === 'finished')
     {
@@ -115,8 +122,21 @@ export function init_player()
         audio_range.step = '0.001';
 
         audio_range.addEventListener('mousedown', e => {
+            if(!AUDIO_PLAYER_DATA) return;
+
             e.stopPropagation();
+            AUDIO_PLAYER_DATA.is_setting_time = true;
         });
+
+        audio_range.addEventListener('change', e => {
+            if(!AUDIO_PLAYER_DATA) return;
+            PLAYER.set_time(+audio_range.value);
+            AUDIO_PLAYER_DATA.is_setting_time = false;
+        })
+
+        audio_range.addEventListener('input', async e => {
+            update_progress_visual(+audio_range.value, await PLAYER.get_duration())
+        })
     });
 
     let progress_text = utils.spawn_element('div', ['play-time'], text => {
@@ -148,6 +168,7 @@ export function init_player()
         progress_bar,
         progress_text,
         generating_indicator,
+        is_setting_time: false,
     }
 }
 
@@ -160,10 +181,11 @@ function update_progress_visual(progress: number, duration: number)
 
     AUDIO_PLAYER_DATA.progress_bar.value = progress.toString();
 
-    let mins = Math.floor(remaining % 60);
-    let secs = Math.floor((mins * 60) - remaining)
+    let mins = Math.floor(remaining / 60);
+    let secs = Math.floor(remaining - (mins * 60))
 
-    AUDIO_PLAYER_DATA.progress_text.innerHTML = mins.toString().padStart(2, '0') + ':' + secs.toString().padStart(2, '0')
+    AUDIO_PLAYER_DATA.progress_text.innerHTML = mins.toString().padStart(2, '0') + ':' + secs.toString().padStart(2, '0');
+    utils.update_sliders();
 }
 
 function spawn_generating_indicator(): HTMLElement
@@ -175,7 +197,7 @@ function spawn_generating_indicator(): HTMLElement
 
 function build_play_button(): utils.ImageButton
 {
-    let play_button = utils.spawn_image_button('../images/light-play.svg', e => {
+    let play_button = utils.spawn_image_button(PLAY_IMAGE_SRC, e => {
         e.stopPropagation();
     });
 
@@ -184,12 +206,12 @@ function build_play_button(): utils.ImageButton
         if(await PLAYER.is_playing())
         {
             PLAYER.pause();
-            play_button.image.src = '../images/light-play.svg';
+            play_button.image.src = PLAY_IMAGE_SRC;
         }
         else 
         {
             PLAYER.play();
-            play_button.image.src = '../images/light-pause.svg';
+            play_button.image.src = PAUSE_IMAGE_SRC;
         }
     });
 
