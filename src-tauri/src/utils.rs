@@ -1,4 +1,4 @@
-use std::{error::Error, hash::{DefaultHasher, Hash, Hasher}, path::Path, sync::{Arc, Mutex}};
+use std::{error::Error, hash::{DefaultHasher, Hash, Hasher}, path::Path, sync::{Arc, Mutex, MutexGuard}};
 
 use serde::{Deserialize, Serialize};
 
@@ -87,5 +87,34 @@ pub struct Shared<T>(Arc<Mutex<T>>);
 
 impl<T> Shared<T>
 {
-    
+    pub fn new(v: T) -> Self
+    {
+        Self(Arc::new(Mutex::new(v)))
+    }
+
+    pub fn get(&self) -> MutexGuard<'_, T>
+    {
+        self.0.lock().unwrap()
+    }
+
+    pub fn inner(&self) -> &Arc<Mutex<T>>
+    {
+        &self.0
+    }
+}
+
+impl<T> From<Arc<Mutex<T>>> for Shared<T>
+{
+    fn from(value: Arc<Mutex<T>>) -> Self 
+    {
+        Self(value)
+    }
+}
+
+impl<T> From<Shared<T>> for Arc<Mutex<T>>
+{
+    fn from(value: Shared<T>) -> Self 
+    {
+        value.0
+    }
 }

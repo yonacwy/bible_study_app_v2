@@ -1,5 +1,6 @@
 pub mod events;
 pub mod player_thread;
+pub mod synth;
 
 use std::{collections::HashMap, sync::{Arc, Mutex}, thread::spawn};
 
@@ -7,10 +8,34 @@ use events::{TtsEvent, TTS_EVENT_NAME};
 use kira::{sound::static_sound::{StaticSoundData, StaticSoundSettings}, AudioManager, AudioManagerSettings, DefaultBackend, Frame};
 use piper_rs::synth::PiperSpeechSynthesizer;
 use serde::{Deserialize, Serialize};
+use synth::SpeechSynth;
 use tauri::{path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Runtime};
 
-use crate::utils;
+use crate::{bible::{Bible, ChapterIndex}, utils};
 use self::player_thread::TtsPlayerThread;
+
+pub const TTS_SAMPLE_RATE: u32 = 22050;
+
+struct PassageAudio
+{
+    sound_data: StaticSoundData,
+    chapter: ChapterIndex,
+    bible: String,
+    verse_data: Vec<VerseAudioData>,
+}
+
+struct VerseAudioData
+{
+    duration: f32,
+}
+
+impl PassageAudio
+{
+    pub fn new(bible: &Bible, chapter_index: ChapterIndex) -> Self 
+    {
+
+    }
+}
 
 enum TtsSoundData
 {
@@ -28,7 +53,7 @@ pub struct TtsRequest
 pub struct TtsPlayer
 {
     manager: Arc<Mutex<AudioManager::<DefaultBackend>>>,
-    synthesizer: Arc<Mutex<PiperSpeechSynthesizer>>,
+    synthesizer: Arc<SpeechSynth>,
     player: Option<TtsPlayerThread>,
     app_handle: AppHandle,
 
@@ -41,18 +66,13 @@ impl TtsPlayer
     pub fn new<R>(resolver: &PathResolver<R>, app_handle: AppHandle) -> Self
         where R : Runtime
     {
-        let tts_dir = resolver.resolve("resources/tts-data/espeak-ng-data", BaseDirectory::Resource).unwrap();
-        let config_path = resolver.resolve("resources/tts-data/voices/en_US-joe-medium.onnx.json", BaseDirectory::Resource).unwrap();
-        std::env::set_var("PIPER_ESPEAKNG_DATA_DIRECTORY", tts_dir.into_os_string());
-        let model = piper_rs::from_config_path(config_path.as_path()).unwrap();
-        let synth = PiperSpeechSynthesizer::new(model).unwrap();
-
+        let synth = SpeechSynth::new(resolver);
         let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
 
         Self 
         {
             manager: Arc::new(Mutex::new(manager)),
-            synthesizer: Arc::new(Mutex::new(synth)),
+            synthesizer: Arc::new(synth),
             player: None,
             app_handle,
 
@@ -86,22 +106,7 @@ impl TtsPlayer
             let app_handle = self.app_handle.clone();
 
             spawn(move || {
-                let synthesized: Vec<f32> = synth.lock().unwrap().synthesize_parallel(text, None).unwrap()
-                    .into_iter()
-                    .map(|r| r.unwrap().into_vec())
-                    .flatten()
-                    .collect();
-
-                println!("length: {}", synthesized.len());
-            
-                let frames: Arc<[Frame]> = synthesized.iter().map(|f| Frame::from_mono(*f)).collect();
-                let source = StaticSoundData {
-                    sample_rate: 22050,
-                    frames,
-                    settings: StaticSoundSettings::new(),
-                    slice: None,
-                };
-
+                let source = synth.synth_text(text);
                 sources.lock().unwrap().insert(id_inner.clone(), TtsSoundData::Generated(source));
                 println!("Generated!");
                 app_handle.emit(TTS_EVENT_NAME, TtsEvent::Generated { id: id_inner }).unwrap();
