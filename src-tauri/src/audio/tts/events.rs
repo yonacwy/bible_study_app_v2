@@ -6,6 +6,11 @@ pub const TTS_EVENT_NAME: &str = "tts_event";
 #[serde(rename_all = "snake_case", tag = "type", content = "data")]
 pub enum TtsEvent 
 {
+    GenerationProgress
+    {
+        id: String,
+        progress: f32,
+    },
     Generated
     {
         id: String

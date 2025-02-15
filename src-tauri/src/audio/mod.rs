@@ -53,7 +53,7 @@ pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, app_state: State<'_, 
         },
         "set_time" => 
         {
-            if args.as_ref().is_some() && args.as_ref().unwrap().is_f64() // make sure args are correct
+            if args.as_ref().is_some() && (args.as_ref().unwrap().is_number()) // make sure args are correct
             {
                 let value = args.unwrap().as_number().unwrap().as_f64().unwrap() as f32;
                 

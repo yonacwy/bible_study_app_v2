@@ -1,7 +1,7 @@
 import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
 import * as settings from "../settings.js";
-import { TtsPlayingEvent } from "../utils/tts.js";
+import { TtsGenerationProgressEvent, TtsPlayingEvent } from "../utils/tts.js";
 
 // To implement on a page, need to call `init_player()` before anything, then whenever the passage chapter is rendered, `on_passage_rendered()` needs to be called
 
@@ -37,8 +37,14 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
     }
     if(e.type === 'generating')
     {
+        update_generation_progress(0);
         AUDIO_PLAYER_DATA.play_button.button.classList.add('hidden');
         AUDIO_PLAYER_DATA.generating_indicator.classList.remove('hidden');
+    }
+    if(e.type === 'generation_progress')
+    {
+        let event_data = e.data as TtsGenerationProgressEvent;
+        update_generation_progress(event_data.progress);
     }
     if(e.type === 'playing')
     {
@@ -206,8 +212,29 @@ function update_progress_visual(progress: number, duration: number)
 function spawn_generating_indicator(): HTMLElement
 {
     return utils.spawn_element('div', ['generating-indicator', 'hidden'], e => {
-        e.appendElementEx('div', ['spinner'], e => {});
+        e.id = 'generation-indicator';
+        e.title = 'Generating audio...';
+        let progress_indicator = `
+            <svg viewBox="0 0 100 100">
+                <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
+                <circle class="circle-progress" cx="50" cy="50" r="45"></circle>
+            </svg>`;
+
+        e.innerHTML = progress_indicator;
     })
+}
+
+function update_generation_progress(progress: number)
+{
+    if(!AUDIO_PLAYER_DATA) return;
+
+    let indicator = AUDIO_PLAYER_DATA.generating_indicator.querySelector('.circle-progress') as HTMLElement;
+
+    let radius = 45;
+    let circumference = 2 * Math.PI * radius;
+    const offset = circumference - progress * circumference;
+    indicator.style.strokeDasharray = circumference.toString();
+    indicator.style.strokeDashoffset = offset.toString();
 }
 
 function build_play_button(): utils.ImageButton

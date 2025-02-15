@@ -32,7 +32,7 @@ pub struct VerseAudioData
 
 impl PassageAudio
 {
-    pub fn new(bible: &Bible, chapter_index: ChapterIndex, synth: &SpeechSynth) -> Self 
+    pub fn new(bible: &Bible, chapter_index: ChapterIndex, synth: &SpeechSynth, app_handle: &AppHandle, id: String) -> Self 
     {
         const CHAPTER_SILENCE_TIME: f32 = 0.5;
         let book = &bible.books[chapter_index.book as usize].name;
@@ -51,8 +51,15 @@ impl PassageAudio
             .map(|v| v.words.iter().map(|w| w.text.clone()).join(" "))
             .collect::<Vec<_>>();
 
+        let verses_length = verses.len();
         let clips = verses.into_iter()
-            .map(|v| synth.synth_text_to_frames(v))
+            .enumerate()
+            .map(|(i, v)| {
+                let frames = synth.synth_text_to_frames(v);
+                let progress = i as f32 / verses_length as f32;
+                app_handle.emit(TTS_EVENT_NAME, TtsEvent::GenerationProgress { id: id.clone(), progress }).unwrap();
+                frames
+            })
             .map(|mut v| {
                 v.append(&mut silence.clone()); 
                 v 
@@ -167,9 +174,8 @@ impl TtsPlayer
             let app_handle = self.app_handle.clone();
 
             spawn(move || {
-                let audio = PassageAudio::new(&bible, chapter_index, &synth);
+                let audio = PassageAudio::new(&bible, chapter_index, &synth, &app_handle, id_inner.clone());
                 sources.lock().unwrap().insert(id_inner.clone(), TtsSoundData::Generated(Arc::new(audio)));
-                println!("Generated!");
                 app_handle.emit(TTS_EVENT_NAME, TtsEvent::Generated { id: id_inner }).unwrap();
             });
 

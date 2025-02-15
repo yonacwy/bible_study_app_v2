@@ -7,6 +7,12 @@ export async function listen_tts_event(callback: (e: utils.AppEvent<TtsEvent>) =
     return await utils.listen_event(TTS_EVENT_NAME, callback);
 } 
 
+export type TtsGenerationProgressEvent =
+{
+    id: string,
+    progress: number,
+}
+
 export type TtsGeneratedEvent = {
     id: string,
 }
@@ -35,13 +41,13 @@ export type TtsStoppedEvent = {
 }
 
 export type TtsEvent = {
-    type: "generated" | "set" | "played" | "playing" | "paused" | "stopped" | "finished",
-    data: TtsGeneratedEvent | TtsSetEvent | TtsPlayedEvent | TtsPlayingEvent | TtsPausedEvent | TtsStoppedEvent,
+    type: "generated" | "set" | "played" | "playing" | "paused" | "stopped" | "finished" | "generation_progress",
+    data: TtsGeneratedEvent | TtsSetEvent | TtsPlayedEvent | TtsPlayingEvent | TtsPausedEvent | TtsStoppedEvent | TtsGenerationProgressEvent,
 }
 
 export type TtsFrontendEvent = {
-    type: "generating" | "ready" | "playing" | "finished",
-    data: TtsPlayingEvent | null,
+    type: "generating" | "ready" | "playing" | "finished" | "generation_progress",
+    data: TtsPlayingEvent | TtsGenerationProgressEvent | null,
 }
 
 export type TtsRequest = {
@@ -145,6 +151,7 @@ export class TtsPlayer
     {
         if(this.ready)
         {
+            time = Math.clamp(0, 1, time);
             set_time(time)
         }
         else 
@@ -157,6 +164,17 @@ export class TtsPlayer
     {
         switch(e.payload.type)
         {
+            case "generation_progress": {
+                let data = e.payload.data as TtsGenerationProgressEvent;
+                if(data.id == this.playing_id)
+                {
+                    this.callback({
+                        type: "generation_progress",
+                        data: data
+                    });
+                }
+                break;
+            }
             case "generated": {
                 let data = e.payload.data as TtsGeneratedEvent;
                 // utils.debug_print(`got here, ${this.playing_id} == ${e.payload.data.id}`);
@@ -168,7 +186,6 @@ export class TtsPlayer
                 break;
             }
             case "set": {
-                utils.debug_print('called');
                 this.callback({
                     type: "ready",
                     data: null,

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Circular Progress Bar</title>
+    <style>
+        :root {
+            --size: 30vw; /* Adjust size dynamically */
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .progress-container {
+            width: var(--size);
+            height: var(--size);
+            position: relative;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .circle-bg {
+            fill: none;
+            stroke: #e6e6e6;
+            stroke-width: 5%;
+        }
+
+        .circle-progress {
+            fill: none;
+            stroke: #4CAF50;
+            stroke-width: 5%;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.4s linear;
+        }
+
+        .progress-text {
+            font-size: 20%;
+            font-weight: bold;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            fill: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-container">
+        <svg viewBox="0 0 100 100">
+            <!-- Background Circle -->
+            <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
+            <!-- Progress Circle -->
+            <circle class="circle-progress" cx="50" cy="50" r="45"></circle>
+            <!-- Percentage Text -->
+            <text class="progress-text" x="50" y="50">0%</text>
+        </svg>
+    </div>
+
+    <script>
+        function setProgress(percent) {
+            const circle = document.querySelector('.circle-progress');
+            const text = document.querySelector('.progress-text');
+            const radius = 45;
+            const circumference = 2 * Math.PI * radius;
+            const offset = circumference - (percent / 100) * circumference;
+
+            // Ensure stroke-dasharray is set properly
+            circle.style.strokeDasharray = circumference;
+            circle.style.strokeDashoffset = offset;
+            text.textContent = `${percent}%`;
+        }
+
+        // Example: Animate progress from 0% to 75%
+        let progress = 0;
+        const targetProgress = 75;
+        const interval = setInterval(() => {
+            if (progress >= targetProgress) {
+                clearInterval(interval);
+            } else {
+                progress++;
+                setProgress(progress);
+            }
+        }, 20);
+
+        // Initialize with 0% but set stroke-dasharray correctly
+        setProgress(0);
+    </script>
+
+</body>
+</html>
