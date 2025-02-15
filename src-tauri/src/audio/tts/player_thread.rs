@@ -2,25 +2,25 @@ use std::{sync::{Arc, Mutex}, thread::{spawn, JoinHandle}, time::SystemTime};
 
 use kira::{sound::{static_sound::{StaticSoundData, StaticSoundHandle}, PlaybackState}, AudioManager, DefaultBackend, Tween};
 use tauri::{AppHandle, Emitter};
-use super::events::*;
+use super::{events::*, PassageAudio};
 
 pub struct TtsPlayerThread 
 {
+    passage_audio: Arc<PassageAudio>,
     handle: Arc<Mutex<StaticSoundHandle>>,
     running: Arc<Mutex<bool>>,
     thread_handle: JoinHandle<()>,
     sound_id: String,
     app_handle: AppHandle,
-    duration: f32,
 }
 
 impl TtsPlayerThread
 {
-    pub fn new(manager: Arc<Mutex<AudioManager<DefaultBackend>>>, app_handle: AppHandle, sound_data: StaticSoundData, sound_id: String) -> Self
+    pub fn new(manager: Arc<Mutex<AudioManager<DefaultBackend>>>, app_handle: AppHandle, passage_audio: Arc<PassageAudio>, sound_id: String) -> Self
     {
         // start the handle paused
-        let duration = sound_data.duration().as_secs_f32();
-        let mut sound_handle = manager.lock().unwrap().play(sound_data.clone()).unwrap();
+        let duration = passage_audio.sound_data.duration().as_secs_f32();
+        let mut sound_handle = manager.lock().unwrap().play(passage_audio.sound_data.clone()).unwrap();
         sound_handle.pause(Tween::default());
         let sound_handle = Arc::new(Mutex::new(sound_handle));
         let sound_handle_inner = sound_handle.clone();
@@ -30,6 +30,8 @@ impl TtsPlayerThread
         let running_inner = running.clone();
 
         let sound_id_inner = sound_id.clone();
+
+        let passage_audio_inner = passage_audio.clone();
 
         let thread_handle = spawn(move || {
             const UPDATE_TIME: f32 = 0.05;
@@ -41,19 +43,34 @@ impl TtsPlayerThread
                 if time.elapsed().unwrap().as_secs_f32() < UPDATE_TIME { continue; }
                 time = SystemTime::now();
 
+
                 let mut sound_handle = sound_handle_inner.lock().unwrap();
                 if let PlaybackState::Playing = sound_handle.state()
                 {
+                    let mut verse_index: Option<u32> = None;
+                    let mut verse_time = passage_audio_inner.intro_duration;
+                    while verse_time < sound_handle.position() as f32
+                    {
+                        let index = match verse_index {
+                            Some(i) => i + 1,
+                            None => 0
+                        };
+
+                        verse_time += passage_audio_inner.verse_data[index as usize].duration;
+                        verse_index = Some(index);
+                    }
+
                     app_handle_inner.emit(TTS_EVENT_NAME, TtsEvent::Playing { 
                         id: sound_id_inner.clone(), 
                         elapsed: sound_handle.position() as f32 / duration, 
-                        duration 
+                        duration,
+                        verse_index,
                     }).unwrap();
                 }
 
                 if let PlaybackState::Stopped = sound_handle.state()
                 {
-                    *sound_handle = manager.lock().unwrap().play(sound_data.clone()).unwrap();
+                    *sound_handle = manager.lock().unwrap().play(passage_audio_inner.sound_data.clone()).unwrap();
                     sound_handle.pause(Tween::default());
                     app_handle_inner.emit(TTS_EVENT_NAME, TtsEvent::Finished { 
                         id: sound_id_inner.clone() 
@@ -64,12 +81,12 @@ impl TtsPlayerThread
 
         Self 
         {
+            passage_audio,
             handle: sound_handle,
             running,
             thread_handle,
             sound_id,
             app_handle,
-            duration,
         }
     }
 
@@ -101,11 +118,11 @@ impl TtsPlayerThread
 
     pub fn get_duration(&self) -> f32 
     {
-        self.duration
+        self.passage_audio.sound_data.duration().as_secs_f32()
     }
 
     pub fn set_time(&self, time: f32)
     {
-        self.handle.lock().unwrap().seek_to((time * self.duration) as f64);
+        self.handle.lock().unwrap().seek_to((time * self.get_duration()) as f64);
     }
 }

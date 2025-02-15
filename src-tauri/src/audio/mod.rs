@@ -1,7 +1,7 @@
 use std::sync::Mutex;
 use kira::{Decibels, Tween, Tweenable};
 use tauri::State;
-use crate::app_state::AppState;
+use crate::{app_state::{AppState, DEFAULT_BIBLE}, bible::ChapterIndex};
 
 pub mod player;
 pub mod tts;
@@ -10,17 +10,19 @@ pub use player::*;
 pub use tts::*;
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, command: &str, args: Option<String>) -> Option<String>
+pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, app_state: State<'_, AppState>, command: &str, args: Option<String>) -> Option<String>
 {
     let args: Option<serde_json::Value> = args.map(|a| serde_json::from_str(&a).unwrap());
+    let app_state = app_state.get_ref();
     match command 
     {
         "request" => {
-            if args.as_ref().is_some() && args.as_ref().unwrap().is_string() // make sure args are correct
-            {
-                let text = args.unwrap().as_str().unwrap().to_owned();
 
-                let request = state.lock().unwrap().request_tts(text.to_owned());
+            if let Some(Ok(key)) = args.map(|a| serde_json::from_value::<PassageAudioKey>(a))
+            {
+                let bible = app_state.get_bible(&key.bible_name).unwrap_or(app_state.get_default_bible());
+
+                let request = state.lock().unwrap().request_tts(bible, key.chapter);
                 let request_str = serde_json::to_string(&request).unwrap();
                 return Some(request_str);
             }

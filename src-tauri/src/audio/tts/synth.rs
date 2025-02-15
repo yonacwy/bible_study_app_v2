@@ -24,6 +24,16 @@ impl SpeechSynth
         Self(synth)
     }
 
+    pub fn synth_text_to_frames(&self, text: String) -> Vec<Frame>
+    {
+        self.0.synthesize_parallel(text, None).unwrap()
+            .into_iter()
+            .map(|r| r.unwrap().into_vec())
+            .flatten()
+            .map(Frame::from_mono)
+            .collect()
+    }
+
     pub fn synth_text(&self, text: String) -> StaticSoundData
     {
         let synthesized: Vec<f32> = self.0.synthesize_parallel(text, None).unwrap()

@@ -1,3 +1,4 @@
+import { ChapterIndex } from "../bindings.js";
 import * as utils from "./index.js";
 
 export async function listen_tts_event(callback: (e: utils.AppEvent<TtsEvent>) => void): Promise<utils.UnlistenFn>
@@ -22,6 +23,7 @@ export type TtsPlayingEvent = {
     id: string,
     elapsed: number,
     duration: number,
+    verse_index: number | null,
 }
 
 export type TtsPausedEvent = {
@@ -47,6 +49,11 @@ export type TtsRequest = {
     generating: boolean
 }
 
+export type PassageAudioKey = {
+    bible_name: string,
+    chapter: ChapterIndex,
+}
+
 export class TtsPlayer
 {
     private playing_id: string | null = null;
@@ -59,7 +66,7 @@ export class TtsPlayer
         listen_tts_event(e => this.on_event(e));
     }
 
-    public async request(text: string)
+    public async request(text: PassageAudioKey)
     {
         let request = await request_tts(text);
         this.playing_id = request.id;
@@ -195,9 +202,9 @@ export class TtsPlayer
     }
 }
 
-async function request_tts(text: string): Promise<TtsRequest> 
+async function request_tts(key: PassageAudioKey): Promise<TtsRequest> 
 {
-    let json = await invoke_tts_command('request', text) as string;
+    let json = await invoke_tts_command('request', key) as string;
     return JSON.parse(json) as TtsRequest;
 }
 

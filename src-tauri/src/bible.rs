@@ -55,7 +55,7 @@ impl Bible {
 }
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ChapterIndex {
     pub book: u32,
     pub number: u32,

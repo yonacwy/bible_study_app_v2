@@ -23,6 +23,7 @@ pub enum TtsEvent
         id: String,
         elapsed: f32,
         duration: f32,
+        verse_index: Option<u32>,
     },
     Paused
     {

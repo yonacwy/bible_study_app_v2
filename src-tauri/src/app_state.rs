@@ -85,7 +85,7 @@ impl AppState
 }
 
 pub struct AppData {
-    bibles: HashMap<String, Bible>,
+    bibles: HashMap<String, Arc<Bible>>,
     current_bible_version: Mutex<RefCell<String>>,
     
     pub save_version: SaveVersion,
@@ -294,6 +294,16 @@ impl AppData {
         let bible_version = self.get_current_bible_version();
         self.bibles.get(&bible_version).map_or(self.bibles.get(DEFAULT_BIBLE).unwrap(), |b| b)
     }
+
+    pub fn get_default_bible(&self) -> Arc<Bible>
+    {
+        self.bibles.get(DEFAULT_BIBLE).unwrap().clone()
+    }
+
+    pub fn get_bible(&self, name: &String) -> Option<Arc<Bible>>
+    {
+        self.bibles.get(name).map(|b| b.clone())
+    }
     
     pub fn set_current_bible_version(&self, version: String)
     {
@@ -386,7 +396,7 @@ impl AppData {
         }).collect()
     }
 
-    fn load_bibles(paths: &Vec<PathBuf>) -> HashMap<String, Bible>
+    fn load_bibles(paths: &Vec<PathBuf>) -> HashMap<String, Arc<Bible>>
     {
         paths.iter().map(|path| {
             let mut file = std::fs::File::open(&path).unwrap();
@@ -394,7 +404,7 @@ impl AppData {
             let mut text = String::new();
             file.read_to_string(&mut text).unwrap();
             let bible = bible_parsing::parse_bible(&text).unwrap();
-            (bible.name.clone(), bible)
+            (bible.name.clone(), Arc::new(bible))
         }).collect::<HashMap<_, _>>()
     }
 }

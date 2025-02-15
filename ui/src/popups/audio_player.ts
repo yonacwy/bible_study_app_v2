@@ -1,46 +1,9 @@
-import * as utils from '../utils/index.js';
-import { TtsPlayingEvent } from '../utils/tts.js';
+import * as utils from "../utils/index.js";
+import * as bible from "../bible.js";
+import * as settings from "../settings.js";
+import { TtsPlayingEvent } from "../utils/tts.js";
 
-const TEST_TEXT: string = `
-    Proverbs chapter 3
-
-    My son, forget not my law; but let thine heart keep my commandments:
-For length of days, and long life, and peace, shall they add to thee.
-Let not mercy and truth forsake thee: bind them about thy neck; write them upon the table of thine heart:
-So shalt thou find favour and good understanding in the sight of God and man.
-Trust in the LORD with all thine heart; and lean not unto thine own understanding.
-In all thy ways acknowledge him, and he shall direct thy paths.
-Be not wise in thine own eyes: fear the LORD, and depart from evil.
-It shall be health to thy navel, and marrow to thy bones.
-Honour the LORD with thy substance, and with the firstfruits of all thine increase:
-So shall thy barns be filled with plenty, and thy presses shall burst out with new wine.
-My son, despise not the chastening of the LORD; neither be weary of his correction:
-For whom the LORD loveth he correcteth; even as a father the son [in whom] he delighteth.
-Happy [is] the man [that] findeth wisdom, and the man [that] getteth understanding.
-For the merchandise of it [is] better than the merchandise of silver, and the gain thereof than fine gold.
-She [is] more precious than rubies: and all the things thou canst desire are not to be compared unto her.
-Length of days [is] in her right hand; [and] in her left hand riches and honour.
-Her ways [are] ways of pleasantness, and all her paths [are] peace.
-She [is] a tree of life to them that lay hold upon her: and happy [is every one] that retaineth her.
-The LORD by wisdom hath founded the earth; by understanding hath he established the heavens.
-By his knowledge the depths are broken up, and the clouds drop down the dew.
-My son, let not them depart from thine eyes: keep sound wisdom and discretion:
-So shall they be life unto thy soul, and grace to thy neck.
-Then shalt thou walk in thy way safely, and thy foot shall not stumble.
-When thou liest down, thou shalt not be afraid: yea, thou shalt lie down, and thy sleep shall be sweet.
-Be not afraid of sudden fear, neither of the desolation of the wicked, when it cometh.
-For the LORD shall be thy confidence, and shall keep thy foot from being taken.
-Withhold not good from them to whom it is due, when it is in the power of thine hand to do [it].
-Say not unto thy neighbour, Go, and come again, and to morrow I will give; when thou hast it by thee.
-Devise not evil against thy neighbour, seeing he dwelleth securely by thee.
-Strive not with a man without cause, if he have done thee no harm.
-Envy thou not the oppressor, and choose none of his ways.
-For the froward [is] abomination to the LORD: but his secret [is] with the righteous.
-The curse of the LORD [is] in the house of the wicked: but he blesseth the habitation of the just.
-Surely he scorneth the scorners: but he giveth grace unto the lowly.
-The wise shall inherit glory: but shame shall be the promotion of fools.
-
-`
+// To implement on a page, need to call `init_player()` before anything, then whenever the passage chapter is rendered, `on_passage_rendered()` needs to be called
 
 const PLAY_IMAGE_SRC: string = '../images/light-play.svg';
 const PAUSE_IMAGE_SRC: string = '../images/light-pause.svg';
@@ -53,6 +16,9 @@ type AudioPlayerData = {
     generating_indicator: HTMLElement,
     progress_bar: HTMLInputElement,
     progress_text: HTMLElement,
+
+    playing_verse_index: number | null,
+    verses_elements: HTMLLIElement[],
 
     is_setting_time: boolean
 }
@@ -76,11 +42,18 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
     }
     if(e.type === 'playing')
     {
+        let event_data = e.data as TtsPlayingEvent;
+
         if(!AUDIO_PLAYER_DATA.is_setting_time)
         {
-            let event_data = e.data as TtsPlayingEvent;
             update_progress_visual(event_data.elapsed, event_data.duration);
             utils.update_sliders();
+        }
+
+        if(AUDIO_PLAYER_DATA.playing_verse_index !== event_data.verse_index)
+        {
+            AUDIO_PLAYER_DATA.playing_verse_index = event_data.verse_index;
+            update_current_reading_verse_visual();
         }
     }
     if(e.type === 'finished')
@@ -91,12 +64,18 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
     }
 });
 
-export function show_player()
+export async function show_player()
 {
     if(!AUDIO_PLAYER_DATA) return;
 
     AUDIO_PLAYER_DATA.popup.classList.remove('hidden');
-    PLAYER.request(TEST_TEXT);
+    let chapter = await bible.get_chapter() ?? { book: 0, number: 0 };
+    let bible_name = await bible.get_current_bible_version();
+
+    PLAYER.request({
+        bible_name,
+        chapter
+    });
 }
 
 export function hide_player()
@@ -106,6 +85,19 @@ export function hide_player()
     AUDIO_PLAYER_DATA.popup.classList.add('hidden');
     PLAYER.stop();
     AUDIO_PLAYER_DATA.play_button.image.src = "../images/light-play.svg";
+    clear_current_reading_verse();
+}
+
+export function on_passage_render()
+{
+    let passage_content = document.getElementById('chapter-text-content');
+    if (!passage_content || !AUDIO_PLAYER_DATA) return;
+
+    AUDIO_PLAYER_DATA.verses_elements = passage_content.querySelectorAll('li')
+        .values()
+        .toArray() as HTMLLIElement[];
+
+    update_current_reading_verse_visual();
 }
 
 export function init_player()
@@ -169,7 +161,30 @@ export function init_player()
         progress_text,
         generating_indicator,
         is_setting_time: false,
+        playing_verse_index: null,
+        verses_elements: []
     }
+}
+
+function update_current_reading_verse_visual()
+{
+    if(!AUDIO_PLAYER_DATA) return;
+    clear_current_reading_verse();
+    if(AUDIO_PLAYER_DATA.playing_verse_index !== null && AUDIO_PLAYER_DATA.verses_elements.length > AUDIO_PLAYER_DATA.playing_verse_index)
+    {
+        let verse_element = AUDIO_PLAYER_DATA.verses_elements[AUDIO_PLAYER_DATA.playing_verse_index];
+        verse_element.classList.add('reading');
+        verse_element.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+    }
+}
+
+function clear_current_reading_verse()
+{
+    if(!AUDIO_PLAYER_DATA) return;
+    AUDIO_PLAYER_DATA.verses_elements.forEach(v => v.classList.remove('reading'));
 }
 
 function update_progress_visual(progress: number, duration: number)

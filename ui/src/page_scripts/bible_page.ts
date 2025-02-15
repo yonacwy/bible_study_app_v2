@@ -89,7 +89,12 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
         document.getElementById('search-btn')?.click();
     }
 
-    return await bible_renderer.render_chapter(chapter, content, word_popup, panel_data, word_select.update_words_for_selection, on_search).then(() => {
+    let on_render = (): void => {
+        word_select.update_words_for_selection();
+        audio_player.on_passage_render();
+    }
+
+    return await bible_renderer.render_chapter(chapter, content, word_popup, panel_data, on_render, on_search).then(() => {
         if(verse_range !== null)
         {
             let start = verse_range.start;
