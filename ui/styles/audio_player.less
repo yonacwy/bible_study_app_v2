@@ -30,6 +30,7 @@
         justify-content: center;
         align-items: center;
         padding: 10px;
+        padding-bottom: 2px;
         .styled-slider(300px, 7px * @ui-scale, 7px * @ui-scale);
 
         &.hidden {
@@ -78,22 +79,47 @@
     }
 
     .hidden-content {
+        display: block;
         max-height: 0px;
         transition: max-height 0.4s ease-out, padding 0.4s ease-out;
-        background-color: #999;
+        overflow: hidden;
+
+        .setting-slider {
+            width: min-content;
+            height: min-content;
+            gap: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .styled-slider(100px, 7px * @ui-scale, 7px * @ui-scale);
+        }
     }
 
     .hidden-content.active {
         max-height: 100px;
+        padding: 10px;
+
+        border-top: 1px solid #333;
+        border-bottom: 1px solid #333;
     }
 
     .dropdown-button {
         display: block;
-        img {
-            width: calc(@button-size - @button-margin);
-            height: calc(@button-size - @button-margin);
-            margin-right: auto;
-            margin-left: auto;
+        height: min-content;
+        padding: 0px;
+
+        .image-container {
+            display: block;
+            margin: auto;
+            padding: 0px;
+
+            img {
+                box-sizing: border-box;
+                margin-left: 50%;
+                padding: 0px;
+                width: calc(@button-size / 2);
+                height: calc(@button-size / 2);
+            }
         }
 
         &:hover {

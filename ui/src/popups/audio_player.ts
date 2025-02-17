@@ -10,6 +10,8 @@ const PAUSE_IMAGE_SRC: string = '../images/light-pause.svg';
 const CLOSE_IMAGE_SRC: string = '../images/light-xmark.svg';
 const OPEN_DROPDOWN_IMAGE_SRC: string = '../images/light-angle-down.svg';
 const CLOSE_DROPDOWN_IMAGE_SRC: string = '../images/light-angle-up.svg';
+const VOLUME_IMAGE_SRC: string = '../images/volume/light-volume.svg';
+const PLAYBACK_SPEED_SRC: string = '../images/light-gauge.svg';
 
 type AudioPlayerData = {
     popup: HTMLElement,
@@ -156,17 +158,32 @@ export function init_player()
             main_content.appendChild(close_button.button);
         });
 
-        let hidden_content = player_div.appendElementEx('div', ['hidden-content', 'active'], content => {
-            content.innerHTML = "Test Content";
+        let hidden_content = player_div.appendElementEx('div', ['hidden-content'], content => {
+            let volume_slider = spawn_volume_slider();
+            let playback_slider = spawn_playback_slider();
+            
+            content.appendChild(volume_slider);
+            content.appendChild(playback_slider);
         });
 
         player_div.appendElementEx('div', ['dropdown-button'], button => {
-            button.appendElement('img', img => {
-                img.src = CLOSE_DROPDOWN_IMAGE_SRC;
+
+            let container = button.appendElementEx('div', ['image-container'], _ => {});
+
+            let image = container.appendElement('img', img => {
+                img.src = OPEN_DROPDOWN_IMAGE_SRC;
             });
 
             button.addEventListener('click', e => {
-                hidden_content.classList.toggle('active');
+                let is_active = hidden_content.classList.toggle('active');
+                if(is_active)
+                {
+                    image.src = CLOSE_DROPDOWN_IMAGE_SRC;
+                }
+                else 
+                {
+                    image.src = OPEN_DROPDOWN_IMAGE_SRC;
+                }
             });
         });
     });
@@ -188,6 +205,49 @@ export function init_player()
         playing_verse_index: null,
         verses_elements: []
     }
+}
+
+function spawn_volume_slider(): HTMLElement
+{
+    return spawn_settings_slider(VOLUME_IMAGE_SRC, {}, input => {
+        if(+input.value === 0)
+        {
+            input.value = '1';
+        }
+        else 
+        {
+            input.value = '0';
+        }
+
+        utils.update_sliders();
+    })
+}
+
+function spawn_playback_slider(): HTMLElement
+{
+    return spawn_settings_slider(PLAYBACK_SPEED_SRC, {
+        min: 0.5,
+        max: 2.0,
+        default: 1.0,
+    }, 
+    input => {
+        input.value = '1';
+        utils.update_sliders();
+    })
+}
+
+function spawn_settings_slider(image_src: string, args: utils.SliderArgs, on_click: (e: HTMLInputElement) => void): HTMLElement
+{
+    return utils.spawn_element('div', ['setting-slider'], root => {        
+        let input = utils.spawn_slider(args);
+        
+        input.addEventListener('mousedown', e => e.stopPropagation()); // makes sure we don't drag while modifying slider
+
+        let button = utils.spawn_image_button(image_src, e => on_click(input));
+
+        root.appendChild(button.button);
+        root.appendChild(input);
+    });
 }
 
 function update_current_reading_verse_visual()
@@ -276,15 +336,6 @@ function build_play_button(): utils.ImageButton
     });
 
     return play_button;
-}
-
-function build_dropdown_button(): HTMLButtonElement
-{
-    let dropdown_button = utils.spawn_image_button(OPEN_DROPDOWN_IMAGE_SRC, e => {
-        
-    })
-
-    return dropdown_button.button;
 }
 
 function handle_dragging(element: HTMLElement)
