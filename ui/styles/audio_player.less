@@ -78,10 +78,26 @@
     }
 
     .hidden-content {
+        max-height: 0px;
+        transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+        background-color: #999;
+    }
 
+    .hidden-content.active {
+        max-height: 100px;
     }
 
     .dropdown-button {
+        display: block;
+        img {
+            width: calc(@button-size - @button-margin);
+            height: calc(@button-size - @button-margin);
+            margin-right: auto;
+            margin-left: auto;
+        }
 
+        &:hover {
+            background-color: #bbb;
+        }
     }
 }

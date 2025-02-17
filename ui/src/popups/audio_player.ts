@@ -113,7 +113,6 @@ export function init_player()
     let close_button = utils.spawn_image_button(CLOSE_IMAGE_SRC);
     let play_button = build_play_button();
     let generating_indicator = spawn_generating_indicator();
-    let dropdown_button = build_dropdown_button();
 
     let progress_bar = utils.spawn_element('input', [], audio_range => {
         audio_range.type = 'range';
@@ -148,12 +147,28 @@ export function init_player()
         player_div.id = 'audio-player';
         player_div.classList.add('spawned');
         handle_dragging(player_div);
-        
-        player_div.appendChild(play_button.button);
-        player_div.appendChild(generating_indicator);
-        player_div.appendChild(progress_bar);
-        player_div.appendChild(progress_text);
-        player_div.appendChild(close_button.button);
+
+        player_div.appendElementEx('div', ['main-content'], main_content => {
+            main_content.appendChild(play_button.button);
+            main_content.appendChild(generating_indicator);
+            main_content.appendChild(progress_bar);
+            main_content.appendChild(progress_text);
+            main_content.appendChild(close_button.button);
+        });
+
+        let hidden_content = player_div.appendElementEx('div', ['hidden-content', 'active'], content => {
+            content.innerHTML = "Test Content";
+        });
+
+        player_div.appendElementEx('div', ['dropdown-button'], button => {
+            button.appendElement('img', img => {
+                img.src = CLOSE_DROPDOWN_IMAGE_SRC;
+            });
+
+            button.addEventListener('click', e => {
+                hidden_content.classList.toggle('active');
+            });
+        });
     });
 
     close_button.button.addEventListener('click', e => {
