@@ -1,0 +1,47 @@
+@import "./shared/font_sizing.less";
+@import "./shared/defs.less";
+
+h1.faq-title {
+    margin-top: @header-height;
+    text-align: center;
+}
+
+.faq-item 
+{
+    background-color: #ffffff;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+
+    .faq-question 
+    {
+        padding: 15px;
+        background-color: #f1f1f1;
+        cursor: pointer;
+        color: #333;
+        transition: background-color 0.3s ease;
+    
+        .font-large();
+
+        &:hover {
+            background-color: #e9e9e9;
+        }
+    }
+    
+    .faq-answer 
+    {
+        max-height: 0;
+        overflow: hidden;
+        padding: 0 15px;
+        background-color: #fff;
+        transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+        .font-medium();
+    }
+    
+    &.active .faq-answer 
+    {
+        max-height: 200px; /* Adjust height as needed */
+        padding: 15px;
+    }
+}

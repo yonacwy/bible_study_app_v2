@@ -8,6 +8,8 @@ import { TtsGenerationProgressEvent, TtsPlayingEvent } from "../utils/tts.js";
 const PLAY_IMAGE_SRC: string = '../images/light-play.svg';
 const PAUSE_IMAGE_SRC: string = '../images/light-pause.svg';
 const CLOSE_IMAGE_SRC: string = '../images/light-xmark.svg';
+const OPEN_DROPDOWN_IMAGE_SRC: string = '../images/light-angle-down.svg';
+const CLOSE_DROPDOWN_IMAGE_SRC: string = '../images/light-angle-up.svg';
 
 type AudioPlayerData = {
     popup: HTMLElement,
@@ -111,6 +113,7 @@ export function init_player()
     let close_button = utils.spawn_image_button(CLOSE_IMAGE_SRC);
     let play_button = build_play_button();
     let generating_indicator = spawn_generating_indicator();
+    let dropdown_button = build_dropdown_button();
 
     let progress_bar = utils.spawn_element('input', [], audio_range => {
         audio_range.type = 'range';
@@ -150,7 +153,7 @@ export function init_player()
         player_div.appendChild(generating_indicator);
         player_div.appendChild(progress_bar);
         player_div.appendChild(progress_text);
-        player_div.appendChild(close_button.button)
+        player_div.appendChild(close_button.button);
     });
 
     close_button.button.addEventListener('click', e => {
@@ -258,6 +261,15 @@ function build_play_button(): utils.ImageButton
     });
 
     return play_button;
+}
+
+function build_dropdown_button(): HTMLButtonElement
+{
+    let dropdown_button = utils.spawn_image_button(OPEN_DROPDOWN_IMAGE_SRC, e => {
+        
+    })
+
+    return dropdown_button.button;
 }
 
 function handle_dragging(element: HTMLElement)
