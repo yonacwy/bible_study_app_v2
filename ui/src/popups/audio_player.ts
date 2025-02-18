@@ -159,11 +159,17 @@ export function init_player()
         });
 
         let hidden_content = player_div.appendElementEx('div', ['hidden-content'], content => {
-            let volume_slider = spawn_volume_slider();
-            let playback_slider = spawn_playback_slider();
-            
-            content.appendChild(volume_slider);
-            content.appendChild(playback_slider);
+            content.appendElementEx('div', ['slider-settings'], sliders => { 
+                let volume_slider = spawn_volume_slider();
+                let playback_slider = spawn_playback_slider();
+                
+                sliders.appendChild(volume_slider);
+                sliders.appendChild(playback_slider);
+            });
+
+            content.appendElementEx('div', ['strategy-settings'], strategy_settings => {
+
+            });
         });
 
         player_div.appendElementEx('div', ['dropdown-button'], button => {

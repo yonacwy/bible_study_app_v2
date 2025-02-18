@@ -195,8 +195,6 @@ export function spawn_slider(args: SliderArgs): HTMLInputElement
     let value = (args.default ?? 0.5).toString();
     let step = (args.step ?? 0.001).toString();
 
-    debug_print(`setting default to: ${value}`);
-
     let input = spawn_element('input', args.classes ?? [], slider => {
         slider.type = 'range';
 
