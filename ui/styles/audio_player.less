@@ -31,7 +31,7 @@
         align-items: center;
         padding: 10px;
         padding-bottom: 2px;
-        .styled-slider(300px, 7px * @ui-scale, 7px * @ui-scale);
+        .styled-slider(300px * @ui-scale, 7px * @ui-scale, 7px * @ui-scale);
 
         &.hidden {
             display: none;
@@ -89,7 +89,6 @@
             display: block;
             width: 50%;
             height: fit-content;
-            border: 1px solid cyan;
 
             .setting-slider {
                 width: min-content;
@@ -98,18 +97,25 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                .styled-slider(100px, 7px * @ui-scale, 7px * @ui-scale);
+                .styled-slider(calc(100px * @ui-scale), 7px * @ui-scale, 7px * @ui-scale);
             }
         }
 
         .strategy-settings {
+            display: block;
             width: 50%;
-            border: 1px solid chartreuse;
+
+            .behavior-selector {
+                float: left;
+                display: flex;
+                justify-content: center;
+                align-items: baseline;
+            }
         }
     }
 
     .hidden-content.active {
-        max-height: 100px;
+        max-height: 100px * @ui-scale;
         padding: 10px;
 
         border-top: 1px solid #333;

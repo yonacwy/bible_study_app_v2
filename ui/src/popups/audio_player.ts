@@ -2,6 +2,7 @@ import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
 import * as settings from "../settings.js";
 import { TtsGenerationProgressEvent, TtsPlayingEvent } from "../utils/tts.js";
+import { spawn_behavior_selector } from "./player_behavior.js";
 
 // To implement on a page, need to call `init_player()` before anything, then whenever the passage chapter is rendered, `on_passage_rendered()` needs to be called
 
@@ -168,7 +169,8 @@ export function init_player()
             });
 
             content.appendElementEx('div', ['strategy-settings'], strategy_settings => {
-
+                let selector = spawn_behavior_selector(b => utils.debug_print(`set behavior to: ${b}`));
+                strategy_settings.appendChild(selector);
             });
         });
 
