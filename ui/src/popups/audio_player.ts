@@ -169,7 +169,7 @@ export function init_player()
             });
 
             content.appendElementEx('div', ['strategy-settings'], strategy_settings => {
-                let selector = spawn_behavior_selector(b => utils.debug_print(`set behavior to: ${b}`));
+                let selector = spawn_behavior_selector();
                 strategy_settings.appendChild(selector);
             });
         });

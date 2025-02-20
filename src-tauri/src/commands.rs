@@ -21,7 +21,7 @@ pub fn debug_print(message: &str) {
 #[tauri::command(rename_all = "snake_case")]
 pub fn get_bible_view(app_state: State<'_, AppState>) -> String {
     let view = app_state.get().as_ref().unwrap().get_current_bible().get_view();
-    serde_json::to_string(&view).unwrap()
+    serde_json::to_string(&view.books).unwrap()
 }
 
 #[tauri::command(rename_all = "snake_case")]

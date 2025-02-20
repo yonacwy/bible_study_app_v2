@@ -284,9 +284,9 @@ fn get_verse_range(verse_start: Option<u32>, verse_end: Option<u32>) -> Option<V
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BookTitleData {
-    prefix: Option<u32>,
-    name: String,
-    index: u32,
+    pub prefix: Option<u32>,
+    pub name: String,
+    pub index: u32,
 }
 
 fn get_book_title_data(bible: &Bible) -> Vec<BookTitleData> {

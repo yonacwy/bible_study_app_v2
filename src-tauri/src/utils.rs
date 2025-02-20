@@ -1,4 +1,4 @@
-use std::{error::Error, hash::{DefaultHasher, Hash, Hasher}, path::Path, sync::{Arc, Mutex, MutexGuard}};
+use std::{error::Error, hash::{DefaultHasher, Hash, Hasher}, ops::Deref, path::Path, sync::{Arc, Mutex, MutexGuard}};
 
 use serde::{Deserialize, Serialize};
 
@@ -82,7 +82,7 @@ pub struct AppInfo
     pub save_version: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Shared<T>(Arc<Mutex<T>>);
 
 impl<T> Shared<T>
@@ -116,5 +116,13 @@ impl<T> From<Shared<T>> for Arc<Mutex<T>>
     fn from(value: Shared<T>) -> Self 
     {
         value.0
+    }
+}
+
+impl<T> Clone for Shared<T>
+{
+    fn clone(&self) -> Self 
+    {
+        Self(self.0.clone())
     }
 }
