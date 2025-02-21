@@ -12,7 +12,7 @@ const CLOSE_IMAGE_SRC: string = '../images/light-xmark.svg';
 const OPEN_DROPDOWN_IMAGE_SRC: string = '../images/light-angle-down.svg';
 const CLOSE_DROPDOWN_IMAGE_SRC: string = '../images/light-angle-up.svg';
 const VOLUME_IMAGE_SRC: string = '../images/volume/light-volume.svg';
-const PLAYBACK_SPEED_SRC: string = '../images/light-gauge.svg';
+const PLAYBACK_SPEED_SRC: string = '../images/gauges/light-gauge.svg';
 
 type AudioPlayerData = {
     popup: HTMLElement,
@@ -217,7 +217,7 @@ export function init_player()
 
 function spawn_volume_slider(): HTMLElement
 {
-    return spawn_settings_slider(VOLUME_IMAGE_SRC, {}, input => {
+    return spawn_settings_slider(VOLUME_IMAGE_SRC, {}, (input, button) => {
         if(+input.value === 0)
         {
             input.value = '1';
@@ -244,14 +244,14 @@ function spawn_playback_slider(): HTMLElement
     })
 }
 
-function spawn_settings_slider(image_src: string, args: utils.SliderArgs, on_click: (e: HTMLInputElement) => void): HTMLElement
+function spawn_settings_slider(image_src: string, args: utils.SliderArgs, on_click: (e: HTMLInputElement, image: utils.ImageButton) => void): HTMLElement
 {
     return utils.spawn_element('div', ['setting-slider'], root => {        
         let input = utils.spawn_slider(args);
         
         input.addEventListener('mousedown', e => e.stopPropagation()); // makes sure we don't drag while modifying slider
 
-        let button = utils.spawn_image_button(image_src, e => on_click(input));
+        let button = utils.spawn_image_button(image_src, (_, button) => on_click(input, button));
 
         root.appendChild(button.button);
         root.appendChild(input);

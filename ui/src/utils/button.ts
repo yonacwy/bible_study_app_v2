@@ -4,7 +4,7 @@ export type ImageButton = {
     image: HTMLImageElement
 }
 
-export function spawn_image_button(image_src: string, on_click?: (e: MouseEvent) => void): ImageButton
+export function spawn_image_button(image_src: string, on_click?: (e: MouseEvent, button: ImageButton) => void): ImageButton
 {
     let button = document.createElement('button');
     button.classList.add('image-btn');
@@ -14,7 +14,10 @@ export function spawn_image_button(image_src: string, on_click?: (e: MouseEvent)
     });
 
     if(on_click !== undefined)
-        button.addEventListener('click', e => on_click(e));
+        button.addEventListener('click', e => on_click(e, {
+            image,
+            button,
+        }));
     
     return {
         button,
@@ -22,7 +25,7 @@ export function spawn_image_button(image_src: string, on_click?: (e: MouseEvent)
     };
 }
 
-export function create_image_button(parent: Element, image_src: string, on_click?: (e: MouseEvent) => void): ImageButton
+export function create_image_button(parent: Element, image_src: string, on_click?: (e: MouseEvent, button: ImageButton) => void): ImageButton
 {
     let button = document.createElement('button');
     button.classList.add('image-btn');
@@ -32,7 +35,13 @@ export function create_image_button(parent: Element, image_src: string, on_click
     });
 
     if(on_click !== undefined)
-        button.addEventListener('click', e => on_click(e));
+    {
+        button.addEventListener('click', e => on_click(e, {
+            image,
+            button,
+        }));
+    }
+
 
     parent.appendChild(button);
     
