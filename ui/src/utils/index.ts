@@ -12,6 +12,7 @@ export * as scrolling from "./scrolling.js";
 export * as ranges from "./ranges.js";
 export * as tts from "./tts.js";
 export * as events from "./events.js";
+export * as images from "./images.js";
 
 export const invoke: (fn_name: string, args: any) => Promise<any> = (window as any).__TAURI__.core.invoke;
 

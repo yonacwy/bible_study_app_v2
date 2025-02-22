@@ -217,7 +217,8 @@ export function init_player()
 
 function spawn_volume_slider(): HTMLElement
 {
-    return spawn_settings_slider(VOLUME_IMAGE_SRC, {}, (input, button) => {
+    return spawn_settings_slider(VOLUME_IMAGE_SRC, {}, 
+    (input, button) => {
         if(+input.value === 0)
         {
             input.value = '1';
@@ -227,8 +228,32 @@ function spawn_volume_slider(): HTMLElement
             input.value = '0';
         }
 
+        update_volume_slider_image(+input.value, button.image);
         utils.update_sliders();
-    })
+    },
+    (input, button) => {
+        update_volume_slider_image(+input.value, button.image);
+    });
+}
+
+function update_volume_slider_image(value: number, image: HTMLImageElement)
+{
+    if(value == 0)
+    {
+        image.src = utils.images.VOLUME_MUTE;
+    }
+    else if (value < 0.3)
+    {
+        image.src = utils.images.VOLUME_LOW;
+    }
+    else if (value < 0.6)
+    {
+        image.src = utils.images.VOLUME_MID;
+    }
+    else 
+    {
+        image.src = utils.images.VOLUME_HIGH;
+    }
 }
 
 function spawn_playback_slider(): HTMLElement
@@ -238,13 +263,41 @@ function spawn_playback_slider(): HTMLElement
         max: 2.0,
         default: 1.0,
     }, 
-    input => {
+    (input, button) => {
         input.value = '1';
+        update_playback_slider_image(+input.value, button.image)
         utils.update_sliders();
-    })
+    },
+    (input, button) => {
+        update_playback_slider_image(+input.value, button.image);
+    });
 }
 
-function spawn_settings_slider(image_src: string, args: utils.SliderArgs, on_click: (e: HTMLInputElement, image: utils.ImageButton) => void): HTMLElement
+function update_playback_slider_image(value: number, image: HTMLImageElement)
+{
+    if (value < 0.6)
+    {
+        image.src = utils.images.GAUGE_MIN;
+    }
+    else if (value < 0.75)
+    {
+        image.src = utils.images.GAUGE_LOW;
+    }
+    else if (value <= 1.0)
+    {
+        image.src = utils.images.GAUGE_MID;
+    }
+    else if (value < 1.5)
+    {
+        image.src = utils.images.GAUGE_HIGH;
+    }
+    else 
+    {
+        image.src = utils.images.GAUGE_MAX;
+    }
+}
+
+function spawn_settings_slider(image_src: string, args: utils.SliderArgs, on_click: (e: HTMLInputElement, image: utils.ImageButton) => void, on_input: (input: HTMLInputElement, button: utils.ImageButton) => void): HTMLElement
 {
     return utils.spawn_element('div', ['setting-slider'], root => {        
         let input = utils.spawn_slider(args);
@@ -252,6 +305,10 @@ function spawn_settings_slider(image_src: string, args: utils.SliderArgs, on_cli
         input.addEventListener('mousedown', e => e.stopPropagation()); // makes sure we don't drag while modifying slider
 
         let button = utils.spawn_image_button(image_src, (_, button) => on_click(input, button));
+
+        input.addEventListener('input', e => {
+            on_input(input, button);
+        })
 
         root.appendChild(button.button);
         root.appendChild(input);
