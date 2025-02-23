@@ -64,6 +64,7 @@ export class TtsPlayer
 {
     private playing_id: string | null = null;
     private ready: boolean = false;
+    private finished: boolean = false;
     private callback: (e: TtsFrontendEvent) => void;
 
     public constructor(callback: (e: TtsFrontendEvent) => void) 
@@ -95,10 +96,16 @@ export class TtsPlayer
         return this.ready;
     }
 
+    public is_finished(): boolean
+    {
+        return this.finished;
+    }
+
     public async play()
     {
         if (this.ready)
         {
+            this.finished = false;
             return await play();
         }
         else 
@@ -209,6 +216,7 @@ export class TtsPlayer
                 break;
             }
             case "finished": {
+                this.finished = true;
                 this.callback({
                     type: 'finished',
                     data: null,

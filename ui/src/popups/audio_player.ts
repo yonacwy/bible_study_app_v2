@@ -111,10 +111,18 @@ export function on_passage_render()
     update_current_reading_verse_visual();
 }
 
+export const SKIP_TIME: number = 10; // 10 seconds
+
 export function init_player()
 {
     let close_button = utils.spawn_image_button(CLOSE_IMAGE_SRC);
-    let play_button = build_play_button();
+    close_button.button.title = 'Close';
+
+    let play_button = spawn_play_button();
+    let rewind_button = spawn_rewind_button();
+    let fast_forward_button = spawn_fast_forward_button();
+    let restart_button = spawn_restart_button();
+
     let generating_indicator = spawn_generating_indicator();
 
     let progress_bar = utils.spawn_element('input', [], audio_range => {
@@ -154,8 +162,11 @@ export function init_player()
         player_div.appendElementEx('div', ['main-content'], main_content => {
             main_content.appendChild(play_button.button);
             main_content.appendChild(generating_indicator);
+            main_content.appendChild(rewind_button.button);
+            main_content.appendChild(fast_forward_button.button);
             main_content.appendChild(progress_bar);
             main_content.appendChild(progress_text);
+            main_content.appendChild(restart_button.button);
             main_content.appendChild(close_button.button);
         });
 
@@ -380,11 +391,13 @@ function update_generation_progress(progress: number)
     indicator.style.strokeDashoffset = offset.toString();
 }
 
-function build_play_button(): utils.ImageButton
+function spawn_play_button(): utils.ImageButton
 {
     let play_button = utils.spawn_image_button(PLAY_IMAGE_SRC, e => {
         e.stopPropagation();
     });
+
+    play_button.button.title = 'Play'
 
     play_button.button.addEventListener('click', async e => {
 
@@ -392,15 +405,73 @@ function build_play_button(): utils.ImageButton
         {
             PLAYER.pause();
             play_button.image.src = PLAY_IMAGE_SRC;
+            play_button.button.title = 'Play';
         }
         else 
         {
             PLAYER.play();
             play_button.image.src = PAUSE_IMAGE_SRC;
+            play_button.button.title = 'Pause';
         }
     });
 
     return play_button;
+}
+
+function spawn_rewind_button(): utils.ImageButton
+{
+    let button = utils.spawn_image_button(utils.images.ANGLES_LEFT, async e => {
+        if(!AUDIO_PLAYER_DATA || !PLAYER.is_ready()) return;
+
+        let time = +AUDIO_PLAYER_DATA.progress_bar.value;
+        let duration = await PLAYER.get_duration();
+        let offset_percent = SKIP_TIME / duration;
+        time = Math.clamp(0.0, 1.0, time - offset_percent);
+        await PLAYER.set_time(time);
+        
+        update_progress_visual(time, duration);
+    });
+
+    button.button.title = `Rewind ${SKIP_TIME}s`;
+    return button;
+}
+
+function spawn_fast_forward_button(): utils.ImageButton
+{
+    let button = utils.spawn_image_button(utils.images.ANGLES_RIGHT, async e => {
+        if(!AUDIO_PLAYER_DATA || !PLAYER.is_ready()) return;
+
+        let time = +AUDIO_PLAYER_DATA.progress_bar.value;
+        let duration = await PLAYER.get_duration();
+        let offset_percent = SKIP_TIME / duration;
+        time = Math.clamp(0.0, 1.0, time + offset_percent);
+        await PLAYER.set_time(time);
+
+        update_progress_visual(time, duration);
+    });
+
+    button.button.title = `Fast Forward ${SKIP_TIME}s`;
+    return button;
+}
+
+function spawn_restart_button(): utils.ImageButton
+{
+    let button = utils.spawn_image_button(utils.images.ARROWS_ROTATE, async _ => {
+        if(!AUDIO_PLAYER_DATA || !PLAYER.is_ready()) return;
+
+        await PLAYER.set_time(0.0);
+        update_progress_visual(0.0, await PLAYER.get_duration());
+
+        if(PLAYER.is_finished())
+        {
+            // If we are finished, and need to restart, we just hit the play button
+            // Quick and dirty way to make this work
+            AUDIO_PLAYER_DATA.play_button.button.click();
+        }
+    });
+
+    button.button.title = 'Restart';
+    return button;
 }
 
 function handle_dragging(element: HTMLElement)
