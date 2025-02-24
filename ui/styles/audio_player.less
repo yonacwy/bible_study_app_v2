@@ -87,7 +87,7 @@
         .slider-settings
         {
             display: block;
-            width: 50%;
+            width: 40%;
             height: fit-content;
 
             .setting-slider {
@@ -103,13 +103,15 @@
 
         .strategy-settings {
             display: block;
-            width: 50%;
+            margin: 0px;
+            width: 60%;
+            height: fit-content;
 
             .behavior-selector {
                 float: left;
                 display: flex;
                 justify-content: center;
-                align-items: baseline;
+                align-items: center;
             }
         }
     }
@@ -120,6 +122,8 @@
 
         border-top: 1px solid #333;
         border-bottom: 1px solid #333;
+
+        animation: enable-overflow 0s linear 0.4s forwards;
     }
 
     .dropdown-button {
@@ -145,5 +149,12 @@
         &:hover {
             background-color: #bbb;
         }
+    }
+}
+
+@keyframes enable-overflow {
+    to 
+    {
+        overflow: visible;
     }
 }

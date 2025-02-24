@@ -236,7 +236,9 @@ export function init_player()
 
 function spawn_volume_slider(): HTMLElement
 {
-    return spawn_settings_slider(VOLUME_IMAGE_SRC, {}, 
+    return spawn_settings_slider(VOLUME_IMAGE_SRC, {
+        default: 1.0,
+    }, 
     (input, button) => {
         if(+input.value === 0)
         {
@@ -278,12 +280,20 @@ function update_volume_slider_image(value: number, image: HTMLImageElement)
 function spawn_playback_slider(): HTMLElement
 {
     return spawn_settings_slider(PLAYBACK_SPEED_SRC, {
-        min: 0.5,
-        max: 2.0,
-        default: 1.0,
+        default: 0.5,
+        on_input: v => {
+            v = Math.lerp(-1, 1, v);
+            v = v + Math.sign(v);
+
+            if (Math.abs(v) == 0) 
+                v = 1;
+
+            v = Math.abs(Math.pow(v, Math.sign(v)));
+            utils.debug_print(`set value ${v}`);
+        }
     }, 
     (input, button) => {
-        input.value = '1';
+        input.value = '0.5';
         update_playback_slider_image(+input.value, button.image)
         utils.update_sliders();
     },
@@ -294,19 +304,19 @@ function spawn_playback_slider(): HTMLElement
 
 function update_playback_slider_image(value: number, image: HTMLImageElement)
 {
-    if (value < 0.6)
+    if (value < 0.2)
     {
         image.src = utils.images.GAUGE_MIN;
     }
-    else if (value < 0.75)
+    else if (value < 0.4)
     {
         image.src = utils.images.GAUGE_LOW;
     }
-    else if (value <= 1.0)
+    else if (value <= 0.6)
     {
         image.src = utils.images.GAUGE_MID;
     }
-    else if (value < 1.5)
+    else if (value < 0.8)
     {
         image.src = utils.images.GAUGE_HIGH;
     }

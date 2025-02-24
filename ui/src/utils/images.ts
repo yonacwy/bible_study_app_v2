@@ -58,3 +58,6 @@ export const TRASH_CAN: string = '../images/light-trash-can.svg';
 export const X_MARK: string = '../images/light-xmark.svg';
 export const OLD_STAR: string = '../images/solid-gold-star.svg';
 export const PLUS: string = '../images/thin-plus.svg';
+
+export const INFINITY: string = '../images/light-infinity.svg';
+export const REPEAT: string = '../images/light-repeat.svg';

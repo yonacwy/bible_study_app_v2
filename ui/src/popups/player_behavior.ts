@@ -1,34 +1,75 @@
 import { ChapterIndex, ReferenceLocation, VerseRange } from "../bindings.js";
 import * as utils from "../utils/index.js";
 
-const SINGLE_BEHAVIOR_IMAGE_SRC: string = '../images/audio_player/light-circle-1.svg';
-const SECTION_BEHAVIOR_IMAGE_SRC: string = '../images/audio_player/light-page.svg';
-const READINGS_BEHAVIOR_IMAGE_SRC: string = '../images/audio_player/light-book.svg';
+type BehaviorType = 'single' | 'section' | 'reading' | 'continuous';
+type RepeatBehavior = 'once' | 'x' | 'timed' | 'infinite';
 
 export function spawn_behavior_selector(): HTMLElement
 {
-    return utils.spawn_element('div', ['behavior-selector'], div => {
-        let buttons: HTMLElement[] = [];
-
-        buttons.push(utils.spawn_image_button(SINGLE_BEHAVIOR_IMAGE_SRC, e => { // single behavior
-            e.stopPropagation();
-            buttons.forEach(b => b.classList.remove('active'));
-            buttons[0].classList.add('active');
-        }).button);
-
-        buttons.push(utils.spawn_image_button(SECTION_BEHAVIOR_IMAGE_SRC, e => { // single behavior
-            e.stopPropagation();
-            buttons.forEach(b => b.classList.remove('active'));
-            buttons[1].classList.add('active');
-        }).button);
-
-        buttons.push(utils.spawn_image_button(READINGS_BEHAVIOR_IMAGE_SRC, e => { // single behavior
-            e.stopPropagation();
-            buttons.forEach(b => b.classList.remove('active'));
-            buttons[2].classList.add('active');
-        }).button);
-
-        buttons.forEach(b => div.appendChild(b));
-        buttons[0].classList.add('active');
+    let behavior_selector = utils.spawn_text_dropdown<BehaviorType>({
+        title_text: null,
+        tooltip: 'Behavior settings',
+        default_index: 0,
+        on_change: (v) => {
+            utils.debug_print(`set behavior to ${v}`)
+        },
+        options: [
+            {
+                text: 'Single',
+                tooltip: 'Play the current chapter',
+                value: 'single'
+            },
+            {
+                text: 'Section',
+                tooltip: 'Play a range of chapters',
+                value: 'section',
+            },
+            {
+                text: 'Reading',
+                tooltip: 'Play a reading',
+                value: 'reading',
+            },
+            {
+                text: 'Continuous',
+                tooltip: 'Play continuously',
+                value: 'continuous',
+            }
+        ]
     });
+
+    let repeat_selector = utils.spawn_image_dropdown<RepeatBehavior>({
+        tooltip: 'Repeat settings',
+        title_image: null,
+        default_index: 0,
+        on_change: (v) => {
+            utils.debug_print(`set value to ${v}`);
+        },
+        options: [
+            {
+                image: utils.images.CIRCLE_1,
+                tooltip: 'Play once',
+                value: 'once'
+            },
+            {
+                image: utils.images.REPEAT,
+                tooltip: 'Repeat X times',
+                value: 'x'
+            },
+            {
+                image: utils.images.ALARM_CLOCK,
+                tooltip: 'Clock',
+                value: 'timed'
+            },
+            {
+                image: utils.images.INFINITY,
+                tooltip: 'Repeat indefinitely',
+                value: 'infinite'
+            },
+        ]
+    });
+
+    return utils.spawn_element('div', ['behavior-selector'], b => {
+        b.appendChild(behavior_selector.root);
+        b.appendChild(repeat_selector.root);
+    })
 }
