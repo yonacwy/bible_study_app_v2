@@ -18,6 +18,9 @@ type AudioPlayerData = {
     popup: HTMLElement,
     close_button: utils.ImageButton,
     play_button: utils.ImageButton,
+    fast_forward_button: utils.ImageButton,
+    rewind_button: utils.ImageButton,
+    restart_button: utils.ImageButton,
     generating_indicator: HTMLElement,
     progress_bar: HTMLInputElement,
     progress_text: HTMLElement,
@@ -73,6 +76,8 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
         AUDIO_PLAYER_DATA.progress_bar.value = `${1.0}`;
         utils.update_sliders();
     }
+
+    update_playback_controls_opacity(e);
 });
 
 export async function show_player()
@@ -217,6 +222,9 @@ export function init_player()
         popup,
         play_button,
         close_button,
+        fast_forward_button,
+        rewind_button,
+        restart_button,
         progress_bar,
         progress_text,
         generating_indicator,
@@ -416,6 +424,24 @@ function spawn_play_button(): utils.ImageButton
     });
 
     return play_button;
+}
+
+function update_playback_controls_opacity(event: utils.tts.TtsFrontendEvent)
+{
+    if(!AUDIO_PLAYER_DATA) return;
+
+    if (PLAYER.is_ready())
+    {
+        AUDIO_PLAYER_DATA.fast_forward_button.button.classList.remove('inactive');
+        AUDIO_PLAYER_DATA.rewind_button.button.classList.remove('inactive');
+        AUDIO_PLAYER_DATA.restart_button.button.classList.remove('inactive');
+    }
+    else 
+    {
+        AUDIO_PLAYER_DATA.fast_forward_button.button.classList.add('inactive');
+        AUDIO_PLAYER_DATA.rewind_button.button.classList.add('inactive');
+        AUDIO_PLAYER_DATA.restart_button.button.classList.add('inactive');
+    }
 }
 
 function spawn_rewind_button(): utils.ImageButton

@@ -21,6 +21,7 @@
   - [ ] Light
   - [ ] Parchment
 - [ ] Create better info page
+- [ ] Make calendar selected date more visible
 
 ### Version 0.5.0: Multiple Bible Support
 - [x] Multiple Bible Support
