@@ -9,7 +9,7 @@ export type ImageDropdownOption<T> = {
 export type ImageDropdownArgs<T> = {
     title_image: string | null,
     default_index: number,
-    tooltip: string,
+    tooltip?: string,
     on_change?: (value: T) => void,
     options: ImageDropdownOption<T>[],
     parent?: HTMLElement,
@@ -31,7 +31,7 @@ export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdo
         dropdown.classList.toggle('active');
     });
 
-    title_button.button.title = args.tooltip;
+    title_button.button.title = args.tooltip ?? "";
 
     let option_buttons = args.options.map(o => {
         let button = utils.spawn_image_button(o.image);
@@ -91,7 +91,7 @@ export type TextDropdownArgs<T> = {
     title_text: string | null,
     tooltip?: string,
     default_index: number,
-    on_change?: (v: T) => void,
+    on_change?: (v: T, td: TextDropdown) => void,
     options: TextDropdownOption<T>[],
     parent?: HTMLElement,
 }
@@ -122,6 +122,12 @@ export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown
         });
     });
 
+    let text_dropdown: TextDropdown = {
+        root: dropdown,
+        title: dropdown_title,
+        options: option_buttons,
+    }
+
     option_buttons.forEach((b, i) => {
         b.addEventListener('click', e => {
             option_buttons.forEach(b => b.classList.remove('selected-option'));
@@ -137,7 +143,7 @@ export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown
 
             if(args.on_change)
             {
-                args.on_change(args.options[i].value);
+                args.on_change(args.options[i].value, text_dropdown);
             }
         });
     });
@@ -156,13 +162,34 @@ export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown
 
     if(args.on_change)
     {
-        args.on_change(args.options[args.default_index].value);
+        args.on_change(args.options[args.default_index].value, text_dropdown);
         option_buttons[args.default_index].classList.add('selected-option');
     }
 
-    return {
-        root: dropdown,
-        title: dropdown_title,
-        options: option_buttons,
-    }
+    return text_dropdown;
+}
+
+export type TextDropdownBasicArgs = {
+    default: number,
+    options: string[],
+    tooltip?: string,
+    on_change?: (v: number, td: TextDropdown) => void,
+    parent?: HTMLElement,
+}
+
+export function spawn_text_dropdown_simple(args: TextDropdownBasicArgs): TextDropdown
+{
+    let options: TextDropdownOption<number>[] = args.options.map((v, i) => ({
+        text: v,
+        tooltip: `Select ${v}`,
+        value: i
+    }));
+
+    return spawn_text_dropdown({
+        title_text: null,
+        tooltip: args.tooltip,
+        default_index: args.default,
+        options,
+        parent: args.parent,
+    })
 }

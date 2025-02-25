@@ -226,3 +226,25 @@ export function spawn_slider(args: SliderArgs): HTMLInputElement
     input.value = value; // doesn't work if we put it in the `spawn_element` block for some reason.
     return input;
 }
+
+
+export function get_month_length(month: number, is_leap_year: boolean): number
+{
+    switch(month)
+    {
+        case 0: return 31; // Jan
+        case 1: return is_leap_year ? 29 : 28; // Feb
+        case 2: return 31; // Mar
+        case 3: return 30; // Apr
+        case 4: return 31; // May
+        case 5: return 30; // Jun
+        case 6: return 31; // Jul
+        case 7: return 31; // August
+        case 8: return 30; // Sept
+        case 9: return 31; // Oct
+        case 10: return 30; // Nov
+        case 11: return 31; // Dec
+    }
+
+    return 0;
+}

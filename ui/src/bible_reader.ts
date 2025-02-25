@@ -42,6 +42,11 @@ export type BibleReaderSection = {
     verses: VerseRange | null,
 }
 
+export class BibleReader 
+{
+    
+}
+
 export async function listen_bible_reader_event(callback: (e: utils.AppEvent<BibleReaderEvent>) => void): Promise<utils.UnlistenFn>
 {
     const BIBLE_READER_EVENT_NAME: string = 'bible-reader-event';
