@@ -1,7 +1,7 @@
 import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils/index.js";
 import { push_section, get_current_view_state } from "./view_states.js";
 import { BookView, ChapterIndex, ChapterView } from "./bindings.js";
-import { EventListeners, Listener } from "./utils/events.js";
+import { EventHandler, Listener } from "./utils/events.js";
 
 export async function load_view(): Promise<BookView[]>
 {
@@ -101,7 +101,7 @@ export async function get_current_bible_version(): Promise<string>
 }
 
 
-const BIBLE_VERSION_CHANGE_EVENT_LISTENERS: EventListeners<string> = new EventListeners<string>();
+const BIBLE_VERSION_CHANGE_EVENT_LISTENERS: EventHandler<string> = new EventHandler<string>();
 
 export function add_version_changed_listener(listener: Listener<string>)
 {

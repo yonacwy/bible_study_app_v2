@@ -13,6 +13,7 @@ export type ImageDropdownArgs<T> = {
     on_change?: (value: T) => void,
     options: ImageDropdownOption<T>[],
     parent?: HTMLElement,
+    id?: string,
 };
 
 export type ImageDropdown = {
@@ -24,6 +25,7 @@ export type ImageDropdown = {
 export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdown
 {
     let dropdown = utils.spawn_element('div', ['small-dropdown'], _ => {});
+    dropdown.id = args.id ?? '';
 
     let title_image = args.title_image ?? args.options[args.default_index].image
     let title_button = utils.spawn_image_button(title_image, (_, img) => {
@@ -94,6 +96,7 @@ export type TextDropdownArgs<T> = {
     on_change?: (v: T, td: TextDropdown) => void,
     options: TextDropdownOption<T>[],
     parent?: HTMLElement,
+    id?: string,
 }
 
 export type TextDropdown = {
@@ -105,13 +108,14 @@ export type TextDropdown = {
 export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown
 {
     let dropdown = utils.spawn_element('div', ['text-dropdown'], _ => {});
+    dropdown.id = args.id ?? '';
 
     let dropdown_title = utils.spawn_element('div', ['dropdown-title'], b => {
         b.innerHTML = args.title_text ?? args.options[args.default_index].text;
         b.title = args.tooltip ?? "";
         b.addEventListener('click', e => {
             dropdown.classList.toggle('active');
-            b.classList.add('active');
+            b.classList.toggle('active');
         });
     });
 
@@ -175,6 +179,7 @@ export type TextDropdownBasicArgs = {
     tooltip?: string,
     on_change?: (v: number, td: TextDropdown) => void,
     parent?: HTMLElement,
+    id?: string
 }
 
 export function spawn_text_dropdown_simple(args: TextDropdownBasicArgs): TextDropdown
@@ -182,7 +187,8 @@ export function spawn_text_dropdown_simple(args: TextDropdownBasicArgs): TextDro
     let options: TextDropdownOption<number>[] = args.options.map((v, i) => ({
         text: v,
         tooltip: `Select ${v}`,
-        value: i
+        value: i,
+        id: args.id,
     }));
 
     return spawn_text_dropdown({

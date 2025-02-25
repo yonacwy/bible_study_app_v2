@@ -3,7 +3,7 @@ import * as utils from "./utils/index.js";
 
 export type RepeatOptions = {
     type: "no_repeat" | "repeat_count" | "repeat_time" | "infinite",
-    data?: number
+    data: number | null
 }
 
 export type SegmentReaderBehavior = {
