@@ -66,7 +66,7 @@ pub struct BibleView
 
 impl BibleView 
 {
-    pub fn increment_chapter(&self, chapter: ChapterIndex, count: u32) -> Option<ChapterIndex>
+    pub fn increment_chapter(&self, chapter: ChapterIndex, count: u32) -> ChapterIndex
     {
         let mut book = chapter.book as usize;
         let mut number = chapter.number as usize;
@@ -84,14 +84,15 @@ impl BibleView
             }
             else 
             {
-                return None;    
+                book = 0;
+                number = 0;
             }
         }
 
-        Some(ChapterIndex {
+        ChapterIndex {
             book: book as u32,
             number: number as u32
-        })
+        }
     }
 }
 

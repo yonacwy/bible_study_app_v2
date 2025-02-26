@@ -24,6 +24,24 @@ Element.prototype.appendElementEx = function<K extends keyof HTMLElementTagNameM
 }
 
 declare global {
+    export interface HTMLElement {
+        hide(hidden: boolean): void;
+    }
+}
+
+HTMLElement.prototype.hide = function(hidden: boolean): void 
+{
+    if(hidden)
+    {
+        this.classList.add('hidden');
+    }
+    else 
+    {
+        this.classList.remove('hidden');
+    }
+}
+
+declare global {
     export interface Array<T>
     {
         remove_at(index: number): T;

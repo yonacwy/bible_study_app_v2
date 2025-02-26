@@ -1,4 +1,11 @@
+import { ChapterIndex } from "../bindings.js";
+import { EventHandler } from "./events.js";
 import * as utils from "./index.js";
+
+export type DropdownValue<T> = {
+    index: number,
+    value: T,
+}
 
 export type ImageDropdownOption<T> = {
     image: string,
@@ -10,7 +17,7 @@ export type ImageDropdownArgs<T> = {
     title_image: string | null,
     default_index: number,
     tooltip?: string,
-    on_change?: (value: T) => void,
+    on_change?: (v: DropdownValue<T>) => void,
     options: ImageDropdownOption<T>[],
     parent?: HTMLElement,
     id?: string,
@@ -21,11 +28,13 @@ export type ImageDropdown<T> = {
     title: utils.ImageButton,
     options: utils.ImageButton[],
     set_value: (v: number) => void,
-    get_value: () => [T, number],
+    get_value: () => DropdownValue<T>,
+    on_change: EventHandler<DropdownValue<T>>,
 }
 
 export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdown<T>
 {
+    let handler = new EventHandler<DropdownValue<T>>();
     let dropdown = utils.spawn_element('div', ['small-dropdown'], _ => {});
     dropdown.id = args.id ?? '';
 
@@ -56,14 +65,17 @@ export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdo
             title_button.image.src = args.options[index].image;
         }
 
-        if(args.on_change)
-        {
-            args.on_change(args.options[index].value);
-        }
+        selected_index = index;
+        handler.invoke({
+            value: args.options[index].value,
+            index
+        });
     }
 
-    let get_value: () => [T, number] = 
-        () => [args.options[selected_index].value, selected_index];
+    let get_value: () => DropdownValue<T> = () => ({
+        value: args.options[selected_index].value, 
+        index: selected_index,
+    });
 
     option_buttons.forEach((button, index) => {
         button.button.addEventListener('click', e => {
@@ -83,7 +95,7 @@ export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdo
 
     if(args.on_change)
     {
-        args.on_change(args.options[args.default_index].value);
+        handler.add_listener(args.on_change);
         option_buttons[args.default_index].button.classList.add('selected-option');
     }
 
@@ -93,6 +105,7 @@ export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdo
         options: option_buttons,
         set_value,
         get_value,
+        on_change: handler,
     };
 }
 
@@ -106,7 +119,7 @@ export type TextDropdownArgs<T> = {
     title_text: string | null,
     tooltip?: string,
     default_index: number,
-    on_change?: (v: T) => void,
+    on_change?: (v: DropdownValue<T>) => void,
     options: TextDropdownOption<T>[],
     parent?: HTMLElement,
     id?: string,
@@ -117,11 +130,13 @@ export type TextDropdown<T> = {
     title: HTMLElement,
     options: HTMLElement[],
     set_value: (i: number) => void,
-    get_value: () => [T, number],
+    get_value: () => DropdownValue<T>,
+    on_change: EventHandler<DropdownValue<T>>,
 }
 
 export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown<T>
 {
+    let handler = new EventHandler<DropdownValue<T>>();
     let dropdown = utils.spawn_element('div', ['text-dropdown'], _ => {});
     dropdown.id = args.id ?? '';
 
@@ -145,7 +160,7 @@ export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown<
 
     let set_value = (i: number) => {
         option_buttons.forEach(b => b.classList.remove('selected-option'));
-        option_buttons[selected_index].classList.add('selected-option');
+        option_buttons[i].classList.add('selected-option');
 
         dropdown.classList.remove('active');
         dropdown_title.classList.remove('active');
@@ -155,14 +170,17 @@ export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown<
             dropdown_title.innerHTML = args.options[i].text;
         }
 
-        if(args.on_change)
-        {
-            args.on_change(args.options[i].value);
-        }
+        selected_index = i;
+        handler.invoke({
+            value: args.options[i].value,
+            index: i,
+        });
     }
 
-    let get_value: () => [T, number] = 
-        () => [args.options[selected_index].value, selected_index];
+    let get_value: () => DropdownValue<T> = () => ({
+        value: args.options[selected_index].value, 
+        index: selected_index
+    });
 
     option_buttons.forEach((b, i) => {
         b.addEventListener('click', e => {
@@ -184,7 +202,7 @@ export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown<
 
     if(args.on_change)
     {
-        args.on_change(args.options[args.default_index].value, text_dropdown);
+        handler.add_listener(args.on_change);
         option_buttons[args.default_index].classList.add('selected-option');
     }
 
@@ -192,6 +210,9 @@ export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown<
         root: dropdown,
         title: dropdown_title,
         options: option_buttons,
+        set_value,
+        get_value,
+        on_change: handler,
     };
 }
 
@@ -199,12 +220,12 @@ export type TextDropdownBasicArgs = {
     default: number,
     options: string[],
     tooltip?: string,
-    on_change?: (v: number) => void,
+    on_change?: (v: DropdownValue<number>) => void,
     parent?: HTMLElement,
     id?: string
 }
 
-export function spawn_text_dropdown_simple<T>(args: TextDropdownBasicArgs): TextDropdown<T>
+export function spawn_text_dropdown_simple(args: TextDropdownBasicArgs): TextDropdown<number>
 {
     let options: TextDropdownOption<number>[] = args.options.map((v, i) => ({
         text: v,
@@ -219,5 +240,6 @@ export function spawn_text_dropdown_simple<T>(args: TextDropdownBasicArgs): Text
         default_index: args.default,
         options,
         parent: args.parent,
-    })
+        on_change: args.on_change,
+    });
 }

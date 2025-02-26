@@ -84,6 +84,10 @@
         transition: max-height 0.4s ease-out, padding 0.4s ease-out;
         overflow: hidden;
 
+        .dropdown-content {
+            max-height: 200px;
+        }
+
         .slider-settings
         {
             display: block;
@@ -109,9 +113,51 @@
 
             .behavior-selector {
                 float: left;
-                display: flex;
+                display: block;
                 justify-content: center;
                 align-items: center;
+                width: 100%;
+
+                .dropdown-title {
+                    min-width: @button-size;
+                    text-align: center;
+                }
+
+                .dropdown, .text-dropdown {
+                    margin-left: @button-margin;
+                    margin-right: @button-margin;
+                }
+                
+                .main-strats {
+                    display: flex;
+                    justify-content: start;
+                    align-items: center;
+                    box-sizing: border-box;
+                    width: 100%;
+                }
+
+                .second-strats {
+                    display: flex;
+                    justify-content: start;
+                    align-items: center;
+                    box-sizing: border-box;
+                    width: 100%;
+
+                    .readings-selector, .section-selector {
+                        display: flex;
+                        justify-content: start;
+                        align-items: center;
+
+                        .tag {
+                            font-weight: bold;
+                            .font-small();
+                        }
+
+                        .tag:not(:first-of-type) {
+                            margin-left: 10px;
+                        }
+                    }
+                }
             }
         }
     }

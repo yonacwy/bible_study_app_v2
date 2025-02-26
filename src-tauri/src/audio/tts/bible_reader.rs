@@ -290,11 +290,7 @@ impl ReaderState
 
                 let count = self.reading_index / length;
                 let view = bible.get_view();
-                let chapter = match view.increment_chapter(start, count) 
-                {
-                    Some(chapter) => chapter,
-                    None => return None,
-                };
+                let chapter = view.increment_chapter(start, count);
 
                 BibleReaderSection {
                     chapter,

@@ -165,9 +165,9 @@ export function init_player()
         handle_dragging(player_div);
 
         player_div.appendElementEx('div', ['main-content'], main_content => {
+            main_content.appendChild(rewind_button.button);
             main_content.appendChild(play_button.button);
             main_content.appendChild(generating_indicator);
-            main_content.appendChild(rewind_button.button);
             main_content.appendChild(fast_forward_button.button);
             main_content.appendChild(progress_bar);
             main_content.appendChild(progress_text);
@@ -184,8 +184,8 @@ export function init_player()
                 sliders.appendChild(playback_slider);
             });
 
-            content.appendElementEx('div', ['strategy-settings'], strategy_settings => {
-                let selector = spawn_behavior_selector();
+            content.appendElementEx('div', ['strategy-settings'], async strategy_settings => {
+                let selector = await spawn_behavior_selector();
                 strategy_settings.appendChild(selector);
             });
         });
