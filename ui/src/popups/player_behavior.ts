@@ -48,7 +48,7 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
 
     BEHAVIOR_SETTINGS_CHANGED.add_listener(_ => {
         on_behavior_changed(data);
-        // update_backend_behavior(data);
+        update_backend_behavior(data);
     });
     BEHAVIOR_SETTINGS_CHANGED.invoke();
 
@@ -201,7 +201,7 @@ async function get_section_behavior(data: BehaviorSelectorData): Promise<reader.
 
 function get_reading_behavior(data: BehaviorSelectorData): reader.DailyReaderBehavior 
 {
-    return {} as any;
+    
 }
 
 function get_repeat_options(data: BehaviorSelectorData): reader.RepeatOptions
