@@ -16,13 +16,15 @@ export type ImageDropdownArgs<T> = {
     id?: string,
 };
 
-export type ImageDropdown = {
+export type ImageDropdown<T> = {
     root: HTMLElement,
     title: utils.ImageButton,
-    options: utils.ImageButton[]
+    options: utils.ImageButton[],
+    set_value: (v: number) => void,
+    get_value: () => [T, number],
 }
 
-export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdown
+export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdown<T>
 {
     let dropdown = utils.spawn_element('div', ['small-dropdown'], _ => {});
     dropdown.id = args.id ?? '';
@@ -41,22 +43,31 @@ export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdo
         return button;
     });
 
+    let selected_index = args.default_index;
+    let set_value = (index: number) =>
+    {
+        option_buttons.forEach(b => b.button.classList.remove('selected-option'));
+        option_buttons[index].button.classList.add('selected-option');
+
+        title_button.button.classList.remove('active');
+        dropdown.classList.remove('active');
+        if(args.title_image === null)
+        {
+            title_button.image.src = args.options[index].image;
+        }
+
+        if(args.on_change)
+        {
+            args.on_change(args.options[index].value);
+        }
+    }
+
+    let get_value: () => [T, number] = 
+        () => [args.options[selected_index].value, selected_index];
+
     option_buttons.forEach((button, index) => {
         button.button.addEventListener('click', e => {
-            option_buttons.forEach(b => b.button.classList.remove('selected-option'));
-            button.button.classList.add('selected-option');
-
-            title_button.button.classList.remove('active');
-            dropdown.classList.remove('active');
-            if(args.title_image === null)
-            {
-                title_button.image.src = args.options[index].image;
-            }
-
-            if(args.on_change)
-            {
-                args.on_change(args.options[index].value);
-            }
+            set_value(index);
         });
     });
 
@@ -79,7 +90,9 @@ export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdo
     return {
         root: dropdown,
         title: title_button,
-        options: option_buttons
+        options: option_buttons,
+        set_value,
+        get_value,
     };
 }
 
@@ -93,19 +106,21 @@ export type TextDropdownArgs<T> = {
     title_text: string | null,
     tooltip?: string,
     default_index: number,
-    on_change?: (v: T, td: TextDropdown) => void,
+    on_change?: (v: T) => void,
     options: TextDropdownOption<T>[],
     parent?: HTMLElement,
     id?: string,
 }
 
-export type TextDropdown = {
+export type TextDropdown<T> = {
     root: HTMLElement,
     title: HTMLElement,
-    options: HTMLElement[]
+    options: HTMLElement[],
+    set_value: (i: number) => void,
+    get_value: () => [T, number],
 }
 
-export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown
+export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown<T>
 {
     let dropdown = utils.spawn_element('div', ['text-dropdown'], _ => {});
     dropdown.id = args.id ?? '';
@@ -126,29 +141,32 @@ export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown
         });
     });
 
-    let text_dropdown: TextDropdown = {
-        root: dropdown,
-        title: dropdown_title,
-        options: option_buttons,
+    let selected_index = args.default_index;
+
+    let set_value = (i: number) => {
+        option_buttons.forEach(b => b.classList.remove('selected-option'));
+        option_buttons[selected_index].classList.add('selected-option');
+
+        dropdown.classList.remove('active');
+        dropdown_title.classList.remove('active');
+
+        if(args.title_text === null)
+        {
+            dropdown_title.innerHTML = args.options[i].text;
+        }
+
+        if(args.on_change)
+        {
+            args.on_change(args.options[i].value);
+        }
     }
+
+    let get_value: () => [T, number] = 
+        () => [args.options[selected_index].value, selected_index];
 
     option_buttons.forEach((b, i) => {
         b.addEventListener('click', e => {
-            option_buttons.forEach(b => b.classList.remove('selected-option'));
-            b.classList.add('selected-option');
-
-            dropdown.classList.remove('active');
-            dropdown_title.classList.remove('active');
-
-            if(args.title_text === null)
-            {
-                dropdown_title.innerHTML = args.options[i].text;
-            }
-
-            if(args.on_change)
-            {
-                args.on_change(args.options[i].value, text_dropdown);
-            }
+            set_value(i);
         });
     });
 
@@ -170,19 +188,23 @@ export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown
         option_buttons[args.default_index].classList.add('selected-option');
     }
 
-    return text_dropdown;
+    return {
+        root: dropdown,
+        title: dropdown_title,
+        options: option_buttons,
+    };
 }
 
 export type TextDropdownBasicArgs = {
     default: number,
     options: string[],
     tooltip?: string,
-    on_change?: (v: number, td: TextDropdown) => void,
+    on_change?: (v: number) => void,
     parent?: HTMLElement,
     id?: string
 }
 
-export function spawn_text_dropdown_simple(args: TextDropdownBasicArgs): TextDropdown
+export function spawn_text_dropdown_simple<T>(args: TextDropdownBasicArgs): TextDropdown<T>
 {
     let options: TextDropdownOption<number>[] = args.options.map((v, i) => ({
         text: v,

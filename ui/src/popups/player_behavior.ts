@@ -20,6 +20,7 @@ type BehaviorSelectorData = {
     day_selector: utils.TextDropdown,
 }
 
+let continuous_repeat_value: RepeatBehavior = 'infinite';
 let current_behavior: reader.ReaderBehavior = {
     type: 'segment',
     data: {
@@ -67,6 +68,11 @@ export function spawn_behavior_selector(): HTMLElement
             month_selector.root.classList.add('hidden');
             day_selector.root.classList.add('hidden');
         }
+
+        if(v === 'continuous')
+        {
+
+        }
     });
     TYPE_CHANGED.invoke('single');
 
@@ -105,7 +111,7 @@ function spawn_continuous_repeat_selector(): utils.ImageDropdown
 {
     return utils.spawn_image_dropdown<RepeatBehavior>({
         title_image: null,
-        default_index: 0,
+        default_index: 1,
         on_change: (v) => {
             REPEAT_CHANGED.invoke(v);
         },
