@@ -62,3 +62,5 @@ export const PLUS: string = '../images/thin-plus.svg';
 export const INFINITY: string = '../images/light-infinity.svg';
 export const REPEAT: string = '../images/light-repeat.svg';
 export const ARROWS_MAGNIFYING_GLASS: string = '../images/light-magnifying-glass-arrows-rotate.svg';
+export const HISTORY_VERTICAL: string = '../images/light-rectangle-vertical-history.svg';
+export const HISTORY_HORIZONTAL: string = '../images/light-rectangle-history.svg';

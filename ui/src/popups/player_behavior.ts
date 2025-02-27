@@ -4,6 +4,7 @@ import * as reader from "../bible_reader.js";
 import { EventHandler } from "../utils/events.js";
 import * as bible from "../bible.js";
 import * as readings from "../page_scripts/daily_readings_page.js";
+import * as queue from "./queue_display.js";
 
 type BehaviorType = 'single' | 'section' | 'reading' | 'continuous';
 
@@ -92,7 +93,7 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
         start_chapter = section_data.start;
         let length = section_data.length ?? 1;
         let view = await bible.load_view();
-        end_chapter = bible.expand_chapter_index(view, bible.flatten_chapter_index(view, start_chapter) + length);
+        end_chapter = bible.expand_chapter_index(view, bible.flatten_chapter_index(view, start_chapter) + length - 1);
     }
 
     let section_selector = await spawn_section_selector(start_chapter, end_chapter);
@@ -113,6 +114,12 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
     });
     BEHAVIOR_SETTINGS_CHANGED.invoke();
 
+    let open_queue_button = utils.spawn_image_button(utils.images.HISTORY_VERTICAL, e => {
+        queue.show_queue_display();
+    });
+
+    open_queue_button.button.classList.add('open-queue-button');
+
     
     return utils.spawn_element('div', ['behavior-selector'], b => {
 
@@ -124,6 +131,7 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
 
             m.appendChild(time_selector.root);
             m.appendChild(count_selector.root);
+            m.appendChild(open_queue_button.button);
         });
 
         b.appendElementEx('div', ['second-strats'], s => {
@@ -379,7 +387,7 @@ function spawn_behavior_type_selector(value: BehaviorType): utils.TextDropdown<B
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         options: [
             {
-                text: 'Single',
+                text: 'Chapter',
                 tooltip: 'Play the current chapter',
                 value: 'single'
             },
@@ -560,16 +568,6 @@ async function spawn_section_selector(start: ChapterIndex, end: ChapterIndex): P
     let end_book_selector = await spawn_book_selector(end.book);
     let end_chapter_selector = await spawn_chapter_selector(end);
 
-    let sync_button = utils.spawn_image_button(utils.images.ARROWS_MAGNIFYING_GLASS, async e => {
-        let current = await bible.get_chapter();
-        if(current === null) return;
-
-        begin_book_selector.set_value(current.book);
-        begin_chapter_selector.set_value(current.number);
-        end_book_selector.set_value(current.book);
-        end_chapter_selector.set_value(current.number);
-    })
-
     let root = utils.spawn_element('div', ['section-selector'], r => {
         r.appendElementEx('div', ['tag'], t => t.innerHTML = 'Start:&nbsp;');
         r.appendChild(begin_book_selector.root);
@@ -577,7 +575,6 @@ async function spawn_section_selector(start: ChapterIndex, end: ChapterIndex): P
         r.appendElementEx('div', ['tag'], t => t.innerHTML = 'End:&nbsp;');
         r.appendChild(end_book_selector.root);
         r.appendChild(end_chapter_selector.root);
-        r.appendChild(sync_button.button);
     })
 
     let data: SectionSelectorData = {
