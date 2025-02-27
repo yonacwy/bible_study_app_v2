@@ -129,7 +129,7 @@ pub struct BibleReaderSection
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "snake_case", tag = "type", content = "data")]
 pub enum ReaderBehavior
 {
     Segment

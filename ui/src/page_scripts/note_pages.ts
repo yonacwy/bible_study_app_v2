@@ -232,7 +232,6 @@ export async function scroll_to_editing()
 
     if (view_state_type == view_states.ViewStateType.Chapter)
     {
-        utils.debug_print('got here again')
         let chapter = await bible.get_chapter();
         if(!chapter) return;
 
@@ -246,7 +245,6 @@ export async function scroll_to_editing()
     }
     else if (view_state_type == view_states.ViewStateType.Search)
     {
-        utils.debug_print('got here');
         let ids = await Promise.all(utils.ranges.range_inclusive(editing.range.verse_start, editing.range.verse_end)
             .map(async v => format_reference_id(editing.chapter.book, editing.chapter.number, v))
             .toArray());

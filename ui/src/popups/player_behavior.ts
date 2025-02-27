@@ -4,6 +4,7 @@ import * as reader from "../bible_reader.js";
 import { EventHandler } from "../utils/events.js";
 import * as bible from "../bible.js";
 import * as readings from "../page_scripts/daily_readings_page.js";
+import { ON_SETTINGS_CHANGED } from "../settings.js";
 
 type BehaviorType = 'single' | 'section' | 'reading' | 'continuous';
 
@@ -21,6 +22,13 @@ type BehaviorSelectorData = {
     
     section_selector: SectionSelectorData,
 }
+
+reader.listen_bible_reader_event(e => {
+    if(e.payload.type === 'behavior_changed')
+    {
+        let behavior = e.payload.data as reader.BehaviorChangedEvent;
+    }
+})
 
 export async function spawn_behavior_selector(): Promise<HTMLElement>
 {
@@ -174,10 +182,13 @@ async function get_section_behavior(data: BehaviorSelectorData): Promise<reader.
             book: end_book,
             number: end_chapter,
         }
+
+        let length = bible.get_chapter_distance(await bible.load_view(), start, end) + 1;
+        utils.debug_print(`length: ${length}`);
         
         return {
             start,
-            length: bible.get_chapter_distance(await bible.load_view(), start, end),
+            length,
             options: get_repeat_options(data),
         }
     }
@@ -201,7 +212,14 @@ async function get_section_behavior(data: BehaviorSelectorData): Promise<reader.
 
 function get_reading_behavior(data: BehaviorSelectorData): reader.DailyReaderBehavior 
 {
-    
+    let month = data.reading_selector.month_selector.get_value().value;
+    let day = data.reading_selector.day_selector.get_value().value;
+    let options = get_repeat_options(data);
+    return {
+        month,
+        day,
+        options,
+    }
 }
 
 function get_repeat_options(data: BehaviorSelectorData): reader.RepeatOptions
@@ -209,7 +227,7 @@ function get_repeat_options(data: BehaviorSelectorData): reader.RepeatOptions
     let bt = data.type_selector.get_value().value;
     let rt = data.repeat_selector.get_value().value;
 
-    if(bt !== 'continuous')
+    if(bt === 'continuous')
     {
         rt = data.continuous_repeat_selector.get_value().value;
     }
@@ -217,7 +235,7 @@ function get_repeat_options(data: BehaviorSelectorData): reader.RepeatOptions
     let repeat_value: number | null = null;
     if(rt === 'repeat_count') 
     {
-        repeat_value = data.count_selector.get_value().value;
+        repeat_value = data.count_selector.get_value().value + 1;
     }
     else if(rt === 'repeat_time')
     {
@@ -412,7 +430,7 @@ function spawn_time_selector(): utils.TextDropdown<number>
         let hour = v[0];
         let min = v[1] * 15;
         let value = hour * 60 + min;
-        let text = `${hour}:${min}`;
+        let text = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
         return {
             text,
             value,
@@ -428,6 +446,7 @@ function spawn_time_selector(): utils.TextDropdown<number>
     return utils.spawn_text_dropdown({
         title_text: null,
         default_index: 0,
+        on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         options,
         tooltip: 'Select time'
     });

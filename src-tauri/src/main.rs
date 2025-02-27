@@ -35,7 +35,7 @@ fn main() -> Result<(), tts::Error>
             app.manage(AppState::create(app.path()));
 
             // TEMP: ChapterIndex initialization is temporary here, need to load from AppState save
-            app.manage(ReaderState::new(app.handle().clone(), ChapterIndex { book: 0, number: 0 }));
+            app.manage(Mutex::new(ReaderState::new(app.handle().clone(), ChapterIndex { book: 0, number: 0 })));
 
             Ok(())
         })

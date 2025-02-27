@@ -218,7 +218,15 @@ export async function get_book_index(prefix: number | null, name: string): Promi
 
 export function flatten_chapter_index(bible_view: BookView[], chapter: ChapterIndex): number
 {
-    return bible_view.map(v => v.chapter_count).reduce((a, c) => a + c);
+    let count = 0;
+    
+    for(let i = 0; i < chapter.book; i++)
+    {
+        count += bible_view[i].chapter_count;
+    }
+
+    count += chapter.number;
+    return count;
 }
 
 export function get_chapter_distance(bible_view: BookView[], start: ChapterIndex, end: ChapterIndex): number
@@ -226,5 +234,14 @@ export function get_chapter_distance(bible_view: BookView[], start: ChapterIndex
     let start_index = flatten_chapter_index(bible_view, start);
     let end_index = flatten_chapter_index(bible_view, end);
 
-    return Math.max(start_index, end_index) - Math.min(start_index, end_index);
+    let total = bible_view.map(v => v.chapter_count).reduce((a, b) => a + b);
+    
+    if(start_index <= end_index)
+    {
+        return end_index - start_index;
+    }
+    else 
+    {
+        return total - (start_index - end_index);
+    }
 }

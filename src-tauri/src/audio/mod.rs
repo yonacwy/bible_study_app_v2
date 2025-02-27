@@ -1,7 +1,8 @@
-use std::sync::Mutex;
+use std::{num::NonZeroU32, sync::Mutex};
 use kira::{Decibels, Tween, Tweenable};
 use serde_json::Value;
 use tauri::State;
+use tts::bible_reader::RepeatOptions;
 use crate::{app_state::{AppState, DEFAULT_BIBLE}, bible::ChapterIndex, readings::{ReadingsDatabase, SelectedReading}};
 
 pub mod player;
@@ -83,7 +84,6 @@ pub fn run_bible_reader_command(
     readings_database: State<'_, ReadingsDatabase>, 
 
     command: &str, args: Option<&str>
-
 ) -> Option<String>
 {
     let args: Option<Value> = args.map(|a| serde_json::from_str(a).unwrap());
