@@ -4,7 +4,6 @@ import * as reader from "../bible_reader.js";
 import { EventHandler } from "../utils/events.js";
 import * as bible from "../bible.js";
 import * as readings from "../page_scripts/daily_readings_page.js";
-import { ON_SETTINGS_CHANGED } from "../settings.js";
 
 type BehaviorType = 'single' | 'section' | 'reading' | 'continuous';
 
@@ -12,8 +11,8 @@ const BEHAVIOR_SETTINGS_CHANGED: EventHandler<void> = new EventHandler();
 
 type BehaviorSelectorData = {
     type_selector: utils.TextDropdown<BehaviorType>,
-    repeat_selector: utils.ImageDropdown<reader.RepeatOptionsType>,
-    continuous_repeat_selector: utils.ImageDropdown<reader.RepeatOptionsType>,
+    repeat_selector: utils.TextDropdown<reader.RepeatOptionsType>,
+    continuous_repeat_selector: utils.TextDropdown<reader.RepeatOptionsType>,
 
     reading_selector: ReadingsSelectorData,
 
@@ -32,17 +31,71 @@ reader.listen_bible_reader_event(e => {
 
 export async function spawn_behavior_selector(): Promise<HTMLElement>
 {
-    let type_selector = spawn_behavior_type_selector();
-    let repeat_selector = spawn_repeat_selector();
-    let continuous_repeat_selector = spawn_continuous_repeat_selector();
+    let current = await reader.get_behavior();
+    let bt: BehaviorType = 'single';
+    if(current.type === 'daily')
+    {
+        bt = 'reading';
+    }
+    else 
+    {
+        let data: reader.SegmentReaderBehavior = current.data as reader.SegmentReaderBehavior;
+        if(data.length === null)
+        {
+            bt = 'continuous';
+        }
+        else if(data.length === 1)
+        {
+            bt = 'single';
+        }
+        else 
+        {
+            bt = 'section';
+        }
+    }
 
-    let reading_selector = spawn_readings_selector();
+    let type_selector = spawn_behavior_type_selector(bt);
+    let repeat_selector = spawn_repeat_selector(current.data.options.type);
+    let continuous_repeat_selector = spawn_continuous_repeat_selector(current.data.options.type);
 
-    let time_selector = spawn_time_selector();
+    let reading_selector_args = null;
+    if(bt === 'reading')
+    {
+        let reading_data = current.data as reader.DailyReaderBehavior;
+        reading_selector_args = {
+            day: reading_data.day,
+            month: reading_data.month
+        }
+    }
 
-    let count_selector = spawn_repeat_count_selector();
+    let reading_selector = await spawn_readings_selector(reading_selector_args);
 
-    let section_selector = await spawn_section_selector();
+    let current_time = null;
+    if(current.data.options.type === 'repeat_time')
+        current_time = current.data.options.data as number;
+
+    let time_selector = spawn_time_selector(current_time);
+
+    let current_repeat_count = 1;
+    if(current.data.options.type === 'repeat_count')
+        current_repeat_count = current.data.options.data as number;
+
+
+    let count_selector = spawn_repeat_count_selector(current_repeat_count);
+
+    let start_chapter = await bible.get_chapter() as ChapterIndex;
+    let end_chapter = start_chapter;
+
+    if(bt === 'section')
+    {
+        let section_data = current.data as reader.SegmentReaderBehavior;
+        start_chapter = section_data.start;
+        let length = section_data.length ?? 1;
+        let view = await bible.load_view();
+        end_chapter = bible.expand_chapter_index(view, bible.flatten_chapter_index(view, start_chapter) + length);
+    }
+
+    let section_selector = await spawn_section_selector(start_chapter, end_chapter);
 
     let data: BehaviorSelectorData = {
         type_selector,
@@ -65,9 +118,10 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
 
         b.appendElementEx('div', ['main-strats'], m => {
             m.appendChild(type_selector.root);
+            m.appendElementEx('div', ['tag'], b => b.innerHTML = 'Repeat:&nbsp;');
             m.appendChild(repeat_selector.root);
-        
             m.appendChild(continuous_repeat_selector.root);
+
             m.appendChild(time_selector.root);
             m.appendChild(count_selector.root);
         });
@@ -184,7 +238,6 @@ async function get_section_behavior(data: BehaviorSelectorData): Promise<reader.
         }
 
         let length = bible.get_chapter_distance(await bible.load_view(), start, end) + 1;
-        utils.debug_print(`length: ${length}`);
         
         return {
             start,
@@ -248,20 +301,24 @@ function get_repeat_options(data: BehaviorSelectorData): reader.RepeatOptions
     }
 }
 
-function spawn_continuous_repeat_selector(): utils.ImageDropdown<reader.RepeatOptionsType>
+function spawn_continuous_repeat_selector(value: reader.RepeatOptionsType): utils.TextDropdown<reader.RepeatOptionsType>
 {
-    return utils.spawn_image_dropdown<reader.RepeatOptionsType>({
-        title_image: null,
-        default_index: 1,
+    let index = 1;
+    if(value === 'infinite') index = 1;
+    if(value === 'repeat_time') index = 1;
+
+    return utils.spawn_text_dropdown<reader.RepeatOptionsType>({
+        title_text: null,
+        default_index: index,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         options: [
             {
-                image: utils.images.ALARM_CLOCK,
+                text: 'Timed',
                 tooltip: 'Clock',
                 value: 'repeat_time'
             },
             {
-                image: utils.images.INFINITY,
+                text: 'Infinite',
                 tooltip: 'Repeat indefinitely',
                 value: 'infinite'
             },
@@ -269,31 +326,37 @@ function spawn_continuous_repeat_selector(): utils.ImageDropdown<reader.RepeatOp
     });
 }
 
-function spawn_repeat_selector(): utils.ImageDropdown<reader.RepeatOptionsType>
+function spawn_repeat_selector(value: reader.RepeatOptionsType): utils.TextDropdown<reader.RepeatOptionsType>
 {
-    return utils.spawn_image_dropdown<reader.RepeatOptionsType>({
+    let index = 0;
+    if(value === 'no_repeat') index = 0;
+    if(value === 'repeat_count') index = 1;
+    if(value === 'repeat_time') index = 2;
+    if(value === 'infinite') index = 3;
+
+    return utils.spawn_text_dropdown<reader.RepeatOptionsType>({
+        title_text: null,
         tooltip: 'Repeat settings',
-        title_image: null,
-        default_index: 0,
+        default_index: index,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         options: [
             {
-                image: utils.images.CIRCLE_1,
+                text: 'Once',
                 tooltip: 'Play once',
                 value: 'no_repeat'
             },
             {
-                image: utils.images.REPEAT,
+                text: 'Count',
                 tooltip: 'Repeat X times',
                 value: 'repeat_count'
             },
             {
-                image: utils.images.ALARM_CLOCK,
+                text: 'Timed',
                 tooltip: 'Repeat for a Time',
                 value: 'repeat_time'
             },
             {
-                image: utils.images.INFINITY,
+                text: 'Infinite',
                 tooltip: 'Repeat indefinitely',
                 value: 'infinite'
             },
@@ -301,12 +364,18 @@ function spawn_repeat_selector(): utils.ImageDropdown<reader.RepeatOptionsType>
     });
 }
 
-function spawn_behavior_type_selector(): utils.TextDropdown<BehaviorType>
+function spawn_behavior_type_selector(value: BehaviorType): utils.TextDropdown<BehaviorType>
 {
+    let index = 0;
+    if(value === 'single') index = 0;
+    if(value === 'section') index = 1;
+    if(value === 'reading') index = 2;
+    if(value === 'continuous') index = 3;
+
     return utils.spawn_text_dropdown<BehaviorType>({
         title_text: null,
         tooltip: 'Behavior settings',
-        default_index: 0,
+        default_index: index,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         options: [
             {
@@ -320,7 +389,7 @@ function spawn_behavior_type_selector(): utils.TextDropdown<BehaviorType>
                 value: 'section',
             },
             {
-                text: 'Reading',
+                text: 'Daily Reading',
                 tooltip: 'Play a reading',
                 value: 'reading',
             },
@@ -340,11 +409,17 @@ type ReadingsSelectorData = {
     day_selector: utils.TextDropdown<number>,
 }
 
-function spawn_readings_selector(): ReadingsSelectorData
+type ReadingsSelectorArgs = {
+    month: number,
+    day: number,
+}
+
+async function spawn_readings_selector(args: ReadingsSelectorArgs | null): Promise<ReadingsSelectorData>
 {
-    let readings_schedule_selector = spawn_readings_schedule_selector();
-    let month_selector = spawn_month_selector();
-    let day_selector = spawn_day_selector(0, 0);
+    let readings_schedule_selector = await spawn_readings_schedule_selector();
+    let current_date = new Date();
+    let month_selector = spawn_month_selector(args?.month ?? current_date.getMonth());
+    let day_selector = spawn_day_selector(args?.month ?? current_date.getMonth(), args?.day ?? current_date.getDate() - 1);
 
     let root = utils.spawn_element('div', ['readings-selector'], b => {
         b.appendChild(readings_schedule_selector.root);
@@ -368,10 +443,10 @@ function spawn_readings_selector(): ReadingsSelectorData
     return data;
 }
 
-function spawn_readings_schedule_selector(): utils.TextDropdown<number>
+async function spawn_readings_schedule_selector(): Promise<utils.TextDropdown<number>>
 {
     return utils.spawn_text_dropdown_simple({
-        default: 0,
+        default: await readings.get_selected_reading(),
         tooltip: 'Select month',
         on_change: r => {
             readings.set_selected_reading(r.value);
@@ -385,10 +460,10 @@ function spawn_readings_schedule_selector(): utils.TextDropdown<number>
     });
 }
 
-function spawn_month_selector(): utils.TextDropdown<number>
+function spawn_month_selector(value: number): utils.TextDropdown<number>
 {
     return utils.spawn_text_dropdown_simple({
-        default: 0,
+        default: value,
         tooltip: 'Select month',
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         options: [
@@ -421,7 +496,7 @@ function spawn_day_selector(month: number, default_value: number): utils.TextDro
     return dropdown;
 }
 
-function spawn_time_selector(): utils.TextDropdown<number>
+function spawn_time_selector(value: number | null): utils.TextDropdown<number>
 {
     let options = utils.ranges.range(0, 12).map(h => {
         return utils.ranges.range(0, 4).map((m): [number, number] => [h, m]).toArray();
@@ -443,20 +518,25 @@ function spawn_time_selector(): utils.TextDropdown<number>
         value: 12 * 60  
     });
 
+    let default_index = 0;
+    if(value !== null) 
+        Math.round(value / 60 / 60 * 4);
+
     return utils.spawn_text_dropdown({
         title_text: null,
-        default_index: 0,
+        default_index,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         options,
         tooltip: 'Select time'
     });
 }
 
-function spawn_repeat_count_selector(): utils.TextDropdown<number>
+function spawn_repeat_count_selector(value: number): utils.TextDropdown<number>
 {
+    let default_index = Math.round(Math.clamp(1, 10, value)) - 1;
     let options = utils.ranges.range_inclusive(1, 10).map(v => 'x' + v.toString()).toArray();
     return utils.spawn_text_dropdown_simple({
-        default: 0,
+        default: default_index,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         tooltip: 'Select Count',
         options,
@@ -472,13 +552,23 @@ type SectionSelectorData = {
     end_chapter_selector: utils.TextDropdown<number>,
 }
 
-async function spawn_section_selector(): Promise<SectionSelectorData>
+async function spawn_section_selector(start: ChapterIndex, end: ChapterIndex): Promise<SectionSelectorData>
 {
-    let begin_book_selector = await spawn_book_selector();
-    let begin_chapter_selector = await spawn_chapter_selector(0);
+    let begin_book_selector = await spawn_book_selector(start.book);
+    let begin_chapter_selector = await spawn_chapter_selector(start);
 
-    let end_book_selector = await spawn_book_selector();
-    let end_chapter_selector = await spawn_chapter_selector(0);
+    let end_book_selector = await spawn_book_selector(end.book);
+    let end_chapter_selector = await spawn_chapter_selector(end);
+
+    let sync_button = utils.spawn_image_button(utils.images.ARROWS_MAGNIFYING_GLASS, async e => {
+        let current = await bible.get_chapter();
+        if(current === null) return;
+
+        begin_book_selector.set_value(current.book);
+        begin_chapter_selector.set_value(current.number);
+        end_book_selector.set_value(current.book);
+        end_chapter_selector.set_value(current.number);
+    })
 
     let root = utils.spawn_element('div', ['section-selector'], r => {
         r.appendElementEx('div', ['tag'], t => t.innerHTML = 'Start:&nbsp;');
@@ -487,6 +577,7 @@ async function spawn_section_selector(): Promise<SectionSelectorData>
         r.appendElementEx('div', ['tag'], t => t.innerHTML = 'End:&nbsp;');
         r.appendChild(end_book_selector.root);
         r.appendChild(end_chapter_selector.root);
+        r.appendChild(sync_button.button);
     })
 
     let data: SectionSelectorData = {
@@ -498,13 +589,19 @@ async function spawn_section_selector(): Promise<SectionSelectorData>
     };
 
     begin_book_selector.on_change.add_listener(async v => {
-        let selector = await spawn_chapter_selector(v.index);
+        let selector = await spawn_chapter_selector({
+            book: v.index,
+            number: 0,
+        });
         data.begin_chapter_selector.root.replaceWith(selector.root);
         data.begin_chapter_selector = selector;
     });
 
     end_book_selector.on_change.add_listener(async v => {
-        let selector = await spawn_chapter_selector(v.index);
+        let selector = await spawn_chapter_selector({
+            book: v.index,
+            number: 0,
+        });
         data.end_chapter_selector.root.replaceWith(selector.root);
         data.end_chapter_selector = selector;
     });
@@ -512,7 +609,7 @@ async function spawn_section_selector(): Promise<SectionSelectorData>
     return data;
 }
 
-async function spawn_book_selector(): Promise<utils.TextDropdown<string>>
+async function spawn_book_selector(value: number): Promise<utils.TextDropdown<string>>
 {
     let options: utils.TextDropdownOption<string>[] = (await bible.load_view()).map(v => {
         let display = bible.shorten_book_name(v.name);
@@ -524,19 +621,19 @@ async function spawn_book_selector(): Promise<utils.TextDropdown<string>>
     });
     return utils.spawn_text_dropdown<string>({
         title_text: null,
-        default_index: 0,
+        default_index: value,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         tooltip: 'Select Book',
         options,
     });
 }
 
-async function spawn_chapter_selector(book: number)
+async function spawn_chapter_selector(chapter: ChapterIndex)
 {
-    let chapter_count = (await bible.load_view())[book].chapter_count;
+    let chapter_count = (await bible.load_view())[chapter.book].chapter_count;
     let options = utils.ranges.range(0, chapter_count).map(c => (c + 1).toString()).toArray();
     return utils.spawn_text_dropdown_simple({
-        default: 0,
+        default: chapter.number,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         tooltip: 'Select Chapter',
         options

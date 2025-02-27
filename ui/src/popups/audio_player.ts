@@ -14,6 +14,15 @@ const CLOSE_DROPDOWN_IMAGE_SRC: string = '../images/light-angle-up.svg';
 const VOLUME_IMAGE_SRC: string = '../images/volume/light-volume.svg';
 const PLAYBACK_SPEED_SRC: string = '../images/gauges/light-gauge.svg';
 
+type PlayerData = {
+    top: number | null,
+    left: number | null,
+    is_open: boolean,
+    is_expanded: boolean,
+};
+
+const PLAYER_DATA_STORAGE: utils.storage.ValueStorage<PlayerData> = new utils.storage.ValueStorage<PlayerData>('audio-player-visual-data');
+
 type AudioPlayerData = {
     popup: HTMLElement,
     close_button: utils.ImageButton,
@@ -88,6 +97,8 @@ export async function show_player()
     let chapter = await bible.get_chapter() ?? { book: 0, number: 0 };
     let bible_name = await bible.get_current_bible_version();
 
+    update_player_data_storage();
+
     PLAYER.request({
         bible_name,
         chapter
@@ -102,6 +113,7 @@ export function hide_player()
     PLAYER.stop();
     AUDIO_PLAYER_DATA.play_button.image.src = "../images/light-play.svg";
     clear_current_reading_verse();
+    update_player_data_storage();
 }
 
 export function on_passage_render()
@@ -208,6 +220,8 @@ export function init_player()
                 {
                     image.src = OPEN_DROPDOWN_IMAGE_SRC;
                 }
+
+                update_player_data_storage();
             });
         });
     });
@@ -232,6 +246,67 @@ export function init_player()
         playing_verse_index: null,
         verses_elements: []
     }
+
+    let dropdown_button = popup.querySelector('.dropdown-button') as HTMLElement;
+
+    let data = PLAYER_DATA_STORAGE.get();
+    if(data !== null)
+    {
+        if(data.left !== null || data.top !== null)
+        {
+            popup.classList.remove('spawned');
+        }
+
+        if(data.left !== null)
+        {
+            popup.style.left = data.left.toString() + 'px';
+        }
+
+        if(data.top !== null)
+        {
+            popup.style.top = data.top.toString() + 'px';
+        }
+
+        if(data.is_open)
+        {
+            show_player();
+        }
+
+        if(data.is_expanded)
+        {
+            dropdown_button.click();
+        }
+    }
+}
+
+function update_player_data_storage()
+{
+    if(!AUDIO_PLAYER_DATA) return;
+
+    let hidden_content = AUDIO_PLAYER_DATA.popup.querySelector('.hidden-content') as HTMLElement;
+
+    let top_str = AUDIO_PLAYER_DATA.popup.style.top;
+    let top = null;
+    if(top_str.length > 0)
+    {
+        top = +top_str.substring(0, top_str.length - 2); // gets rid of px
+    }
+
+    let left_str = AUDIO_PLAYER_DATA.popup.style.left;
+    let left = null;
+    if(left_str.length > 0)
+    {
+        left = +left_str.substring(0, left_str.length - 2); // gets rid of px
+    }
+
+    let data = {
+        top,
+        left,
+        is_open: !AUDIO_PLAYER_DATA.popup.classList.contains('hidden'),
+        is_expanded: hidden_content.classList.contains('active'),
+    }
+
+    PLAYER_DATA_STORAGE.set(data);
 }
 
 function spawn_volume_slider(): HTMLElement
@@ -289,7 +364,6 @@ function spawn_playback_slider(): HTMLElement
                 v = 1;
 
             v = Math.abs(Math.pow(v, Math.sign(v)));
-            utils.debug_print(`set value ${v}`);
         }
     }, 
     (input, button) => {
@@ -540,5 +614,6 @@ function handle_dragging(element: HTMLElement)
 
     document.addEventListener('mouseup', e => {
         is_dragging = false;
+        update_player_data_storage();
     })
 }

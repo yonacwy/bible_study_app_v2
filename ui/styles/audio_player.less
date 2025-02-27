@@ -88,10 +88,12 @@
             max-height: 200px;
         }
 
+        @slider-settings-size: 200px * @ui-scale;
+
         .slider-settings
         {
             display: block;
-            width: 40%;
+            width: @slider-settings-size;
             height: fit-content;
 
             .setting-slider {
@@ -108,7 +110,7 @@
         .strategy-settings {
             display: block;
             margin: 0px;
-            width: 60%;
+            width: calc(100% - @slider-settings-size);
             height: fit-content;
 
             .behavior-selector {
@@ -120,12 +122,22 @@
 
                 .dropdown-title {
                     min-width: @button-size;
+                    height: @button-size;
                     text-align: center;
                 }
 
                 .dropdown, .text-dropdown {
                     margin-left: @button-margin;
                     margin-right: @button-margin;
+                }
+
+                .tag {
+                    font-weight: bold;
+                    .font-small();
+                }
+
+                .tag:not(:first-child) {
+                    margin-left: 10px;
                 }
                 
                 .main-strats {
@@ -147,15 +159,6 @@
                         display: flex;
                         justify-content: start;
                         align-items: center;
-
-                        .tag {
-                            font-weight: bold;
-                            .font-small();
-                        }
-
-                        .tag:not(:first-of-type) {
-                            margin-left: 10px;
-                        }
                     }
                 }
             }

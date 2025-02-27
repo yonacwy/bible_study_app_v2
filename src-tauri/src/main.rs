@@ -20,7 +20,7 @@ use audio::{bible_reader::ReaderState, AudioPlayer, TtsPlayer};
 use bible::ChapterIndex;
 use commands::*;
 use readings::ReadingsDatabase;
-use tauri::Manager;
+use tauri::{webview::PageLoadEvent, Manager};
 
 fn main() -> Result<(), tts::Error>
 {
@@ -43,8 +43,15 @@ fn main() -> Result<(), tts::Error>
             tauri::WindowEvent::Destroyed => {
                 let state = window.app_handle().state::<AppState>();
                 state.get().as_ref().unwrap().save(window.path());
-            }
+            },
             _ => {}
+        })
+        .on_page_load(|v, p| {
+            if p.event() == PageLoadEvent::Started
+            {
+                let state = v.app_handle().state::<Mutex<TtsPlayer>>();
+                state.lock().unwrap().stop();
+            }
         })
         .invoke_handler(tauri::generate_handler![
             debug_print,
