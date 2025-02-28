@@ -3,7 +3,7 @@ pub mod player_thread;
 pub mod synth;
 pub mod bible_reader;
 
-use std::{collections::HashMap, sync::{Arc, Mutex}, thread::spawn};
+use std::{collections::{HashMap, VecDeque}, sync::{Arc, Mutex}, thread::spawn};
 
 use events::{TtsEvent, TTS_EVENT_NAME};
 use itertools::Itertools;
@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use synth::SpeechSynth;
 use tauri::{path::PathResolver, AppHandle, Emitter, Runtime};
 
-use crate::{bible::{Bible, ChapterIndex}, utils};
+use crate::{bible::{Bible, ChapterIndex}, utils::{self, Shared}};
 use self::player_thread::TtsPlayerThread;
 
 pub const TTS_SAMPLE_RATE: u32 = 22050;
@@ -106,6 +106,41 @@ pub struct PassageAudioKey
     pub chapter: ChapterIndex,
 }
 
+struct GeneratingThread
+{
+    queue: Shared<VecDeque<(PassageAudioKey, String, Arc<Bible>)>>
+}
+
+impl GeneratingThread
+{
+    pub fn new(app_handle: AppHandle, synth: Arc<SpeechSynth>, sources: Arc<Mutex<HashMap<String, TtsSoundData>>>) -> Self 
+    {
+        let queue = Shared::new(VecDeque::<(PassageAudioKey, String, Arc<Bible>)>::new());
+        let queue_ref = queue.clone();
+        spawn(move || loop {
+            if let Some((key, id, bible)) = queue_ref.get().pop_back()
+            {
+                sources.lock().unwrap().insert(id.clone(), TtsSoundData::Generating);
+                
+                let audio = PassageAudio::new(&bible, key.chapter, &synth, &app_handle, id.clone());
+
+                sources.lock().unwrap().insert(id.clone(), TtsSoundData::Generated(Arc::new(audio)));
+                app_handle.emit(TTS_EVENT_NAME, TtsEvent::Generated { id }).unwrap();
+            }
+        });
+
+        Self 
+        {
+            queue,
+        }
+    }
+
+    pub fn push(&mut self, key: PassageAudioKey, id: String, bible: Arc<Bible>)
+    {
+        self.queue.get().push_back((key, id, bible));
+    }
+}
+
 enum TtsSoundData
 {
     Generating,
@@ -122,7 +157,7 @@ pub struct TtsRequest
 pub struct TtsPlayer
 {
     manager: Arc<Mutex<AudioManager::<DefaultBackend>>>,
-    synthesizer: Arc<SpeechSynth>,
+    gen_thread: GeneratingThread,
     player: Option<TtsPlayerThread>,
     app_handle: AppHandle,
 
@@ -135,24 +170,31 @@ impl TtsPlayer
     pub fn new<R>(resolver: &PathResolver<R>, app_handle: AppHandle) -> Self
         where R : Runtime
     {
+        let sources = Arc::new(Mutex::new(HashMap::new()));
+
         let synth = SpeechSynth::new(resolver);
         let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
+        let gen_thread = GeneratingThread::new(app_handle.clone(), Arc::new(synth), sources.clone());
 
         Self 
         {
             manager: Arc::new(Mutex::new(manager)),
-            synthesizer: Arc::new(synth),
+            gen_thread,
             player: None,
             app_handle,
 
             source_ids: HashMap::new(),
-            sources: Arc::new(Mutex::new(HashMap::new())),
+            sources,
         }
     }
 
-    pub fn request_tts(&mut self, bible: Arc<Bible>, chapter_index: ChapterIndex) -> TtsRequest
+    pub fn request_many(&mut self, bible: Arc<Bible>, chapters: &[ChapterIndex]) -> Vec<TtsRequest>
     {
-        let mut sources_binding = self.sources.lock().unwrap();
+        chapters.iter().map(|c| self.request(bible.clone(), *c)).collect()
+    }
+
+    pub fn request(&mut self, bible: Arc<Bible>, chapter_index: ChapterIndex) -> TtsRequest
+    {
         let passage_key = PassageAudioKey { bible_name: bible.name.clone(), chapter: chapter_index };
         
         if let Some(id) = self.source_ids.get(&passage_key)
@@ -166,19 +208,9 @@ impl TtsPlayer
         else 
         {
             let id = utils::get_uuid();
-            self.source_ids.insert(passage_key, id.clone());
-            sources_binding.insert(id.clone(), TtsSoundData::Generating);
+            self.source_ids.insert(passage_key.clone(), id.clone());
 
-            let sources = self.sources.clone();
-            let synth = self.synthesizer.clone();
-            let id_inner = id.clone();
-            let app_handle = self.app_handle.clone();
-
-            spawn(move || {
-                let audio = PassageAudio::new(&bible, chapter_index, &synth, &app_handle, id_inner.clone());
-                sources.lock().unwrap().insert(id_inner.clone(), TtsSoundData::Generated(Arc::new(audio)));
-                app_handle.emit(TTS_EVENT_NAME, TtsEvent::Generated { id: id_inner }).unwrap();
-            });
+            self.gen_thread.push(passage_key, id.clone(), bible);
 
             TtsRequest
             {
