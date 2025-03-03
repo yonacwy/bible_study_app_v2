@@ -2,7 +2,7 @@ import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
 import * as settings from "../settings.js";
 import { TtsGenerationProgressEvent, TtsPlayingEvent } from "../utils/tts.js";
-import { spawn_behavior_selector } from "./player_behavior.js";
+import * as view_states from "../view_states.js";
 
 // To implement on a page, need to call `init_player()` before anything, then whenever the passage chapter is rendered, `on_passage_rendered()` needs to be called
 
@@ -42,6 +42,13 @@ type AudioPlayerData = {
 
 let AUDIO_PLAYER_DATA: AudioPlayerData | null = null;
 
+type PreservedPlayerData = {
+    autoplay_on: boolean,
+    is_repeating: boolean,
+    should_play: boolean,
+}
+const PRESERVED_PLAYER_DATA = new utils.storage.ValueStorage<PreservedPlayerData>('preserved-player-data');
+
 const PLAYER = new utils.tts.TtsPlayer(async e => {
     if(!AUDIO_PLAYER_DATA) return;
 
@@ -51,6 +58,13 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
 
         AUDIO_PLAYER_DATA.play_button.button.classList.remove('hidden');
         AUDIO_PLAYER_DATA.generating_indicator.classList.add('hidden');
+
+        let preserved = PRESERVED_PLAYER_DATA.get();
+        if(preserved && preserved.should_play)
+        {
+            await utils.sleep(100); // no idea why this works...
+            AUDIO_PLAYER_DATA.play_button.button.click();
+        }
     }
     if(e.type === 'generating')
     {
@@ -84,6 +98,21 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
         AUDIO_PLAYER_DATA.play_button.image.src = PLAY_IMAGE_SRC;
         AUDIO_PLAYER_DATA.progress_bar.value = `${1.0}`;
         utils.update_sliders();
+
+        let preserved = PRESERVED_PLAYER_DATA.get();
+        if(preserved && preserved.autoplay_on)
+        {
+            preserved.should_play = true;
+            PRESERVED_PLAYER_DATA.set(preserved);
+            bible.to_next_chapter().then(_ => {
+                view_states.goto_current_view_state();
+            });
+        }
+        else if(preserved && preserved.is_repeating)
+        {
+            await utils.sleep(100); // no idea why this works...
+            AUDIO_PLAYER_DATA.play_button.button.click();
+        }
     }
 
     update_playback_controls_opacity(e);
@@ -132,6 +161,11 @@ export const SKIP_TIME: number = 10; // 10 seconds
 
 export function init_player()
 {
+    let preserved = PRESERVED_PLAYER_DATA.get();
+    if(preserved)
+    {
+        preserved.should_play = false;
+    }
     let close_button = utils.spawn_image_button(CLOSE_IMAGE_SRC);
     close_button.button.title = 'Close';
 
@@ -197,10 +231,65 @@ export function init_player()
             });
 
             // TODO: Hidden
-            // content.appendElementEx('div', ['strategy-settings'], async strategy_settings => {
-            //     let selector = await spawn_behavior_selector();
-            //     strategy_settings.appendChild(selector);
-            // });
+            content.appendElementEx('div', ['strategy-settings'], async strategy_settings => {
+                let continuous_toggle = utils.spawn_toggle_button({
+                    image: utils.images.HISTORY_HORIZONTAL,
+                    tooltip: 'Continuous playback',
+                    is_toggled: PRESERVED_PLAYER_DATA.get()?.autoplay_on ?? false,
+                });
+
+                let repeat_toggle = utils.spawn_toggle_button({
+                    image: utils.images.REPEAT,
+                    tooltip: 'Repeat Chapter',
+                    is_toggled: PRESERVED_PLAYER_DATA.get()?.is_repeating ?? false,
+                })
+
+                strategy_settings.appendChild(continuous_toggle.button.button);
+                strategy_settings.appendChild(repeat_toggle.button.button);
+
+                continuous_toggle.on_click.add_listener(v => {
+                    if(v)
+                    {
+                        repeat_toggle.set_value(false);
+                        PRESERVED_PLAYER_DATA.set({
+                            autoplay_on: true,
+                            should_play: false,
+                            is_repeating: false,
+                        });
+                    }
+                    else 
+                    {
+                        PRESERVED_PLAYER_DATA.set({
+                            autoplay_on: false,
+                            should_play: false,
+                            is_repeating: false
+                        });
+                    }
+                });
+
+                repeat_toggle.on_click.add_listener(v => {
+                    if(v)
+                    {
+                        continuous_toggle.set_value(false);
+                        PRESERVED_PLAYER_DATA.set({
+                            autoplay_on: false,
+                            should_play: false,
+                            is_repeating: true,
+                        })
+                    }
+                    else 
+                    {
+                        PRESERVED_PLAYER_DATA.set({
+                            autoplay_on: false,
+                            should_play: false,
+                            is_repeating: false,
+                        })
+                    }
+                })
+
+                // let selector = await spawn_behavior_selector();
+                // strategy_settings.appendChild(selector);
+            });
         });
 
         player_div.appendElementEx('div', ['dropdown-button'], button => {
@@ -493,7 +582,6 @@ function spawn_play_button(): utils.ImageButton
     play_button.button.title = 'Play'
 
     play_button.button.addEventListener('click', async e => {
-
         if(await PLAYER.is_playing())
         {
             PLAYER.pause();

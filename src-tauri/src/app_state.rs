@@ -1,12 +1,11 @@
 use serde::{Deserialize, Serialize};
 use std::{cell::RefCell, collections::HashMap, io::Read, ops::Deref, path::PathBuf, sync::{Arc, Mutex, MutexGuard}, thread::spawn};
 use tauri::{
-    path::{BaseDirectory, PathResolver},
-    Runtime,
+    path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Runtime
 };
 
 use crate::{
-    bible::*, bible_parsing, debug_release_val, migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION}, notes::*, settings::Settings
+    audio::TtsSettings, bible::*, bible_parsing, debug_release_val, migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION}, notes::*, settings::Settings
 };
 
 pub const SAVE_NAME: &str = "save.json";
@@ -52,12 +51,12 @@ pub struct AppState(Arc<Mutex<Option<AppData>>>);
 
 impl AppState
 {
-    pub fn create<R>(resolver: &PathResolver<R>) -> Self 
+    pub fn create<R>(resolver: &PathResolver<R>, app_handle: AppHandle) -> Self
         where R : Runtime
     {
         let data = Arc::new(Mutex::new(None));
 
-        let builder = AppData::get_builder(resolver);
+        let builder = AppData::get_builder(resolver, app_handle);
 
         let cloned = data.clone();
         spawn(move || {
@@ -113,10 +112,11 @@ struct AppSave {
     editing_note: Option<String>,
     settings: Settings,
     selected_reading: u32,
+    tts_settings: TtsSettings,
 }
 
 impl AppData {
-    pub fn get_builder<R>(resolver: &PathResolver<R>) -> Box<dyn FnOnce() -> Self + Send + Sync + 'static>
+    pub fn get_builder<R>(resolver: &PathResolver<R>, app_handle: AppHandle) -> Box<dyn FnOnce() -> Self + Send + Sync + 'static>
     where
         R : Runtime,
     {
@@ -126,10 +126,10 @@ impl AppData {
 
         let bible_paths = Self::get_bible_paths(resolver);
 
-        Box::new(|| Self::new(save_path, bible_paths))
+        Box::new(|| Self::new(save_path, bible_paths, app_handle))
     }
 
-    fn new(save_path: Option<PathBuf>, bible_paths: Vec<PathBuf>) -> Self
+    fn new(save_path: Option<PathBuf>, bible_paths: Vec<PathBuf>, app_handle: AppHandle) -> Self
     {
         let file = save_path
             .and_then(|path| std::fs::read(path).ok())
@@ -140,6 +140,7 @@ impl AppData {
         let (mut save, was_migrated, no_save) = match file {
             Some(file) => {
                 let (save, migrated) = Self::load(&file);
+                app_handle.emit("loaded-tts-save", save.tts_settings).unwrap();
                 (save, migrated, false)
             },
             None => {
@@ -158,6 +159,7 @@ impl AppData {
                     editing_note: None,
                     settings: Settings::default(),
                     selected_reading: 0,
+                    tts_settings: TtsSettings::default(),
                 }, false, true)
             }
         };
@@ -212,7 +214,7 @@ impl AppData {
         }
     }
 
-    pub fn save<R>(&self, resolver: &PathResolver<R>)
+    pub fn save<R>(&self, resolver: &PathResolver<R>, tts_settings: TtsSettings)
     where
         R: Runtime,
     {
@@ -235,6 +237,7 @@ impl AppData {
             view_states,
             settings,
             selected_reading,
+            tts_settings,
         };
 
         let save_json = serde_json::to_string_pretty(&save).unwrap();

@@ -60,6 +60,11 @@ export type PassageAudioKey = {
     chapter: ChapterIndex,
 }
 
+export type TtsSettings = {
+    volume: number,
+    playback_speed: number,
+}
+
 export class TtsPlayer
 {
     private playing_id: string | null = null;
@@ -99,6 +104,16 @@ export class TtsPlayer
     public is_finished(): boolean
     {
         return this.finished;
+    }
+
+    public async get_settings(): Promise<TtsSettings>
+    {
+        return await get_settings();
+    }
+
+    public async set_settings(settings: TtsSettings): Promise<void>
+    {
+        return await set_settings(settings);
     }
 
     public async play()
@@ -225,6 +240,17 @@ export class TtsPlayer
             }
         }
     }
+}
+
+async function get_settings(): Promise<TtsSettings>
+{
+    let json = await invoke_tts_command('get_settings', {}) as string;
+    return JSON.parse(json) as TtsSettings;
+}
+
+async function set_settings(settings: TtsSettings): Promise<void>
+{
+    return await invoke_tts_command('set_settings', set_settings).then(_ => {});
 }
 
 async function request_tts(key: PassageAudioKey): Promise<TtsRequest> 

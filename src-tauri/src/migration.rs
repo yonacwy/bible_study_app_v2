@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::{app_state::DEFAULT_BIBLE, settings::Settings};
+use crate::{app_state::DEFAULT_BIBLE, audio::TtsSettings, settings::Settings};
 
 const SAVE_FIELD_NAME: &str = "save_version";
 pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV4;
@@ -20,6 +20,8 @@ pub enum SaveVersion {
     SV3,
     #[serde(rename = "4")]
     SV4,
+    #[serde(rename = "5")]
+    SV5,
 }
 
 impl SaveVersion {
@@ -59,6 +61,7 @@ pub fn migrate_save_latest(data: &str) -> MigrationResult {
     migrate_sv1(&mut json);
     migrate_sv2(&mut json);
     migrate_sv3(&mut json);
+    migrate_sv4(&mut json);
 
     if CURRENT_SAVE_VERSION != version {
         MigrationResult::Different {
@@ -160,6 +163,15 @@ fn migrate_sv3(json: &mut Value)
     }
 
     json.insert(SAVE_FIELD_NAME.to_owned(), serde_json::to_value(SaveVersion::SV4).unwrap());
+}
+
+fn migrate_sv4(json: &mut Value)
+{
+    if !check_save_field(json, SaveVersion::SV4) { return; }
+    const SAVE_FIELD_NAME: &str = "tts_settings";
+
+    let map = json.as_object_mut().unwrap();
+    map.insert(SAVE_FIELD_NAME.to_owned(), serde_json::to_value(&TtsSettings::default()).unwrap());
 }
 
 fn check_save_field(json: &mut Value, expected: SaveVersion) -> bool

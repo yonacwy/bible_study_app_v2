@@ -71,6 +71,20 @@ pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, app_state: State<'_, 
         "get_duration" => return state.lock().unwrap().get_duration().map(|v| {
             serde_json::to_string(&v).unwrap()
         }),
+        "get_settings" => {
+            let settings = state.lock().unwrap().get_settings();
+            return serde_json::to_string(&settings).ok()
+        },
+        "set_settings" => {
+            if let Some(Ok(settings)) = args.map(|a| serde_json::from_value::<TtsSettings>(a))
+            {
+                state.lock().unwrap().set_settings(settings);
+            }
+            else 
+            {
+                println!("Error: Incorrect arguments for `set_settings` tts command");
+            }
+        },
         _ => println!("Error: Unknown Command")
     }
 
@@ -130,7 +144,7 @@ pub fn run_bible_reader_command(
         },
         "stop_timer" => {
             reader_state.stop_timer();
-        }
+        },
 
         c => println!("Unknown command: `{}`", c) 
     }

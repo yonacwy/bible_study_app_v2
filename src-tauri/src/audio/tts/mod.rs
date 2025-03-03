@@ -10,12 +10,30 @@ use itertools::Itertools;
 use kira::{sound::static_sound::{StaticSoundData, StaticSoundSettings}, AudioManager, AudioManagerSettings, DefaultBackend, Frame};
 use serde::{Deserialize, Serialize};
 use synth::SpeechSynth;
-use tauri::{path::PathResolver, AppHandle, Emitter, Runtime};
+use tauri::{path::PathResolver, AppHandle, Emitter, Listener, Manager, Runtime};
 
-use crate::{bible::{Bible, ChapterIndex}, utils};
+use crate::{bible::{Bible, ChapterIndex}, utils::{self, Shared}};
 use self::player_thread::TtsPlayerThread;
 
 pub const TTS_SAMPLE_RATE: u32 = 22050;
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
+pub struct TtsSettings
+{
+    pub volume: f32,
+    pub playback_speed: f32,
+}
+
+impl Default for TtsSettings
+{
+    fn default() -> Self {
+        Self 
+        {
+            volume: 1.0,
+            playback_speed: 1.0,
+        }
+    }
+}
 
 pub struct PassageAudio
 {
@@ -128,6 +146,7 @@ pub struct TtsPlayer
 
     source_ids: HashMap<PassageAudioKey, String>,
     sources: Arc<Mutex<HashMap<String, TtsSoundData>>>,
+    settings: TtsSettings,
 }
 
 impl TtsPlayer 
@@ -138,6 +157,14 @@ impl TtsPlayer
         let synth = SpeechSynth::new(resolver);
         let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
 
+        let app_handle_inner = app_handle.clone();
+        app_handle.listen("loaded-tts-save", move |json| {
+            let state = app_handle_inner.state::<Mutex<TtsPlayer>>();
+            let mut state = state.lock().unwrap();
+            let parsed: TtsSettings = serde_json::from_str(json.payload()).unwrap();
+            state.set_settings(parsed);
+        });
+
         Self 
         {
             manager: Arc::new(Mutex::new(manager)),
@@ -147,6 +174,7 @@ impl TtsPlayer
 
             source_ids: HashMap::new(),
             sources: Arc::new(Mutex::new(HashMap::new())),
+            settings: TtsSettings::default(),
         }
     }
 
@@ -195,6 +223,7 @@ impl TtsPlayer
         if let Some(TtsSoundData::Generated(sound_data)) = binding.get(id)
         {
             self.player = Some(TtsPlayerThread::new(self.manager.clone(), self.app_handle.clone(), sound_data.clone(), id.clone()));
+            self.player.as_ref().unwrap().set_settings(self.settings);
             self.app_handle.emit(TTS_EVENT_NAME, TtsEvent::Set { id: id.clone() }).unwrap();
         }
     }
@@ -244,5 +273,19 @@ impl TtsPlayer
             Some(player) => player.set_time(time),
             None => {},
         }
+    }
+
+    pub fn set_settings(&mut self, settings: TtsSettings)
+    {
+        self.settings = settings;
+        if let Some(player) = &self.player
+        {
+            player.set_settings(settings);
+        }
+    }
+
+    pub fn get_settings(&self) -> TtsSettings
+    {
+        self.settings
     }
 }

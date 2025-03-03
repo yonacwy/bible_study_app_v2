@@ -1,8 +1,8 @@
 use std::{sync::{Arc, Mutex}, thread::{spawn, JoinHandle}, time::SystemTime};
 
-use kira::{sound::{static_sound::{StaticSoundData, StaticSoundHandle}, PlaybackState}, AudioManager, DefaultBackend, Tween};
+use kira::{sound::{static_sound::{StaticSoundData, StaticSoundHandle}, PlaybackState}, AudioManager, Decibels, DefaultBackend, PlaybackRate, Tween, Tweenable};
 use tauri::{AppHandle, Emitter};
-use super::{events::*, PassageAudio};
+use super::{events::*, PassageAudio, TtsSettings};
 
 pub struct TtsPlayerThread 
 {
@@ -88,6 +88,14 @@ impl TtsPlayerThread
             sound_id,
             app_handle,
         }
+    }
+
+    pub fn set_settings(&self, settings: TtsSettings)
+    {
+        let mut handle = self.handle.lock().unwrap();
+        let decibels = Tweenable::interpolate(Decibels::SILENCE.as_amplitude(), Decibels::IDENTITY.as_amplitude(), settings.volume as f64).log10() * 20.0;
+        handle.set_volume(decibels, Tween::default());
+        handle.set_playback_rate(PlaybackRate(settings.playback_speed as f64), Tween::default());
     }
 
     pub fn play(&self)

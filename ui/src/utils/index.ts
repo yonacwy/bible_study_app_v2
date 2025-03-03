@@ -248,3 +248,8 @@ export function get_month_length(month: number, is_leap_year: boolean): number
 
     return 0;
 }
+
+export function sleep(ms: number): Promise<void>
+{
+    return new Promise(resolve => setTimeout(resolve, ms));
+}

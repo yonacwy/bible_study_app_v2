@@ -32,7 +32,7 @@ fn main() -> Result<(), tts::Error>
             app.manage(Mutex::new(TtsPlayer::new(app.path(), app.handle().clone())));
             app.manage(AudioPlayer::new(app.path(), audio::DEFAULT_SOURCES));
             app.manage(ReadingsDatabase::new(app.path()));
-            app.manage(AppState::create(app.path()));
+            app.manage(AppState::create(app.path(), app.handle().clone()));
 
             // TEMP: ChapterIndex initialization is temporary here, need to load from AppState save
             app.manage(Mutex::new(ReaderState::new(app.handle().clone(), ChapterIndex { book: 0, number: 0 })));
@@ -42,7 +42,10 @@ fn main() -> Result<(), tts::Error>
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::Destroyed => {
                 let state = window.app_handle().state::<AppState>();
-                state.get().as_ref().unwrap().save(window.path());
+                let tts_reader = window.app_handle().state::<Mutex<TtsPlayer>>();
+
+                let tts_settings = tts_reader.lock().unwrap().get_settings();
+                state.get().as_ref().unwrap().save(window.path(), tts_settings);
             },
             _ => {}
         })
