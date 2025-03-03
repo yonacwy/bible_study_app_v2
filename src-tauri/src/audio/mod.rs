@@ -26,7 +26,7 @@ pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, app_state: State<'_, 
             {
                 let bible = app_state.get_bible(&key.bible_name).unwrap_or(app_state.get_default_bible());
 
-                let request = state.lock().unwrap().request(bible, key.chapter);
+                let request = state.lock().unwrap().request_tts(bible, key.chapter);
                 let request_str = serde_json::to_string(&request).unwrap();
                 return Some(request_str);
             }
