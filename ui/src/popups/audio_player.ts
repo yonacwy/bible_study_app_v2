@@ -196,10 +196,11 @@ export function init_player()
                 sliders.appendChild(playback_slider);
             });
 
-            content.appendElementEx('div', ['strategy-settings'], async strategy_settings => {
-                let selector = await spawn_behavior_selector();
-                strategy_settings.appendChild(selector);
-            });
+            // TODO: Hidden
+            // content.appendElementEx('div', ['strategy-settings'], async strategy_settings => {
+            //     let selector = await spawn_behavior_selector();
+            //     strategy_settings.appendChild(selector);
+            // });
         });
 
         player_div.appendElementEx('div', ['dropdown-button'], button => {
