@@ -2,6 +2,8 @@ use std::{sync::{Arc, Mutex}, thread::{spawn, JoinHandle}, time::SystemTime};
 
 use kira::{sound::{static_sound::{StaticSoundData, StaticSoundHandle}, PlaybackState}, AudioManager, Decibels, DefaultBackend, PlaybackRate, Tween, Tweenable};
 use tauri::{AppHandle, Emitter};
+use crate::utils::Shared;
+
 use super::{events::*, PassageAudio, TtsSettings};
 
 pub struct TtsPlayerThread 
@@ -12,11 +14,12 @@ pub struct TtsPlayerThread
     thread_handle: JoinHandle<()>,
     sound_id: String,
     app_handle: AppHandle,
+    settings: Shared<TtsSettings>,
 }
 
 impl TtsPlayerThread
 {
-    pub fn new(manager: Arc<Mutex<AudioManager<DefaultBackend>>>, app_handle: AppHandle, passage_audio: Arc<PassageAudio>, sound_id: String) -> Self
+    pub fn new(manager: Arc<Mutex<AudioManager<DefaultBackend>>>, app_handle: AppHandle, passage_audio: Arc<PassageAudio>, sound_id: String, settings: TtsSettings) -> Self
     {
         // start the handle paused
         let duration = passage_audio.sound_data.duration().as_secs_f32();
@@ -32,6 +35,9 @@ impl TtsPlayerThread
         let sound_id_inner = sound_id.clone();
 
         let passage_audio_inner = passage_audio.clone();
+        
+        let settings = Shared::new(settings);
+        let settings_inner = settings.clone();
 
         let thread_handle = spawn(move || {
             const UPDATE_TIME: f32 = 0.05;
@@ -72,6 +78,12 @@ impl TtsPlayerThread
                 {
                     *sound_handle = manager.lock().unwrap().play(passage_audio_inner.sound_data.clone()).unwrap();
                     sound_handle.pause(Tween::default());
+
+                    let settings = *settings_inner.get();
+                    let decibels = Tweenable::interpolate(Decibels::SILENCE.as_amplitude(), Decibels::IDENTITY.as_amplitude(), settings.volume as f64).log10() * 20.0;
+                    sound_handle.set_volume(decibels, Tween::default());
+                    sound_handle.set_playback_rate(PlaybackRate(settings.playback_speed as f64), Tween::default());
+
                     app_handle_inner.emit(TTS_EVENT_NAME, TtsEvent::Finished { 
                         id: sound_id_inner.clone() 
                     }).unwrap();
@@ -87,15 +99,17 @@ impl TtsPlayerThread
             thread_handle,
             sound_id,
             app_handle,
+            settings,
         }
     }
 
-    pub fn set_settings(&self, settings: TtsSettings)
+    pub fn set_settings(&mut self, settings: TtsSettings)
     {
         let mut handle = self.handle.lock().unwrap();
         let decibels = Tweenable::interpolate(Decibels::SILENCE.as_amplitude(), Decibels::IDENTITY.as_amplitude(), settings.volume as f64).log10() * 20.0;
         handle.set_volume(decibels, Tween::default());
         handle.set_playback_rate(PlaybackRate(settings.playback_speed as f64), Tween::default());
+        *self.settings.get() = settings;
     }
 
     pub fn play(&self)

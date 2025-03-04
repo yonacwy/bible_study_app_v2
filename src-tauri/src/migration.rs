@@ -6,7 +6,7 @@ use serde_json::Value;
 use crate::{app_state::DEFAULT_BIBLE, audio::TtsSettings, settings::Settings};
 
 const SAVE_FIELD_NAME: &str = "save_version";
-pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV4;
+pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV5;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SaveVersion {
@@ -168,10 +168,12 @@ fn migrate_sv3(json: &mut Value)
 fn migrate_sv4(json: &mut Value)
 {
     if !check_save_field(json, SaveVersion::SV4) { return; }
-    const SAVE_FIELD_NAME: &str = "tts_settings";
+    const TTS_SETTINGS_FIELD_NAME: &str = "tts_settings";
 
-    let map = json.as_object_mut().unwrap();
-    map.insert(SAVE_FIELD_NAME.to_owned(), serde_json::to_value(&TtsSettings::default()).unwrap());
+    let json = json.as_object_mut().unwrap();
+    json.insert(TTS_SETTINGS_FIELD_NAME.to_owned(), serde_json::to_value(&TtsSettings::default()).unwrap());
+
+    json.insert(SAVE_FIELD_NAME.to_owned(), serde_json::to_value(SaveVersion::SV5).unwrap());
 }
 
 fn check_save_field(json: &mut Value, expected: SaveVersion) -> bool

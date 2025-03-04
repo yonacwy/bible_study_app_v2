@@ -60,9 +60,12 @@ export type PassageAudioKey = {
     chapter: ChapterIndex,
 }
 
+export type TtsPlayerState = 'none' | 'repeat' | 'continuous'
+
 export type TtsSettings = {
     volume: number,
     playback_speed: number,
+    player_state: TtsPlayerState
 }
 
 export class TtsPlayer
@@ -250,7 +253,8 @@ async function get_settings(): Promise<TtsSettings>
 
 async function set_settings(settings: TtsSettings): Promise<void>
 {
-    return await invoke_tts_command('set_settings', set_settings).then(_ => {});
+    utils.debug_print('setting settings');
+    return await invoke_tts_command('set_settings', settings).then(_ => {});
 }
 
 async function request_tts(key: PassageAudioKey): Promise<TtsRequest> 

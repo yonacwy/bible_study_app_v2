@@ -42,13 +42,6 @@ type AudioPlayerData = {
 
 let AUDIO_PLAYER_DATA: AudioPlayerData | null = null;
 
-type PreservedPlayerData = {
-    autoplay_on: boolean,
-    is_repeating: boolean,
-    should_play: boolean,
-}
-const PRESERVED_PLAYER_DATA = new utils.storage.ValueStorage<PreservedPlayerData>('preserved-player-data');
-
 const PLAYER = new utils.tts.TtsPlayer(async e => {
     if(!AUDIO_PLAYER_DATA) return;
 
@@ -59,8 +52,8 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
         AUDIO_PLAYER_DATA.play_button.button.classList.remove('hidden');
         AUDIO_PLAYER_DATA.generating_indicator.classList.add('hidden');
 
-        let preserved = PRESERVED_PLAYER_DATA.get();
-        if(preserved && preserved.should_play)
+        let settings = await PLAYER.get_settings();
+        if(settings.player_state === 'continuous')
         {
             await utils.sleep(100); // no idea why this works...
             AUDIO_PLAYER_DATA.play_button.button.click();
@@ -99,16 +92,14 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
         AUDIO_PLAYER_DATA.progress_bar.value = `${1.0}`;
         utils.update_sliders();
 
-        let preserved = PRESERVED_PLAYER_DATA.get();
-        if(preserved && preserved.autoplay_on)
+        let settings = await PLAYER.get_settings();
+        if(settings.player_state === 'continuous')
         {
-            preserved.should_play = true;
-            PRESERVED_PLAYER_DATA.set(preserved);
             bible.to_next_chapter().then(_ => {
                 view_states.goto_current_view_state();
             });
         }
-        else if(preserved && preserved.is_repeating)
+        else if(settings.player_state === 'repeat')
         {
             await utils.sleep(100); // no idea why this works...
             AUDIO_PLAYER_DATA.play_button.button.click();
@@ -161,11 +152,6 @@ export const SKIP_TIME: number = 10; // 10 seconds
 
 export function init_player()
 {
-    let preserved = PRESERVED_PLAYER_DATA.get();
-    if(preserved)
-    {
-        preserved.should_play = false;
-    }
     let close_button = utils.spawn_image_button(CLOSE_IMAGE_SRC);
     close_button.button.title = 'Close';
 
@@ -235,57 +221,59 @@ export function init_player()
                 let continuous_toggle = utils.spawn_toggle_button({
                     image: utils.images.HISTORY_HORIZONTAL,
                     tooltip: 'Continuous playback',
-                    is_toggled: PRESERVED_PLAYER_DATA.get()?.autoplay_on ?? false,
+                    is_toggled: false,
                 });
 
                 let repeat_toggle = utils.spawn_toggle_button({
                     image: utils.images.REPEAT,
                     tooltip: 'Repeat Chapter',
-                    is_toggled: PRESERVED_PLAYER_DATA.get()?.is_repeating ?? false,
-                })
+                    is_toggled: false,
+                });
 
                 strategy_settings.appendChild(continuous_toggle.button.button);
                 strategy_settings.appendChild(repeat_toggle.button.button);
 
-                continuous_toggle.on_click.add_listener(v => {
+                continuous_toggle.on_click.add_listener(async v => {
                     if(v)
                     {
                         repeat_toggle.set_value(false);
-                        PRESERVED_PLAYER_DATA.set({
-                            autoplay_on: true,
-                            should_play: false,
-                            is_repeating: false,
-                        });
+                        let settings = await PLAYER.get_settings();
+                        settings.player_state = 'continuous'
+                        PLAYER.set_settings(settings);
                     }
                     else 
                     {
-                        PRESERVED_PLAYER_DATA.set({
-                            autoplay_on: false,
-                            should_play: false,
-                            is_repeating: false
-                        });
+                        let settings = await PLAYER.get_settings();
+                        settings.player_state = 'none'
+                        PLAYER.set_settings(settings);
                     }
                 });
 
-                repeat_toggle.on_click.add_listener(v => {
+                repeat_toggle.on_click.add_listener(async v => {
                     if(v)
                     {
                         continuous_toggle.set_value(false);
-                        PRESERVED_PLAYER_DATA.set({
-                            autoplay_on: false,
-                            should_play: false,
-                            is_repeating: true,
-                        })
+                        let settings = await PLAYER.get_settings();
+                        settings.player_state = 'repeat'
+                        PLAYER.set_settings(settings);
                     }
                     else 
                     {
-                        PRESERVED_PLAYER_DATA.set({
-                            autoplay_on: false,
-                            should_play: false,
-                            is_repeating: false,
-                        })
+                        let settings = await PLAYER.get_settings();
+                        settings.player_state = 'none'
+                        PLAYER.set_settings(settings);
                     }
-                })
+                });
+
+                let settings = await PLAYER.get_settings();
+                if(settings.player_state === 'continuous')
+                {
+                    continuous_toggle.set_value(true);
+                }
+                else if(settings.player_state === 'repeat')
+                {
+                    repeat_toggle.set_value(true);
+                }
 
                 // let selector = await spawn_behavior_selector();
                 // strategy_settings.appendChild(selector);
@@ -401,7 +389,7 @@ function update_player_data_storage()
 
 function spawn_volume_slider(): HTMLElement
 {
-    return spawn_settings_slider(VOLUME_IMAGE_SRC, {
+    let slider = spawn_settings_slider(VOLUME_IMAGE_SRC, {
         default: 1.0,
     }, 
     (input, button) => {
@@ -416,10 +404,30 @@ function spawn_volume_slider(): HTMLElement
 
         update_volume_slider_image(+input.value, button.image);
         utils.update_sliders();
+
+        PLAYER.get_settings().then(settings => {
+            settings.volume = +input.value;
+            PLAYER.set_settings(settings);
+        });
     },
     (input, button) => {
         update_volume_slider_image(+input.value, button.image);
+
+        PLAYER.get_settings().then(settings => {
+            settings.volume = +input.value;
+            PLAYER.set_settings(settings);
+        });
     });
+
+    PLAYER.get_settings().then(settings => {
+        let e = slider.querySelector('input[type=range]') as HTMLInputElement;
+        let image = slider.querySelector('img') as HTMLImageElement;
+        
+        e.value = settings.volume.toString();
+        update_volume_slider_image(+e.value, image);
+    });
+
+    return slider;
 }
 
 function update_volume_slider_image(value: number, image: HTMLImageElement)
@@ -444,7 +452,7 @@ function update_volume_slider_image(value: number, image: HTMLImageElement)
 
 function spawn_playback_slider(): HTMLElement
 {
-    return spawn_settings_slider(PLAYBACK_SPEED_SRC, {
+    let slider = spawn_settings_slider(PLAYBACK_SPEED_SRC, {
         default: 0.5,
         on_input: v => {
             v = Math.lerp(-1, 1, v);
@@ -454,16 +462,55 @@ function spawn_playback_slider(): HTMLElement
                 v = 1;
 
             v = Math.abs(Math.pow(v, Math.sign(v)));
+
+            PLAYER.get_settings().then(settings => {
+                settings.playback_speed = v;
+                PLAYER.set_settings(settings);
+            });
         }
     }, 
     (input, button) => {
         input.value = '0.5';
         update_playback_slider_image(+input.value, button.image)
         utils.update_sliders();
+
+        let v = +input.value;
+        v = Math.lerp(-1, 1, v);
+        v = v + Math.sign(v);
+
+        if (Math.abs(v) == 0) 
+            v = 1;
+
+        v = Math.abs(Math.pow(v, Math.sign(v)));
+
+        PLAYER.get_settings().then(settings => {
+            settings.playback_speed = v;
+            PLAYER.set_settings(settings);
+        });
     },
     (input, button) => {
         update_playback_slider_image(+input.value, button.image);
     });
+
+    PLAYER.get_settings().then(settings => {
+        let loaded = settings.playback_speed;
+        let processed = 0.5;
+        if(loaded <= 1 && loaded >= 0)
+        {
+            processed = -1 / (2 * loaded) + 1;
+        }
+        else if(loaded >= 1 && loaded <= 2)
+        {
+            processed = loaded / 2;
+        }
+        let e = slider.querySelector('input[type=range]') as HTMLInputElement;
+        let image = slider.querySelector('img') as HTMLImageElement;
+        
+        e.value = processed.toString();
+        update_playback_slider_image(+e.value, image);
+    })
+
+    return slider;
 }
 
 function update_playback_slider_image(value: number, image: HTMLImageElement)

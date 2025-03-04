@@ -33,5 +33,12 @@
   - Link to website
 - Markdown syntax explainer/demo/where can use
 
+### External
+- Strong's References
+- See notes on side
+- Change how notes are edited
+- More rounded corners
+- More colorful
+
 ### Dev Recommendations
 - At some point, `searching.rs` needs to be COMPLETELY overhauled

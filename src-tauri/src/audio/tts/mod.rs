@@ -12,16 +12,28 @@ use serde::{Deserialize, Serialize};
 use synth::SpeechSynth;
 use tauri::{path::PathResolver, AppHandle, Emitter, Listener, Manager, Runtime};
 
-use crate::{bible::{Bible, ChapterIndex}, utils::{self, Shared}};
+use crate::{bible::{Bible, ChapterIndex}, utils};
 use self::player_thread::TtsPlayerThread;
 
 pub const TTS_SAMPLE_RATE: u32 = 22050;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum TtsPlayerState
+{
+    #[default]
+    None,
+    Repeat,
+    Continuous,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub struct TtsSettings
 {
     pub volume: f32,
     pub playback_speed: f32,
+    pub player_state: TtsPlayerState,
 }
 
 impl Default for TtsSettings
@@ -31,6 +43,7 @@ impl Default for TtsSettings
         {
             volume: 1.0,
             playback_speed: 1.0,
+            player_state: TtsPlayerState::None,
         }
     }
 }
@@ -222,8 +235,8 @@ impl TtsPlayer
         let binding = self.sources.lock().unwrap();
         if let Some(TtsSoundData::Generated(sound_data)) = binding.get(id)
         {
-            self.player = Some(TtsPlayerThread::new(self.manager.clone(), self.app_handle.clone(), sound_data.clone(), id.clone()));
-            self.player.as_ref().unwrap().set_settings(self.settings);
+            self.player = Some(TtsPlayerThread::new(self.manager.clone(), self.app_handle.clone(), sound_data.clone(), id.clone(), self.settings));
+            self.player.as_mut().unwrap().set_settings(self.settings);
             self.app_handle.emit(TTS_EVENT_NAME, TtsEvent::Set { id: id.clone() }).unwrap();
         }
     }
@@ -278,7 +291,7 @@ impl TtsPlayer
     pub fn set_settings(&mut self, settings: TtsSettings)
     {
         self.settings = settings;
-        if let Some(player) = &self.player
+        if let Some(player) = &mut self.player
         {
             player.set_settings(settings);
         }

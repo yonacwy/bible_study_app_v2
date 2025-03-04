@@ -2,8 +2,7 @@ use std::{num::NonZeroU32, sync::Mutex};
 use kira::{Decibels, Tween, Tweenable};
 use serde_json::Value;
 use tauri::State;
-use tts::bible_reader::RepeatOptions;
-use crate::{app_state::{AppState, DEFAULT_BIBLE}, bible::ChapterIndex, readings::{ReadingsDatabase, SelectedReading}};
+use crate::{app_state::AppState, readings::{ReadingsDatabase, SelectedReading}};
 
 pub mod player;
 pub mod tts;
