@@ -39,6 +39,7 @@
 - Change how notes are edited
 - More rounded corners
 - More colorful
+- Cross References
 
 ### Dev Recommendations
 - At some point, `searching.rs` needs to be COMPLETELY overhauled
