@@ -1,4 +1,4 @@
-use std::{error::Error, hash::{DefaultHasher, Hash, Hasher}, ops::Deref, path::Path, sync::{Arc, Mutex, MutexGuard}};
+use std::{error::Error, hash::{DefaultHasher, Hash, Hasher}, path::Path, sync::{Arc, Mutex, MutexGuard}};
 
 use serde::{Deserialize, Serialize};
 

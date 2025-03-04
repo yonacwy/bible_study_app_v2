@@ -1,6 +1,6 @@
 use std::{sync::{Arc, Mutex}, thread::{spawn, JoinHandle}, time::SystemTime};
 
-use kira::{sound::{static_sound::{StaticSoundData, StaticSoundHandle}, PlaybackState}, AudioManager, Decibels, DefaultBackend, PlaybackRate, Tween, Tweenable};
+use kira::{sound::{static_sound::StaticSoundHandle, PlaybackState}, AudioManager, Decibels, DefaultBackend, PlaybackRate, Tween, Tweenable};
 use tauri::{AppHandle, Emitter};
 use crate::utils::Shared;
 
