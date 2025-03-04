@@ -253,7 +253,6 @@ async function get_settings(): Promise<TtsSettings>
 
 async function set_settings(settings: TtsSettings): Promise<void>
 {
-    utils.debug_print('setting settings');
     return await invoke_tts_command('set_settings', settings).then(_ => {});
 }
 

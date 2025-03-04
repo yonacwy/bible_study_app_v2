@@ -281,6 +281,7 @@ export function init_player()
         });
 
         player_div.appendElementEx('div', ['dropdown-button'], button => {
+            button.title = 'Show advanced options';
 
             let container = button.appendElementEx('div', ['image-container'], _ => {});
 
