@@ -1,6 +1,5 @@
 import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
-import * as settings from "../settings.js";
 import { TtsGenerationProgressEvent, TtsPlayingEvent } from "../utils/tts.js";
 import * as view_states from "../view_states.js";
 
