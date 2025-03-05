@@ -193,6 +193,43 @@ export async function update_highlight_selection()
     }
 }
 
+export function init_erase_toggle()
+{
+    const ID: string = 'erase-highlight-toggle';
+    let toggle = document.getElementById(ID);
+    if(!toggle) return;
+
+    SELECTED_HIGHLIGHT.add_listener(v => {
+        if(v === null)
+        {
+            ERASING_HIGHLIGHT.set(false);
+            toggle.classList.add('inactive');
+        }
+        else 
+        {
+            toggle.classList.remove('inactive');
+        }
+    });
+
+    ERASING_HIGHLIGHT.add_listener(v => {
+        if(toggle.classList.contains('inactive')) return;
+        
+        if(v)
+        {
+            toggle.classList.add('active');
+        }
+        else 
+        {
+            toggle.classList.remove('active');
+        }
+    });
+
+    toggle.addEventListener('click', _ => {
+        let value = ERASING_HIGHLIGHT.get() ?? false;
+        ERASING_HIGHLIGHT.set(!value);
+    });
+}
+
 export async function get_chapter_annotations(chapter: ChapterIndex): Promise<any>
 {
     let annotations_json = await utils.invoke('get_chapter_annotations', { chapter: chapter });

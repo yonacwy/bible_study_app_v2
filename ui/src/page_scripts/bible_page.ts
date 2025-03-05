@@ -29,11 +29,8 @@ export async function run()
     Promise.all([
         pages.init_header(e => {
             let last = e.children[e.children.length - 1];
-            let button = utils.spawn_image_button('../images/volume/light-volume.svg', _ => {
-                audio_player.show_player();
-            });
-
-            e.insertBefore(button.button, last);
+            let button = spawn_audio_player_button();
+            e.insertBefore(button, last);
         }),
         pages.init_context_menu('chapter-content'),
         init_chapter_buttons(),
@@ -149,4 +146,31 @@ export async function init_chapter_buttons()
             view_states.goto_current_view_state();
         })
     })
+}
+
+export function spawn_audio_player_button(): HTMLElement
+{
+    let button = utils.spawn_image_button(utils.images.VOLUME_MID, _ => {
+        if(audio_player.is_player_hidden())
+        {
+            audio_player.show_player();
+        }
+        else 
+        {
+            audio_player.hide_player();
+        }
+    }).button;
+
+    audio_player.ON_PLAYER_VISIBILITY_CHANGED.add_listener(visible => {
+        if(visible)
+        {
+            button.classList.add('active');
+        }
+        else 
+        {
+            button.classList.remove('active');
+        }
+    });
+
+    return button;
 }

@@ -108,6 +108,8 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
     update_playback_controls_opacity(e);
 });
 
+export const ON_PLAYER_VISIBILITY_CHANGED = new utils.events.EventHandler<boolean>();
+
 export async function show_player()
 {
     if(!AUDIO_PLAYER_DATA) return;
@@ -122,6 +124,8 @@ export async function show_player()
         bible_name,
         chapter
     });
+
+    ON_PLAYER_VISIBILITY_CHANGED.invoke(true);
 }
 
 export function hide_player()
@@ -133,6 +137,15 @@ export function hide_player()
     AUDIO_PLAYER_DATA.play_button.image.src = "../images/light-play.svg";
     clear_current_reading_verse();
     update_player_data_storage();
+
+    ON_PLAYER_VISIBILITY_CHANGED.invoke(false);
+}
+
+export function is_player_hidden(): boolean
+{
+    if(!AUDIO_PLAYER_DATA) return false;
+
+    return AUDIO_PLAYER_DATA.popup.classList.contains('hidden');
 }
 
 export function on_passage_render()
@@ -427,6 +440,8 @@ function spawn_volume_slider(): HTMLElement
         update_volume_slider_image(+e.value, image);
     });
 
+    slider.title = 'Change the volume';
+
     return slider;
 }
 
@@ -508,7 +523,11 @@ function spawn_playback_slider(): HTMLElement
         
         e.value = processed.toString();
         update_playback_slider_image(+e.value, image);
-    })
+    });
+
+    
+
+    slider.title = 'Change the playback rate';
 
     return slider;
 }

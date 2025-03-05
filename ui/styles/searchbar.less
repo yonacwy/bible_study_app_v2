@@ -5,34 +5,19 @@ header .searchbar {
     display: flex;
     flex-direction: row;
     width: auto;
-    height: @button-size;
-    margin: @button-margin;
+    justify-content: center;
+    align-items: center;
+    height: @button-size - 2px; // no margin
+    margin: 0px;
+    gap: 5px * @ui-scale
 }
 
 header .searchbar input {
-    height: auto;
+    border-radius: 3px;
+    border: none;
+    box-sizing: border-box;
+    height: 100%;
     width: 150px * @ui-scale;
-    margin-right: 5px;
     padding-left: 2px;
     .font-small();
-}
-
-header .searchbar img {
-    height: @button-size;
-    aspect-ratio: 1/1;
-    margin: 0px;
-    padding: 0px;
-}
-
-header .searchbar button {
-    height: @button-size;
-    width: @button-size;
-    margin: 0;
-    padding: 0;
-}
-
-header .searchbar button img {
-    height: 90%;
-    width: 90%;
-    margin: 5%;
 }

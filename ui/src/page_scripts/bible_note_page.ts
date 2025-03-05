@@ -22,11 +22,8 @@ export function run()
     Promise.all([
         pages.init_header(e => {
             let last = e.children[e.children.length - 1];
-            let button = utils.spawn_image_button('../images/volume/light-volume.svg', _ => {
-                audio_player.show_player();
-            });
-
-            e.insertBefore(button.button, last);
+            let button = bible_page.spawn_audio_player_button();
+            e.insertBefore(button, last);
         }),
         init_note_page(data.note, () => {
             utils.conserve_scroll(() => {

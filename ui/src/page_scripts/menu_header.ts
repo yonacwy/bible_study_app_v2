@@ -16,7 +16,7 @@ export function init_main_page_header(extra?: (e: HTMLElement) => void)
         </div>
         <div class="searchbar" style="position: relative;">
             <input type="text" id="search-input">
-            <button id="search-btn" title="Search the bible">
+            <button id="search-btn" class="image-btn" title="Search the bible">
                 <img src="../images/light-magnifying-glass.svg">
             </button> 
             <div class="error-popup" id="error-message"></div>
