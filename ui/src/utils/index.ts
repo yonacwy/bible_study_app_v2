@@ -157,9 +157,9 @@ export function map_keys<T, R>(obj: T, f: (k: keyof T, o: T) => R): R[]
     return array;
 }
 
-export function open_file_explorer(path: string)
+export function open(path: string)
 {
-    invoke('open_file_explorer', { path: path });
+    invoke('open', { path: path });
 }
 
 export function open_save_in_file_explorer()

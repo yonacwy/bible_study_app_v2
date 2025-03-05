@@ -94,7 +94,7 @@ fn main() -> Result<(), tts::Error>
             get_book_from_name,
             get_selected_reading,
             set_selected_reading,
-            open_file_explorer,
+            open,
             open_save_in_file_explorer,
             get_current_bible_version,
             set_current_bible_version,

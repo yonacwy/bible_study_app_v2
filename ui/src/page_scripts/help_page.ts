@@ -15,7 +15,8 @@ export function run()
     pages.init_settings_buttons(data.old_path);
     settings.init_less_sync();
     init_faq_dropdowns();
-    document.body.style.visibility = 'visible'
+    init_links();
+    document.body.style.visibility = 'visible';
 }
 
 function init_faq_dropdowns()
@@ -50,6 +51,21 @@ function init_faq_dropdowns()
                 faq_item.classList.add('active');
                 answer.style.maxHeight = answer.scrollHeight + "px";
             }
+        });
+    });
+}
+
+function init_links()
+{
+    let links = document.body.querySelectorAll('.faq-answer a')
+        .values()
+        .map(l => l as HTMLAnchorElement)
+        .toArray();
+    
+    links.forEach(l => {
+        l.addEventListener('click', e => {
+            e.preventDefault();
+            utils.open(l.href);
         });
     });
 }

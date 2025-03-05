@@ -58,18 +58,8 @@ macro_rules! debug_release_val
     };
 }
 
-pub fn open_file_explorer(path: &str) -> Result<(), Box<dyn Error>> 
+pub fn open(path: &str) -> Result<(), Box<dyn Error>> 
 {
-    let path = Path::new(path);
-    if !path.exists() {
-        return Err(format!("Path does not exist: {}", path.display()).into());
-    }
-
-    if !path.is_dir() {
-        return Err(format!("Path must be a directory: {}", path.display()).into())
-    }
-
-    // Use the `open` crate to open the path in the system's file explorer
     open::that(path)?;
     Ok(())
 }
