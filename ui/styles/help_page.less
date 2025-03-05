@@ -37,6 +37,57 @@ h1.faq-title {
         padding: 0 15px;
         background-color: #fff;
         transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+
+        img.inline-img {
+            width: 1em;
+            height: 1em;
+            display: inline;
+            background-color: #c7c7c7;
+            border-radius: 3px;
+            padding: 5px;
+        }
+
+        .todo {
+            display: block;
+            box-sizing: border-box;
+            width: 100%;
+            height: min-content;
+            padding: 20px * @ui-scale;
+            flex-direction: column;
+
+            img {
+                margin-left: 50%;
+                transform: translate(-50%, 0);
+                max-width: 200px;
+                max-height: 200px;
+                aspect-ratio: 1/1;
+            }
+
+            p {
+                text-align: center;
+                font-weight: bold;
+                font-style: italic;
+                .font-large();
+            }
+        }
+
+        ul, ol {
+            margin-top: 0px
+        }
+
+        code {
+            background: #c7c7c7;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        pre {
+            background: #c7c7c7;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
         .font-medium();
     }
     

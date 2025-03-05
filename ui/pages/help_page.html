@@ -28,23 +28,99 @@
         </div>
         <div class="faq-item">
             <div class="faq-question">Searching</div>
-            <div class="faq-answer"></div>
+            <div class="faq-answer">
+                <h3>Search Methods</h3>
+                <hr>
+                <p>
+                    You can search using two primary methods: section searches and word searches.
+                    Section searches are in the format: <code>Book chapter:start-end</code>, for example: <code>Genesis 1:3-5</code>.
+                    Book names can be shortened, like <code>Gen</code>, <code>Num</code>, <code>jn</code>, etc.
+                    Also, capitalization does not matter.
+                    The verse range can be omitted (ie, <code>3-5</code>) if you want to just get a whole chapter, or a singular verse can be listed.
+                    The <code>:</code> and the <code>-</code> can be omitted for quick searching. <br>
+                </p>
+
+                Below is some example searches:
+                <ul>
+                    <li><code>Genesis 5</code></li>
+                    <li><code>Job 40:3</code></li>
+                    <li><code>Song of Solomon 2:3-7</code></li>
+                    <li><code>1 Cor 2:9</code></li>
+                </ul>
+            </div>
         </div>
         <div class="faq-item">
             <div class="faq-question">Audio</div>
-            <div class="faq-answer"></div>
+            <div class="faq-answer">
+                <p>This is a quick and dirty explanation of what all the buttons and settings do in the audio player.</p>
+                <ul>
+                    <li><img src="../images/light-angles-left.svg" alt="img" class="inline-img">: This button will rewind the player back 10 seconds.</li>
+                    <li><img src="../images/light-angles-right.svg" alt="img" class="inline-img">: This button will fast forward the player back 10 seconds.</li>
+                    <li><img src="../images/light-play.svg" alt="img" class="inline-img">: This button will play the current chapter</li>
+                    <li><img src="../images/light-pause.svg" alt="img" class="inline-img">: This button will pause the current chapter</li>
+                    <li><img src="../images/light-arrow-rotate-right.svg" alt="img" class="inline-img">: This button will restart playing the current chapter.</li>
+                    <li><img src="../images/light-xmark.svg" alt="img" class="inline-img">: This button will close the audio player.</li>
+                    <li><img src="../images/light-angle-down.svg" alt="img" class="inline-img">: This button will open the advanced settings</li>
+                    <li><img src="../images/volume/light-volume.svg" alt="img" class="inline-img">: This button will either mute the audio if it is unmuted, or set the volume to max if it is muted. The slider to the right of it controls the volume from 0% to 100%</li>
+                    <li><img src="../images/gauges/light-gauge.svg" alt="img" class="inline-img">: This button will set the playback rate to 1.00x. The slider next to it controls the playback rate from 0.50x to 2.00x</li>
+                    <li><img src="../images/light-rectangle-history.svg" alt="img" class="inline-img">: This button will toggle if the player will go to the next chapter when it finishes playing the current one.</li>
+                    <li><img src="../images/light-repeat.svg" alt="img" class="inline-img">: This button will will toggle if the player will repeat the current chapter when it finishes playing it.</li>
+                </ul>
+            </div>
         </div>
         <div class="faq-item">
             <div class="faq-question">Creating Notes</div>
-            <div class="faq-answer"></div>
+            <div class="faq-answer">
+                <div class="todo">
+                    <img src="../images/light-bulldozer.svg" alt="todo">
+                    <p>Work in progress...</p>
+                </div>
+            </div>
         </div>
         <div class="faq-item">
             <div class="faq-question">Creating Highlights</div>
-            <div class="faq-answer"></div>
+            <div class="faq-answer">
+                <div class="todo">
+                    <img src="../images/light-bulldozer.svg" alt="todo">
+                    <p>Work in progress...</p>
+                </div>
+            </div>
         </div>
         <div class="faq-item">
             <div class="faq-question">Markdown Formatting</div>
-            <div class="faq-answer"></div>
+            <div class="faq-answer">
+                <p>
+                    Markdown is a lightweight markup language for creating formatted text using a plain-text editor. It is commonly used for README files, documentation, and online writing.
+                    Ascribe uses it inside of notes and highlight descriptions to allow for easy to format text, without having to use a complicated editor, and allowing for cross platform note taking, if the user would want to copy the JSON save to another program.
+                </p>
+    
+                <h2>Basic Syntax</h2>
+                <ul>
+                    <li><strong>Headings:</strong> Use <code>#</code> for headings. Example: <code># Heading 1</code></li>
+                    <li><strong>Bold:</strong> Use <code>**bold**</code> for bold text.</li>
+                    <li><strong>Italic:</strong> Use <code>*italic*</code> for italic text.</li>
+                    <li><strong>Lists:</strong> Use <code>-</code> or <code>*</code> for bullet points.</li>
+                    <li><strong>Links:</strong> <code>[Link text](http://example.com)</code></li>
+                    <li><strong>Images:</strong> <code>![Alt text](image.jpg)</code></li>
+                    <li><strong>Code Blocks:</strong> Use triple backticks (```) for code blocks.</li>
+                </ul>
+
+                <h2>Example</h2>
+                <pre><code>
+# My Markdown Page
+
+## Introduction
+
+This is a **bold** text and this is an *italic* text.
+
+- Item 1
+- Item 2
+
+[Click here](http://example.com) for more info.
+                </code></pre>
+
+                <p>You can find more information about markdown at <a href="https://github.com/im-luka/markdown-cheatsheet">this</a> link.</p>
+            </div>
         </div>
     </main>
     <script type="module">
