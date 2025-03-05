@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Audio Player</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .tab {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        .mode-buttons button {
+            margin: 5px;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Bible Audio Player</h2>
+        
+        <div class="mode-buttons">
+            <button onclick="showTab('reading')">Reading</button>
+            <button onclick="showTab('section')">Section</button>
+            <button onclick="showTab('continuous')">Continuous</button>
+            <button onclick="showTab('single')">Single</button>
+        </div>
+        
+        <div id="reading" class="tab active">
+            <h3>Reading Mode</h3>
+            <label>Select Reading:</label>
+            <select id="readingSelection">
+                <option>Proverbs</option>
+                <option>Robert Roberts</option>
+                <option>Chronological</option>
+            </select>
+            <p>Selected: <span id="readingSelected">Proverbs</span></p>
+            <label>Repeat:</label>
+            <select id="readingRepeat">
+                <option value="once">Once</option>
+                <option value="x">X Times</option>
+                <option value="time">For a time</option>
+            </select>
+            <input type="number" id="readingRepeatX" placeholder="Enter times" style="display:none;">
+            <input type="time" id="readingRepeatTime" style="display:none;">
+        </div>
+
+        <div id="section" class="tab">
+            <h3>Section Mode</h3>
+            <label>Select Section:</label>
+            <select>
+                <option>Begin/End</option>
+                <option>Start/Number chapters</option>
+            </select>
+            <label>Repeat:</label>
+            <select id="sectionRepeat">
+                <option value="once">Once</option>
+                <option value="x">X Times</option>
+                <option value="time">For a time</option>
+            </select>
+            <input type="number" id="sectionRepeatX" placeholder="Enter times" style="display:none;">
+            <input type="time" id="sectionRepeatTime" style="display:none;">
+        </div>
+
+        <div id="continuous" class="tab">
+            <h3>Continuous Mode</h3>
+            <label>Stop after:</label>
+            <select id="continuousStop">
+                <option value="chapters">Number of chapters</option>
+                <option value="time">After time</option>
+            </select>
+            <input type="number" id="continuousChapters" placeholder="Enter chapters" style="display:none;">
+            <input type="time" id="continuousTime" style="display:none;">
+        </div>
+
+        <div id="single" class="tab">
+            <h3>Single Mode</h3>
+            <p>Play a single chapter or passage.</p>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabId) {
+            $('.tab').removeClass('active');
+            $('#' + tabId).addClass('active');
+        }
+
+        $('#readingSelection').on('change', function() {
+            $('#readingSelected').text(this.value);
+        });
+
+        $('#readingRepeat').on('change', function() {
+            let value = this.value;
+            $('#readingRepeatX').toggle(value === 'x');
+            $('#readingRepeatTime').toggle(value === 'time');
+        });
+
+        $('#sectionRepeat').on('change', function() {
+            let value = this.value;
+            $('#sectionRepeatX').toggle(value === 'x');
+            $('#sectionRepeatTime').toggle(value === 'time');
+        });
+
+        $('#continuousStop').on('change', function() {
+            let value = this.value;
+            $('#continuousChapters').toggle(value === 'chapters');
+            $('#continuousTime').toggle(value === 'time');
+        });
+    </script>
+</body>
+</html>

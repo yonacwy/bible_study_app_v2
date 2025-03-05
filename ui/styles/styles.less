@@ -31,7 +31,8 @@ body img {
 header {
     margin: 0px;
     padding: 0px;
-    padding-left: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
     position: fixed; /* Keeps the header at the top */
     top: 0;
     left: 0;
@@ -43,10 +44,20 @@ header {
     align-items: center;
     display: flex;
 
+    .image-btn:not(.dropdown .small-dropdown-content .image-btn) {
+        margin: 0px;
+    }
+
+    gap: 5px * @ui-scale;
+
     // not great, but no idea why :last-child is not working
     .shift-right {
         margin-left: auto;
-        margin-right: @button-margin;
+        margin-right: 10px;
+
+        .small-dropdown-content {
+            left: -@button-margin;
+        }
     }
 }
 
@@ -62,6 +73,7 @@ main {
     margin-right: @content-margin;
     margin-left: @content-margin;
     .drop-shadow-l();
+    margin-bottom: calc(100vh - @header-height - 40px);
 }
 
 .bible-content h1 {

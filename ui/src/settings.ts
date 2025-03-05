@@ -1,5 +1,5 @@
 import { AppSettings } from "./bindings.js";
-import { EventListeners } from "./utils/events.js";
+import { EventHandler } from "./utils/events.js";
 import * as utils from "./utils/index.js"
 
 export const MAX_UI_SCALE: number = 2;
@@ -10,7 +10,7 @@ export const MAX_TEXT_SCALE: number = 2;
 export const MIN_TEXT_SCALE: number = 0.5;
 export const DEFAULT_TEXT_SCALE: number = 1;
 
-export const ON_SETTINGS_CHANGED: EventListeners<AppSettings> = new EventListeners();
+export const ON_SETTINGS_CHANGED: EventHandler<AppSettings> = new EventHandler();
 
 export async function get_volume(): Promise<number> 
 {

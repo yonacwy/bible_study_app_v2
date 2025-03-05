@@ -1,7 +1,8 @@
 import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils/index.js";
 import { push_section, get_current_view_state } from "./view_states.js";
 import { BookView, ChapterIndex, ChapterView } from "./bindings.js";
-import { EventListeners, Listener } from "./utils/events.js";
+import { EventHandler, Listener } from "./utils/events.js";
+import * as utils from "./utils/index.js";
 
 export async function load_view(): Promise<BookView[]>
 {
@@ -63,6 +64,11 @@ export async function to_next_chapter(): Promise<void>
         current_chapter.book++;
         current_chapter.number = 0;
     }
+    else 
+    {
+        current_chapter.book = 0;
+        current_chapter.number = 0;
+    }
 
     return push_section({
         book: current_chapter.book,
@@ -87,6 +93,11 @@ export async function to_previous_chapter(): Promise<void>
         current_chapter.book--;
         current_chapter.number = view[current_chapter.book].chapter_count - 1;
     }
+    else 
+    {
+        current_chapter.book = view.length - 1;
+        current_chapter.number = view[view.length - 1].chapter_count - 1;
+    }
 
     return push_section({
         book: current_chapter.book,
@@ -101,7 +112,7 @@ export async function get_current_bible_version(): Promise<string>
 }
 
 
-const BIBLE_VERSION_CHANGE_EVENT_LISTENERS: EventListeners<string> = new EventListeners<string>();
+const BIBLE_VERSION_CHANGE_EVENT_LISTENERS: EventHandler<string> = new EventHandler<string>();
 
 export function add_version_changed_listener(listener: Listener<string>)
 {
@@ -203,4 +214,62 @@ export function flatten_verse_index(chapter: ChapterView, verse: number, word: n
 export async function get_book_index(prefix: number | null, name: string): Promise<number | null>
 {
     return (await invoke('get_book_from_name', { prefix: prefix, name: name }))?.index ?? null;
+}
+
+export function flatten_chapter_index(bible_view: BookView[], chapter: ChapterIndex): number
+{
+    let count = 0;
+    
+    for(let i = 0; i < chapter.book; i++)
+    {
+        count += bible_view[i].chapter_count;
+    }
+
+    count += chapter.number;
+    return count;
+}
+
+export function expand_chapter_index(bible_view: BookView[], index: number): ChapterIndex
+{
+    let book = 0;
+    let number = 0;
+
+    for(let i = 0; i < index; i++)
+    {
+        number++;
+
+        if(number >= bible_view[book].chapter_count)
+        {
+            number = 0;
+            book++;
+        }
+        
+        if(book >= bible_view.length)
+        {
+            book = 0;
+            number = 0;
+        }
+    }
+
+    return {
+        book,
+        number,
+    }
+}
+
+export function get_chapter_distance(bible_view: BookView[], start: ChapterIndex, end: ChapterIndex): number
+{
+    let start_index = flatten_chapter_index(bible_view, start);
+    let end_index = flatten_chapter_index(bible_view, end);
+
+    let total = bible_view.map(v => v.chapter_count).reduce((a, b) => a + b);
+    
+    if(start_index <= end_index)
+    {
+        return end_index - start_index;
+    }
+    else 
+    {
+        return total - (start_index - end_index);
+    }
 }

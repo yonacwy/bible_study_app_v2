@@ -21,7 +21,7 @@ pub fn debug_print(message: &str) {
 #[tauri::command(rename_all = "snake_case")]
 pub fn get_bible_view(app_state: State<'_, AppState>) -> String {
     let view = app_state.get().as_ref().unwrap().get_current_bible().get_view();
-    serde_json::to_string(&view).unwrap()
+    serde_json::to_string(&view.books).unwrap()
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -377,9 +377,9 @@ pub fn set_selected_reading(app_state: State<'_, AppState>, selected_reading: u3
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn open_file_explorer(path: &str)
+pub fn open(path: &str)
 {
-    match utils::open_file_explorer(path)
+    match utils::open(path)
     {
         Ok(_) => {},
         Err(err) => println!("ERROR: {}", err),
@@ -398,7 +398,7 @@ pub fn open_save_in_file_explorer<R>(app: tauri::AppHandle<R>) -> Option<String>
 
     let path = app.path().resolve("", BaseDirectory::Resource).unwrap();
     let path_str = path.to_str().unwrap();
-    utils::open_file_explorer(path_str).err().map(|e| e.to_string())
+    utils::open(path_str).err().map(|e| e.to_string())
 }
 
 #[tauri::command(rename_all = "snake_case")]

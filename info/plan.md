@@ -11,13 +11,17 @@
   - [ ] Auto play
     - [ ] Time based
     - [ ] Chapter number based
-    - [ ] Readings based?
-  - [ ] Voice selector?
+    - [ ] Readings based
+  - [ ] Voice selector
+  - [ ] Skip
+  - [ ] Replay
+  - [ ] Player visual
 - [ ] Multiple Theme Support
   - [ ] Dark
   - [ ] Light
   - [ ] Parchment
 - [ ] Create better info page
+- [ ] Make calendar selected date more visible
 
 ### Version 0.5.0: Multiple Bible Support
 - [x] Multiple Bible Support

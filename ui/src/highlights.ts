@@ -66,12 +66,12 @@ export function render_categories(on_delete: (id: string) => void, on_edit: (id:
                         let edit_btn = utils.create_image_button(button_container, '../images/light-pencil.svg', e => {
                             on_edit(category.id);
                         });
-                        edit_btn.title = 'Edit category';
+                        edit_btn.button.title = 'Edit category';
 
                         let delete_btn = utils.create_image_button(button_container, '../images/light-trash-can.svg', e => {
                             on_delete(category.id);
                         });
-                        delete_btn.title = 'Delete category';
+                        delete_btn.button.title = 'Delete category';
                     })
                 });
             });
@@ -191,6 +191,43 @@ export async function update_highlight_selection()
             nodes[i].classList.add('selected-option');
         }
     }
+}
+
+export function init_erase_toggle()
+{
+    const ID: string = 'erase-highlight-toggle';
+    let toggle = document.getElementById(ID);
+    if(!toggle) return;
+
+    SELECTED_HIGHLIGHT.add_listener(v => {
+        if(v === null)
+        {
+            ERASING_HIGHLIGHT.set(false);
+            toggle.classList.add('inactive');
+        }
+        else 
+        {
+            toggle.classList.remove('inactive');
+        }
+    });
+
+    ERASING_HIGHLIGHT.add_listener(v => {
+        if(toggle.classList.contains('inactive')) return;
+        
+        if(v)
+        {
+            toggle.classList.add('active');
+        }
+        else 
+        {
+            toggle.classList.remove('active');
+        }
+    });
+
+    toggle.addEventListener('click', _ => {
+        let value = ERASING_HIGHLIGHT.get() ?? false;
+        ERASING_HIGHLIGHT.set(!value);
+    });
 }
 
 export async function get_chapter_annotations(chapter: ChapterIndex): Promise<any>

@@ -26,9 +26,9 @@ export const HIGHLIGHT_EDITOR_BUTTON_ID: string = "highlight-settings";
 
 const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 
-export async function init_header(): Promise<void>
+export async function init_header(extra?: (e: HTMLElement) => void): Promise<void>
 {
-    init_main_page_header();
+    init_main_page_header(extra);
     highlight_utils.SELECTED_HIGHLIGHT.add_listener(on_highlight_changed);
 
     let word_popup = document.getElementById(WORD_POPUP_ID);
@@ -49,7 +49,7 @@ export async function init_header(): Promise<void>
         highlight_utils.create_highlight_selection(),
         update_nav_buttons_opacity(),
         init_search_bar(),
-        utils.init_toggle('erase-highlight-toggle', highlight_utils.ERASING_HIGHLIGHT),
+        highlight_utils.init_erase_toggle(),
         side_popup.init_popup_panel('popup-panel'),
         utils.display_migration_popup(),
         utils.display_no_save_popup(),
@@ -63,18 +63,20 @@ export async function init_header(): Promise<void>
 
 
 const DEFAULT_BUTTON_COLOR: string = document.getElementById(HIGHLIGHT_SELECTOR_ID)?.style.backgroundColor ?? "white";
-const DISABLED_OPACITY: string = '0.3';
-const ENABLED_OPACITY: string = '1.0';
 
 export function init_nav_buttons()
 {
     utils.on_click(FORWARD_BUTTON_ID, e => {
+        if(utils.contains_class(FORWARD_BUTTON_ID, 'inactive')) return;
+
         view_states.next_view_state().then(() => {
             view_states.goto_current_view_state();
         })
     });
 
     utils.on_click(BACK_BUTTON_ID, e => {
+        if(utils.contains_class(BACK_BUTTON_ID, 'inactive')) return;
+
         view_states.previous_view_state().then(() => {
             view_states.goto_current_view_state();
         })
@@ -94,22 +96,22 @@ export function update_nav_buttons_opacity()
     view_states.is_last_view_state().then(is_last => {
         if(is_last)
         {
-            utils.set_opacity('forward-btn', DISABLED_OPACITY);
+            utils.add_class('forward-btn', 'inactive');
         }
         else 
         {
-            utils.set_opacity('forward-btn', ENABLED_OPACITY);
+            utils.remove_class('forward-btn', 'inactive');
         }
     });
 
     view_states.is_first_view_state().then(is_first => {
         if(is_first)
         {
-            utils.set_opacity('back-btn', DISABLED_OPACITY);
+            utils.add_class('back-btn', 'inactive');
         }
         else 
         {
-            utils.set_opacity('back-btn', ENABLED_OPACITY);
+            utils.remove_class('back-btn', 'inactive');
         }
     });
 }
@@ -119,19 +121,25 @@ function init_new_note_button()
     let button = document.getElementById('new-note-btn');
     if (!button) return;
 
-    button.style.opacity = DISABLED_OPACITY;
     word_select.add_note_listener({
         on_start: () => {
-            button.style.opacity = ENABLED_OPACITY
+            button.classList.add('active');
         },
         on_end: () => {
-            button.style.opacity = DISABLED_OPACITY
+            button.classList.remove('active');
         },
     });
 
     button.addEventListener('click', e => {
-        word_select.begin_making_note();
-    })
+        if(word_select.is_selecting())
+        {
+            word_select.stop_selecting();
+        }
+        else 
+        {
+            word_select.begin_making_note();
+        }
+    });
 }
 
 export function on_highlight_changed(id: string | null)
@@ -139,19 +147,16 @@ export function on_highlight_changed(id: string | null)
     word_select.update_words_for_selection();
     highlight_utils.get_categories().then(categories => {
         let color = DEFAULT_BUTTON_COLOR;
-        let opacity = DISABLED_OPACITY;
         if(id !== null)
         {
             let category = categories[id];
             color = utils.color_to_hex(category.color);
-            opacity = ENABLED_OPACITY;
         }
 
         let btn = document.getElementById('highlight-selector-btn');
         if (btn !== null) 
         {
             btn.style.backgroundColor = color;
-            btn.style.opacity = opacity.toString();
         }
     });
 

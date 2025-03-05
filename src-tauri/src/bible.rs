@@ -39,14 +39,19 @@ pub struct Bible {
 }
 
 impl Bible {
-    pub fn get_view(&self) -> Vec<BookView> {
-        self.books
+    pub fn get_view(&self) -> BibleView {
+        let books = self.books
             .iter()
             .map(|b| BookView {
                 name: b.name.clone(),
                 chapter_count: b.chapters.len() as u32,
             })
-            .collect_vec()
+            .collect_vec();
+
+        BibleView 
+        {
+            books
+        }
     }
 
     pub fn get_chapter(&self, index: ChapterIndex) -> &Chapter {
@@ -54,8 +59,45 @@ impl Bible {
     }
 }
 
+pub struct BibleView
+{
+    pub books: Vec<BookView>
+}
+
+impl BibleView 
+{
+    pub fn increment_chapter(&self, chapter: ChapterIndex, count: u32) -> ChapterIndex
+    {
+        let mut book = chapter.book as usize;
+        let mut number = chapter.number as usize;
+
+        for _ in 0..count
+        {
+            if number < self.books[book].chapter_count as usize - 1
+            {
+                number += 1;
+            }
+            else if book < self.books.len() - 1 
+            {
+                book += 1;
+                number = 0;    
+            }
+            else 
+            {
+                book = 0;
+                number = 0;
+            }
+        }
+
+        ChapterIndex {
+            book: book as u32,
+            number: number as u32
+        }
+    }
+}
+
 #[repr(C)]
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ChapterIndex {
     pub book: u32,
     pub number: u32,

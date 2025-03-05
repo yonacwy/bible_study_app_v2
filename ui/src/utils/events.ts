@@ -1,7 +1,7 @@
 
 export type Listener<T> = (c: T) => void;
 
-export class EventListeners<T>
+export class EventHandler<T>
 {
     listeners: Listener<T>[];
 

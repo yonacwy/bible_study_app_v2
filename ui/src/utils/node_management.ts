@@ -70,3 +70,41 @@ export function set_opacity(id: string, opacity: string)
         element.style.opacity = opacity;
     }
 }
+
+export function add_class(id: string, c: string)
+{
+    let element = document.getElementById(id);
+    if(element instanceof HTMLElement)
+    {
+        element.classList.add(c);
+    }
+}
+
+export function remove_class(id: string, c: string)
+{
+    let element = document.getElementById(id);
+    if(element instanceof HTMLElement)
+    {
+        element.classList.remove(c);
+    }
+}
+
+export function contains_class(id: string, c: string): boolean
+{
+    let element = document.getElementById(id);
+    if(element instanceof HTMLElement)
+    {
+        return element.classList.contains(c);
+    }
+
+    return false;
+}
+
+export function set_disabled(id: string, disabled: boolean)
+{
+    let element = document.getElementById(id);
+    if(element instanceof HTMLInputElement)
+    {
+        element.disabled = disabled;
+    }
+}

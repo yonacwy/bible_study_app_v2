@@ -1,6 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use app_state::{AppData, AppState};
+use std::sync::Mutex;
+
+use app_state::AppState;
 
 pub mod app_state;
 pub mod bible;
@@ -14,29 +16,45 @@ pub mod settings;
 pub mod audio;
 pub mod readings;
 
-use audio::AudioPlayer;
+use audio::{bible_reader::ReaderState, AudioPlayer, TtsPlayer};
+use bible::ChapterIndex;
 use commands::*;
 use readings::ReadingsDatabase;
-use tauri::Manager;
+use tauri::{webview::PageLoadEvent, Manager};
 
-fn main() 
+fn main() -> Result<(), tts::Error>
 {
+
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
 
+            app.manage(Mutex::new(TtsPlayer::new(app.path(), app.handle().clone())));
             app.manage(AudioPlayer::new(app.path(), audio::DEFAULT_SOURCES));
             app.manage(ReadingsDatabase::new(app.path()));
-            app.manage(AppState::create(app.path()));
+            app.manage(AppState::create(app.path(), app.handle().clone()));
+
+            // TEMP: ChapterIndex initialization is temporary here, need to load from AppState save
+            app.manage(Mutex::new(ReaderState::new(app.handle().clone(), ChapterIndex { book: 0, number: 0 })));
 
             Ok(())
         })
         .on_window_event(|window, event| match event {
             tauri::WindowEvent::Destroyed => {
                 let state = window.app_handle().state::<AppState>();
-                state.get().as_ref().unwrap().save(window.path());
-            }
+                let tts_reader = window.app_handle().state::<Mutex<TtsPlayer>>();
+
+                let tts_settings = tts_reader.lock().unwrap().get_settings();
+                state.get().as_ref().unwrap().save(window.path(), tts_settings);
+            },
             _ => {}
+        })
+        .on_page_load(|v, p| {
+            if p.event() == PageLoadEvent::Started
+            {
+                let state = v.app_handle().state::<Mutex<TtsPlayer>>();
+                state.lock().unwrap().stop();
+            }
         })
         .invoke_handler(tauri::generate_handler![
             debug_print,
@@ -76,13 +94,17 @@ fn main()
             get_book_from_name,
             get_selected_reading,
             set_selected_reading,
-            open_file_explorer,
+            open,
             open_save_in_file_explorer,
             get_current_bible_version,
             set_current_bible_version,
             get_bible_versions,
             is_initialized,
+            audio::run_tts_command,
+            audio::run_bible_reader_command,
         ])
         .run(tauri::generate_context!()) 
         .expect("error while running tauri application");
+
+    Ok(())
 }

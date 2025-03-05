@@ -1,4 +1,4 @@
-use std::{error::Error, hash::{DefaultHasher, Hash, Hasher}, path::Path};
+use std::{error::Error, hash::{DefaultHasher, Hash, Hasher}, sync::{Arc, Mutex, MutexGuard}};
 
 use serde::{Deserialize, Serialize};
 
@@ -38,6 +38,11 @@ where
     s.finish()
 }
 
+pub fn get_uuid() -> String 
+{
+    uuid::Uuid::new_v4().to_string()
+}
+
 #[macro_export]
 macro_rules! debug_release_val 
 {
@@ -53,18 +58,8 @@ macro_rules! debug_release_val
     };
 }
 
-pub fn open_file_explorer(path: &str) -> Result<(), Box<dyn Error>> 
+pub fn open(path: &str) -> Result<(), Box<dyn Error>> 
 {
-    let path = Path::new(path);
-    if !path.exists() {
-        return Err(format!("Path does not exist: {}", path.display()).into());
-    }
-
-    if !path.is_dir() {
-        return Err(format!("Path must be a directory: {}", path.display()).into())
-    }
-
-    // Use the `open` crate to open the path in the system's file explorer
     open::that(path)?;
     Ok(())
 }
@@ -75,4 +70,49 @@ pub struct AppInfo
     pub version: String,
     pub bibles: Vec<String>,
     pub save_version: String,
+}
+
+#[derive(Debug)]
+pub struct Shared<T>(Arc<Mutex<T>>);
+
+impl<T> Shared<T>
+{
+    pub fn new(v: T) -> Self
+    {
+        Self(Arc::new(Mutex::new(v)))
+    }
+
+    pub fn get(&self) -> MutexGuard<'_, T>
+    {
+        self.0.lock().unwrap()
+    }
+
+    pub fn inner(&self) -> &Arc<Mutex<T>>
+    {
+        &self.0
+    }
+}
+
+impl<T> From<Arc<Mutex<T>>> for Shared<T>
+{
+    fn from(value: Arc<Mutex<T>>) -> Self 
+    {
+        Self(value)
+    }
+}
+
+impl<T> From<Shared<T>> for Arc<Mutex<T>>
+{
+    fn from(value: Shared<T>) -> Self 
+    {
+        value.0
+    }
+}
+
+impl<T> Clone for Shared<T>
+{
+    fn clone(&self) -> Self 
+    {
+        Self(self.0.clone())
+    }
 }

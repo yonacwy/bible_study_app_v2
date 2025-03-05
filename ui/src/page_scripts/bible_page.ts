@@ -7,6 +7,7 @@ import * as view_states from "../view_states.js";
 import * as side_popup from "../popups/side_popup.js";
 import * as word_select from "../word_select.js";
 import { range_inclusive } from "../utils/ranges.js";
+import * as audio_player from "../popups/audio_player.js";
 
 const CONTENT_ID: string = "chapter-text-content";
 const CHAPTER_NAME_ID: string = "chapter-name"
@@ -21,10 +22,16 @@ export async function run()
 
     bible.add_version_changed_listener(_ => {
         utils.scrolling.save_scroll(null);
-    })
+    });
+
+    audio_player.init_player();
 
     Promise.all([
-        pages.init_header(),
+        pages.init_header(e => {
+            let last = e.children[e.children.length - 1];
+            let button = spawn_audio_player_button();
+            e.insertBefore(button, last);
+        }),
         pages.init_context_menu('chapter-content'),
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range),
@@ -79,7 +86,12 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
         document.getElementById('search-btn')?.click();
     }
 
-    return await bible_renderer.render_chapter(chapter, content, word_popup, panel_data, word_select.update_words_for_selection, on_search).then(() => {
+    let on_render = (): void => {
+        word_select.update_words_for_selection();
+        audio_player.on_passage_render();
+    }
+
+    return await bible_renderer.render_chapter(chapter, content, word_popup, panel_data, on_render, on_search).then(() => {
         if(verse_range !== null)
         {
             let start = verse_range.start;
@@ -134,4 +146,31 @@ export async function init_chapter_buttons()
             view_states.goto_current_view_state();
         })
     })
+}
+
+export function spawn_audio_player_button(): HTMLElement
+{
+    let button = utils.spawn_image_button(utils.images.VOLUME_MID, _ => {
+        if(audio_player.is_player_hidden())
+        {
+            audio_player.show_player();
+        }
+        else 
+        {
+            audio_player.hide_player();
+        }
+    }).button;
+
+    audio_player.ON_PLAYER_VISIBILITY_CHANGED.add_listener(visible => {
+        if(visible)
+        {
+            button.classList.add('active');
+        }
+        else 
+        {
+            button.classList.remove('active');
+        }
+    });
+
+    return button;
 }
