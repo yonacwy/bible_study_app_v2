@@ -28,6 +28,7 @@ In order to compile and run teh project from source, use the following steps
 - Run the command `cargo install tauri-cli --version "^2.0.0" --locked`, which will install the Tauri CLI utilities library. See [this](https://v2.tauri.app/reference/cli/) example
 - Download [Node.js](https://nodejs.org/en)
 - Run the command `npm install -g typescript`, which will install typescript globally on your machine. See [this](https://www.typescriptlang.org/download/) example
+- Install <a href="https://llvm.org/">LLVM</a> using <a href="https://chocolatey.org/install">Chocolatey</a>, or whatever install method you prefer. <strong><i>NOTE:</i></strong> This project uses LLVM to compile <a href="https://github.com/rhasspy/piper">Piper</a>, which is the text to speech engine.
 - Clone the project onto your machine
 - Finally:
   - To run in debug mode: call `cargo tauri dev` in the Ascribe root folder
