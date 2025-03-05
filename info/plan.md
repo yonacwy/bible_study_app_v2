@@ -4,24 +4,37 @@
 ### Version 0.6.0
 - [ ] Notebook Support
 
+### Version 0.5.1: Note QoL Changes
+- [ ] Selecting Notes and Highlights
+- [ ] Markdown Parser
+  - [ ] Custom links (chapters, verses)
+  - [ ] 
+- [ ] Markdown Editor
+  - [ ] Locations
+    - [ ] On the Highlight Description
+    - [ ] On the Note Editor
+  - [ ] Features
+    - [ ] Basic controls: Bold, Italics, Lists, etc
+    - [ ] Syntax highlighting?
+
 ### Version 0.5.1: Text to Speech
-- [ ] Text to speech
-  - [ ] Change speed
-  - [ ] Change volume
-  - [ ] Auto play
-    - [ ] Time based
-    - [ ] Chapter number based
-    - [ ] Readings based
-  - [ ] Voice selector
-  - [ ] Skip
-  - [ ] Replay
-  - [ ] Player visual
-- [ ] Multiple Theme Support
-  - [ ] Dark
-  - [ ] Light
-  - [ ] Parchment
-- [ ] Create better info page
-- [ ] Make calendar selected date more visible
+- [x] Text to speech
+  - [x] Change speed
+  - [x] Change volume
+  - [ ] ~~Auto play~~
+    - [ ] ~~Time based~~
+    - [ ] ~~Chapter number based~~
+    - [ ] ~~Readings based~~
+  - [ ] ~~Voice selector~~
+  - [x] Skip
+  - [x] Replay
+  - [x] Player visual
+- [ ] ~~Multiple Theme Support~~
+  - [ ] ~~Dark~~
+  - [ ] ~~Light~~
+  - [ ] ~~Parchment~~
+- [x] Create better info page
+- [ ] ~~Make calendar selected date more visible~~
 
 ### Version 0.5.0: Multiple Bible Support
 - [x] Multiple Bible Support
