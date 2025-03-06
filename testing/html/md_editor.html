@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown Editor Example</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markdown-text-editor/dist/markdown-text-editor.css">
+</head>
+<body>
+  <textarea class="editor-container h-56" rows="6"></textarea>
+
+  <script src="https://cdn.jsdelivr.net/npm/markdown-text-editor/dist/markdown-text-editor.js"></script>
+
+  <script>
+    const editor = new MarkdownEditor('.editor-container', {
+      placeholder: 'Type your markdown...',
+      toolbar: ['preview', 'bold', 'italic']
+    });
+  </script>
+</body>
+</html>

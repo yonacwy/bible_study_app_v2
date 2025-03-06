@@ -150,13 +150,15 @@ export async function init_chapter_buttons()
 
 export function spawn_audio_player_button(): HTMLElement
 {
-    let button = utils.spawn_image_button(utils.images.VOLUME_MID, _ => {
+    let button = utils.spawn_image_button(utils.images.VOLUME_MID, (_, button) => {
         if(audio_player.is_player_hidden())
         {
+            button.button.title = 'Hide audio player';
             audio_player.show_player();
         }
         else 
         {
+            button.button.title = 'Show audio player';
             audio_player.hide_player();
         }
     }).button;
@@ -164,13 +166,17 @@ export function spawn_audio_player_button(): HTMLElement
     audio_player.ON_PLAYER_VISIBILITY_CHANGED.add_listener(visible => {
         if(visible)
         {
+            button.title = 'Hide audio player';
             button.classList.add('active');
         }
         else 
         {
+            button.title = 'Show audio player';
             button.classList.remove('active');
         }
     });
+
+    button.title = 'Show audio player';
 
     return button;
 }

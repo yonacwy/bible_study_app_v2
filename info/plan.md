@@ -6,9 +6,11 @@
 
 ### Version 0.5.1: Note QoL Changes
 - [ ] Selecting Notes and Highlights
+  - [ ] Single select and use
+  - [ ] When select, dropdown to create note, add to note, highlight, or erase
 - [ ] Markdown Parser
   - [ ] Custom links (chapters, verses)
-  - [ ] 
+  - [ ] Basic GH Markdown syntax
 - [ ] Markdown Editor
   - [ ] Locations
     - [ ] On the Highlight Description
@@ -16,6 +18,9 @@
   - [ ] Features
     - [ ] Basic controls: Bold, Italics, Lists, etc
     - [ ] Syntax highlighting?
+- [ ] Miscellaneous
+  - [x] Changed button scale again
+  - [x] Added title to the audio player button
 
 ### Version 0.5.1: Text to Speech
 - [x] Text to speech
