@@ -19,7 +19,6 @@ export function run()
                 return search_page.display_search(data.section);
             }, 'left-pane')
         }),
-        pages.init_context_menu('left-pane'),
     ]).then(() => {
         scroll_to_editing();
         document.body.style.visibility = 'visible';

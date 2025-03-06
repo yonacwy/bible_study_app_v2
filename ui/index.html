@@ -13,15 +13,8 @@
         <div class="spinner"></div>
     </div>
     <script type="module">
-        import * as view_states from './dist/view_states.js';
-        import * as utils from './dist/utils/index.js';
-
-        while (!await utils.is_app_initialized())  { }
-
-        setTimeout(() => 
-        {
-            view_states.goto_current_view_state();
-        }, 500);
+        import {run} from "./dist/page_scripts/splash_screen.js";
+        run();
     </script>
 </body>
 </html>

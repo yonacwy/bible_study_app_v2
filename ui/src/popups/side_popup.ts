@@ -50,8 +50,7 @@ export function display_on_div(div: HTMLElement, word: string, annotations: Word
     div.addEventListener('click', e => {
         if(annotations === null          ||
             annotations === undefined     ||
-           (annotations.notes.length === 0 && annotations.highlights.length === 0) ||
-           highlight_utils.SELECTED_HIGHLIGHT.get() !== null
+           (annotations.notes.length === 0 && annotations.highlights.length === 0)
         )
         {
             panel_data.popup_panel.classList.remove('open');

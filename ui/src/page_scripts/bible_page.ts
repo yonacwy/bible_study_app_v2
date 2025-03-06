@@ -5,7 +5,6 @@ import { BibleSection, ChapterIndex, VerseRange } from "../bindings.js";
 import * as pages from "./pages.js";
 import * as view_states from "../view_states.js";
 import * as side_popup from "../popups/side_popup.js";
-import * as word_select from "../word_select.js";
 import { range_inclusive } from "../utils/ranges.js";
 import * as audio_player from "../popups/audio_player.js";
 
@@ -32,7 +31,6 @@ export async function run()
             let button = spawn_audio_player_button();
             e.insertBefore(button, last);
         }),
-        pages.init_context_menu('chapter-content'),
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range),
     ]).then(_ => {
@@ -87,7 +85,6 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
     }
 
     let on_render = (): void => {
-        word_select.update_words_for_selection();
         audio_player.on_passage_render();
     }
 
@@ -124,8 +121,6 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
                 }
             }
         }
-
-        word_select.update_words_for_selection();
     });
 }
 

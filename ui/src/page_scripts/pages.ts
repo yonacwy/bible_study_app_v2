@@ -8,7 +8,6 @@ import { init_word_popup } from "../popups/word_popup.js";
 import * as context_menu from "../popups/context_menu.js";
 import { ContextMenuCommand } from "../popups/context_menu.js";
 import { HighlightCategory } from "../bindings.js";
-import * as word_select from "../word_select.js";
 import { init_main_page_header } from "./menu_header.js";
 import * as settings from '../settings.js';
 import * as bible from '../bible.js';
@@ -29,7 +28,6 @@ const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 export async function init_header(extra?: (e: HTMLElement) => void): Promise<void>
 {
     init_main_page_header(extra);
-    highlight_utils.SELECTED_HIGHLIGHT.add_listener(on_highlight_changed);
 
     let word_popup = document.getElementById(WORD_POPUP_ID);
     if(word_popup !== null)
@@ -46,14 +44,11 @@ export async function init_header(extra?: (e: HTMLElement) => void): Promise<voi
     await Promise.all([
         init_nav_buttons(),
         init_chapter_selection_dropdown(),
-        highlight_utils.create_highlight_selection(),
         update_nav_buttons_opacity(),
         init_search_bar(),
-        highlight_utils.init_erase_toggle(),
         side_popup.init_popup_panel('popup-panel'),
         utils.display_migration_popup(),
         utils.display_no_save_popup(),
-        init_new_note_button(),
         settings.init_less_sync(),
         init_bible_version_dropdown(),
     ]).then(_ => {
@@ -114,53 +109,6 @@ export function update_nav_buttons_opacity()
             utils.remove_class('back-btn', 'inactive');
         }
     });
-}
-
-function init_new_note_button()
-{
-    let button = document.getElementById('new-note-btn');
-    if (!button) return;
-
-    word_select.add_note_listener({
-        on_start: () => {
-            button.classList.add('active');
-        },
-        on_end: () => {
-            button.classList.remove('active');
-        },
-    });
-
-    button.addEventListener('click', e => {
-        if(word_select.is_selecting())
-        {
-            word_select.stop_selecting();
-        }
-        else 
-        {
-            word_select.begin_making_note();
-        }
-    });
-}
-
-export function on_highlight_changed(id: string | null)
-{
-    word_select.update_words_for_selection();
-    highlight_utils.get_categories().then(categories => {
-        let color = DEFAULT_BUTTON_COLOR;
-        if(id !== null)
-        {
-            let category = categories[id];
-            color = utils.color_to_hex(category.color);
-        }
-
-        let btn = document.getElementById('highlight-selector-btn');
-        if (btn !== null) 
-        {
-            btn.style.backgroundColor = color;
-        }
-    });
-
-    highlight_utils.update_highlight_selection();
 }
 
 export function init_search_bar()
@@ -237,59 +185,6 @@ export async function init_bible_version_dropdown(on_version_changed?: () => voi
             })
         })
     })
-}
-
-export async function init_context_menu(target_id: string)
-{
-    let categories = Object.values(await highlight_utils.get_categories() as object) as HighlightCategory[];
-    let highlight_selections: ContextMenuCommand[] = categories.map(v => {
-        let selection: ContextMenuCommand = {
-            name: v.name,
-            command: async () => { 
-                highlight_utils.SELECTED_HIGHLIGHT.set(v.id); 
-                highlight_utils.ERASING_HIGHLIGHT.set(false);
-            }
-        }
-
-        return selection;
-    });
-
-    let erase_selections: ContextMenuCommand[] = categories.map(v => {
-        let selection: ContextMenuCommand = {
-            name: v.name,
-            command: async () => { 
-                highlight_utils.SELECTED_HIGHLIGHT.set(v.id); 
-                highlight_utils.ERASING_HIGHLIGHT.set(true);
-            }
-        }
-
-        return selection;
-    });
-
-    let should_interrupt = async () => {
-        if(word_select.is_selecting())
-        {
-            word_select.stop_selecting();
-            return true;
-        }
-
-        return false;
-    }
-
-    context_menu.init_context_menu(target_id, [
-        {
-            name: 'New Note',
-            command: async () => { word_select.begin_making_note() }
-        },
-        {
-            name: 'Highlight',
-            args: highlight_selections
-        },
-        {
-            name: 'Erase',
-            args: erase_selections
-        }
-    ], should_interrupt)
 }
 
 export function init_back_button(old_path: string)

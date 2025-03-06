@@ -2,7 +2,6 @@ import * as utils from "../utils/index.js";
 import * as notes from "../notes.js";
 import * as view_states from "../view_states.js";
 import * as confirm_popup from "../popups/confirm_popup.js";
-import * as word_select from "../word_select.js";
 import * as bible from "../bible.js";
 import { format_reference_id } from "../rendering/word_search.js";
 import * as selection from "../selection.js";
@@ -166,20 +165,6 @@ async function render_reference_dropdown(on_text_require_rerender: () => void)
     })
     dropdown.appendElement('div', content => {
         content.classList.add('reference-dropdown-content');
-
-        content.appendElement('div', new_reference_button => {
-            new_reference_button.classList.add('new-reference-btn');
-            new_reference_button.appendElement('img', img => {
-                img.src = '../images/light-plus.svg';
-                img.alt = 'plus';
-            });
-
-            new_reference_button.addEventListener('click', e => {
-                word_select.begin_editing_note(() => {
-                    render_reference_dropdown(on_text_require_rerender);
-                });
-            })
-        });
 
         references.forEach(([title, text], index) => {
             content.appendElement('div', link => {

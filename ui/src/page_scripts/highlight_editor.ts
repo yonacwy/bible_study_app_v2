@@ -78,10 +78,6 @@ function on_delete(id: string)
             if (deleting_id != null)
             {
                 utils.invoke('remove_highlight_category', { id: deleting_id });
-                if(highlights.SELECTED_HIGHLIGHT.get() === deleting_id)
-                {
-                    highlights.SELECTED_HIGHLIGHT.set(null);
-                }
             }
 
             location.reload();

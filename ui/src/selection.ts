@@ -68,8 +68,8 @@ let selected_ranges: SelectedWordRange[] = [];
 
 function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
 {
-    popup.style.left = e.pageX + 10 + 'px';
-    popup.style.top = e.pageY + 10 + 'px';
+    popup.style.left = e.clientX + 10 + 'px';
+    popup.style.top = e.clientY + 10 + 'px';
     
     let selection = window.getSelection();
 

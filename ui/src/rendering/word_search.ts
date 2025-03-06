@@ -3,7 +3,6 @@ import * as bible from "../bible.js";
 import { push_search } from "../view_states.js";
 import { VersePosition } from "../bindings.js";
 import * as verse_renderer from "./verse_rendering.js";
-import * as word_select from "../word_select.js";
 import { PanelData } from "../popups/side_popup.js";
 import * as selection from "../selection.js";
 
@@ -22,7 +21,6 @@ export async function render_search_result(result: any[], searched: string[], re
     {
         was_initialized = true;
         let on_require_rerender = () => render_search_result(result, searched, results_id, word_popup, side_popup_data, display_index, on_rendered, on_search);
-        word_select.init_word_selection(side_popup_data?.popup_panel ?? null, on_require_rerender);
         
         selection.init_selection();
         selection.ON_SELECTION_EVENT.add_listener(e => {
@@ -30,7 +28,7 @@ export async function render_search_result(result: any[], searched: string[], re
         })
     }
 
-    word_select.clear_selection_ranges();
+    selection.clear_selection_ranges();
     const results_node = document.getElementById(results_id);
     if(results_node === null) return;
     results_node.style.pointerEvents = 'none';
@@ -50,7 +48,6 @@ export async function render_search_result(result: any[], searched: string[], re
         let verse_node = await spawn_verse(result_data, searched, word_popup,  side_popup_data, on_search);
 
         let word_offset = await bible.get_verse_word_offset(result_data.book, result_data.chapter, result_data.verse);
-        word_select.push_selection_range(verse_node, {book: result_data.book, number: result_data.chapter}, word_offset)
         selection.push_selection_range(verse_node, {book: result_data.book, number: result_data.chapter}, word_offset);
         
         let reference_node = await spawn_reference(result_data.book, result_data.chapter, result_data.verse, on_search);

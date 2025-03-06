@@ -2,7 +2,6 @@ import * as utils from "../utils/index.js";
 import * as pages from "./pages.js";
 import { SearchSection } from "../bindings.js";
 import * as search from "../rendering/word_search.js";
-import * as word_select from "../word_select.js";
 import { PanelData } from "../popups/side_popup.js";
 import * as bible from "../bible.js";
 
@@ -18,7 +17,6 @@ export function run()
     Promise.all([
         pages.init_header(),
         display_search(section),
-        pages.init_context_menu('word-search-content'),
     ]).then(() => {
         document.body.style.visibility = 'visible';
         utils.scrolling.load_scroll();
@@ -49,7 +47,6 @@ export async function display_search(section: SearchSection): Promise<void>
     await search.render_search_result(search_result, section.words, 'word-search-content', word_popup, side_popup_data, section.display_index, 
         () => {
             pages.update_nav_buttons_opacity();
-            word_select.update_words_for_selection();
         }, 
         (msg: string) => {
             utils.set_value('search-input', msg);

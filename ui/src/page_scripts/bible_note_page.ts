@@ -32,8 +32,6 @@ export function run()
         }),
         bible_page.display_chapter(chapter, data.section.verse_range),
         bible_page.init_chapter_buttons(),
-        
-        pages.init_context_menu('left-pane'),
     ]).then(_ => {
         scroll_to_editing();
         document.body.style.visibility = 'visible';
