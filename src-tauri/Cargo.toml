@@ -10,7 +10,7 @@ edition = "2021"
 rust-version = "1.60"
 
 [workspace]
-members = ["crates/bible-gen"]
+members = ["crates/bible-gen", "crates/md-parser"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
