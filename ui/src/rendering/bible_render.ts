@@ -4,6 +4,8 @@ import * as verse_renderer from "./verse_rendering.js";
 import * as utils from "../utils/index.js";
 import { PanelData } from "../popups/side_popup.js";
 import * as word_select from "../word_select.js";
+import * as selection from "../selection.js";
+
 
 export const HIGHLIGHT_SELECTED_WORD_COLOR = 'blueviolet';
 let was_initialized = false;
@@ -17,6 +19,11 @@ export async function render_chapter(chapter: ChapterIndex, content: HTMLElement
         was_initialized = true;
         let on_require_rerender = () => render_chapter(chapter, content, word_popup, panel_data, on_render, on_search);
         word_select.init_word_selection(panel_data?.popup_panel ?? null, on_require_rerender);
+        
+        selection.init_selection();
+        selection.ON_SELECTION_EVENT.add_listener(e => {
+            on_require_rerender();
+        });
     }
 
     word_select.clear_selection_ranges();
@@ -46,6 +53,7 @@ export async function render_chapter(chapter: ChapterIndex, content: HTMLElement
 
     word_select.push_selection_range(content, chapter, 0);
     word_select.update_words_for_selection();
+    selection.push_selection_range(content, chapter, 0);
 
     if(on_render !== null)
     {

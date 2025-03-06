@@ -1,7 +1,7 @@
 import * as highlight_utils from "../highlights.js";
 import * as utils from "../utils/index.js";
 import * as view_states from "../view_states.js";
-import { build_chapter_selection_dropdown } from "../selection.js";
+import { build_chapter_selection_dropdown } from "../chapter_selector.js";
 import { show_error_popup } from "../popups/error_popup.js";
 import * as side_popup from "../popups/side_popup.js";
 import { init_word_popup } from "../popups/word_popup.js";

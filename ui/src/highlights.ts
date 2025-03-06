@@ -1,5 +1,5 @@
 import { get_chapter } from "./bible.js";
-import { ChapterIndex, HighlightCategory } from "./bindings.js";
+import { ChapterIndex, HighlightCategories, HighlightCategory } from "./bindings.js";
 import * as utils from "./utils/index.js";
 
 export function create_category(color: string, name: string, description: string, priority: string)
@@ -23,7 +23,7 @@ export function set_category(id: string, color: string, name: string, descriptio
     });
 }
 
-export async function get_categories(): Promise<any>
+export async function get_categories(): Promise<HighlightCategories>
 {
     return JSON.parse(await utils.invoke('get_highlight_categories', {}));
 }

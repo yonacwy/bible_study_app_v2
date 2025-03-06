@@ -5,11 +5,19 @@ import * as confirm_popup from "../popups/confirm_popup.js";
 import * as word_select from "../word_select.js";
 import * as bible from "../bible.js";
 import { format_reference_id } from "../rendering/word_search.js";
+import * as selection from "../selection.js";
 
 const DELETE_NOTE_BUTTON = 'delete-note-btn'
 
 export async function init_note_page(note_id: string, on_text_require_rerender: () => void): Promise<void>
 {
+    selection.ON_SELECTION_EVENT.add_listener(e => {
+        if(e === 'edited-note')
+        {
+            render_reference_dropdown(on_text_require_rerender);
+        }
+    });
+
     Promise.all([
         init_resizer(),
         render_reference_dropdown(on_text_require_rerender),
