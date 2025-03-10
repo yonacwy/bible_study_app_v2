@@ -6,8 +6,6 @@ use tauri::{path::{BaseDirectory, PathResolver}, Runtime};
 
 use super::TTS_SAMPLE_RATE;
 
-
-
 pub struct SpeechSynth(PiperSpeechSynthesizer);
 
 impl SpeechSynth
@@ -15,9 +13,7 @@ impl SpeechSynth
     pub fn new<R>(resolver: &PathResolver<R>) -> Self
         where R : Runtime 
     {
-        let tts_dir = resolver.resolve("resources/tts-data/espeak-ng-data", BaseDirectory::Resource).unwrap();
         let config_path = resolver.resolve("resources/tts-data/voices/en_US-joe-medium.onnx.json", BaseDirectory::Resource).unwrap();
-        std::env::set_var("PIPER_ESPEAKNG_DATA_DIRECTORY", tts_dir.into_os_string());
         let model = piper_rs::from_config_path(config_path.as_path()).unwrap();
         let synth = PiperSpeechSynthesizer::new(model).unwrap();
 
