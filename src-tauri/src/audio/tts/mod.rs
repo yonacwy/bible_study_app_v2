@@ -20,7 +20,7 @@ pub const TTS_SAMPLE_RATE: u32 = 22050;
 pub fn init_espeak<R>(resolver: &PathResolver<R>)
     where R : Runtime
 {
-    let tts_dir = resolver.resolve("resources/tts-data", BaseDirectory::Resource).unwrap();
+    let tts_dir = resolver.resolve("resources/tts-data/espeak-ng-data", BaseDirectory::Resource).unwrap();
     std::env::set_var("PIPER_ESPEAKNG_DATA_DIRECTORY", tts_dir.into_os_string());
 }
 
