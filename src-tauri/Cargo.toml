@@ -33,7 +33,7 @@ minidom = "0.16.0"
 open = "3.2.0"
 tts = { version = "0.26.3" }
 env_logger = "0.10.2"
-piper-rs = { path = "C:\\Users\\NateC\\Documents\\dev\\vendor\\piper-rs"}
+piper-rs = { git = "https://github.com/FishArmy100/piper-rs" }
 float-lerp = "0.2.0"
 
 [features]
