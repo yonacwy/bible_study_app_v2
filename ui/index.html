@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet/less" type="text/css" href="./styles/splash_screen.less">
-    <script src="./src/vendor/less.js"></script>
+    <script src="./src/vendor/less/less.js"></script>
 </head>
 <body>
     <div class="splash-screen">
@@ -14,7 +14,9 @@
     </div>
     <script type="module">
         import {run} from "./dist/page_scripts/splash_screen.js";
-        run();
+
+        window.location.href = "./pages/prosemirror.html";
+        // run();
     </script>
 </body>
 </html>

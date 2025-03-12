@@ -1,4 +1,4 @@
-import { NoteData, ReferenceLocation } from "./bindings";
+import { NoteData, ReferenceLocation } from "./bindings.js";
 import * as utils from "./utils/index.js";
 import * as bible from "./bible.js";
 

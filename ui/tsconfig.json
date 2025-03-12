@@ -9,9 +9,10 @@
     "skipLibCheck": true,
     "outDir": "../ui/dist",  // Output directory for compiled JavaScript files
     "rootDir": "../ui/src",  // Directory for TypeScript source files
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "allowJs": true,
   },
-  "include": ["./src/**/*.ts"],
+  "include": ["./src/**/*.ts", "./src/**/*.js"],
   "exclude": [
     "node_modules"
   ]

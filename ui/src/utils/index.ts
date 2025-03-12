@@ -1,4 +1,4 @@
-import { Marked } from "../md/marked.js";
+import { Marked } from "../vendor/markdown/marked.js";
 export * from "./extensions.js";
 export * from "./string_utils.js";
 export * from "./color_utils.js";
