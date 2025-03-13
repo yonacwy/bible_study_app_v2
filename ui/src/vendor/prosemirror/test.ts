@@ -23,6 +23,4 @@ export function init()
 			plugins: exampleSetup({schema: mySchema})
 		})
 	})
-
-	utils.debug_print(document.querySelector("#editor")?.outerHTML as string);
 }

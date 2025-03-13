@@ -48,6 +48,28 @@ export function debug_json(value: any)
     debug_print(JSON.stringify(value));
 }
 
+// a la chatgpt
+export function format_html(html: string, tab: string = '  '): string
+{
+    let formatted = '';
+    let indentLevel = 0;
+    const voidElements = new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
+    
+    html.replace(/>(\s*)</g, '><') // Remove unnecessary spaces between tags
+        .split(/(?=<)|(?<=>)/g) // Split at tag boundaries
+        .forEach((line) => {
+            if (line.match(/^<\//)) {
+                indentLevel = Math.max(indentLevel - 1, 0);
+            }
+            formatted += tab.repeat(indentLevel) + line.trim() + '\n';
+            if (line.match(/^<([a-zA-Z0-9]+)([^>]*)>$/) && !voidElements.has(RegExp.$1)) {
+                indentLevel++;
+            }
+        });
+    
+    return formatted.trim();
+}
+
 export function overlap<T>(a: T[], b: T[]): T[]
 {
     return a.filter(i => b.includes(i))

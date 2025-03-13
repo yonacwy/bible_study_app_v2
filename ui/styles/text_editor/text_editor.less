@@ -1,0 +1,52 @@
+@import "./prosemirror.less";
+
+.text-editor {
+    @editor-margin: 20px;
+
+    box-sizing: border-box;
+    margin: @editor-margin;
+    width: calc(100% - @editor-margin * 2);
+    height: calc(100% - @editor-margin * 2);
+    border: 2px solid #333;
+    border-radius: 10px;
+
+    .editor {
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+        box-sizing: border-box;
+        margin-top: 3px;
+
+        .ProseMirror-menubar-wrapper { 
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            padding: 0px;
+            margin: 0px;
+
+            .ProseMirror-menubar {
+                margin: 0px;
+                margin-left: 10px;
+                margin-right: 10px;
+                width: calc(100% - 20px);
+                border: none;
+            }
+
+            div[contenteditable="true"] {
+                all: unset;
+                border-top: 1px solid #333;
+                width: 100%;
+                flex-grow: 1;
+                box-sizing: border-box;
+                padding-left: 10px;
+                padding-right: 10px;
+                margin-bottom: 10px;
+                text-wrap: wrap;
+                overflow-y: auto;
+            }
+        }
+
+    }
+}
