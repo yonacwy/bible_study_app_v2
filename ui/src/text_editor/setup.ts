@@ -8,7 +8,7 @@ export type PluginArgs = {
     
 }
 
-export function build_plugins(): Plugin[]
+export function build_plugins(args: PluginArgs): Plugin[]
 {
 
 }
