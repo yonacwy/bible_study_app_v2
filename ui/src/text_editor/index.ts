@@ -49,7 +49,7 @@ export class TextEditor
     
         this.view = new EditorView(document.querySelector(`#${args.id} > .editor`), {
             state: EditorState.create({
-            doc: DOMParser.fromSchema(my_schema).parse(document.querySelector(`#${args.id} > .content`) as HTMLElement),
+                doc: DOMParser.fromSchema(my_schema).parse(document.querySelector(`#${args.id} > .content`) as HTMLElement),
                 plugins: exampleSetup({schema: my_schema})
             })
         });
