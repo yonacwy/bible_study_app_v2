@@ -6,6 +6,8 @@ import {Schema, DOMParser} from "../vendor/prosemirror/prosemirror-model/index.j
 import {schema} from "../vendor/prosemirror/schema-basic.js"
 import {addListNodes} from "../vendor/prosemirror/prosemirror-schema-list/index.js"
 import {exampleSetup} from "../vendor/prosemirror/prosemirror-setup/index.js"
+import * as setup from "./setup.js";
+import { SCHEMA } from "./schema.js";
 
 export type TextEditorArgs = {
     id: string,
