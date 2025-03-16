@@ -86,7 +86,7 @@ export const NODES: { [name: string]: NodeSpec } = {
         },
         group: 'inline',
         draggable: true,
-        parseDOM: [{tag: 'img[src]', getAttrs(dom: HTMLElement) {
+        parseDOM: [{tag: 'img[src]', getAttrs: (dom: HTMLElement) => {
             return {
                 src: dom.getAttribute('src'),
                 title: dom.getAttribute('title'),
@@ -141,7 +141,7 @@ export const MARKS: { [name: string]: MarkSpec } = {
             title: {default: null, validate: 'string|null'}, 
         },
         inclusive: false,
-        parseDOM: [{tag: 'a[href]', getAttrs(dom: HTMLElement) {
+        parseDOM: [{tag: 'a[href]', getAttrs: (dom: HTMLElement) => {
             return {href: dom.getAttribute('href'), title: dom.getAttribute('title')}
         }}],
         toDOM: node => {
@@ -170,7 +170,7 @@ export const MARKS: { [name: string]: MarkSpec } = {
           {style: "font-weight=400", clearMark: m => m.type.name == "strong"},
           {style: "font-weight", getAttrs: (value: string) => /^(bold(er)?|[5-9]\d{2,})$/.test(value) && null},
         ],
-        toDOM() { return STRONG_DOM }
+        toDOM: _ => STRONG_DOM,
     },
 
     code: {

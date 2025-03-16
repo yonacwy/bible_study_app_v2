@@ -4,11 +4,11 @@ import { dropCursor } from "../vendor/prosemirror/prosemirror-dropcursor/index.j
 import { gapCursor } from "../vendor/prosemirror/prosemirror-gapcursor/index.js"
 
 
-export type PluginArgs = {
+// export type PluginArgs = {
     
-}
+// }
 
-export function build_plugins(args: PluginArgs): Plugin[]
-{
-    
-}
+// export function build_plugins(args: PluginArgs): Plugin[]
+// {
+
+// }

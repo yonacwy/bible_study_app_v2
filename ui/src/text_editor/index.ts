@@ -43,16 +43,11 @@ export class TextEditor
 
         let parent = args.parent ?? document.body;
         parent.appendChild(this.root);
-
-        const my_schema = new Schema({
-            nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
-            marks: schema.spec.marks
-        });
     
         this.view = new EditorView(document.querySelector(`#${args.id} > .editor`), {
             state: EditorState.create({
-                doc: DOMParser.fromSchema(my_schema).parse(document.querySelector(`#${args.id} > .content`) as HTMLElement),
-                plugins: exampleSetup({schema: my_schema})
+                doc: DOMParser.fromSchema(SCHEMA).parse(document.querySelector(`#${args.id} > .content`) as HTMLElement),
+                plugins: exampleSetup({schema: SCHEMA})
             })
         });
     }
