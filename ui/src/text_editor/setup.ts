@@ -42,9 +42,9 @@ function build_input_rules(): Plugin
     let rules = smartQuotes.concat(ellipsis, emDash);
     rules.push(block_quote_rule(SCHEMA.nodes.blockquote));
     rules.push(ol_rule(SCHEMA.nodes.ordered_list));
-    rules.push(ol_rule(SCHEMA.nodes.unordered_list));
-    rules.push(ol_rule(SCHEMA.nodes.code_block));
-    rules.push(ol_rule(SCHEMA.nodes.heading));
+    rules.push(ul_rule(SCHEMA.nodes.unordered_list));
+    rules.push(code_block_rule(SCHEMA.nodes.code_block));
+    rules.push(heading_rule(SCHEMA.nodes.heading, 6));
     return inputRules({rules});
 }
 
