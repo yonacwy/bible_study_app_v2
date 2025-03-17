@@ -132,7 +132,10 @@ export const NODES: { [name: string]: NodeSpec } = {
 const EM_DOM: DOMOutputSpec = ['em', 0];
 const STRONG_DOM: DOMOutputSpec = ['strong', 0];
 const CODE_DOM: DOMOutputSpec = ['code', 0];
+const STRIKETHROUGH_DOM: DOMOutputSpec = ['s', 0];
+const UNDERLINE_DOM: DOMOutputSpec = ['u', 0];
 
+export type MarkType = 'link' | 'em' | 'strong' | 'code'
 export const MARKS: { [name: string]: MarkSpec } = {
 
     link: {
@@ -176,6 +179,19 @@ export const MARKS: { [name: string]: MarkSpec } = {
     code: {
         parseDOM: [{tag: 'code'}],
         toDOM: _ => CODE_DOM,
+    },
+
+    strikethrough: {
+        parseDOM: [
+            {tag: 's'},
+            {tag: 'del'}
+        ],
+        toDOM: _ => STRIKETHROUGH_DOM,
+    },
+
+    underline: {
+        parseDOM: [{tag: 'u'}],
+        toDOM: _ => UNDERLINE_DOM,
     }
 }
 
