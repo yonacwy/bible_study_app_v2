@@ -74,3 +74,7 @@ export const UNDO: string = '../images/text_editor/light-turn-left.svg';
 export const REDO: string = '../images/text_editor/light-turn-right.svg';
 export const UNDERLINE: string = '../images/text_editor/light-underline.svg';
 export const ORDERED_LIST: string = '../images/text_editor/light-list-ol.svg';
+export const BLOCKQUOTE: string = '../images/text_editor/light-block-quote.svg';
+export const INDENT: string = '../images/text_editor/light-indent.svg';
+export const OUTDENT: string = '../images/text_editor/light-outdent.svg';
+export const JOIN: string = '../images/text_editor/light-arrows-to-dot.svg';

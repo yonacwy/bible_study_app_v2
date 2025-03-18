@@ -1,24 +1,12 @@
 import {DOMOutputSpec, Schema} from "../vendor/prosemirror/prosemirror-model/index.js"
-import {schema} from "../vendor/prosemirror/schema-basic.js"
-import {addListNodes} from "../vendor/prosemirror/prosemirror-schema-list/index.js"
 import { MarkSpec, NodeSpec } from "../vendor/prosemirror/prosemirror-model/schema.js";
-
-export function build_schema(): Schema
-{
-    return new Schema({
-        nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
-        marks: schema.spec.marks
-    });
-}
+import { addListNodes } from "../vendor/prosemirror/prosemirror-schema-list/index.js";
 
 const P_DOM: DOMOutputSpec = ["p", 0];
 const BLOCKQUOTE_DOM: DOMOutputSpec = ["blockquote", 0];
 const HR_DOM: DOMOutputSpec = ["hr"];
 const PRE_DOM: DOMOutputSpec = ["pre", ["code", 0]];
 const BR_DOM: DOMOutputSpec = ["br"];
-const LI_DOM: DOMOutputSpec = ["li", 0];
-const OL_DOM: DOMOutputSpec = ["ol", 0];
-const UL_DOM: DOMOutputSpec = ["ul", 0];
 
 
 export const NODES: { [name: string]: NodeSpec } = {
@@ -106,27 +94,6 @@ export const NODES: { [name: string]: NodeSpec } = {
         parseDOM: [{tag: 'br'}],
         toDOM: _ => BR_DOM
     },
-    
-    unordered_list: {
-        content: 'list_item+',
-        group: 'block',
-        parseDOM: [{tag: "ul"}],
-        toDOM() { return UL_DOM }
-    },
-
-    ordered_list: {
-        content: 'list_item+',
-        group: 'block',
-        parseDOM: [{tag: "ol"}],
-        toDOM: _ => OL_DOM 
-    },
-
-    list_item: {
-        content: 'paragraph block+',
-        parseDOM: [{tag: "li"}],
-        toDOM: _ => LI_DOM,
-        defining: true
-    }
 }
 
 const EM_DOM: DOMOutputSpec = ['em', 0];
@@ -150,6 +117,14 @@ export const MARKS: { [name: string]: MarkSpec } = {
         toDOM: node => {
             let {href, title} = node.attrs;
             return ['a', {href, title}, 0]
+        }
+    },
+
+    reference: {
+        inclusive: true,
+        parseDOM: [{tag: 'verseref'}],
+        toDOM: _ => {
+            return ['verseref', 0]
         }
     },
 
@@ -195,4 +170,11 @@ export const MARKS: { [name: string]: MarkSpec } = {
     }
 }
 
-export const SCHEMA = new Schema({nodes: NODES, marks: MARKS})
+let schema = new Schema({nodes: NODES, marks: MARKS});
+
+schema = new Schema({
+    nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
+    marks: schema.spec.marks,
+})
+
+export const SCHEMA: Schema = schema;

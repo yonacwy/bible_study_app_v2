@@ -3,9 +3,6 @@ import * as utils from "../utils/index.js";
 import {EditorState} from "../vendor/prosemirror/prosemirror-state/index.js"
 import {EditorView} from "../vendor/prosemirror/prosemirror-view/index.js"
 import {Schema, DOMParser} from "../vendor/prosemirror/prosemirror-model/index.js"
-import {schema} from "../vendor/prosemirror/schema-basic.js"
-import {addListNodes} from "../vendor/prosemirror/prosemirror-schema-list/index.js"
-import {exampleSetup} from "../vendor/prosemirror/prosemirror-setup/index.js"
 import * as setup from "./setup.js";
 import { SCHEMA } from "./schema.js";
 

@@ -102,7 +102,7 @@ function wrapListItem(nodeType: NodeType, options: Partial<MenuItemSpec>) {
   return cmdItem(wrapInList(nodeType, (options as any).attrs), options)
 }
 
-type MenuItemResult = {
+type  MenuItemResult = {
   /// A menu item to toggle the [strong mark](#schema-basic.StrongMark).
   toggleStrong?: MenuItem
 

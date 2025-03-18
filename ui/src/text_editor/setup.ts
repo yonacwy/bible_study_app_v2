@@ -2,16 +2,15 @@ import {Command, Plugin} from "../vendor/prosemirror/prosemirror-state/index.js"
 import { keymap } from "../vendor/prosemirror/prosemirror-keymap/index.js"
 import { dropCursor } from "../vendor/prosemirror/prosemirror-dropcursor/index.js"
 import { gapCursor } from "../vendor/prosemirror/prosemirror-gapcursor/index.js"
-import { NodeType, Schema } from "../vendor/prosemirror/prosemirror-model/schema.js"
-import { InputRule, inputRules, undoInputRule } from "../vendor/prosemirror/prosemirror-inputrules/inputrules.js"
-import { textblockTypeInputRule, wrappingInputRule } from "../vendor/prosemirror/prosemirror-inputrules/rulebuilders.js"
-import { ellipsis, emDash, smartQuotes } from "../vendor/prosemirror/prosemirror-inputrules/rules.js"
+import { undoInputRule } from "../vendor/prosemirror/prosemirror-inputrules/inputrules.js"
 import { SCHEMA } from "./schema.js"
-import { baseKeymap, chainCommands, exitCode, joinDown, joinUp, lift, selectParentNode, setBlockType, toggleMark, wrapIn } from "../vendor/prosemirror/prosemirror-commands/index.js"
+import { baseKeymap, joinDown, joinUp, lift, selectParentNode, setBlockType, toggleMark, wrapIn } from "../vendor/prosemirror/prosemirror-commands/index.js"
 import { history, redo, undo } from "../vendor/prosemirror/prosemirror-history/index.js"
 import { liftListItem, sinkListItem, splitListItem, wrapInList } from "../vendor/prosemirror/prosemirror-schema-list/index.js"
-import { menuBar, MenuElement } from "../vendor/prosemirror/prosemirror-menu/index.js";
+import { menuBar } from "../vendor/prosemirror/prosemirror-menu/index.js";
 import * as menu from "./menu.js";
+import { debug_print } from "../utils/index.js"
+import { build_input_rules } from "./input_rules.js"
 
 const mac: boolean = typeof navigator != "undefined" ? /Mac|iP(hone|[oa]d)/.test(navigator.platform) : false
 
@@ -23,8 +22,8 @@ export function build_plugins(args: PluginArgs): Plugin[]
 {
     return [
         build_input_rules(),
-        keymap(baseKeymap),
         keymap(build_keymap()),
+        keymap(baseKeymap),
         dropCursor(),
         gapCursor(),
         history(),
@@ -35,44 +34,6 @@ export function build_plugins(args: PluginArgs): Plugin[]
             }
         }),
     ]
-}
-
-function build_input_rules(): Plugin
-{
-    let rules = smartQuotes.concat(ellipsis, emDash);
-    rules.push(block_quote_rule(SCHEMA.nodes.blockquote));
-    rules.push(ol_rule(SCHEMA.nodes.ordered_list));
-    rules.push(ul_rule(SCHEMA.nodes.unordered_list));
-    rules.push(code_block_rule(SCHEMA.nodes.code_block));
-    rules.push(heading_rule(SCHEMA.nodes.heading, 6));
-    return inputRules({rules});
-}
-
-function block_quote_rule(node_type: NodeType): InputRule
-{
-    return wrappingInputRule(/^\s*>\s$/, node_type);
-}
-
-function ol_rule(node_type: NodeType): InputRule
-{
-    return wrappingInputRule(/^(\d+)\.\s$/, node_type, match => ({order: +match[1]}),
-                           (match, node) => node.childCount + node.attrs.order == +match[1])
-}
-
-function ul_rule(node_type: NodeType): InputRule
-{
-    return wrappingInputRule(/^\s*([-+*])\s$/, node_type)
-}
-
-function code_block_rule(node_type: NodeType): InputRule
-{
-    return textblockTypeInputRule(/^```$/, node_type);
-}
-
-function heading_rule(node_type: NodeType, max_level: number): InputRule
-{
-    let regex = new RegExp("^(#{1," + max_level + "})\\s$");
-    return textblockTypeInputRule(regex, node_type, match => ({level: match[1].length}))
 }
 
 // yoinked from: https://github.com/ProseMirror/prosemirror-example-setup/blob/master/src/keymap.ts 
@@ -103,51 +64,68 @@ function build_keymap(mapKeys?: {[key: string]: false | string}) {
     bind("Escape", selectParentNode)
     
     let type = undefined;
-    if (type = SCHEMA.marks.strong) {
+    if (type = SCHEMA.marks.strong) 
+    {
         bind("Mod-b", toggleMark(type))
         bind("Mod-B", toggleMark(type))
     }
-    if (type = SCHEMA.marks.em) {
+
+    if (type = SCHEMA.marks.em) 
+    {
         bind("Mod-i", toggleMark(type))
         bind("Mod-I", toggleMark(type))
     }
+
     if (type = SCHEMA.marks.code)
+    {
         bind("Mod-`", toggleMark(type))
+    }
 
     if (type = SCHEMA.nodes.bullet_list)
-        bind("Shift-Ctrl-8", wrapInList(type))
-    if (type = SCHEMA.nodes.ordered_list)
-        bind("Shift-Ctrl-9", wrapInList(type))
-    if (type = SCHEMA.nodes.blockquote)
-        bind("Ctrl->", wrapIn(type))
-    if (type = SCHEMA.nodes.hard_break) 
     {
-        let br = type, cmd = chainCommands(exitCode, (state, dispatch) => {
-        if (dispatch) dispatch(state.tr.replaceSelectionWith(br.create()).scrollIntoView())
-        return true
-        })
-        bind("Mod-Enter", cmd)
-        bind("Shift-Enter", cmd)
-        if (mac) bind("Ctrl-Enter", cmd)
+        bind("Shift-Ctrl-8", wrapInList(type))
     }
+
+    if (type = SCHEMA.nodes.ordered_list)
+    {
+        bind("Shift-Ctrl-9", wrapInList(type))
+    }
+    if (type = SCHEMA.nodes.blockquote)
+    {
+        bind("Ctrl->", wrapIn(type))
+    }
+
     if (type = SCHEMA.nodes.list_item) 
     {
         bind("Enter", splitListItem(type))
         bind("Mod-[", liftListItem(type))
         bind("Mod-]", sinkListItem(type))
     }
+
     if (type = SCHEMA.nodes.paragraph)
+    {
         bind("Shift-Ctrl-0", setBlockType(type))
+    }
+
     if (type = SCHEMA.nodes.code_block)
+    {
         bind("Shift-Ctrl-\\", setBlockType(type))
+    }
+
     if (type = SCHEMA.nodes.heading)
-        for (let i = 1; i <= 6; i++) bind("Shift-Ctrl-" + i, setBlockType(type, {level: i}))
+    {
+        for (let i = 1; i <= 6; i++) 
+        {
+            bind("Shift-Ctrl-" + i, setBlockType(type, {level: i}));
+        }
+    }
+
     if (type = SCHEMA.nodes.horizontal_rule) 
     {
         let hr = type
         bind("Mod-_", (state, dispatch) => {
-        if (dispatch) dispatch(state.tr.replaceSelectionWith(hr.create()).scrollIntoView())
-        return true
+            if (dispatch) dispatch(state.tr.replaceSelectionWith(hr.create()).scrollIntoView())
+            return true
         })
     }
 
