@@ -37,8 +37,8 @@ fn main() -> Result<(), tts::Error>
             // TEMP: ChapterIndex initialization is temporary here, need to load from AppState save
             app.manage(Mutex::new(ReaderState::new(app.handle().clone(), ChapterIndex { book: 0, number: 0 })));
 
-            // let window = app.get_webview_window("main").unwrap();
-            // window.open_devtools();
+            let window = app.get_webview_window("main").unwrap();
+            window.open_devtools();
             
             Ok(())
         })

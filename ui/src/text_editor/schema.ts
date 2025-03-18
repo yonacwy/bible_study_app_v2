@@ -8,6 +8,9 @@ const HR_DOM: DOMOutputSpec = ["hr"];
 const PRE_DOM: DOMOutputSpec = ["pre", ["code", 0]];
 const BR_DOM: DOMOutputSpec = ["br"];
 
+export const VERSEREF_NAME: string = 'verseref';
+const VERSEREF_DOM: DOMOutputSpec = [VERSEREF_NAME, 0];
+
 
 export const NODES: { [name: string]: NodeSpec } = {
     doc: {
@@ -94,6 +97,13 @@ export const NODES: { [name: string]: NodeSpec } = {
         parseDOM: [{tag: 'br'}],
         toDOM: _ => BR_DOM
     },
+
+    verseref: {
+        inline: true,
+        group: 'inline',
+        parseDOM: [{tag: 'verseref'}],
+        toDOM: _ => VERSEREF_DOM,
+    },
 }
 
 const EM_DOM: DOMOutputSpec = ['em', 0];
@@ -117,14 +127,6 @@ export const MARKS: { [name: string]: MarkSpec } = {
         toDOM: node => {
             let {href, title} = node.attrs;
             return ['a', {href, title}, 0]
-        }
-    },
-
-    reference: {
-        inclusive: true,
-        parseDOM: [{tag: 'verseref'}],
-        toDOM: _ => {
-            return ['verseref', 0]
         }
     },
 

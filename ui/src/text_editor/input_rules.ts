@@ -11,7 +11,7 @@ export function build_input_rules(): Plugin
     rules.push(ul_rule(SCHEMA.nodes.bullet_list));
     rules.push(code_block_rule(SCHEMA.nodes.code_block));
     rules.push(heading_rule(SCHEMA.nodes.heading, 6));
-    rules = rules.concat(arrow_rules());
+    rules = rules.concat(arrow_rules(), verse_rules());
     return inputRules({rules});
 }
 
@@ -54,4 +54,11 @@ function arrow_rules(): InputRule[]
         new InputRule(/\<\=\=$/, "⇐"), // arrow
         new InputRule(/\<\=\>$/, "⇔"), // arrow
     ]
+}
+
+function verse_rules(): InputRule[]
+{
+    return [
+        wrappingInputRule(/v\d+\s$/, SCHEMA.nodes.verseref),
+    ];
 }
