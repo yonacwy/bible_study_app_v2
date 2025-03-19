@@ -70,6 +70,19 @@ export function format_html(html: string, tab: string = '  '): string
     return formatted.trim();
 }
 
+export function format_json(str: string, tab: string = '   '): string
+{
+    try 
+    {
+        const parsed = JSON.parse(str);
+        return JSON.stringify(parsed, null, tab);
+    } 
+    catch (error) 
+    {
+        return 'Invalid JSON string';
+    }
+}
+
 export function overlap<T>(a: T[], b: T[]): T[]
 {
     return a.filter(i => b.includes(i))

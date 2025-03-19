@@ -1,10 +1,10 @@
 import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils/index.js";
 import { push_section, get_current_view_state } from "./view_states.js";
-import { BookView, ChapterIndex, ChapterView } from "./bindings.js";
+import { BibleSection, BookView, ChapterIndex, ChapterView, VerseRange } from "./bindings.js";
 import { EventHandler, Listener } from "./utils/events.js";
 import * as utils from "./utils/index.js";
 
-export async function load_view(): Promise<BookView[]>
+export async function get_bible_view(): Promise<BookView[]>
 {
     let str = await invoke('get_bible_view', {});
     let view = JSON.parse(str);
@@ -53,7 +53,7 @@ export async function to_next_chapter(): Promise<void>
     let current_chapter = await get_chapter();
     if (!current_chapter) return;
 
-    let view = await load_view();
+    let view = await get_bible_view();
 
     if(current_chapter.number < view[current_chapter.book].chapter_count - 1)
     {
@@ -82,7 +82,7 @@ export async function to_previous_chapter(): Promise<void>
     let current_chapter = await get_chapter();
     if (!current_chapter) return;
 
-    let view = await load_view();
+    let view = await get_bible_view();
 
     if(current_chapter.number > 0)
     {
@@ -214,6 +214,59 @@ export function flatten_verse_index(chapter: ChapterView, verse: number, word: n
 export async function get_book_index(prefix: number | null, name: string): Promise<number | null>
 {
     return (await invoke('get_book_from_name', { prefix: prefix, name: name }))?.index ?? null;
+}
+
+export async function get_section(section: { prefix: number | null, book_name: string, chapter: number, verse: number | VerseRange | null }): Promise<BibleSection | null>
+{
+    let book = await get_book_index(section.prefix, section.book_name);
+    if(book === null) return null;
+
+    let view = await get_bible_view()
+    let book_view = view[book];
+
+    if(book_view.chapter_count >= section.chapter) return null;
+    
+
+    if(section.verse !== null)
+    {
+        let chapter_index: ChapterIndex = {
+            book,
+            number: section.chapter
+        };
+
+        let chapter_view = await get_chapter_view(chapter_index);
+
+        if(typeof section.verse === 'number' && chapter_view.verses.length > section.verse)
+        {
+            return {
+                book,
+                chapter: section.chapter,
+                verse_range: {
+                    start: section.verse,
+                    end: section.verse
+                }
+            }
+        }
+        else if(typeof section.verse !== 'number' && 
+                section.verse.start <= section.verse.end && 
+                section.verse.start >= 0 && 
+                section.verse.end < chapter_view.verses.length
+        )
+        {
+            return {
+                book,
+                chapter: section.chapter,
+                verse_range: section.verse
+            }
+        }
+
+    }
+
+    return {
+        book,
+        chapter: section.chapter,
+        verse_range: null
+    }
 }
 
 export function flatten_chapter_index(bible_view: BookView[], chapter: ChapterIndex): number

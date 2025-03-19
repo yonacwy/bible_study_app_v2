@@ -51,7 +51,7 @@ export async function set_editing_note(note: string | null): Promise<void>
 export async function get_note_references(note_data: NoteData): Promise<[string, string][]>
 {
     let references: [string, string][] = [];
-    let bible_view = await bible.load_view();
+    let bible_view = await bible.get_bible_view();
 
     for(let i = 0; i < note_data.locations.length; i++)
     {

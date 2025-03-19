@@ -3,6 +3,7 @@ import { ellipsis, emDash, InputRule, inputRules, smartQuotes, textblockTypeInpu
 import { SCHEMA } from "./schema.js";
 import { MarkType, NodeType } from "../vendor/prosemirror/prosemirror-model/index.js";
 import { debug_print } from "../utils/index.js";
+import * as bible from "../bible.js";
 
 export function build_input_rules(): Plugin
 {
@@ -12,7 +13,7 @@ export function build_input_rules(): Plugin
     rules.push(ul_rule(SCHEMA.nodes.bullet_list));
     rules.push(code_block_rule(SCHEMA.nodes.code_block));
     rules.push(heading_rule(SCHEMA.nodes.heading, 6));
-    rules = rules.concat(arrow_rules(), verse_rules());
+    rules = rules.concat(arrow_rules(), verse_rule());
     return inputRules({rules});
 }
 
@@ -57,36 +58,50 @@ function arrow_rules(): InputRule[]
     ]
 }
 
-function verse_rules(): InputRule[]
+function verse_rule(): InputRule
 {
-    return [
-        mark_section_input_rule(/v\d+\s$/, SCHEMA.marks.strong),
-    ];
-}
-
-function mark_section_input_rule(regex: RegExp, mark_type: MarkType): InputRule
-{
-    // return new InputRule(regex, (state, match, start, end) => {
-    //     let mark = SCHEMA.mark(mark_type);
-    //     debug_print(`s: ${start}; e: ${end}`);
-    //     return state.tr.insertText('<strong>hi</strong>', start, end).addMark(start, end, mark);
+    const REGEX = /\[(?<prefix>[\d]+)?\s*(?<name>[a-zA-z](?:.*[a-zA-z])?)\s*(?<chapter>\d+)(?<verse_start>\:\d+)?(?<verse_end>-\d+)?\](?<sp>\s)?/;
+    return new InputRule(REGEX, (state, match, start, end) => {
+        let node = SCHEMA.nodes.bible_ref;
         
-    // })
+        let prefix_text = match.groups?.prefix;
+        let prefix = null;
+        if(prefix_text !== undefined) prefix = +prefix_text;
 
-    return new InputRule(/(?:\*\*|__)([^*_]+)(?:\*\*|__)$/, (state, match, start, end) => {
-        const tr = state.tr;
-        const text = match[1]; // Captured text inside ** or __
-        
-        // Remove the ** or __ from the text
-        tr.delete(start, end);
-        tr.insertText(text, start);
-        
-        // Apply the strong mark
-        tr.addMark(start, start + text.length, mark_type.create());
+        let name = match.groups!.name;
+        let chapter = +match.groups!.chapter;
 
-        tr.removeStoredMark(mark_type); // Prevents further typing from being bold
-        tr.setSelection(TextSelection.near(tr.doc.resolve(start + text.length)));
-        debug_print('got here');
-        return tr;
-    });
+        let verse_start_text = match.groups?.verse_start;
+        let verse_start = null;
+        if(verse_start_text !== undefined) verse_start = +verse_start_text.substring(1);
+
+        let verse_end_text = match.groups?.verse_end;
+        let verse_end = null;
+        if(verse_end_text !== undefined) verse_end = +verse_end_text.substring(1);
+
+        let text = `${name} ${chapter}`;
+
+        if(prefix !== null)
+        {
+            text = `${prefix} ${text}`;
+        }
+
+        if(verse_start !== null)
+        {
+            text += `:${verse_start}`;
+        }
+
+        if(verse_end !== null)
+        {
+            text += `-${verse_end}`;
+        }
+
+        text = `[${text}]`
+
+        // if(match.groups?.sp) start -= 1;
+
+        let attrs = { content: text.trim() };
+        return state.tr.replaceWith(start, end, [node.createAndFill(attrs)!]);
+        
+    })
 }

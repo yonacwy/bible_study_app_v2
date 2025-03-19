@@ -1,3 +1,4 @@
+import { debug_print } from "../utils/index.js";
 import {DOMOutputSpec, Schema} from "../vendor/prosemirror/prosemirror-model/index.js"
 import { MarkSpec, NodeSpec } from "../vendor/prosemirror/prosemirror-model/schema.js";
 import { addListNodes } from "../vendor/prosemirror/prosemirror-schema-list/index.js";
@@ -94,6 +95,28 @@ export const NODES: { [name: string]: NodeSpec } = {
         parseDOM: [{tag: 'br'}],
         toDOM: _ => BR_DOM
     },
+    
+    bible_ref: {
+        inline: true,
+        group: 'inline',
+        selectable: false,
+        attrs: {
+            content: { validate: 'string' }
+        },
+        parseDOM: [{tag: 'div.bible-ref', getAttrs: dom => {
+            return {
+                content: dom.innerHTML
+            }
+        }}],
+        toDOM: node => {
+            let dom = document.createElement('div');
+            dom.innerHTML = node.attrs.content;
+            dom.classList.add('bible-ref');
+            return {
+                dom
+            };
+        },
+    },
 }
 
 const EM_DOM: DOMOutputSpec = ['em', 0];
@@ -101,9 +124,6 @@ const STRONG_DOM: DOMOutputSpec = ['strong', 0];
 const CODE_DOM: DOMOutputSpec = ['code', 0];
 const STRIKETHROUGH_DOM: DOMOutputSpec = ['s', 0];
 const UNDERLINE_DOM: DOMOutputSpec = ['u', 0];
-
-export const VERSEREF_NAME: string = 'verseref';
-const VERSEREF_DOM: DOMOutputSpec = [VERSEREF_NAME, 0];
 
 export const MARKS: { [name: string]: MarkSpec } = {
 
@@ -161,11 +181,6 @@ export const MARKS: { [name: string]: MarkSpec } = {
     underline: {
         parseDOM: [{tag: 'u'}],
         toDOM: _ => UNDERLINE_DOM,
-    },
-
-    verseref: {
-        parseDOM: [{tag: 'verseref'}],
-        toDOM: _ => VERSEREF_DOM,
     },
 }
 

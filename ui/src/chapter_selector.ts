@@ -1,4 +1,4 @@
-import { load_view } from "./bible.js";
+import { get_bible_view } from "./bible.js";
 import { debug_print } from "./utils/index.js";
 
 function spawn_normal_option(name: string): HTMLElement
@@ -59,7 +59,7 @@ var current_selected_books: any = {};
 
 export async function build_chapter_selection_dropdown(dropdown_content_id: string, on_selected: (name: string, number: number) => void)
 {
-    let books = await load_view();
+    let books = await get_bible_view();
 
     let dropdown = document.getElementById(dropdown_content_id);
     if(dropdown === null) return;
