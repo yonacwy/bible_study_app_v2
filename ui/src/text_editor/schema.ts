@@ -8,9 +8,6 @@ const HR_DOM: DOMOutputSpec = ["hr"];
 const PRE_DOM: DOMOutputSpec = ["pre", ["code", 0]];
 const BR_DOM: DOMOutputSpec = ["br"];
 
-export const VERSEREF_NAME: string = 'verseref';
-const VERSEREF_DOM: DOMOutputSpec = [VERSEREF_NAME, 0];
-
 
 export const NODES: { [name: string]: NodeSpec } = {
     doc: {
@@ -97,13 +94,6 @@ export const NODES: { [name: string]: NodeSpec } = {
         parseDOM: [{tag: 'br'}],
         toDOM: _ => BR_DOM
     },
-
-    verseref: {
-        inline: true,
-        group: 'inline',
-        parseDOM: [{tag: 'verseref'}],
-        toDOM: _ => VERSEREF_DOM,
-    },
 }
 
 const EM_DOM: DOMOutputSpec = ['em', 0];
@@ -112,7 +102,9 @@ const CODE_DOM: DOMOutputSpec = ['code', 0];
 const STRIKETHROUGH_DOM: DOMOutputSpec = ['s', 0];
 const UNDERLINE_DOM: DOMOutputSpec = ['u', 0];
 
-export type MarkType = 'link' | 'em' | 'strong' | 'code'
+export const VERSEREF_NAME: string = 'verseref';
+const VERSEREF_DOM: DOMOutputSpec = [VERSEREF_NAME, 0];
+
 export const MARKS: { [name: string]: MarkSpec } = {
 
     link: {
@@ -169,7 +161,12 @@ export const MARKS: { [name: string]: MarkSpec } = {
     underline: {
         parseDOM: [{tag: 'u'}],
         toDOM: _ => UNDERLINE_DOM,
-    }
+    },
+
+    verseref: {
+        parseDOM: [{tag: 'verseref'}],
+        toDOM: _ => VERSEREF_DOM,
+    },
 }
 
 let schema = new Schema({nodes: NODES, marks: MARKS});

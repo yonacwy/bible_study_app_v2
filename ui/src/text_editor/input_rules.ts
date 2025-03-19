@@ -1,7 +1,8 @@
-import {Command, Plugin} from "../vendor/prosemirror/prosemirror-state/index.js"
+import {Command, Plugin, TextSelection} from "../vendor/prosemirror/prosemirror-state/index.js"
 import { ellipsis, emDash, InputRule, inputRules, smartQuotes, textblockTypeInputRule, wrappingInputRule } from "../vendor/prosemirror/prosemirror-inputrules/index.js";
 import { SCHEMA } from "./schema.js";
-import { NodeType } from "../vendor/prosemirror/prosemirror-model/index.js";
+import { MarkType, NodeType } from "../vendor/prosemirror/prosemirror-model/index.js";
+import { debug_print } from "../utils/index.js";
 
 export function build_input_rules(): Plugin
 {
@@ -59,6 +60,33 @@ function arrow_rules(): InputRule[]
 function verse_rules(): InputRule[]
 {
     return [
-        wrappingInputRule(/v\d+\s$/, SCHEMA.nodes.verseref),
+        mark_section_input_rule(/v\d+\s$/, SCHEMA.marks.strong),
     ];
+}
+
+function mark_section_input_rule(regex: RegExp, mark_type: MarkType): InputRule
+{
+    // return new InputRule(regex, (state, match, start, end) => {
+    //     let mark = SCHEMA.mark(mark_type);
+    //     debug_print(`s: ${start}; e: ${end}`);
+    //     return state.tr.insertText('<strong>hi</strong>', start, end).addMark(start, end, mark);
+        
+    // })
+
+    return new InputRule(/(?:\*\*|__)([^*_]+)(?:\*\*|__)$/, (state, match, start, end) => {
+        const tr = state.tr;
+        const text = match[1]; // Captured text inside ** or __
+        
+        // Remove the ** or __ from the text
+        tr.delete(start, end);
+        tr.insertText(text, start);
+        
+        // Apply the strong mark
+        tr.addMark(start, start + text.length, mark_type.create());
+
+        tr.removeStoredMark(mark_type); // Prevents further typing from being bold
+        tr.setSelection(TextSelection.near(tr.doc.resolve(start + text.length)));
+        debug_print('got here');
+        return tr;
+    });
 }
