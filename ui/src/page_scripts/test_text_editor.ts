@@ -7,7 +7,4 @@ export function init()
         id: 'text-editor',
         parent: null
     });
-
-    e.on_input.add_listener(_ => { utils.debug_print('On input') });
-    e.on_change.add_listener(_ => { utils.debug_print('On change') });
 }

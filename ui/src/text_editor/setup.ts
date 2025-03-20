@@ -11,15 +11,19 @@ import { menuBar } from "../vendor/prosemirror/prosemirror-menu/index.js";
 import * as menu from "./menu.js";
 import { debug_print } from "../utils/index.js"
 import { build_input_rules } from "./input_rules.js"
-
-const mac: boolean = typeof navigator != "undefined" ? /Mac|iP(hone|[oa]d)/.test(navigator.platform) : false
+import { build_keymap } from "./keymap.js"
+import { Node } from "../vendor/prosemirror/prosemirror-model/index.js"
 
 export type PluginArgs = {
-    
+    node_created_listeners?: { name: string, on_event: (N: Node) => void}[]
 }
 
 export function build_plugins(args: PluginArgs): Plugin[]
 {
+    let listeners = args.node_created_listeners?.map(l => {
+        return build_node_event_plugin(l.name, l.on_event);
+    }) ?? [];
+
     return [
         build_input_rules(),
         keymap(build_keymap()),
@@ -33,101 +37,28 @@ export function build_plugins(args: PluginArgs): Plugin[]
                 attributes: {class: 'ProseMirror-example-setup-style'}
             }
         }),
+        
+        ...listeners
     ]
 }
 
-// yoinked from: https://github.com/ProseMirror/prosemirror-example-setup/blob/master/src/keymap.ts 
+function build_node_event_plugin(type_name: string, on_event: (n: Node) => void): Plugin
+{
+    return new Plugin({
+        appendTransaction: (transactions, old_state, new_state) => {
+            transactions.forEach(tr => {
+                tr.mapping.maps.forEach(step_map => {
+                    step_map.forEach((old_start, old_end, new_start, new_end) => {
+                        let node = new_state.doc.nodeAt(new_start);
+                        if(node !== null && node.type.name === type_name)
+                        {
+                            on_event(node)
+                        }
+                    });
+                });
+            });
 
-function build_keymap(mapKeys?: {[key: string]: false | string}) {
-    let keys: {[key: string]: Command} = {}
-
-    function bind(key: string, cmd: Command) 
-    {
-        if (mapKeys) 
-        {
-            let mapped = mapKeys[key]
-            if (mapped === false) return
-            if (mapped) key = mapped
+            return null;
         }
-
-        keys[key] = cmd
-    }
-
-    bind("Mod-z", undo)
-    bind("Shift-Mod-z", redo)
-    bind("Backspace", undoInputRule)
-    if (!mac) bind("Mod-y", redo)
-
-    bind("Alt-ArrowUp", joinUp)
-    bind("Alt-ArrowDown", joinDown)
-    bind("Mod-BracketLeft", lift)
-    bind("Escape", selectParentNode)
-    
-    let type = undefined;
-    if (type = SCHEMA.marks.strong) 
-    {
-        bind("Mod-b", toggleMark(type))
-        bind("Mod-B", toggleMark(type))
-    }
-
-    if (type = SCHEMA.marks.em) 
-    {
-        bind("Mod-i", toggleMark(type))
-        bind("Mod-I", toggleMark(type))
-    }
-
-    if (type = SCHEMA.marks.code)
-    {
-        bind("Mod-`", toggleMark(type))
-    }
-
-    if (type = SCHEMA.nodes.bullet_list)
-    {
-        bind("Shift-Ctrl-8", wrapInList(type))
-    }
-
-    if (type = SCHEMA.nodes.ordered_list)
-    {
-        bind("Shift-Ctrl-9", wrapInList(type))
-    }
-    if (type = SCHEMA.nodes.blockquote)
-    {
-        bind("Ctrl->", wrapIn(type))
-    }
-
-    if (type = SCHEMA.nodes.list_item) 
-    {
-        bind("Enter", splitListItem(type))
-        bind("Mod-[", liftListItem(type))
-        bind("Mod-]", sinkListItem(type))
-    }
-
-    if (type = SCHEMA.nodes.paragraph)
-    {
-        bind("Shift-Ctrl-0", setBlockType(type))
-    }
-
-    if (type = SCHEMA.nodes.code_block)
-    {
-        bind("Shift-Ctrl-\\", setBlockType(type))
-    }
-
-    if (type = SCHEMA.nodes.heading)
-    {
-        for (let i = 1; i <= 6; i++) 
-        {
-            bind("Shift-Ctrl-" + i, setBlockType(type, {level: i}));
-        }
-    }
-
-    if (type = SCHEMA.nodes.horizontal_rule) 
-    {
-        let hr = type
-        bind("Mod-_", (state, dispatch) => {
-            if (dispatch) dispatch(state.tr.replaceSelectionWith(hr.create()).scrollIntoView())
-            return true
-        })
-    }
-
-    return keys
+    })
 }
