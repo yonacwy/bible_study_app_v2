@@ -18,11 +18,21 @@ pub struct HighlightCategory {
     pub id: String, // this is slow as heck, but should suffice for now
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum NoteSourceType
+{
+    Html,
+    Json,
+    Markdown,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NoteData {
     pub id: String,
     pub text: String,
     pub locations: Vec<ReferenceLocation>,
+    pub source_type: NoteSourceType,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -69,6 +79,7 @@ impl Notebook {
         id: String,
         text: String,
         locations: Vec<ReferenceLocation>,
+        source_type: NoteSourceType,
     ) {
         for location in &locations {
             let chapter = bible.get_chapter(location.chapter).get_view();
@@ -97,6 +108,7 @@ impl Notebook {
                 id,
                 text,
                 locations,
+                source_type,
             },
         );
     }

@@ -32,6 +32,9 @@ export class TextEditor
     private readonly view: EditorView;
 
     public readonly on_ref_created: EventHandler<HTMLElement> = new EventHandler();
+    public readonly on_close: EventHandler<void> = new EventHandler();
+    public readonly on_save: EventHandler<EditorState> = new EventHandler();
+    public readonly on_delete: EventHandler<void> = new EventHandler();
 
     public constructor(args: TextEditorArgs)
     {
@@ -59,7 +62,10 @@ export class TextEditor
                         let s = DOMSerializer.fromSchema(SCHEMA);
                         let n = s.serializeNode(node) as HTMLElement;
                         this.on_ref_created.invoke(n);
-                    }}]
+                    }}],
+                    on_close: this.on_close,
+                    on_save: this.on_save,
+                    on_delete: this.on_delete,
                 })
             })
         });
@@ -102,6 +108,7 @@ export class TextEditor
                 {
                     let data = JSON.parse(save.source);
                     this.view.state.doc = Node.fromJSON(SCHEMA, data);
+                    this.view.update({ state: this.view.state });
                 }
                 catch 
                 {

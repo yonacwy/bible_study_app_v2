@@ -5,6 +5,7 @@ import * as confirm_popup from "../popups/confirm_popup.js";
 import * as bible from "../bible.js";
 import { format_reference_id } from "../rendering/word_search.js";
 import * as selection from "../selection.js";
+import { TextEditor } from "../text_editor/index.js";
 
 const DELETE_NOTE_BUTTON = 'delete-note-btn'
 
@@ -19,24 +20,52 @@ export async function init_note_page(note_id: string, on_text_require_rerender: 
 
     Promise.all([
         init_resizer(),
-        render_reference_dropdown(on_text_require_rerender),
-        init_editor_toggle(note_id),
-        init_delete_note_button(note_id),
-        init_close_editor_btn(),
-        init_save_callbacks(),
+        init_text_editor(note_id),
+        // render_reference_dropdown(on_text_require_rerender),
     ]);
 }
 
-function init_delete_note_button(note_id: string)
+async function init_text_editor(note_id: string)
 {
-    let button = document.getElementById(DELETE_NOTE_BUTTON);
+    let editor = new TextEditor({
+        id: 'note-editor',
+        parent: document.getElementById('right-pane')
+    });
 
-    button?.addEventListener('click', _ => {
+    let note = await notes.get_note(note_id);
+    editor.load_save({
+        data_type: note.source_type,
+        source: note.text,
+    });
+
+    async function save_note()
+    {
+        let current = await notes.get_editing_note();
+        if(current === null) return;
+    
+        let locations = (await notes.get_note(current)).locations;
+        let save = editor.get_save();
+        notes.update_note(current, locations, save.source, save.data_type);
+    }
+
+    editor.on_save.add_listener(save_note);
+
+    editor.on_close.add_listener(async () => {
+        save_note().then(_ => {
+            apply_transitions();
+            collapse_pane(PaneSideType.Right);
+            notes.set_editing_note(null).then(_ => {
+                view_states.goto_current_view_state();
+            });
+        });
+    })
+
+    editor.on_delete.add_listener(() => {
         confirm_popup.show_confirm_popup({
             message: 'Are you sure you want to delete this note?',
             on_confirm: delete_note
         });
-    });
+    })
 
     function delete_note()
     {
@@ -46,107 +75,6 @@ function init_delete_note_button(note_id: string)
                 view_states.goto_current_view_state();
             });
         });
-    }
-}
-
-const CLOSE_EDITOR_BUTTON = 'close-editor-btn';
-function init_close_editor_btn()
-{
-    let button = document.getElementById(CLOSE_EDITOR_BUTTON);
-    if(!button) return;
-
-    button.addEventListener('click', _ => {
-        apply_transitions();
-        collapse_pane(PaneSideType.Right);
-        notes.set_editing_note(null).then(_ => {
-            view_states.goto_current_view_state();
-        });
-    });
-}
-
-const TEXT_EDITOR_NAME = 'editor-text';
-function init_save_callbacks()
-{
-    const textarea = document.getElementById(TEXT_EDITOR_NAME) as HTMLTextAreaElement;
-    let save_callback = async (e: Event) =>
-    {
-        let current = await notes.get_editing_note();
-        if(current === null) return;
-        
-        let new_text = textarea.value;
-
-        let locations = (await notes.get_note(current)).locations;
-        notes.update_note(current, locations, new_text);
-    }
-
-    textarea.addEventListener('input', save_callback); // A hack so that it saves correctly, HOPEFULLY isn't too slow
-}
-
-enum MdState 
-{
-    Viewing,
-    Editing,
-}
-
-let current_state = MdState.Editing;
-
-async function init_editor_toggle(note_id: string)
-{
-    const textarea = document.getElementById(TEXT_EDITOR_NAME);
-    const render_target = document.getElementById('editor-view');
-    const view_note_image = document.getElementById('view-note-img');
-    const edit_note_image = document.getElementById('edit-note-img');
-    const change_mode_button = document.getElementById('toggle-editor-btn');
-
-    if(!(textarea instanceof HTMLTextAreaElement) || !render_target || !edit_note_image || !view_note_image || !change_mode_button) return;
-
-    set_md_state(current_state, textarea, render_target, edit_note_image, view_note_image);
-    
-    let note_text = (await notes.get_note(note_id)).text;
-    textarea.value = note_text;
-
-    change_mode_button.addEventListener('click', e => {
-        let next_state = swap_state(current_state);
-        set_md_state(next_state, textarea, render_target, edit_note_image, view_note_image);
-    });
-}
-
-function swap_state(state: MdState): MdState
-{
-    if(state == MdState.Editing)
-    {
-        return MdState.Viewing;
-    }
-    else if(state === MdState.Viewing)
-    {
-        return MdState.Editing;
-    }
-    else 
-    {
-        throw "Unknown Markdown State"; 
-    }
-}
-
-function set_md_state(state: MdState, textarea: HTMLTextAreaElement, render_target: HTMLElement, edit_note_image: HTMLElement, view_note_image: HTMLElement)
-{
-    current_state = state;
-    if(state === MdState.Editing)
-    {
-        utils.show(textarea);
-        utils.show(view_note_image);
-        render_target.replaceChildren();
-        utils.hide(render_target);
-        utils.hide(edit_note_image);
-    }
-    if(state === MdState.Viewing)
-    {
-        utils.hide(textarea);
-        utils.hide(view_note_image);
-        utils.show(render_target);
-        utils.show(edit_note_image);
-
-        let html = utils.render_markdown(textarea.value);
-        render_target.innerHTML = html;
     }
 }
 
@@ -208,7 +136,7 @@ async function delete_reference(index: number, on_text_require_rerender: () => v
             let note = await notes.get_note(editing_id);
             note.locations.remove_at(index);
         
-            notes.update_note(note.id, note.locations, note.text).then(_ => {
+            notes.update_note(note.id, note.locations, note.text, 'json').then(_ => {
                 on_text_require_rerender();
                 render_reference_dropdown(on_text_require_rerender);
             });

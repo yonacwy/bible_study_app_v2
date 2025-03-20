@@ -193,3 +193,9 @@ export function init_back_button(old_path: string)
         window.location.href = old_path;
     });
 }
+
+export function on_require_search(msg: string)
+{
+    utils.set_value('search-input', msg);
+    document.getElementById('search-btn')?.click();
+}

@@ -1,4 +1,4 @@
-import { NoteData, ReferenceLocation } from "./bindings.js";
+import { NoteData, NoteSourceType, ReferenceLocation } from "./bindings.js";
 import * as utils from "./utils/index.js";
 import * as bible from "./bible.js";
 
@@ -22,9 +22,9 @@ export async function get_note(id: string): Promise<NoteData>
     return JSON.parse(await utils.invoke('get_note', { id: id }));
 }
 
-export async function update_note(id: string, locations: ReferenceLocation[], text: string): Promise<void>
+export async function update_note(id: string, locations: ReferenceLocation[], text: string, source_type: NoteSourceType): Promise<void>
 {
-    return await utils.invoke('update_note', { id: id, locations: locations, text: text });
+    return await utils.invoke('update_note', { id: id, locations: locations, text: text, source_type: source_type });
 }
 
 export async function delete_note(id: string): Promise<void>
@@ -35,7 +35,8 @@ export async function delete_note(id: string): Promise<void>
 export async function create_note(location: ReferenceLocation): Promise<string>
 {
     CREATED_NOTE_STORAGE.set(location);
-    return await utils.invoke('add_note', { text: '', locations: [location] });
+    let source_type: NoteSourceType = 'json';
+    return await utils.invoke('add_note', { text: '', locations: [location], source_type: source_type});
 }
 
 export async function get_editing_note(): Promise<string | null>

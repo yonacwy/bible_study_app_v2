@@ -1,4 +1,4 @@
-import { joinUp, lift, selectParentNode, toggleMark } from "../vendor/prosemirror/prosemirror-commands/index.js";
+import { joinUp, lift, toggleMark } from "../vendor/prosemirror/prosemirror-commands/index.js";
 import { blockTypeItem, Dropdown, DropdownSubmenu, icons, IconSpec, joinUpItem, liftItem, MenuElement, MenuItem, MenuItemSpec, redoItem, selectParentNodeItem, undoItem, wrapItem } from "../vendor/prosemirror/prosemirror-menu/index.js";
 import { MarkType, NodeType } from "../vendor/prosemirror/prosemirror-model/schema.js";
 import { wrapInList } from "../vendor/prosemirror/prosemirror-schema-list/index.js";
@@ -7,6 +7,7 @@ import { Command } from "../vendor/prosemirror/prosemirror-state/transaction.js"
 import {SCHEMA} from "./schema.js";
 import * as utils from "../utils/index.js";
 import { redo, undo } from "../vendor/prosemirror/prosemirror-history/index.js";
+import { EventHandler } from "../utils/events.js";
 
 type MarkItemData = {
     name: string,
@@ -14,14 +15,52 @@ type MarkItemData = {
     icon: string,
 }
 
-export function build_menu(): MenuElement[][]
+export function build_menu(args: {
+    on_close?: EventHandler<void>,
+    on_save?: EventHandler<EditorState>,
+    on_delete?: EventHandler<void>,
+}): MenuElement[][]
 {
     let basic = make_basic_menu();
     let type_menu = make_type_menu();
     let lists = make_list_menu();
     let history = make_history_menu();
+    let misc = make_misc_menu(args);
 
-    return [history, basic, type_menu, lists];
+    return [history, basic, type_menu, lists, misc];
+}
+
+function make_misc_menu(args: {
+    on_close?: EventHandler<void>,
+    on_save?: EventHandler<EditorState>,
+    on_delete?: EventHandler<void>,
+}): MenuElement[]
+{
+    let save_item = new MenuItem({
+        title: "Save",
+        run: state => {
+            args.on_save?.invoke(state);
+        },
+        icon: spawn_menu_icon(utils.images.SAVE),
+    });
+
+    let close_item = new MenuItem({
+        title: "Close editor",
+        run: _ => {
+            args.on_close?.invoke();
+        },
+        icon: spawn_menu_icon(utils.images.X_MARK),
+    });
+
+    let delete_item = new MenuItem({
+        title: "Delete note",
+        run: _ => {
+            args.on_delete?.invoke();
+        },
+        icon: spawn_menu_icon(utils.images.TRASH_CAN),
+    })
+
+    return [save_item, delete_item, close_item];
 }
 
 function make_history_menu(): MenuElement[]
