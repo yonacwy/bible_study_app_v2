@@ -4,23 +4,23 @@
 ### Version 0.6.0
 - [ ] Notebook Support
 
-### Version 0.5.1: Note QoL Changes
-- [ ] Selecting Notes and Highlights
-  - [ ] Single select and use
-  - [ ] When select, dropdown to create note, add to note, highlight, or erase
-- [ ] Markdown Parser
-  - [ ] Custom links (chapters, verses)
-  - [ ] Basic GH Markdown syntax
-- [ ] Markdown Editor
-  - [ ] Locations
-    - [ ] On the Highlight Description
-    - [ ] On the Note Editor
-  - [ ] Features
-    - [ ] Basic controls: Bold, Italics, Lists, etc
-    - [ ] Syntax highlighting?
-- [ ] Miscellaneous
+### Version 0.5.2: Note QoL Changes
+- [x] Selecting Notes and Highlights
+  - [x] Single select and use
+  - [x] When select, dropdown to create note, add to note, highlight, or erase
+- [x] WYSIWYG Note Editor
+  - [x] Locations
+    - [ ] ~~On the Highlight Description~~
+    - [x] On the Note Editor
+  - [x] Features
+    - [x] Basic controls: Bold, Italics, Lists, etc
+    - [ ] ~~Syntax highlighting?~~
+- [x] Miscellaneous
   - [x] Changed button scale again
   - [x] Added title to the audio player button
+  - [x] Fixed radius on text dropdown
+  - [x] Fixed search button hover effects
+  - [x] Fixed look of chapter buttons
 
 ### Version 0.5.1: Text to Speech
 - [x] Text to speech

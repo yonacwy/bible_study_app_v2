@@ -2,7 +2,7 @@ import * as utils from "../utils/index.js";
 
 import {EditorState} from "../vendor/prosemirror/prosemirror-state/index.js"
 import {EditorView} from "../vendor/prosemirror/prosemirror-view/index.js"
-import {Schema, DOMParser, Node, DOMSerializer} from "../vendor/prosemirror/prosemirror-model/index.js"
+import {DOMParser, Node, DOMSerializer} from "../vendor/prosemirror/prosemirror-model/index.js"
 import * as setup from "./setup.js";
 import { SCHEMA } from "./schema.js";
 import { EventHandler } from "../utils/events.js";

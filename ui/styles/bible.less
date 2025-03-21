@@ -31,7 +31,16 @@
     width: 10px + @content-margin;
     height: @chapter-button-height;
     top: calc(50vh - @chapter-button-height / 2);
-    padding: 0px;
+    padding: 2px;
+    
+    background-color: white;
+    transition: background-color 0.2s ease;
+    border-radius: 4px * @ui-scale;
+    border: 1px * @ui-scale solid #333;
+}
+
+.chapter-button:hover {
+    background-color: #ccc;
 }
 
 .chapter-button.previous {
@@ -43,6 +52,7 @@
 }
 
 .chapter-button img {
+    box-sizing: border-box;
     width: 100% - 2px;
     aspect-ratio: 1 / 1;
     margin: 0px;

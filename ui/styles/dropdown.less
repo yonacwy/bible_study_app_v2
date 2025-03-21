@@ -170,10 +170,11 @@
         background-color: white;
         height: calc(@button-size - 2px); // includes radius
         border-radius: 2px;
-        border: 1px solid #777;
         line-height: @button-size;
         padding-left: 2px * @ui-scale;
         padding-right: 2px * @ui-scale;
+        border-radius: 4px * @ui-scale;
+        border: (1px * @ui-scale) solid #333;
     }
 
     .dropdown-title.active {
