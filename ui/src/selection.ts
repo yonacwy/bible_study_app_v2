@@ -271,7 +271,7 @@ async function spawn_editing_note_button()
             range: verse_range,
         })
     
-        notes.update_note(editing_note_id, editing_note.locations, editing_note.text).then(_ => {
+        notes.update_note(editing_note_id, editing_note.locations, editing_note.text, editing_note.source_type).then(_ => {
             ON_SELECTION_EVENT.invoke('edited-note');
         });
     });

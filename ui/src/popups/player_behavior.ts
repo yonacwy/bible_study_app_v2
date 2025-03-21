@@ -92,7 +92,7 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
         let section_data = current.data as reader.SegmentReaderBehavior;
         start_chapter = section_data.start;
         let length = section_data.length ?? 1;
-        let view = await bible.load_view();
+        let view = await bible.get_bible_view();
         end_chapter = bible.expand_chapter_index(view, bible.flatten_chapter_index(view, start_chapter) + length - 1);
     }
 
@@ -245,7 +245,7 @@ async function get_section_behavior(data: BehaviorSelectorData): Promise<reader.
             number: end_chapter,
         }
 
-        let length = bible.get_chapter_distance(await bible.load_view(), start, end) + 1;
+        let length = bible.get_chapter_distance(await bible.get_bible_view(), start, end) + 1;
         
         return {
             start,
@@ -608,7 +608,7 @@ async function spawn_section_selector(start: ChapterIndex, end: ChapterIndex): P
 
 async function spawn_book_selector(value: number): Promise<utils.TextDropdown<string>>
 {
-    let options: utils.TextDropdownOption<string>[] = (await bible.load_view()).map(v => {
+    let options: utils.TextDropdownOption<string>[] = (await bible.get_bible_view()).map(v => {
         let display = bible.shorten_book_name(v.name);
         return {
             text: display,
@@ -627,7 +627,7 @@ async function spawn_book_selector(value: number): Promise<utils.TextDropdown<st
 
 async function spawn_chapter_selector(chapter: ChapterIndex)
 {
-    let chapter_count = (await bible.load_view())[chapter.book].chapter_count;
+    let chapter_count = (await bible.get_bible_view())[chapter.book].chapter_count;
     let options = utils.ranges.range(0, chapter_count).map(c => (c + 1).toString()).toArray();
     return utils.spawn_text_dropdown_simple({
         default: chapter.number,

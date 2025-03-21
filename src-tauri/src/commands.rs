@@ -4,7 +4,7 @@ use itertools::Itertools;
 use tauri::{path::BaseDirectory, Manager, Runtime, State};
 
 use crate::{
-    app_state::{self, ViewState, AppState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
+    app_state::{self, AppState, ViewState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, NoteSourceType, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
 };
 
 #[tauri::command(rename_all = "snake_case")]
@@ -264,7 +264,7 @@ pub fn run_word_search(app_state: State<'_, AppState>, words: Vec<String>) -> Ve
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn add_note(app_state: State<'_, AppState>, text: String, locations: Vec<ReferenceLocation>) -> String {
+pub fn add_note(app_state: State<'_, AppState>, text: String, locations: Vec<ReferenceLocation>, source_type: NoteSourceType) -> String {
     let app_state = app_state.get_ref();
     let current_bible = app_state.get_current_bible();
 
@@ -275,6 +275,7 @@ pub fn add_note(app_state: State<'_, AppState>, text: String, locations: Vec<Ref
             id.clone(),
             text.to_owned(),
             locations.to_owned(),
+            source_type,
         );
         id
     })
@@ -306,7 +307,7 @@ pub fn set_editing_note(app_state: State<'_, AppState>, note: Option<String>) {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn update_note(app_state: State<'_, AppState>, id: String, locations: Vec<ReferenceLocation>, text: String) {
+pub fn update_note(app_state: State<'_, AppState>, id: String, locations: Vec<ReferenceLocation>, text: String, source_type: NoteSourceType) {
     let app_state = app_state.get_ref();
     let current_bible = app_state.get_current_bible();
 
@@ -317,6 +318,7 @@ pub fn update_note(app_state: State<'_, AppState>, id: String, locations: Vec<Re
             id.clone(),
             text.clone(),
             locations.clone(),
+            source_type,
         );
     })
 }

@@ -17,7 +17,10 @@
     <link rel="stylesheet/less" type="text/css" href="../styles/queue_display.less">
     <link rel="stylesheet/less" type="text/css" href="../styles/selection_popup.less">
     
-    <script src="../src/vendor/less.js"></script>
+    <link rel="stylesheet/less" type="text/css" href="../styles/text_editor/text_editor.less">
+    <link rel="stylesheet/less" type="text/css" href="../styles/shared/verseref.less">
+    
+    <script src="../src/vendor/less/less.js"></script>
 </head>
 <body>
     <header>
@@ -50,25 +53,7 @@
             </div>
             <div id="resizer"></div>
             <div id="right-pane">
-                <div class="editor-container">
-                    <div class="toolbar">
-                        <button class="image-btn" id="toggle-editor-btn">
-                            <img src="../images/light-eye.svg" alt="Eye Image" title="View Note" id="view-note-img">
-                            <img src="../images/light-text.svg" alt="Text Image" title="Edit Note" id="edit-note-img" class="hidden">
-                        </button>
-                        <div class="reference-dropdown" id="reference-dropdown"></div>
-                        <button class="image-btn" id="delete-note-btn">
-                            <img src="../images/light-trash-can.svg" alt="Trash Can" title="Delete Note">
-                        </button>
-                        <button class="image-btn" id="close-editor-btn">
-                            <img src="../images/light-xmark.svg" alt="Close" title="Close button">
-                        </button>
-                    </div>
-                    <div class="editor">
-                        <textarea id="editor-text" placeholder="Enter text here..."></textarea>
-                        <div id="editor-view" class="editor-view"></div>
-                    </div>
-                </div>
+                <!-- Editor initialized by script -->
             </div>
         </div>
         <div class="word-popup word-popup-content" id="word-popup"></div>

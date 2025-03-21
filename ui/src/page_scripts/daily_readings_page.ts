@@ -213,7 +213,7 @@ async function generate_readings()
                 let book = await bible.get_book_index(r.prefix, r.book);
                 if(book === null) return; // make sure nothing breaks when in debug
 
-                let book_view = (await bible.load_view())[book];
+                let book_view = (await bible.get_bible_view())[book];
                 if(book_view.chapter_count <= r.chapter) return; // make sure nothing breaks when in debug
 
 

@@ -1,0 +1,61 @@
+@import "./prosemirror.less";
+@import "../shared/defs.less";
+@import "../shared/font_sizing.less";
+
+.text-editor {
+    @editor-margin: 0px;
+
+    box-sizing: border-box;
+    margin: @editor-margin;
+    width: calc(100% - @editor-margin * 2);
+    height: calc(100% - @editor-margin * 2);
+    border: 2px solid #333;
+    border-radius: 10px;
+    background-color: white;
+
+    .editor {
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+        box-sizing: border-box;
+        margin-top: 3px;
+
+        .font-small();
+
+        .ProseMirror-menubar-wrapper { 
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            padding: 0px;
+            margin: 0px;
+
+            .ProseMirror-menubar {
+                display: flex;
+                flex-wrap: wrap;
+                margin: 0px;
+                margin-left: 10px;
+                margin-right: 10px;
+                width: calc(100% - 20px);
+                height: fit-content;
+                border: none;
+                align-items: flex-start;
+            }
+
+            div[contenteditable="true"] {
+                all: unset;
+                border-top: 1px solid #333;
+                width: 100%;
+                flex-grow: 1;
+                box-sizing: border-box;
+                padding-left: 10px;
+                padding-right: 10px;
+                margin-bottom: 10px;
+                text-wrap: wrap;
+                overflow-y: auto;
+            }
+        }
+
+    }
+}

@@ -5,6 +5,7 @@ import * as confirm_popup from "../popups/confirm_popup.js";
 import * as bible from "../bible.js";
 import { format_reference_id } from "../rendering/word_search.js";
 import * as selection from "../selection.js";
+import { TextEditor } from "../text_editor/index.js";
 
 const DELETE_NOTE_BUTTON = 'delete-note-btn'
 
@@ -13,30 +14,59 @@ export async function init_note_page(note_id: string, on_text_require_rerender: 
     selection.ON_SELECTION_EVENT.add_listener(e => {
         if(e === 'edited-note')
         {
-            render_reference_dropdown(on_text_require_rerender);
+            render_note_references(on_text_require_rerender);
         }
     });
 
     Promise.all([
         init_resizer(),
-        render_reference_dropdown(on_text_require_rerender),
-        init_editor_toggle(note_id),
-        init_delete_note_button(note_id),
-        init_close_editor_btn(),
-        init_save_callbacks(),
+        init_text_editor(note_id).then(_ => {
+            init_note_references(on_text_require_rerender);
+        }),
     ]);
 }
 
-function init_delete_note_button(note_id: string)
+async function init_text_editor(note_id: string)
 {
-    let button = document.getElementById(DELETE_NOTE_BUTTON);
+    let editor = new TextEditor({
+        id: 'note-editor',
+        parent: document.getElementById('right-pane')
+    });
 
-    button?.addEventListener('click', _ => {
+    let note = await notes.get_note(note_id);
+    editor.load_save({
+        data_type: note.source_type,
+        source: note.text,
+    });
+
+    async function save_note()
+    {
+        let current = await notes.get_editing_note();
+        if(current === null) return;
+    
+        let locations = (await notes.get_note(current)).locations;
+        let save = editor.get_save();
+        notes.update_note(current, locations, save.source, save.data_type);
+    }
+
+    editor.on_save.add_listener(save_note);
+
+    editor.on_close.add_listener(async () => {
+        save_note().then(_ => {
+            apply_transitions();
+            collapse_pane(PaneSideType.Right);
+            notes.set_editing_note(null).then(_ => {
+                view_states.goto_current_view_state();
+            });
+        });
+    })
+
+    editor.on_delete.add_listener(() => {
         confirm_popup.show_confirm_popup({
             message: 'Are you sure you want to delete this note?',
             on_confirm: delete_note
         });
-    });
+    })
 
     function delete_note()
     {
@@ -49,153 +79,47 @@ function init_delete_note_button(note_id: string)
     }
 }
 
-const CLOSE_EDITOR_BUTTON = 'close-editor-btn';
-function init_close_editor_btn()
+async function init_note_references(on_text_require_rerender: () => void): Promise<void>
 {
-    let button = document.getElementById(CLOSE_EDITOR_BUTTON);
-    if(!button) return;
+    let pane = document.getElementById('right-pane');
+    if(!pane) return;
 
-    button.addEventListener('click', _ => {
-        apply_transitions();
-        collapse_pane(PaneSideType.Right);
-        notes.set_editing_note(null).then(_ => {
-            view_states.goto_current_view_state();
-        });
+    let references_div = utils.spawn_element('div', ['note-references'], div => {
+        div.id = 'note-references';
     });
+
+    pane.appendChild(references_div);
+
+    return render_note_references(on_text_require_rerender);
 }
 
-const TEXT_EDITOR_NAME = 'editor-text';
-function init_save_callbacks()
+async function render_note_references(on_text_require_rerender: () => void)
 {
-    const textarea = document.getElementById(TEXT_EDITOR_NAME) as HTMLTextAreaElement;
-    let save_callback = async (e: Event) =>
-    {
-        let current = await notes.get_editing_note();
-        if(current === null) return;
-        
-        let new_text = textarea.value;
-
-        let locations = (await notes.get_note(current)).locations;
-        notes.update_note(current, locations, new_text);
-    }
-
-    textarea.addEventListener('input', save_callback); // A hack so that it saves correctly, HOPEFULLY isn't too slow
-}
-
-enum MdState 
-{
-    Viewing,
-    Editing,
-}
-
-let current_state = MdState.Editing;
-
-async function init_editor_toggle(note_id: string)
-{
-    const textarea = document.getElementById(TEXT_EDITOR_NAME);
-    const render_target = document.getElementById('editor-view');
-    const view_note_image = document.getElementById('view-note-img');
-    const edit_note_image = document.getElementById('edit-note-img');
-    const change_mode_button = document.getElementById('toggle-editor-btn');
-
-    if(!(textarea instanceof HTMLTextAreaElement) || !render_target || !edit_note_image || !view_note_image || !change_mode_button) return;
-
-    set_md_state(current_state, textarea, render_target, edit_note_image, view_note_image);
-    
-    let note_text = (await notes.get_note(note_id)).text;
-    textarea.value = note_text;
-
-    change_mode_button.addEventListener('click', e => {
-        let next_state = swap_state(current_state);
-        set_md_state(next_state, textarea, render_target, edit_note_image, view_note_image);
-    });
-}
-
-function swap_state(state: MdState): MdState
-{
-    if(state == MdState.Editing)
-    {
-        return MdState.Viewing;
-    }
-    else if(state === MdState.Viewing)
-    {
-        return MdState.Editing;
-    }
-    else 
-    {
-        throw "Unknown Markdown State"; 
-    }
-}
-
-function set_md_state(state: MdState, textarea: HTMLTextAreaElement, render_target: HTMLElement, edit_note_image: HTMLElement, view_note_image: HTMLElement)
-{
-    current_state = state;
-    if(state === MdState.Editing)
-    {
-        utils.show(textarea);
-        utils.show(view_note_image);
-        render_target.replaceChildren();
-        utils.hide(render_target);
-        utils.hide(edit_note_image);
-    }
-    if(state === MdState.Viewing)
-    {
-        utils.hide(textarea);
-        utils.hide(view_note_image);
-        utils.show(render_target);
-        utils.show(edit_note_image);
-
-        let html = utils.render_markdown(textarea.value);
-        render_target.innerHTML = html;
-    }
-}
-
-async function render_reference_dropdown(on_text_require_rerender: () => void)
-{
-    let dropdown = document.getElementById('reference-dropdown');
+    let references_div = document.getElementById('note-references');
     let editing_note = await notes.get_editing_note();
-    if(!dropdown || editing_note === null) return;
+    if(!references_div || editing_note === null) return;
+
+    references_div.replaceChildren();
 
     let references = await notes.get_note_references(await notes.get_note(editing_note));
 
-    dropdown.replaceChildren();
-    dropdown.appendElement('div', title => {
-        title.classList.add('reference-dropdown-title');
-        title.innerHTML = `${references[0][0]}: ${references[0][1]}`
-    })
-    dropdown.appendElement('div', content => {
-        content.classList.add('reference-dropdown-content');
+    references.forEach((r, index) => {
+        let link = utils.spawn_element('div', ['note-reference'], link => {
+            link.appendElement('div', text_node => {
+                text_node.classList.add('reference-text');
+                text_node.innerHTML = `${r[0]}: ${r[1]}`;
+            })
+    
+            if(references.length === 1) return;
 
-        references.forEach(([title, text], index) => {
-            content.appendElement('div', link => {
-                link.classList.add('reference-link');
-
-                link.appendElement('div', text_node => {
-                    text_node.classList.add('reference-text');
-                    text_node.innerHTML = `${title}: ${text}`
-
-                    if(references.length === 1)
-                    {
-                        text_node.style.width = '100%';
-                    }
-                })
-
-                if(references.length === 1) return;
-
-                link.appendElement('button', button => {
-                    button.classList.add('image-btn');
-                    button.appendElement('img', img => {
-                        img.src = '../images/light-trash-can.svg';
-                        img.alt = 'trash';
-                    });
-
-                    button.addEventListener('click', e => {
-                        delete_reference(index, on_text_require_rerender);
-                    });
-                });
+            let delete_button = utils.spawn_image_button(utils.images.TRASH_CAN, e => {
+                delete_reference(index, on_text_require_rerender);
             });
+            link.appendChild(delete_button.button);
         });
-    });
+
+        references_div.appendChild(link);
+    })
 }
 
 async function delete_reference(index: number, on_text_require_rerender: () => void)
@@ -208,9 +132,9 @@ async function delete_reference(index: number, on_text_require_rerender: () => v
             let note = await notes.get_note(editing_id);
             note.locations.remove_at(index);
         
-            notes.update_note(note.id, note.locations, note.text).then(_ => {
+            notes.update_note(note.id, note.locations, note.text, 'json').then(_ => {
                 on_text_require_rerender();
-                render_reference_dropdown(on_text_require_rerender);
+                render_note_references(on_text_require_rerender);
             });
         }
     });

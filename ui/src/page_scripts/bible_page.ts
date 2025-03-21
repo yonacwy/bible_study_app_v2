@@ -58,7 +58,7 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
         };
     }
 
-    let chapter_view = await bible.load_view();
+    let chapter_view = await bible.get_bible_view();
     
     let name = chapter_view[chapter.book].name;
     let number = chapter.number + 1;
