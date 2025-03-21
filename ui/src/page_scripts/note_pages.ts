@@ -14,14 +14,15 @@ export async function init_note_page(note_id: string, on_text_require_rerender: 
     selection.ON_SELECTION_EVENT.add_listener(e => {
         if(e === 'edited-note')
         {
-            render_reference_dropdown(on_text_require_rerender);
+            render_note_references(on_text_require_rerender);
         }
     });
 
     Promise.all([
         init_resizer(),
-        init_text_editor(note_id),
-        // render_reference_dropdown(on_text_require_rerender),
+        init_text_editor(note_id).then(_ => {
+            init_note_references(on_text_require_rerender);
+        }),
     ]);
 }
 
@@ -78,52 +79,47 @@ async function init_text_editor(note_id: string)
     }
 }
 
-async function render_reference_dropdown(on_text_require_rerender: () => void)
+async function init_note_references(on_text_require_rerender: () => void): Promise<void>
 {
-    let dropdown = document.getElementById('reference-dropdown');
+    let pane = document.getElementById('right-pane');
+    if(!pane) return;
+
+    let references_div = utils.spawn_element('div', ['note-references'], div => {
+        div.id = 'note-references';
+    });
+
+    pane.appendChild(references_div);
+
+    return render_note_references(on_text_require_rerender);
+}
+
+async function render_note_references(on_text_require_rerender: () => void)
+{
+    let references_div = document.getElementById('note-references');
     let editing_note = await notes.get_editing_note();
-    if(!dropdown || editing_note === null) return;
+    if(!references_div || editing_note === null) return;
+
+    references_div.replaceChildren();
 
     let references = await notes.get_note_references(await notes.get_note(editing_note));
 
-    dropdown.replaceChildren();
-    dropdown.appendElement('div', title => {
-        title.classList.add('reference-dropdown-title');
-        title.innerHTML = `${references[0][0]}: ${references[0][1]}`
-    })
-    dropdown.appendElement('div', content => {
-        content.classList.add('reference-dropdown-content');
+    references.forEach((r, index) => {
+        let link = utils.spawn_element('div', ['note-reference'], link => {
+            link.appendElement('div', text_node => {
+                text_node.classList.add('reference-text');
+                text_node.innerHTML = `${r[0]}: ${r[1]}`;
+            })
+    
+            if(references.length === 1) return;
 
-        references.forEach(([title, text], index) => {
-            content.appendElement('div', link => {
-                link.classList.add('reference-link');
-
-                link.appendElement('div', text_node => {
-                    text_node.classList.add('reference-text');
-                    text_node.innerHTML = `${title}: ${text}`
-
-                    if(references.length === 1)
-                    {
-                        text_node.style.width = '100%';
-                    }
-                })
-
-                if(references.length === 1) return;
-
-                link.appendElement('button', button => {
-                    button.classList.add('image-btn');
-                    button.appendElement('img', img => {
-                        img.src = '../images/light-trash-can.svg';
-                        img.alt = 'trash';
-                    });
-
-                    button.addEventListener('click', e => {
-                        delete_reference(index, on_text_require_rerender);
-                    });
-                });
+            let delete_button = utils.spawn_image_button(utils.images.TRASH_CAN, e => {
+                delete_reference(index, on_text_require_rerender);
             });
+            link.appendChild(delete_button.button);
         });
-    });
+
+        references_div.appendChild(link);
+    })
 }
 
 async function delete_reference(index: number, on_text_require_rerender: () => void)
@@ -138,7 +134,7 @@ async function delete_reference(index: number, on_text_require_rerender: () => v
         
             notes.update_note(note.id, note.locations, note.text, 'json').then(_ => {
                 on_text_require_rerender();
-                render_reference_dropdown(on_text_require_rerender);
+                render_note_references(on_text_require_rerender);
             });
         }
     });

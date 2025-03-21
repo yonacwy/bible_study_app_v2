@@ -94,3 +94,35 @@
     box-sizing: border-box;
     .drop-shadow-l();
 }
+
+.note-references 
+{
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    margin-top: 10px * @ui-scale;
+    margin-bottom: @button-size + @button-margin * 4;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px * @ui-scale, 1fr));
+    gap: 5px;
+    
+    .note-reference 
+    {
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+        width: 100%;
+        padding: 2px * @ui-scale;
+        gap: 10px;
+
+        .reference-text 
+        {
+            box-sizing: border-box;
+            max-width: calc(100% - 10px - @button-size);
+            overflow: hidden;
+        }
+    }
+}
