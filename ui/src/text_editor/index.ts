@@ -69,6 +69,15 @@ export class TextEditor
                 })
             })
         });
+
+        this.editor.querySelectorAll('.ProseMirror-menuseparator').forEach(s => {
+            if(s instanceof HTMLElement)
+            {
+                s.style.display = 'inline';
+            }
+        })
+
+        utils.debug_print(utils.format_html(this.editor.innerHTML));
     }
     
     public get_save_json(): string 

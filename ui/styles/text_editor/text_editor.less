@@ -32,16 +32,71 @@
             margin: 0px;
 
             .ProseMirror-menubar {
-                display: flex;
+                display: inline-flex;
                 flex-wrap: wrap;
                 margin: 0px;
                 margin-left: 10px;
                 margin-right: 10px;
                 width: calc(100% - 20px);
-                height: fit-content;
+                min-height: auto;
+                max-height: 100vh;
                 border: none;
                 align-items: flex-start;
                 background-color: antiquewhite;
+                gap: 4px * @ui-scale;
+
+                .ProseMirror-menuitem {
+                    background-color: white;
+                    padding: 2px * @ui-scale;
+                    height: calc(1em + 4px * @ui-scale);
+                    aspect-ratio: 1/1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 4px * @ui-scale;
+                    cursor: pointer;
+                    border: 1px solid #ccc;
+
+                    &:has(.ProseMirror-menu-disabled) {
+                        cursor: not-allowed;
+                    }
+
+                    &:has(.ProseMirror-menu-active) {
+                        background-color: #333;
+                        img {
+                            filter: invert();
+                        }
+
+                        &:hover {
+                            background-color: #111;
+                        }
+                    }
+
+                    .ProseMirror-icon {
+                        margin: auto;
+                        padding: 0px;
+                        width: min-content;
+                        height: min-content;
+                        cursor: inherit;
+                        background-color: inherit;
+                    }
+
+                    img {
+                        margin: 0;
+                        padding: 0;
+                        width: 100%;
+                        height: 100%;
+                    }
+
+                    &:hover {
+                        background-color: #ccc;
+                    }
+                }
+
+                .ProseMirror-menuseparator {
+                    border-right: 2px solid #333;
+                    margin-right: 3px;
+                }
             }
 
             div[contenteditable="true"] {
