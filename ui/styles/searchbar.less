@@ -7,9 +7,11 @@ header .searchbar {
     width: auto;
     justify-content: center;
     align-items: center;
-    height: @button-size - 2px; // no margin
+    height: @button-size;
+    border: 1px solid #333;
+    box-sizing: border-box;
     margin: 0px;
-    gap: 5px * @ui-scale
+    gap: @button-margin * 2 + 1px * @ui-scale;
 }
 
 header .searchbar input {

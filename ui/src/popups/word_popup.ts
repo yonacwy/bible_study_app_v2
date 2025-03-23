@@ -1,5 +1,5 @@
 import { ChapterIndex, Color, HighlightCategory } from "../bindings.js";
-import { get_categories, get_chapter_annotations, SELECTED_HIGHLIGHT } from "../highlights.js";
+import { get_categories, get_chapter_annotations, } from "../highlights.js";
 import { color_to_hex, debug_print } from "../utils/index.js";
 
 const HIGHLIGHT_CATEGORIES = await get_categories();
@@ -8,13 +8,13 @@ const HIGHLIGHT_CATEGORIES = await get_categories();
 let current_ids: string[] = [];
 export function init_word_popup(popup: HTMLElement)
 {
-    document.addEventListener('click', e => {
-        let selected_highlight = SELECTED_HIGHLIGHT.get();
-        if(selected_highlight !== null && current_ids.includes(selected_highlight))
-        {
-            popup.classList.remove('show');
-        }
-    });
+    // document.addEventListener('click', e => {
+    //     let selected_highlight = SELECTED_HIGHLIGHT.get();
+    //     if(selected_highlight !== null && current_ids.includes(selected_highlight))
+    //     {
+    //         popup.classList.remove('show');
+    //     }
+    // });
 }
 
 export function display_on_div(div: HTMLElement, highlight_ids: string[], has_note: boolean, popup: HTMLElement) 

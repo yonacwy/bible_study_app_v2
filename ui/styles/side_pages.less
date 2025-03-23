@@ -51,6 +51,14 @@
     padding: 0px;
 }
 
+#close-editor-btn {
+    position: fixed;
+    top: 10px;
+    z-index: 1000;
+    padding: 0px;
+    right: 10px;
+}
+
 .bible-container {
     display: block;
     background-color: white;
@@ -61,6 +69,7 @@
     height: fit-content;
     width: 100%;
     box-sizing: border-box;
+    .drop-shadow-m();
 }
 
 .chapter-title-container {
@@ -87,5 +96,43 @@
     .drop-shadow-l();
 }
 
-@import "./note_editor/toolbar.less";
-@import "./note_editor/text_editor.less";
+.note-references 
+{
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    margin-top: 10px * @ui-scale;
+    margin-bottom: @button-size + @button-margin * 4;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px * @ui-scale, 1fr));
+    gap: 5px;
+    
+    .note-reference 
+    {
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+        width: 100%;
+        padding: 5px * @ui-scale;
+        gap: 10px;
+        border-radius: 4px * @ui-scale;
+        border: 1px solid #333;
+        cursor: pointer;
+        transition: background-color linear 0.2s;
+        .drop-shadow-m();
+
+        &:hover {
+            background-color: #ccc;
+        }
+
+        .reference-text 
+        {
+            box-sizing: border-box;
+            max-width: calc(100% - 10px - @button-size);
+            overflow: hidden;
+        }
+    }
+}

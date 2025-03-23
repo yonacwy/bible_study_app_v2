@@ -27,18 +27,6 @@ export function init_main_page_header(extra?: (e: HTMLElement) => void)
         <button class="image-btn" id="forward-btn" title="Go forward">
             <img src="../images/light-arrow-turn-right.svg">
         </button>
-        <button class="image-btn" id="new-note-btn" title="New Note">
-            <img src="../images/light-note-medical.svg" alt="Button">
-        </button>
-        <div class="dropdown">
-            <button class="image-btn" id="highlight-selector-btn" title="Select a highlight to paint with">
-                <img src="../images/light-highlighter-line.svg" alt="Dropdown Button">
-            </button>
-            <div class="dropdown-content" id="highlights-dropdown"></div>
-        </div>
-        <button class="image-btn" id="erase-highlight-toggle" title="Toggle if you want to erase highlights">
-            <img src="../images/light-eraser.svg">
-        </button>
         ${SETTINGS_DROPDOWN}
     `;
 

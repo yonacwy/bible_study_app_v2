@@ -1,5 +1,6 @@
 @import "./shared/defs.less";
 @import "./shared/font_sizing.less";
+@import "./shared/verseref.less";
 
 .popup-panel {
     position: fixed;
@@ -115,7 +116,7 @@
     padding-bottom: 15px;
     margin-bottom: 10px;
     border-bottom: 1px solid #333;
-    min-height: 20px;
+    min-height: @button-size + @button-margin;
     .font-small();
 }
 
@@ -139,6 +140,7 @@
     box-sizing: border-box;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
 }
 
 .popup-panel-content .note-viewer .edit-btn img {

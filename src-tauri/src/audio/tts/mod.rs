@@ -10,12 +10,19 @@ use itertools::Itertools;
 use kira::{sound::static_sound::{StaticSoundData, StaticSoundSettings}, AudioManager, AudioManagerSettings, DefaultBackend, Frame};
 use serde::{Deserialize, Serialize};
 use synth::SpeechSynth;
-use tauri::{path::PathResolver, AppHandle, Emitter, Listener, Manager, Runtime};
+use tauri::{path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Listener, Manager, Runtime};
 
 use crate::{bible::{Bible, ChapterIndex}, utils};
 use self::player_thread::TtsPlayerThread;
 
 pub const TTS_SAMPLE_RATE: u32 = 22050;
+
+pub fn init_espeak<R>(resolver: &PathResolver<R>)
+    where R : Runtime
+{
+    let tts_dir = resolver.resolve("resources/tts-data/espeak-ng-data", BaseDirectory::Resource).unwrap();
+    std::env::set_var("PIPER_ESPEAKNG_DATA_DIRECTORY", tts_dir.into_os_string());
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default)]
 #[serde(rename_all = "snake_case")]

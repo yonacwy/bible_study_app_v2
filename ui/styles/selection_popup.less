@@ -1,0 +1,19 @@
+@import "./shared/defs.less";
+
+.selection-popup {
+    position: fixed;
+    background-color: white;
+    padding: 5px;
+    list-style: none;
+    width: auto;
+    height: @header-height;
+    border-radius: 5px;
+    animation: dropdown 0.2s ease-out;
+    margin: 0px;
+    left: 0;
+    top: @header-height;
+    display: flex;
+
+    .drop-shadow-m();
+    .border-black();
+}

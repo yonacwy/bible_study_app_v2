@@ -18,8 +18,7 @@ export function run()
             utils.conserve_scroll(() => {
                 return search_page.display_search(data.section);
             }, 'left-pane')
-        }),
-        pages.init_context_menu('left-pane'),
+        }, pages.on_require_search),
     ]).then(() => {
         scroll_to_editing();
         document.body.style.visibility = 'visible';

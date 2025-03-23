@@ -6,7 +6,7 @@ use serde_json::Value;
 use crate::{app_state::DEFAULT_BIBLE, audio::TtsSettings, settings::Settings};
 
 const SAVE_FIELD_NAME: &str = "save_version";
-pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV5;
+pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV6;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SaveVersion {
@@ -22,6 +22,8 @@ pub enum SaveVersion {
     SV4,
     #[serde(rename = "5")]
     SV5,
+    #[serde(rename = "6")]
+    SV6,
 }
 
 impl SaveVersion {
@@ -62,6 +64,7 @@ pub fn migrate_save_latest(data: &str) -> MigrationResult {
     migrate_sv2(&mut json);
     migrate_sv3(&mut json);
     migrate_sv4(&mut json);
+    migrate_sv5(&mut json);
 
     if CURRENT_SAVE_VERSION != version {
         MigrationResult::Different {
@@ -174,6 +177,26 @@ fn migrate_sv4(json: &mut Value)
     json.insert(TTS_SETTINGS_FIELD_NAME.to_owned(), serde_json::to_value(&TtsSettings::default()).unwrap());
 
     json.insert(SAVE_FIELD_NAME.to_owned(), serde_json::to_value(SaveVersion::SV5).unwrap());
+}
+
+fn migrate_sv5(json: &mut Value)
+{
+    if !check_save_field(json, SaveVersion::SV5) { return; }
+    let json = json.as_object_mut().unwrap();
+
+    let notebooks = json.get_mut("notebooks").unwrap().as_object_mut().unwrap();
+
+    for (_, notebook) in notebooks.iter_mut()
+    {
+        let notes = notebook.get_mut("notes").unwrap().as_object_mut().unwrap();
+        for (_, data) in notes.iter_mut()
+        {
+            let note = data.as_object_mut().unwrap();
+            note.insert("source_type".into(), Value::String("markdown".into()));
+        }
+    }
+    
+    json.insert(SAVE_FIELD_NAME.to_owned(), serde_json::to_value(SaveVersion::SV6).unwrap());
 }
 
 fn check_save_field(json: &mut Value, expected: SaveVersion) -> bool

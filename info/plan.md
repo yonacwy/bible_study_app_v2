@@ -4,24 +4,45 @@
 ### Version 0.6.0
 - [ ] Notebook Support
 
+### Version 0.5.2: Note QoL Changes
+- [x] Selecting Notes and Highlights
+  - [x] Single select and use
+  - [x] When select, dropdown to create note, add to note, highlight, or erase
+- [x] WYSIWYG Note Editor
+  - [x] Locations
+    - [ ] ~~On the Highlight Description~~
+    - [x] On the Note Editor
+  - [x] Features
+    - [x] Basic controls: Bold, Italics, Lists, etc
+    - [ ] ~~Syntax highlighting?~~
+- [x] Better note references section
+- [x] Miscellaneous
+  - [x] Changed button scale again
+  - [x] Added title to the audio player button
+  - [x] Fixed radius on text dropdown
+  - [x] Fixed search button hover effects
+  - [x] Fixed look of chapter buttons
+  - [x] Fixed cursor when hovering on edit note button
+  - [x] Drop shadows now properly applied to side panels
+
 ### Version 0.5.1: Text to Speech
-- [ ] Text to speech
-  - [ ] Change speed
-  - [ ] Change volume
-  - [ ] Auto play
-    - [ ] Time based
-    - [ ] Chapter number based
-    - [ ] Readings based
-  - [ ] Voice selector
-  - [ ] Skip
-  - [ ] Replay
-  - [ ] Player visual
-- [ ] Multiple Theme Support
-  - [ ] Dark
-  - [ ] Light
-  - [ ] Parchment
-- [ ] Create better info page
-- [ ] Make calendar selected date more visible
+- [x] Text to speech
+  - [x] Change speed
+  - [x] Change volume
+  - [ ] ~~Auto play~~
+    - [ ] ~~Time based~~
+    - [ ] ~~Chapter number based~~
+    - [ ] ~~Readings based~~
+  - [ ] ~~Voice selector~~
+  - [x] Skip
+  - [x] Replay
+  - [x] Player visual
+- [ ] ~~Multiple Theme Support~~
+  - [ ] ~~Dark~~
+  - [ ] ~~Light~~
+  - [ ] ~~Parchment~~
+- [x] Create better info page
+- [ ] ~~Make calendar selected date more visible~~
 
 ### Version 0.5.0: Multiple Bible Support
 - [x] Multiple Bible Support

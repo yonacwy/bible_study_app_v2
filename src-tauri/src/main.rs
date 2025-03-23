@@ -16,7 +16,7 @@ pub mod settings;
 pub mod audio;
 pub mod readings;
 
-use audio::{bible_reader::ReaderState, AudioPlayer, TtsPlayer};
+use audio::{bible_reader::ReaderState, init_espeak, AudioPlayer, TtsPlayer};
 use bible::ChapterIndex;
 use commands::*;
 use readings::ReadingsDatabase;
@@ -28,7 +28,7 @@ fn main() -> Result<(), tts::Error>
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
-
+            init_espeak(&app.path());
             app.manage(Mutex::new(TtsPlayer::new(app.path(), app.handle().clone())));
             app.manage(AudioPlayer::new(app.path(), audio::DEFAULT_SOURCES));
             app.manage(ReadingsDatabase::new(app.path()));
@@ -37,6 +37,9 @@ fn main() -> Result<(), tts::Error>
             // TEMP: ChapterIndex initialization is temporary here, need to load from AppState save
             app.manage(Mutex::new(ReaderState::new(app.handle().clone(), ChapterIndex { book: 0, number: 0 })));
 
+            // let window = app.get_webview_window("main").unwrap();
+            // window.open_devtools();
+            
             Ok(())
         })
         .on_window_event(|window, event| match event {

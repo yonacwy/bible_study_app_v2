@@ -5,7 +5,6 @@ import { BibleSection, ChapterIndex, VerseRange } from "../bindings.js";
 import * as pages from "./pages.js";
 import * as view_states from "../view_states.js";
 import * as side_popup from "../popups/side_popup.js";
-import * as word_select from "../word_select.js";
 import { range_inclusive } from "../utils/ranges.js";
 import * as audio_player from "../popups/audio_player.js";
 
@@ -32,7 +31,6 @@ export async function run()
             let button = spawn_audio_player_button();
             e.insertBefore(button, last);
         }),
-        pages.init_context_menu('chapter-content'),
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range),
     ]).then(_ => {
@@ -60,7 +58,7 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
         };
     }
 
-    let chapter_view = await bible.load_view();
+    let chapter_view = await bible.get_bible_view();
     
     let name = chapter_view[chapter.book].name;
     let number = chapter.number + 1;
@@ -87,7 +85,6 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
     }
 
     let on_render = (): void => {
-        word_select.update_words_for_selection();
         audio_player.on_passage_render();
     }
 
@@ -124,8 +121,6 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
                 }
             }
         }
-
-        word_select.update_words_for_selection();
     });
 }
 
@@ -150,13 +145,15 @@ export async function init_chapter_buttons()
 
 export function spawn_audio_player_button(): HTMLElement
 {
-    let button = utils.spawn_image_button(utils.images.VOLUME_MID, _ => {
+    let button = utils.spawn_image_button(utils.images.VOLUME_MID, (_, button) => {
         if(audio_player.is_player_hidden())
         {
+            button.button.title = 'Hide audio player';
             audio_player.show_player();
         }
         else 
         {
+            button.button.title = 'Show audio player';
             audio_player.hide_player();
         }
     }).button;
@@ -164,13 +161,17 @@ export function spawn_audio_player_button(): HTMLElement
     audio_player.ON_PLAYER_VISIBILITY_CHANGED.add_listener(visible => {
         if(visible)
         {
+            button.title = 'Hide audio player';
             button.classList.add('active');
         }
         else 
         {
+            button.title = 'Show audio player';
             button.classList.remove('active');
         }
     });
+
+    button.title = 'Show audio player';
 
     return button;
 }

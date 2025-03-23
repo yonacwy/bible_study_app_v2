@@ -1,4 +1,4 @@
-import { Marked } from "../md/marked.js";
+import { Marked } from "../vendor/markdown/marked.js";
 export * from "./extensions.js";
 export * from "./string_utils.js";
 export * from "./color_utils.js";
@@ -46,6 +46,41 @@ export function debug_print(msg: string)
 export function debug_json(value: any)
 {
     debug_print(JSON.stringify(value));
+}
+
+// a la chatgpt
+export function format_html(html: string, tab: string = '  '): string
+{
+    let formatted = '';
+    let indentLevel = 0;
+    const voidElements = new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
+    
+    html.replace(/>(\s*)</g, '><') // Remove unnecessary spaces between tags
+        .split(/(?=<)|(?<=>)/g) // Split at tag boundaries
+        .forEach((line) => {
+            if (line.match(/^<\//)) {
+                indentLevel = Math.max(indentLevel - 1, 0);
+            }
+            formatted += tab.repeat(indentLevel) + line.trim() + '\n';
+            if (line.match(/^<([a-zA-Z0-9]+)([^>]*)>$/) && !voidElements.has(RegExp.$1)) {
+                indentLevel++;
+            }
+        });
+    
+    return formatted.trim();
+}
+
+export function format_json(str: string, tab: string = '   '): string
+{
+    try 
+    {
+        const parsed = JSON.parse(str);
+        return JSON.stringify(parsed, null, tab);
+    } 
+    catch (error) 
+    {
+        return 'Invalid JSON string';
+    }
 }
 
 export function overlap<T>(a: T[], b: T[]): T[]

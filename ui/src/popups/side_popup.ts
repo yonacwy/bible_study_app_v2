@@ -4,6 +4,7 @@ import * as utils from "../utils/index.js";
 import * as notes from "../notes.js";
 import * as view_states from "../view_states.js";
 import { get_ui_scale } from "../settings.js";
+import { render_note_data } from "../rendering/note_rendering.js";
 
 const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";
@@ -50,8 +51,7 @@ export function display_on_div(div: HTMLElement, word: string, annotations: Word
     div.addEventListener('click', e => {
         if(annotations === null          ||
             annotations === undefined     ||
-           (annotations.notes.length === 0 && annotations.highlights.length === 0) ||
-           highlight_utils.SELECTED_HIGHLIGHT.get() !== null
+           (annotations.notes.length === 0 && annotations.highlights.length === 0)
         )
         {
             panel_data.popup_panel.classList.remove('open');
@@ -97,7 +97,7 @@ async function append_notes(annotations: WordAnnotations, target: Element, on_se
             });
             div.appendElement('div', content => {
                 content.classList.add('note-content');
-                content.innerHTML = utils.render_markdown(note_data.text);
+                render_note_data(note_data, on_search, content);
             });
             div.appendElement('div', grid => {
                 grid.classList.add('reference-buttons')
