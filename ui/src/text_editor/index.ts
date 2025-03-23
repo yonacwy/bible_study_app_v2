@@ -70,14 +70,14 @@ export class TextEditor
             })
         });
 
+        // idk why we need to do this
         this.editor.querySelectorAll('.ProseMirror-menuseparator').forEach(s => {
+            utils.debug_print('setting value');
             if(s instanceof HTMLElement)
             {
-                s.style.display = 'inline';
+                s.style.display = 'block';
             }
         })
-
-        utils.debug_print(utils.format_html(this.editor.innerHTML));
     }
     
     public get_save_json(): string 

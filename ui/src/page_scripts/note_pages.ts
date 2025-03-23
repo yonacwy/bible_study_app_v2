@@ -9,19 +9,19 @@ import { TextEditor } from "../text_editor/index.js";
 
 const DELETE_NOTE_BUTTON = 'delete-note-btn'
 
-export async function init_note_page(note_id: string, on_text_require_rerender: () => void): Promise<void>
+export async function init_note_page(note_id: string, on_text_require_rerender: () => void, on_search: (msg: string) => void): Promise<void>
 {
     selection.ON_SELECTION_EVENT.add_listener(e => {
         if(e === 'edited-note')
         {
-            render_note_references(on_text_require_rerender);
+            render_note_references(on_text_require_rerender, on_search);
         }
     });
 
     Promise.all([
         init_resizer(),
         init_text_editor(note_id).then(_ => {
-            init_note_references(on_text_require_rerender);
+            init_note_references(on_text_require_rerender, on_search);
         }),
     ]);
 }
@@ -79,7 +79,7 @@ async function init_text_editor(note_id: string)
     }
 }
 
-async function init_note_references(on_text_require_rerender: () => void): Promise<void>
+async function init_note_references(on_text_require_rerender: () => void, on_search: (msg: string) => void): Promise<void>
 {
     let pane = document.getElementById('right-pane');
     if(!pane) return;
@@ -90,10 +90,10 @@ async function init_note_references(on_text_require_rerender: () => void): Promi
 
     pane.appendChild(references_div);
 
-    return render_note_references(on_text_require_rerender);
+    return render_note_references(on_text_require_rerender, on_search);
 }
 
-async function render_note_references(on_text_require_rerender: () => void)
+async function render_note_references(on_text_require_rerender: () => void, on_search: (msg: string) => void)
 {
     let references_div = document.getElementById('note-references');
     let editing_note = await notes.get_editing_note();
@@ -113,16 +113,20 @@ async function render_note_references(on_text_require_rerender: () => void)
             if(references.length === 1) return;
 
             let delete_button = utils.spawn_image_button(utils.images.TRASH_CAN, e => {
-                delete_reference(index, on_text_require_rerender);
+                delete_reference(index, on_text_require_rerender, on_search);
             });
             link.appendChild(delete_button.button);
         });
+
+        link.addEventListener('click', l => {
+            on_search(r[0]);
+        })
 
         references_div.appendChild(link);
     })
 }
 
-async function delete_reference(index: number, on_text_require_rerender: () => void)
+async function delete_reference(index: number, on_text_require_rerender: () => void, on_search: (msg: string) => void)
 {
     confirm_popup.show_confirm_popup({
         message: 'Are you sure you want to delete this reference location?',
@@ -134,7 +138,7 @@ async function delete_reference(index: number, on_text_require_rerender: () => v
         
             notes.update_note(note.id, note.locations, note.text, 'json').then(_ => {
                 on_text_require_rerender();
-                render_note_references(on_text_require_rerender);
+                render_note_references(on_text_require_rerender, on_search);
             });
         }
     });

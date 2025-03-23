@@ -30,7 +30,7 @@ export function run()
             utils.conserve_scroll(() => {
                 return bible_page.display_chapter(chapter, data.section.verse_range);
             }, 'left-pane')
-        }),
+        }, pages.on_require_search),
         bible_page.display_chapter(chapter, data.section.verse_range),
         bible_page.init_chapter_buttons(),
     ]).then(_ => {

@@ -2,6 +2,10 @@
 @import "../shared/defs.less";
 @import "../shared/font_sizing.less";
 
+
+
+@toolbar-color: rgb(107, 107, 107);
+
 .text-editor {
     @editor-margin: 0px;
 
@@ -11,7 +15,7 @@
     height: calc(100% - @editor-margin * 2);
     border: 2px solid #333;
     border-radius: 10px;
-    background-color: antiquewhite;
+    background: linear-gradient(to top, white 50%, @toolbar-color 50%);
 
     .editor {
         width: 100%;
@@ -19,7 +23,6 @@
         padding: 0px;
         margin: 0px;
         box-sizing: border-box;
-        margin-top: 3px;
 
         .font-small();
 
@@ -41,9 +44,11 @@
                 min-height: auto;
                 max-height: 100vh;
                 border: none;
-                align-items: flex-start;
-                background-color: antiquewhite;
+                align-items: center;
+                background-color: @toolbar-color;
                 gap: 4px * @ui-scale;
+                margin-top: 4px * @ui-scale;
+                margin-bottom: 4px * @ui-scale;
 
                 .ProseMirror-menuitem {
                     background-color: white;
@@ -96,6 +101,7 @@
                 .ProseMirror-menuseparator {
                     border-right: 2px solid #333;
                     margin-right: 3px;
+                    height: 1.5em;
                 }
             }
 

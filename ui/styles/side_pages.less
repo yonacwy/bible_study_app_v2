@@ -115,8 +115,15 @@
         justify-content: space-between;
         box-sizing: border-box;
         width: 100%;
-        padding: 2px * @ui-scale;
+        padding: 5px * @ui-scale;
         gap: 10px;
+        border-radius: 4px * @ui-scale;
+        border: 1px solid #333;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #ccc;
+        }
 
         .reference-text 
         {
