@@ -8,6 +8,7 @@
 
 .text-editor {
     @editor-margin: 0px;
+    .drop-shadow-m();
 
     box-sizing: border-box;
     margin: @editor-margin;
@@ -61,6 +62,7 @@
                     border-radius: 4px * @ui-scale;
                     cursor: pointer;
                     border: 1px solid #ccc;
+                    transition: background-color linear 0.2s;
 
                     &:has(.ProseMirror-menu-disabled) {
                         cursor: not-allowed;

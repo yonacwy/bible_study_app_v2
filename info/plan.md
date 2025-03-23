@@ -15,12 +15,15 @@
   - [x] Features
     - [x] Basic controls: Bold, Italics, Lists, etc
     - [ ] ~~Syntax highlighting?~~
+- [x] Better note references section
 - [x] Miscellaneous
   - [x] Changed button scale again
   - [x] Added title to the audio player button
   - [x] Fixed radius on text dropdown
   - [x] Fixed search button hover effects
   - [x] Fixed look of chapter buttons
+  - [x] Fixed cursor when hovering on edit note button
+  - [x] Drop shadows now properly applied to side panels
 
 ### Version 0.5.1: Text to Speech
 - [x] Text to speech

@@ -69,6 +69,7 @@
     height: fit-content;
     width: 100%;
     box-sizing: border-box;
+    .drop-shadow-m();
 }
 
 .chapter-title-container {
@@ -120,6 +121,8 @@
         border-radius: 4px * @ui-scale;
         border: 1px solid #333;
         cursor: pointer;
+        transition: background-color linear 0.2s;
+        .drop-shadow-m();
 
         &:hover {
             background-color: #ccc;
