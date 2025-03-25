@@ -9,3 +9,4 @@
 - References in notes aren't in a block (can be broken between book name and chapter)?
 - Hover context menu sometiems reopens when clicking to deselect on an already selected section
 - When closing editing note, scroll to where edited it
+- Edit note button does not have title, and is not an image button
