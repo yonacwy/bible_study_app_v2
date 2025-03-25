@@ -8,3 +8,4 @@
 - Verse quotations in notes can be a taaaad too long
 - References in notes aren't in a block (can be broken between book name and chapter)?
 - Hover context menu sometiems reopens when clicking to deselect on an already selected section
+- When closing editing note, scroll to where edited it
