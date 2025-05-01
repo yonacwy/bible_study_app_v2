@@ -4,6 +4,21 @@
 ### Version 0.6.0
 - [ ] Notebook Support
 
+
+### Version 0.5.3: Bug Fixes
+- [ ] Lots o Bugs fixes
+- [ ] Finalize audio playback
+- [ ] Theme support
+  - [ ] Custom themes
+  - [ ] Given presets
+- [ ] More audio sounds???
+- [ ] Better highlighting
+  - [ ] No highlights created
+  - [ ] Better highlight editor
+  - [ ] Preset highlights
+  - [ ] Highlight selector (recants)
+  - [ ] Better eraser system
+
 ### Version 0.5.2: Note QoL Changes
 - [x] Selecting Notes and Highlights
   - [x] Single select and use
