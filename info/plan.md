@@ -16,7 +16,7 @@
   - [ ] No highlights created
   - [ ] Better highlight editor
   - [ ] Preset highlights
-  - [ ] Highlight selector (recants)
+  - [ ] Highlight selector (recents)
   - [ ] Better eraser system
 
 ### Version 0.5.2: Note QoL Changes
