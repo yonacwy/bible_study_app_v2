@@ -3,6 +3,13 @@
 
 ### Version 0.6.0
 - [ ] Notebook Support
+  - [ ] Seperates different notes into notebooks
+  - [ ] 
+- [ ] Note viewer
+  - [ ] Can see all notes without having to find them
+  - [ ] Searching?
+  - [ ] View multiple notebooks
+- [ ] See notes from different bible versions
 
 
 ### Version 0.5.3: Bug Fixes
@@ -13,7 +20,7 @@
   - [ ] Given presets
 - [ ] More audio sounds???
 - [ ] Better highlighting
-  - [ ] No highlights created
+  - [ ] No highlights created info
   - [ ] Better highlight editor
   - [ ] Preset highlights
   - [ ] Highlight selector (recents)
