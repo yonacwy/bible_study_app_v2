@@ -14,7 +14,7 @@
 
 ### Version 0.5.3: Bug Fixes
 - [ ] Lots o Bugs fixes
-- [ ] Finalize audio playback
+- [ ] Finalize audio playback (See Version 0.5.1)
 - [ ] Theme support
   - [ ] Custom themes
   - [ ] Given presets
