@@ -4,12 +4,12 @@
 ### Version 0.6.0
 - [ ] Notebook Support
   - [ ] Seperates different notes into notebooks
-  - [ ] 
+  - [ ] Enable/Disable for viewing
+  - [ ] See notes from different bible versions
 - [ ] Note viewer
   - [ ] Can see all notes without having to find them
-  - [ ] Searching?
+  - [ ] Searching based on keywords?
   - [ ] View multiple notebooks
-- [ ] See notes from different bible versions
 
 
 ### Version 0.5.3: Bug Fixes
