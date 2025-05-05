@@ -15,10 +15,17 @@ export function render_note_data(note: NoteData, on_search: (msg: string) => voi
     }
     else if(note.source_type === 'json')
     {
-        const doc = SCHEMA.nodeFromJSON(JSON.parse(note.text));
-        const serializer = DOMSerializer.fromSchema(SCHEMA);
-        let fragment = serializer.serializeFragment(doc.content) as HTMLElement;
-        target.replaceChildren(fragment);
+        if (note.text != '')
+        {
+            const doc = SCHEMA.nodeFromJSON(JSON.parse(note.text));
+            const serializer = DOMSerializer.fromSchema(SCHEMA);
+            let fragment = serializer.serializeFragment(doc.content) as HTMLElement;
+            target.replaceChildren(fragment);
+        }
+        else
+        {
+            target.replaceChildren(document.createElement('div'));
+        }
     }
 
     target.querySelectorAll('div.bible-ref').forEach(ref => {

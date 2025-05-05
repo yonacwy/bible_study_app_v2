@@ -7,6 +7,11 @@
 
 ### Version 0.5.3: Bug Fixes
 - [ ] Lots o Bugs fixes
+  - [ ] Removed close image on search note page
+  - [ ] Pointer curser now on chapter buttons
+  - [ ] Invalid display when creating an empty note
+  - [ ] Edit note button changed to make like rest
+  - [ ] Reference buttons on notes and section buttons on notes now have curser pointer
 - [ ] Finalize audio playback
 - [ ] Theme support
   - [ ] Custom themes

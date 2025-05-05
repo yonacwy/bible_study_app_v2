@@ -86,15 +86,15 @@ async function append_notes(annotations: WordAnnotations, target: Element, on_se
         let references = await notes.get_note_references(note_data);
         target.appendElement('div', div => {
             div.classList.add('note-viewer');
-            div.appendElement('button', button => {
-                button.classList.add('edit-btn');
-                button.addEventListener('click', e => {
-                    notes.set_editing_note(note_data.id).then(_ => {
-                        view_states.goto_current_view_state();
-                    });
-                })
-                button.appendElement('img');
+            let edit_btn = utils.spawn_image_button(utils.images.PENCIL, _ => {
+                notes.set_editing_note(note_data.id).then(_ => {
+                    view_states.goto_current_view_state();
+                });
             });
+
+            edit_btn.button.style.float = 'right';
+            div.appendChild(edit_btn.button);
+
             div.appendElement('div', content => {
                 content.classList.add('note-content');
                 render_note_data(note_data, on_search, content);
