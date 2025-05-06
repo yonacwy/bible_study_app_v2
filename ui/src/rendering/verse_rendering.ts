@@ -25,7 +25,16 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
     let words: Word[] = verse_data.words;
     let offset = await bible.get_verse_word_offset(args.chapter.book, args.chapter.number, args.verse);
     let chapter_annotations = JSON.parse(await utils.invoke('get_chapter_annotations', { chapter: args.chapter}));
-    
+
+    if (words.all(w => w.text.trim() == ''))
+    {
+        let e = document.createElement('div');
+        e.innerHTML = '[Verse omitted]';
+        e.style.fontStyle = 'italic';
+        elements.push(e);
+        return elements;
+    }
+
     let last_word_annotations: WordAnnotations | null = null;
     for(let i = 0; i < words.length; i++)
     {

@@ -88,6 +88,16 @@ export function overlap<T>(a: T[], b: T[]): T[]
     return a.filter(i => b.includes(i))
 }
 
+export function profile<R>(name: string, f: () => R): R
+{
+    let start = new Date().getTime();
+    let r = f();
+    let end = new Date().getTime();
+    let elapsed = end - start;
+    debug_print(`Task ${name} took ${elapsed}ms`);
+    return r;
+}
+
 export async function is_app_initialized(): Promise<boolean>
 {
     return await invoke('is_initialized', {});

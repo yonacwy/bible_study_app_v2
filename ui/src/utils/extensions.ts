@@ -48,7 +48,35 @@ declare global {
         remove(value: T): boolean;
         filter_map<R>(predicate: (v: T) => R | null): R[];
         find_map<R>(predicate: (v: T) => R | null): R | undefined;
+        any(p: (v: T) => boolean): boolean;
+        all(p: (v: T) => boolean): boolean;
     }
+}
+
+Array.prototype.all = function<T>(p: (v: T) => boolean): boolean
+{
+    for(let i = 0; i < this.length; i++)
+    {
+        if (!p(this[i]))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+Array.prototype.any = function<T>(p: (v: T) => boolean): boolean
+{
+    for(let i = 0; i < this.length; i++)
+    {
+        if (p(this[i]))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 Array.prototype.remove_at = function<T>(index: number): T | undefined

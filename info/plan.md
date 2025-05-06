@@ -14,12 +14,12 @@
   - [x] Reference buttons on notes and section buttons on notes now have curser pointer
   - [x] Note not saving when moving to a different page (ie: next chapter)
   - [x] Long text not wrapping via `-` In the note viewer
-  - [x] Verse quotations in notes can be a taaaad too long
+  - [x] Verse quotations in notes can be a tad too long
+  - [x] Excluded verses aren't handled
 - [ ] Finalize audio playback
 - [ ] Theme support
   - [ ] Custom themes
   - [ ] Given presets
-- [ ] More audio sounds???
 - [ ] Better highlighting
   - [ ] No highlights created
   - [ ] Better highlight editor
@@ -27,7 +27,7 @@
   - [ ] Highlight selector (recents)
   - [ ] Better eraser system
 - [ ] Miscellanies
-  - [ ] Words with notes now have `pointer` curser when hovered
+  - [x] Words with notes now have `pointer` curser when hovered
 
 ### Version 0.5.2: Note QoL Changes
 - [x] Selecting Notes and Highlights
