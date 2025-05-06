@@ -131,4 +131,15 @@ Math.approx_eq = (a: number, b: number, epsilon?: number): boolean => {
     return Math.abs(a - b) < (epsilon ?? 0.01);
 }
 
+declare global {
+    interface String {
+        limit_length(max: number, terminator: string): String;
+    }
+}
+
+String.prototype.limit_length = function(this: String, max: number, terminator: string): String {
+    let s = this.slice(0, Math.min(this.length, max));
+    return s + terminator;
+}
+
 export {};

@@ -103,7 +103,7 @@ async function append_notes(annotations: WordAnnotations, target: Element, on_se
                 grid.classList.add('reference-buttons')
                 references.forEach(ref => {
                     grid.appendElement('button', button => {
-                        button.innerHTML = `${ref[0]}:'${ref[1]}'`;
+                        button.innerHTML = `${ref[0]}: '${ref[1]}'`;
                         button.addEventListener('click', e => {
                             on_search(ref[0]);
                         });

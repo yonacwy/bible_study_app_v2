@@ -17,11 +17,12 @@ export function render_word(data: WordData)
     if(data.has_note)
     {
         word_node.style.textDecoration = 'underline';
+        word_node.style.cursor = 'pointer';
     }
 
     if (data.word.italicized)
     {
-        word_node.style.fontStyle = 'italic'
+        word_node.style.fontStyle = 'italic';
     }
     
     if (data.searched !== null && data.searched.includes(utils.trim_string(data.word.text).toLocaleLowerCase()))

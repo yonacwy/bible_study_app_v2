@@ -62,7 +62,7 @@ export async function get_note_references(note_data: NoteData): Promise<[string,
         let end = bible.flatten_verse_index(view, location.range.verse_end, location.range.word_end);
 
         let words = await bible.get_chapter_words(location.chapter);
-        let text = words.slice(start, end + 1).join(' ');
+        let text = words.slice(start, end + 1).join(' ').limit_length(30, '...');
         let name = bible.shorten_book_name(bible_view[location.chapter.book].name); 
 
         let title = `${name} ${location.chapter.number + 1}:${location.range.verse_start + 1}`;
@@ -71,7 +71,7 @@ export async function get_note_references(note_data: NoteData): Promise<[string,
             title += `-${location.range.verse_end + 1}`;
         }
 
-        references.push([title, text]);
+        references.push([title, text.valueOf()]);
     }
 
     return references;

@@ -7,11 +7,14 @@
 
 ### Version 0.5.3: Bug Fixes
 - [ ] Lots o Bugs fixes
-  - [ ] Removed close image on search note page
-  - [ ] Pointer curser now on chapter buttons
-  - [ ] Invalid display when creating an empty note
-  - [ ] Edit note button changed to make like rest
-  - [ ] Reference buttons on notes and section buttons on notes now have curser pointer
+  - [x] Removed close image on search note page
+  - [x] Pointer curser now on chapter buttons
+  - [x] Invalid display when creating an empty note
+  - [x] Edit note button changed to make like rest
+  - [x] Reference buttons on notes and section buttons on notes now have curser pointer
+  - [x] Note not saving when moving to a different page (ie: next chapter)
+  - [x] Long text not wrapping via `-` In the note viewer
+  - [x] Verse quotations in notes can be a taaaad too long
 - [ ] Finalize audio playback
 - [ ] Theme support
   - [ ] Custom themes
@@ -23,6 +26,8 @@
   - [ ] Preset highlights
   - [ ] Highlight selector (recents)
   - [ ] Better eraser system
+- [ ] Miscellanies
+  - [ ] Words with notes now have `pointer` curser when hovered
 
 ### Version 0.5.2: Note QoL Changes
 - [x] Selecting Notes and Highlights
