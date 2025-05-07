@@ -1,5 +1,6 @@
 use std::sync::Mutex;
 use kira::{Decibels, Tween, Tweenable};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::State;
 use crate::{app_state::AppState, readings::{ReadingsDatabase, SelectedReading}};
@@ -10,7 +11,7 @@ pub mod tts;
 pub use player::*;
 pub use tts::*;
 
-use self::bible_reader::{ReaderBehavior, ReaderState};
+use self::bible_reader::{BibleReaderSection, ReaderBehavior, ReaderState};
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, app_state: State<'_, AppState>, command: &str, args: Option<String>) -> Option<String>
@@ -119,8 +120,10 @@ pub fn run_bible_reader_command(
             let json = serde_json::to_string(reader_state.get_behavior()).unwrap();
             return Some(json)
         },
-        "get_next" => {
-
+        "to_next" => {
+            reader_state.to_next_index();
+        },
+        "get" => {
             let selected_reading = app_state.read_selected_reading(|r| {
                 *r
             });
@@ -128,8 +131,8 @@ pub fn run_bible_reader_command(
             // HACK + pain
             let selected_reading: SelectedReading = serde_json::from_str(&selected_reading.to_string()).unwrap();
 
-            let next = reader_state.get_next(app_state.get_current_bible(), &readings_database, selected_reading);
-            let json = next.map(|n| serde_json::to_string(&n).unwrap());
+            let section = reader_state.get_current(app_state.get_current_bible(), &readings_database, selected_reading, None);
+            let json = section.map(|s| serde_json::to_string(&s).unwrap());
             return json;
         }
         "start_timer" => {
@@ -144,6 +147,25 @@ pub fn run_bible_reader_command(
         "stop_timer" => {
             reader_state.stop_timer();
         },
+
+        "get_queue" => {
+            if let Some(radius) = args.map(|a| serde_json::from_value::<u32>(a).unwrap()) 
+            {
+                let selected_reading = app_state.read_selected_reading(|r| {
+                    *r
+                });
+                // HACK + pain
+                let selected_reading: SelectedReading = serde_json::from_str(&selected_reading.to_string()).unwrap();
+
+                let queue = reader_state.get_queue(app_state.get_current_bible(), &readings_database, selected_reading, radius);
+                let json = serde_json::to_string(&queue).unwrap();
+                return Some(json);
+            }
+            else 
+            {
+                println!("Expected a `ReaderBehavior` argument")    
+            }
+        }
 
         c => println!("Unknown command: `{}`", c) 
     }

@@ -121,7 +121,7 @@ impl ReaderTimerThread
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BibleReaderSection
 {
     pub chapter: ChapterIndex,
@@ -197,6 +197,13 @@ impl Default for RepeatOptions
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReaderQueueData
+{
+    pub current: u32,
+    pub sections: Vec<BibleReaderSection>,
+}
+
 pub struct ReaderState
 {
     behavior: ReaderBehavior,
@@ -241,6 +248,16 @@ impl ReaderState
         self.reading_index = 0;
     }
 
+    pub fn to_next_index(&mut self)
+    {
+        self.reading_index += 1;
+    }
+
+    pub fn get_reading_index(&mut self) -> u32
+    {
+        self.reading_index
+    }
+
     pub fn start_timer(&mut self)
     {
         self.stop_timer();
@@ -274,8 +291,26 @@ impl ReaderState
         }
     }
 
-    pub fn get_next(&mut self, bible: &Bible, readings_database: &ReadingsDatabase, selected_reading: SelectedReading) -> Option<BibleReaderSection>
+    pub fn get_queue(&self, bible: &Bible, readings_database: &ReadingsDatabase, selected_reading: SelectedReading, radius: u32) -> ReaderQueueData
     {
+        let queue_index = self.reading_index.min(radius);
+        let len = queue_index + 1 + radius;
+        let offset = if self.reading_index <= radius { 0 } else { self.reading_index - radius - 1 };
+
+        let sections = (0..len).map(|i| i + offset)
+            .filter_map(|i| self.get_current(bible, readings_database, selected_reading, Some(i)))
+            .collect();
+
+        ReaderQueueData { 
+            current: queue_index, 
+            sections 
+        }
+    }
+
+    pub fn get_current(&self, bible: &Bible, readings_database: &ReadingsDatabase, selected_reading: SelectedReading, reading_index: Option<u32>) -> Option<BibleReaderSection>
+    {
+        let index = reading_index.unwrap_or(self.reading_index);
+
         let section = match self.behavior {
             ReaderBehavior::Segment { start, length, options } => {
                 let length = match length {
@@ -283,12 +318,12 @@ impl ReaderState
                     None => u32::MAX // also HACK....
                 };
 
-                if self.reading_index / length as u32 >= options.get_count()
+                if index / length as u32 >= options.get_count()
                 {
                     return None;
                 }
 
-                let count = self.reading_index / length;
+                let count = index / length;
                 let view = bible.get_view();
                 let chapter = view.increment_chapter(start, count);
 
@@ -300,12 +335,12 @@ impl ReaderState
             ReaderBehavior::Daily { month, day, options } => {
                 let readings = readings_database.get_readings(month, day, selected_reading);
                 
-                if self.reading_index / readings.len() as u32 >= options.get_count()
+                if index / readings.len() as u32 >= options.get_count()
                 {
                     return None;
                 }
 
-                let reading = &readings[self.reading_index as usize % readings.len()];
+                let reading = &readings[index as usize % readings.len()];
 
                 let book = searching::get_book_from_name(reading.prefix, &reading.book, bible).unwrap().index;
                 let number = reading.chapter;
@@ -320,7 +355,6 @@ impl ReaderState
                 }
             },
         };
-        self.reading_index += 1;
 
         Some(section)
     }

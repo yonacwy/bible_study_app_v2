@@ -177,6 +177,10 @@ export function shorten_book_name(name: string): string
     {
         name = 'jn';
     }
+    else if (name == 'mark')
+    {
+        name = 'mk';
+    }
 
     name = name = name.length > SHORTENED_BOOK_NAME_LENGTH
         ? name.slice(0, SHORTENED_BOOK_NAME_LENGTH)

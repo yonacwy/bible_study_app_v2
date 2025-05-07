@@ -9,6 +9,12 @@ export function show_queue_display()
                 display.remove();
             });
             content.appendChild(button.button);
+
+            let print_btn = utils.spawn_image_button(utils.images.EYE, e => {
+                utils.debug_print('hi');
+            });
+            content.appendChild(print_btn.button);
+
         });
     });
 
