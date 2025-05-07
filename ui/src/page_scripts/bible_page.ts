@@ -116,8 +116,10 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
                 let element = content.getElementsByClassName(`verse-index-${start}`)[0];
                 if (element !== undefined)
                 {
-                    element.scrollIntoView();
-                    window.scrollBy(0, -40);
+                    element.scrollIntoView({
+                        block: 'center',
+                        behavior: 'smooth',
+                    });
                 }
             }
         }

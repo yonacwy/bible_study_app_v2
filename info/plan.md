@@ -28,6 +28,10 @@
   - [ ] Better eraser system
 - [ ] Miscellanies
   - [x] Words with notes now have `pointer` curser when hovered
+  - [ ] When closing editing note, scroll to where edited it
+  - [x] Scroll offset to center, not top
+  - [ ] Migrate save settings
+    - [ ] Audio player
 
 ### Version 0.5.2: Note QoL Changes
 - [x] Selecting Notes and Highlights
