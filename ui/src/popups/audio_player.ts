@@ -2,6 +2,7 @@ import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
 import { TtsGenerationProgressEvent, TtsPlayingEvent } from "../utils/tts.js";
 import * as view_states from "../view_states.js";
+import { spawn_behavior_selector } from "./player_behavior.js";
 
 // To implement on a page, need to call `init_player()` before anything, then whenever the passage chapter is rendered, `on_passage_rendered()` needs to be called
 
@@ -230,65 +231,8 @@ export function init_player()
 
             // TODO: Hidden
             content.appendElementEx('div', ['strategy-settings'], async strategy_settings => {
-                let continuous_toggle = utils.spawn_toggle_button({
-                    image: utils.images.HISTORY_HORIZONTAL,
-                    tooltip: 'Continuous playback',
-                    is_toggled: false,
-                });
-
-                let repeat_toggle = utils.spawn_toggle_button({
-                    image: utils.images.REPEAT,
-                    tooltip: 'Repeat Chapter',
-                    is_toggled: false,
-                });
-
-                strategy_settings.appendChild(continuous_toggle.button.button);
-                strategy_settings.appendChild(repeat_toggle.button.button);
-
-                continuous_toggle.on_click.add_listener(async v => {
-                    if(v)
-                    {
-                        repeat_toggle.set_value(false);
-                        let settings = await PLAYER.get_settings();
-                        settings.player_state = 'continuous'
-                        PLAYER.set_settings(settings);
-                    }
-                    else 
-                    {
-                        let settings = await PLAYER.get_settings();
-                        settings.player_state = 'none'
-                        PLAYER.set_settings(settings);
-                    }
-                });
-
-                repeat_toggle.on_click.add_listener(async v => {
-                    if(v)
-                    {
-                        continuous_toggle.set_value(false);
-                        let settings = await PLAYER.get_settings();
-                        settings.player_state = 'repeat'
-                        PLAYER.set_settings(settings);
-                    }
-                    else 
-                    {
-                        let settings = await PLAYER.get_settings();
-                        settings.player_state = 'none'
-                        PLAYER.set_settings(settings);
-                    }
-                });
-
-                let settings = await PLAYER.get_settings();
-                if(settings.player_state === 'continuous')
-                {
-                    continuous_toggle.set_value(true);
-                }
-                else if(settings.player_state === 'repeat')
-                {
-                    repeat_toggle.set_value(true);
-                }
-
-                // let selector = await spawn_behavior_selector();
-                // strategy_settings.appendChild(selector);
+                let selector = await spawn_behavior_selector();
+                strategy_settings.appendChild(selector);
             });
         });
 
