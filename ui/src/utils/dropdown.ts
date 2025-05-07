@@ -84,7 +84,7 @@ export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdo
     });
 
     dropdown.appendChild(title_button.button);
-    dropdown.appendElementEx('div', ['small-dropdown-content'], content => {
+    dropdown.append_element_ex('div', ['small-dropdown-content'], content => {
         option_buttons.forEach(b => content.appendChild(b.button));
     });
 

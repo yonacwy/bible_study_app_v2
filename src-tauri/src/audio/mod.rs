@@ -129,7 +129,7 @@ pub fn run_bible_reader_command(
             });
 
             // HACK + pain
-            let selected_reading: SelectedReading = serde_json::from_str(&selected_reading.to_string()).unwrap();
+            let selected_reading: SelectedReading = serde_json::from_str(&format!("\"{}\"", selected_reading)).unwrap();
 
             let section = reader_state.get_current(app_state.get_current_bible(), &readings_database, selected_reading, None);
             let json = section.map(|s| serde_json::to_string(&s).unwrap());
@@ -154,8 +154,9 @@ pub fn run_bible_reader_command(
                 let selected_reading = app_state.read_selected_reading(|r| {
                     *r
                 });
+                println!("selected reading: {}", selected_reading);
                 // HACK + pain
-                let selected_reading: SelectedReading = serde_json::from_str(&selected_reading.to_string()).unwrap();
+                let selected_reading: SelectedReading = serde_json::from_str(&format!("\"{}\"", selected_reading)).unwrap();
 
                 let queue = reader_state.get_queue(app_state.get_current_bible(), &readings_database, selected_reading, radius);
                 let json = serde_json::to_string(&queue).unwrap();

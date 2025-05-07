@@ -323,7 +323,7 @@ impl ReaderState
                     return None;
                 }
 
-                let count = index / length;
+                let count = index % length;
                 let view = bible.get_view();
                 let chapter = view.increment_chapter(start, count);
 

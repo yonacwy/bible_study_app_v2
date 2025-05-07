@@ -50,19 +50,19 @@ export function render_categories(on_delete: (id: string) => void, on_edit: (id:
             let color = category.color;
             let priority = category.priority;
 
-            container.appendElementEx('div', ['highlight'], highlight_div => {
-                highlight_div.appendElementEx('div', ['color-bar'], color_bar => {
+            container.append_element_ex('div', ['highlight'], highlight_div => {
+                highlight_div.append_element_ex('div', ['color-bar'], color_bar => {
                     color_bar.style.backgroundColor = utils.color_to_hex(color);
                 });
 
-                highlight_div.appendElementEx('div', ['highlight-content'], content_div => {
+                highlight_div.append_element_ex('div', ['highlight-content'], content_div => {
                     content_div.appendElement('h2', header => header.innerHTML = name);
-                    content_div.appendElementEx('div', ['highlight-description'], desc => desc.innerHTML = utils.render_markdown(description));
+                    content_div.append_element_ex('div', ['highlight-description'], desc => desc.innerHTML = utils.render_markdown(description));
                     content_div.appendElement('p', p => {
                         p.innerHTML = `<span class="priority">Priority:</span> ${priority}`;
                     });
 
-                    content_div.appendElementEx('div', ['highlight-button-container'], button_container => {
+                    content_div.append_element_ex('div', ['highlight-button-container'], button_container => {
                         let edit_btn = utils.create_image_button(button_container, '../images/light-pencil.svg', e => {
                             on_edit(category.id);
                         });

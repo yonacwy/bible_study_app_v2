@@ -44,6 +44,11 @@ export type BibleReaderSection = {
     verses: VerseRange | null,
 }
 
+export type RenderQueueData = {
+    current: number,
+    sections: BibleReaderSection[]
+}
+
 export async function listen_bible_reader_event(callback: (e: utils.AppEvent<BibleReaderEvent>) => void): Promise<utils.UnlistenFn>
 {
     const BIBLE_READER_EVENT_NAME: string = 'bible-reader-event';
@@ -70,10 +75,15 @@ export async function stop_timer(): Promise<void>
     return await invoke_bible_reader_command('stop_timer').then(_ => {});
 }
 
-export async function get_next(): Promise<BibleReaderSection>
+export async function get_reading(): Promise<BibleReaderSection>
 {
-    let json = await invoke_bible_reader_command('get_next') as string;
+    let json = await invoke_bible_reader_command('get') as string;
     return JSON.parse(json);
+}
+
+export async function to_next()
+{
+    return await invoke_bible_reader_command('to_next').then(_ => {});
 }
 
 export async function get_behavior(): Promise<ReaderBehavior> 
@@ -85,6 +95,12 @@ export async function get_behavior(): Promise<ReaderBehavior>
 export async function set_behavior(behavior: ReaderBehavior): Promise<void>
 {
     return await invoke_bible_reader_command('set_behavior', behavior).then(_ => {});
+}
+
+export async function get_queue(radius: number): Promise<RenderQueueData>
+{
+    let json = await invoke_bible_reader_command('get_queue', radius) as string;
+    return JSON.parse(json);
 }
 
 async function invoke_bible_reader_command(cmd: string, args?: any): Promise<string | null>

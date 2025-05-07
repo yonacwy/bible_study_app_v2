@@ -172,7 +172,7 @@ export async function init_bible_version_dropdown(on_version_changed?: () => voi
 
     content.replaceChildren();
     versions.sort().forEach(v => {
-        content.appendElementEx('div', ['dropdown-option'], option => {
+        content.append_element_ex('div', ['dropdown-option'], option => {
             if (v === selected_version) 
             {
                 option.classList.add('selected-option');

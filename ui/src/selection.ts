@@ -176,7 +176,7 @@ async function spawn_highlight_selector(image: string, tooltip: string, on_selec
 
     let option_nodes = options.map(o => utils.spawn_element('div', ['dropdown-option'], div => {
         div.appendElement('span', s => s.innerHTML = o.name);
-        div.appendElementEx('div', ['color-square'], square => {
+        div.append_element_ex('div', ['color-square'], square => {
             square.style.backgroundColor = utils.color_to_hex(o.color);
         });
 

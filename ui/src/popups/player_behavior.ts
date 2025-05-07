@@ -123,9 +123,9 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
     
     return utils.spawn_element('div', ['behavior-selector'], b => {
 
-        b.appendElementEx('div', ['main-strats'], m => {
+        b.append_element_ex('div', ['main-strats'], m => {
             m.appendChild(type_selector.root);
-            m.appendElementEx('div', ['tag'], b => b.innerHTML = 'Repeat:&nbsp;');
+            m.append_element_ex('div', ['tag'], b => b.innerHTML = 'Repeat:&nbsp;');
             m.appendChild(repeat_selector.root);
             m.appendChild(continuous_repeat_selector.root);
 
@@ -134,7 +134,7 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
             m.appendChild(open_queue_button.button);
         });
 
-        b.appendElementEx('div', ['second-strats'], s => {
+        b.append_element_ex('div', ['second-strats'], s => {
             s.appendChild(reading_selector.root);
             s.appendChild(section_selector.root);
         });
@@ -569,10 +569,10 @@ async function spawn_section_selector(start: ChapterIndex, end: ChapterIndex): P
     let end_chapter_selector = await spawn_chapter_selector(end);
 
     let root = utils.spawn_element('div', ['section-selector'], r => {
-        r.appendElementEx('div', ['tag'], t => t.innerHTML = 'Start:&nbsp;');
+        r.append_element_ex('div', ['tag'], t => t.innerHTML = 'Start:&nbsp;');
         r.appendChild(begin_book_selector.root);
         r.appendChild(begin_chapter_selector.root);
-        r.appendElementEx('div', ['tag'], t => t.innerHTML = 'End:&nbsp;');
+        r.append_element_ex('div', ['tag'], t => t.innerHTML = 'End:&nbsp;');
         r.appendChild(end_book_selector.root);
         r.appendChild(end_chapter_selector.root);
     })

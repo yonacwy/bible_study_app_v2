@@ -204,12 +204,12 @@ export function init_player()
         text.innerHTML = '--:--';
     });
 
-    let popup = document.body.appendElementEx('div', ['audio-player', 'hidden'], player_div => {
+    let popup = document.body.append_element_ex('div', ['audio-player', 'hidden'], player_div => {
         player_div.id = 'audio-player';
         player_div.classList.add('spawned');
         handle_dragging(player_div);
 
-        player_div.appendElementEx('div', ['main-content'], main_content => {
+        player_div.append_element_ex('div', ['main-content'], main_content => {
             main_content.appendChild(rewind_button.button);
             main_content.appendChild(play_button.button);
             main_content.appendChild(generating_indicator);
@@ -220,8 +220,8 @@ export function init_player()
             main_content.appendChild(close_button.button);
         });
 
-        let hidden_content = player_div.appendElementEx('div', ['hidden-content'], content => {
-            content.appendElementEx('div', ['slider-settings'], sliders => { 
+        let hidden_content = player_div.append_element_ex('div', ['hidden-content'], content => {
+            content.append_element_ex('div', ['slider-settings'], sliders => { 
                 let volume_slider = spawn_volume_slider();
                 let playback_slider = spawn_playback_slider();
                 
@@ -230,16 +230,16 @@ export function init_player()
             });
 
             // TODO: Hidden
-            content.appendElementEx('div', ['strategy-settings'], async strategy_settings => {
+            content.append_element_ex('div', ['strategy-settings'], async strategy_settings => {
                 let selector = await spawn_behavior_selector();
                 strategy_settings.appendChild(selector);
             });
         });
 
-        player_div.appendElementEx('div', ['dropdown-button'], button => {
+        player_div.append_element_ex('div', ['dropdown-button'], button => {
             button.title = 'Show advanced options';
 
-            let container = button.appendElementEx('div', ['image-container'], _ => {});
+            let container = button.append_element_ex('div', ['image-container'], _ => {});
 
             let image = container.appendElement('img', img => {
                 img.src = OPEN_DROPDOWN_IMAGE_SRC;
