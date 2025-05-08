@@ -103,6 +103,11 @@ export async function get_queue(radius: number): Promise<RenderQueueData>
     return JSON.parse(json);
 }
 
+export async function reset_index(): Promise<void>
+{
+    return await invoke_bible_reader_command('reset').then(_ => {});
+}
+
 async function invoke_bible_reader_command(cmd: string, args?: any): Promise<string | null>
 {
     let a: string | null = null;

@@ -42,7 +42,7 @@ type AudioPlayerData = {
 
 let AUDIO_PLAYER_DATA: AudioPlayerData | null = null;
 
-const PLAYER = new utils.tts.TtsPlayer(async e => {
+export const PLAYER = new utils.tts.TtsPlayer(async e => {
     if(!AUDIO_PLAYER_DATA) return;
 
     if(e.type === 'ready')

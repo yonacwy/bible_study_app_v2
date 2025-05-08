@@ -5,6 +5,7 @@ import { EventHandler } from "../utils/events.js";
 import * as bible from "../bible.js";
 import * as readings from "../page_scripts/daily_readings_page.js";
 import * as queue from "./queue_display.js";
+import { PLAYER } from "./audio_player.js";
 
 type BehaviorType = 'single' | 'section' | 'reading' | 'continuous';
 
@@ -23,10 +24,10 @@ type BehaviorSelectorData = {
     section_selector: SectionSelectorData,
 }
 
-reader.listen_bible_reader_event(e => {
-    if(e.payload.type === 'behavior_changed')
+reader.listen_bible_reader_event(async e => {
+    if(e.payload.type === 'behavior_changed' && PLAYER.is_ready())
     {
-        let behavior = e.payload.data as reader.BehaviorChangedEvent;
+        // do something here
     }
 })
 

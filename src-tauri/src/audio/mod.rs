@@ -113,7 +113,7 @@ pub fn run_bible_reader_command(
             }
             else 
             {
-                println!("Expected a `ReaderBehavior` argument")    
+                println!("Expected a `ReaderBehavior` argument") 
             }
         },
         "get_behavior" => {
@@ -147,7 +147,9 @@ pub fn run_bible_reader_command(
         "stop_timer" => {
             reader_state.stop_timer();
         },
-
+        "reset" => {
+            reader_state.reset_index();
+        }
         "get_queue" => {
             if let Some(radius) = args.map(|a| serde_json::from_value::<u32>(a).unwrap()) 
             {
