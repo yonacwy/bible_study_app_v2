@@ -9,7 +9,7 @@ export function spawn_image_button(image_src: string, on_click?: (e: MouseEvent,
     let button = document.createElement('button');
     button.classList.add('image-btn');
 
-    let image = button.appendElement('img', img => {
+    let image = button.append_element('img', img => {
         img.src = image_src;
     });
 
@@ -30,7 +30,7 @@ export function create_image_button(parent: Element, image_src: string, on_click
     let button = document.createElement('button');
     button.classList.add('image-btn');
 
-    let image = button.appendElement('img', img => {
+    let image = button.append_element('img', img => {
         img.src = image_src;
     });
 

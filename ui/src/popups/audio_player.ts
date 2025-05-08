@@ -241,7 +241,7 @@ export function init_player()
 
             let container = button.append_element_ex('div', ['image-container'], _ => {});
 
-            let image = container.appendElement('img', img => {
+            let image = container.append_element('img', img => {
                 img.src = OPEN_DROPDOWN_IMAGE_SRC;
             });
 

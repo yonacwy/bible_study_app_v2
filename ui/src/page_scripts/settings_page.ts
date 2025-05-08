@@ -206,7 +206,7 @@ async function init_font_dropdown()
     
         for(let i = 0; i < FONT_OPTIONS.length; i++)
         {
-            content.appendElement('div', option => {
+            content.append_element('div', option => {
                 option.classList.add('dropdown-option');
     
                 if(i === current_index) 

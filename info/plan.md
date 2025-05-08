@@ -16,6 +16,7 @@
   - [x] Long text not wrapping via `-` In the note viewer
   - [x] Verse quotations in notes can be a tad too long
   - [x] Excluded verses aren't handled
+  - [x] Unable to search for `song of solomon`
 - [ ] Finalize audio playback
 - [ ] Theme support
   - [ ] Custom themes

@@ -342,7 +342,14 @@ impl ReaderState
 
                 let reading = &readings[index as usize % readings.len()];
 
-                let book = searching::get_book_from_name(reading.prefix, &reading.book, bible).unwrap().index;
+                let book = match searching::get_book_from_name(reading.prefix, &reading.book, bible) {
+                    Ok(ok) => ok.index,
+                    Err(err) => {
+                        println!("Error: {}", err);
+                        return None;
+                    }
+                };
+                
                 let number = reading.chapter;
                 let chapter = ChapterIndex {
                     book,

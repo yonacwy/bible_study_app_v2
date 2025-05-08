@@ -43,11 +43,11 @@ function generate_calender()
     let day_count = new Date(selected_year, selected_month + 1, 0).getDate();
     
     CALENDER_BODY.replaceChildren();
-    CALENDER_BODY.appendElement('caption', caption => {
+    CALENDER_BODY.append_element('caption', caption => {
         caption.append_element_ex('div', ['caption-content'], caption_content => {
 
             caption_content.append_element_ex('button', ['image-btn', 'first'], button => {
-                button.appendElement('img', img => img.src = '../images/light-arrow-left.svg');
+                button.append_element('img', img => img.src = '../images/light-arrow-left.svg');
                 button.addEventListener('click', e => {
                     if(selected_month <= 0)
                     {
@@ -95,7 +95,7 @@ function generate_calender()
             });
 
             caption_content.append_element_ex('button', ['image-btn', 'last'], button => {
-                button.appendElement('img', img => img.src = '../images/light-arrow-right.svg');
+                button.append_element('img', img => img.src = '../images/light-arrow-right.svg');
                 button.addEventListener('click', e => {
                     if(selected_month >= 11)
                     {
@@ -113,22 +113,22 @@ function generate_calender()
         });
     })
     // Table header
-    CALENDER_BODY.appendElement('tr', hrow => {
+    CALENDER_BODY.append_element('tr', hrow => {
         ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(name => {
-            hrow.appendElement('th', th => th.innerHTML = name);
+            hrow.append_element('th', th => th.innerHTML = name);
         });
     });
 
     let current_row = CALENDER_BODY.appendChild(document.createElement('tr')) as HTMLTableRowElement;
     for(let i = 0; i < start_day; i++)
     {
-        current_row.appendElement('td', td => td.innerHTML = '&nbsp;');
+        current_row.append_element('td', td => td.innerHTML = '&nbsp;');
     }
 
     let row_index = start_day;
     for(let i = 0; i < day_count; i++)
     {
-        current_row.appendElement('td', td => {
+        current_row.append_element('td', td => {
             td.innerHTML = `${i + 1}`;
             td.classList.add('hoverable');
 
@@ -159,7 +159,7 @@ function generate_calender()
 
     for(let i = row_index; i < 7; i++)
     {
-        current_row.appendElement('td', td => td.innerHTML = '&nbsp;');
+        current_row.append_element('td', td => td.innerHTML = '&nbsp;');
     }
 }
 
@@ -192,7 +192,7 @@ async function generate_readings()
     
     readings_content.replaceChildren();
     readings.forEach(r => {
-        readings_content.appendElement('li', li => {
+        readings_content.append_element('li', li => {
 
             li.innerHTML = '';
             if(r.prefix !== null)

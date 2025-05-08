@@ -154,7 +154,7 @@ pub fn run_bible_reader_command(
                 let selected_reading = app_state.read_selected_reading(|r| {
                     *r
                 });
-                println!("selected reading: {}", selected_reading);
+                
                 // HACK + pain
                 let selected_reading: SelectedReading = serde_json::from_str(&format!("\"{}\"", selected_reading)).unwrap();
 

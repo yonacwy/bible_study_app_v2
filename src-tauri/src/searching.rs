@@ -38,8 +38,8 @@ lazy_static::lazy_static! {
         map
     };
 
-    static ref BOOK_REGEX: Regex = Regex::new(r"^\s*(?<prefix>[\d]+)?\s*(?<name>\S(?:.*\S)?)\s*$").unwrap();
-    static ref SEARCH_REGEX: Regex = Regex::new(r"\s*(?<prefix>[\d]+)?\s*(?<name>[a-zA-z](?:.*[a-zA-z])?)\s*(?<chapter>\d+)[:|\s*]?(?<verse_start>\d+)?-?(?<verse_end>\d+)?").unwrap();
+    static ref BOOK_REGEX: Regex = Regex::new(r"^\s*(?<prefix>\d+)?\s*(?<name>[\S][\S\s]*?)?\s*$").unwrap();
+    static ref SEARCH_REGEX: Regex = Regex::new(r"\s*(?<prefix>\d+)?\s*(?<name>[a-zA-Z](?:.*?[a-zA-Z])?)\s*(?<chapter>\d+)[:|\s*]?(?<verse_start>\d+)?-?(?<verse_end>\d+)?").unwrap();
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
