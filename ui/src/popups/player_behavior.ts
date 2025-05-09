@@ -5,7 +5,7 @@ import { EventHandler } from "../utils/events.js";
 import * as bible from "../bible.js";
 import * as readings from "../page_scripts/daily_readings_page.js";
 import * as queue from "./queue_display.js";
-import { PLAYER } from "./audio_player.js";
+import * as player from "./audio_player.js";
 
 type BehaviorType = 'single' | 'section' | 'reading' | 'continuous';
 
@@ -23,13 +23,6 @@ type BehaviorSelectorData = {
     
     section_selector: SectionSelectorData,
 }
-
-reader.listen_bible_reader_event(async e => {
-    if(e.payload.type === 'behavior_changed' && PLAYER.is_ready())
-    {
-        // do something here
-    }
-})
 
 export async function spawn_behavior_selector(): Promise<HTMLElement>
 {
@@ -115,12 +108,13 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
     });
     BEHAVIOR_SETTINGS_CHANGED.invoke();
 
+    player.ON_PLAYER_EVENT.add_listener(on_player_event);
+
     let open_queue_button = utils.spawn_image_button(utils.images.HISTORY_VERTICAL, e => {
         queue.show_queue_display();
     });
 
     open_queue_button.button.classList.add('open-queue-button');
-
     
     return utils.spawn_element('div', ['behavior-selector'], b => {
 
@@ -140,6 +134,14 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
             s.appendChild(section_selector.root);
         });
     });
+}
+
+async function on_player_event(event: utils.tts.TtsFrontendEvent)
+{
+    if (event.type === 'finished')
+    {
+
+    }
 }
 
 function on_behavior_changed(data: BehaviorSelectorData)

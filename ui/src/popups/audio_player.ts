@@ -1,6 +1,6 @@
 import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
-import { TtsGenerationProgressEvent, TtsPlayingEvent } from "../utils/tts.js";
+import { TtsFrontendEvent, TtsGenerationProgressEvent, TtsPlayingEvent } from "../utils/tts.js";
 import * as view_states from "../view_states.js";
 import { spawn_behavior_selector } from "./player_behavior.js";
 
@@ -42,7 +42,7 @@ type AudioPlayerData = {
 
 let AUDIO_PLAYER_DATA: AudioPlayerData | null = null;
 
-export const PLAYER = new utils.tts.TtsPlayer(async e => {
+const PLAYER = new utils.tts.TtsPlayer(async e => {
     if(!AUDIO_PLAYER_DATA) return;
 
     if(e.type === 'ready')
@@ -107,9 +107,11 @@ export const PLAYER = new utils.tts.TtsPlayer(async e => {
     }
 
     update_playback_controls_opacity(e);
+    ON_PLAYER_EVENT.invoke(e);
 });
 
 export const ON_PLAYER_VISIBILITY_CHANGED = new utils.events.EventHandler<boolean>();
+export const ON_PLAYER_EVENT = new utils.events.EventHandler<TtsFrontendEvent>();
 
 export async function show_player()
 {
