@@ -75,9 +75,14 @@ export async function stop_timer(): Promise<void>
     return await invoke_bible_reader_command('stop_timer').then(_ => {});
 }
 
-export async function get_reading(): Promise<BibleReaderSection>
+export async function get_reading(): Promise<BibleReaderSection | null>
 {
-    let json = await invoke_bible_reader_command('get') as string;
+    let json = await invoke_bible_reader_command('get') as string | null;
+    if (json === null)
+    {
+        return null;
+    }
+
     return JSON.parse(json);
 }
 

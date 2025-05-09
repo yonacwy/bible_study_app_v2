@@ -6,6 +6,7 @@ import * as bible from "../bible.js";
 import * as readings from "../page_scripts/daily_readings_page.js";
 import * as queue from "./queue_display.js";
 import * as player from "./audio_player.js";
+import * as view_states from "../view_states.js";
 
 type BehaviorType = 'single' | 'section' | 'reading' | 'continuous';
 
@@ -23,6 +24,11 @@ type BehaviorSelectorData = {
     
     section_selector: SectionSelectorData,
 }
+
+type BehaviorStorageData = { should_play: boolean };
+const BEHAVIOR_STORAGE = new utils.storage.ValueStorage<BehaviorStorageData>('player-behavior-storage', {
+    should_play: false,
+});
 
 export async function spawn_behavior_selector(): Promise<HTMLElement>
 {
@@ -115,6 +121,14 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
     });
 
     open_queue_button.button.classList.add('open-queue-button');
+
+    // PROBLEM HERE:
+    player.ON_PLAYER_VISIBILITY_CHANGED.add_listener(v => {
+        if (v === true && BEHAVIOR_STORAGE.get()?.should_play === true)
+        {
+            player.play()
+        }
+    })
     
     return utils.spawn_element('div', ['behavior-selector'], b => {
 
@@ -140,7 +154,27 @@ async function on_player_event(event: utils.tts.TtsFrontendEvent)
 {
     if (event.type === 'finished')
     {
+        reader.to_next();
+        let reading = await reader.get_reading();
+        if (reading === null) {
+            BEHAVIOR_STORAGE.update(d => {
+                if (d !== null)
+                {
+                    d.should_play = false;
+                }
 
+                return d;
+            })
+            return;
+        }
+
+        view_states.push_section({
+            book: reading.chapter.book,
+            chapter: reading.chapter.number,
+            verse_range: reading.verses
+        });
+
+        view_states.goto_current_view_state();
     }
 }
 

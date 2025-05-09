@@ -131,6 +131,16 @@ export async function show_player()
     ON_PLAYER_VISIBILITY_CHANGED.invoke(true);
 }
 
+export async function play()
+{
+    if (!PLAYER.is_ready() || !AUDIO_PLAYER_DATA) { return; }
+
+    if (!await PLAYER.is_playing())
+    {
+        AUDIO_PLAYER_DATA.play_button.button.click();
+    }
+}
+
 export function hide_player()
 {
     if(!AUDIO_PLAYER_DATA) return;

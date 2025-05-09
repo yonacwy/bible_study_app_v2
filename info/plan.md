@@ -1,8 +1,17 @@
 # Plan:
 
 
-### Version 0.6.0
+### Version 0.7.0
 - [ ] Notebook Support
+
+### Version 0.6.1: Cloud Saving
+- [ ] Cloud saving via Google Drive
+
+### Version 0.6.0: Multi-Platform Support
+- [ ] Android
+- [ ] MAC
+- [ ] IOS
+- [ ] Linux?
 
 
 ### Version 0.5.3: Bug Fixes
@@ -16,7 +25,7 @@
   - [x] Long text not wrapping via `-` In the note viewer
   - [x] Verse quotations in notes can be a tad too long
   - [x] Excluded verses aren't handled
-  - [x] Unable to search for `song of solomon`
+  - [x] Unable to search for `song of solomon` (bug introduced in this update)
 - [ ] Finalize audio playback
 - [ ] Theme support
   - [ ] Custom themes

@@ -3,10 +3,15 @@ export class ValueStorage<T>
 {
     private readonly path: string;
     private on_changed_listeners: ((v: T | null) => void)[]
-    public constructor(path: string)
+    public constructor(path: string, default_val?: T)
     {
         this.path = path;
         this.on_changed_listeners = [];
+
+        if (default_val !== undefined && this.get() !== null)
+        {
+            this.set(default_val);
+        }
     }
 
     public get(): T | null
@@ -18,6 +23,13 @@ export class ValueStorage<T>
     {
         store_value(this.path, value);
         this.update_listeners();
+    }
+
+    public update(update_fn: (v: T | null) => T | null)
+    {
+        let v = this.get();
+        v = update_fn(v);
+        this.set(v);
     }
 
     public add_listener(listener: (v: T | null) => void): boolean
