@@ -231,6 +231,7 @@ impl ReaderState
 
     pub fn set_behavior(&mut self, behavior: ReaderBehavior)
     {
+        println!("setting behavior");
         self.behavior = behavior;
         self.app_handle.emit(BIBLE_READER_EVENT_NAME, BibleReaderEvent::BehaviorChanged { behavior }).unwrap();
         self.stop_timer();
@@ -245,11 +246,13 @@ impl ReaderState
 
     pub fn reset_index(&mut self)
     {
+        println!("resetting index");
         self.reading_index = 0;
     }
 
     pub fn to_next_index(&mut self)
     {
+        println!("going to next");
         self.reading_index += 1;
     }
 

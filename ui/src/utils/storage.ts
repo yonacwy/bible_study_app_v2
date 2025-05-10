@@ -8,7 +8,7 @@ export class ValueStorage<T>
         this.path = path;
         this.on_changed_listeners = [];
 
-        if (default_val !== undefined && this.get() !== null)
+        if (default_val !== undefined && this.get() === null)
         {
             this.set(default_val);
         }
@@ -25,11 +25,14 @@ export class ValueStorage<T>
         this.update_listeners();
     }
 
-    public update(update_fn: (v: T | null) => T | null)
+    public update(update_fn: (v: T) => T)
     {
         let v = this.get();
-        v = update_fn(v);
-        this.set(v);
+        if (v !== null)
+        {
+            v = update_fn(v);
+            this.set(v);
+        }
     }
 
     public add_listener(listener: (v: T | null) => void): boolean

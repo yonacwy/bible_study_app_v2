@@ -110,25 +110,29 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
 
     BEHAVIOR_SETTINGS_CHANGED.add_listener(_ => {
         on_behavior_changed(data);
-        update_backend_behavior(data);
     });
     BEHAVIOR_SETTINGS_CHANGED.invoke();
 
-    player.ON_PLAYER_EVENT.add_listener(on_player_event);
+    BEHAVIOR_SETTINGS_CHANGED.add_listener(_ => {
+        BEHAVIOR_STORAGE.update(v => {
+            v.should_play = false;
+            return v;
+        });
+        update_backend_behavior(data);
+    })
+
+    player.ON_PLAYER_PLAY.add_listener(_ => {
+        BEHAVIOR_STORAGE.update(v => {
+            v.should_play = true;
+            return v;
+        });
+    });
 
     let open_queue_button = utils.spawn_image_button(utils.images.HISTORY_VERTICAL, e => {
         queue.show_queue_display();
     });
 
     open_queue_button.button.classList.add('open-queue-button');
-
-    // PROBLEM HERE:
-    player.ON_PLAYER_VISIBILITY_CHANGED.add_listener(v => {
-        if (v === true && BEHAVIOR_STORAGE.get()?.should_play === true)
-        {
-            player.play()
-        }
-    })
     
     return utils.spawn_element('div', ['behavior-selector'], b => {
 
@@ -150,7 +154,10 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
     });
 }
 
-async function on_player_event(event: utils.tts.TtsFrontendEvent)
+/**
+ * externally called by the audio player, whenever an event is invoked
+ */
+export async function on_player_event(event: utils.tts.TtsFrontendEvent)
 {
     if (event.type === 'finished')
     {
@@ -175,6 +182,15 @@ async function on_player_event(event: utils.tts.TtsFrontendEvent)
         });
 
         view_states.goto_current_view_state();
+    }
+
+    let behavior_data = BEHAVIOR_STORAGE.get();
+    
+    if (event.type === 'ready' && behavior_data !== null && behavior_data.should_play)
+    {
+        await utils.sleep(100); // no idea why this works...
+        player.play();
+        utils.debug_print('should be playing now');
     }
 }
 

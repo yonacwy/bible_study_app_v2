@@ -2,7 +2,7 @@ import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
 import { TtsFrontendEvent, TtsGenerationProgressEvent, TtsPlayingEvent } from "../utils/tts.js";
 import * as view_states from "../view_states.js";
-import { spawn_behavior_selector } from "./player_behavior.js";
+import { on_player_event, spawn_behavior_selector } from "./player_behavior.js";
 
 // To implement on a page, need to call `init_player()` before anything, then whenever the passage chapter is rendered, `on_passage_rendered()` needs to be called
 
@@ -51,13 +51,6 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
 
         AUDIO_PLAYER_DATA.play_button.button.classList.remove('hidden');
         AUDIO_PLAYER_DATA.generating_indicator.classList.add('hidden');
-
-        let settings = await PLAYER.get_settings();
-        if(settings.player_state === 'continuous')
-        {
-            await utils.sleep(100); // no idea why this works...
-            AUDIO_PLAYER_DATA.play_button.button.click();
-        }
     }
     if(e.type === 'generating')
     {
@@ -91,26 +84,15 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
         AUDIO_PLAYER_DATA.play_button.image.src = PLAY_IMAGE_SRC;
         AUDIO_PLAYER_DATA.progress_bar.value = `${1.0}`;
         utils.update_sliders();
-
-        let settings = await PLAYER.get_settings();
-        if(settings.player_state === 'continuous')
-        {
-            bible.to_next_chapter().then(_ => {
-                view_states.goto_current_view_state();
-            });
-        }
-        else if(settings.player_state === 'repeat')
-        {
-            await utils.sleep(100); // no idea why this works...
-            AUDIO_PLAYER_DATA.play_button.button.click();
-        }
     }
 
     update_playback_controls_opacity(e);
+    on_player_event(e);
     ON_PLAYER_EVENT.invoke(e);
 });
 
 export const ON_PLAYER_VISIBILITY_CHANGED = new utils.events.EventHandler<boolean>();
+export const ON_PLAYER_PLAY = new utils.events.EventHandler<void>();
 export const ON_PLAYER_EVENT = new utils.events.EventHandler<TtsFrontendEvent>();
 
 export async function show_player()
@@ -615,6 +597,7 @@ function spawn_play_button(): utils.ImageButton
             PLAYER.play();
             play_button.image.src = PAUSE_IMAGE_SRC;
             play_button.button.title = 'Pause';
+            ON_PLAYER_PLAY.invoke();
         }
     });
 
