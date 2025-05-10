@@ -30,13 +30,9 @@ export type BehaviorChangedEvent = {
 }
 
 export type TimerTickEvent = {
+    type: "timer_started" | "timer_tick" | "timer_finished",
     elapsed: number,
     duration: number,
-}
-
-export type BibleReaderEvent = {
-    type: "behavior_changed" | "timer_started" | "timer_tick" | "timer_finished",
-    data?: BehaviorChangedEvent | TimerTickEvent
 }
 
 export type BibleReaderSection = {
@@ -44,81 +40,154 @@ export type BibleReaderSection = {
     verses: VerseRange | null,
 }
 
-export type RenderQueueData = {
-    current: number,
-    sections: BibleReaderSection[]
-}
-
-export async function listen_bible_reader_event(callback: (e: utils.AppEvent<BibleReaderEvent>) => void): Promise<utils.UnlistenFn>
+export class ReaderState 
 {
-    const BIBLE_READER_EVENT_NAME: string = 'bible-reader-event';
-    return await utils.listen_event(BIBLE_READER_EVENT_NAME, callback);
-}
+    private timer: ReaderTimer | null = null;
+    private readingIndex = 0;
 
-export async function start_timer(): Promise<void>
-{
-    return await invoke_bible_reader_command('start_timer').then(_ => {});
-}
+    constructor(
+        private behavior: ReaderBehavior,
+    ) {}
 
-export async function pause_timer(): Promise<void>
-{
-    return await invoke_bible_reader_command('pause_timer').then(_ => {});
-}
-
-export async function resume_timer(): Promise<void>
-{
-    return await invoke_bible_reader_command('resume_timer').then(_ => {});
-}
-
-export async function stop_timer(): Promise<void>
-{
-    return await invoke_bible_reader_command('stop_timer').then(_ => {});
-}
-
-export async function get_reading(): Promise<BibleReaderSection | null>
-{
-    let json = await invoke_bible_reader_command('get') as string | null;
-    if (json === null)
+    set_behavior(behavior: ReaderBehavior) 
     {
+        this.behavior = behavior;
+        this.readingIndex = 0;
+        // emit a behavior changed event
+        this.stop_timer();
+        // sync to backend
+    }
+
+    get_behavior(): ReaderBehavior
+    {
+        return this.behavior;
+    }
+
+    start_timer() 
+    {
+        this.stop_timer();
+        const duration = this.getDurationFromBehavior(this.behavior);
+        if (duration) {
+            this.timer = new ReaderTimer(duration);
+        }
+    }
+
+    stop_timer() 
+    {
+        this.timer?.stop();
+        this.timer = null;
+    }
+
+    pause_timer() 
+    {
+        this.timer?.pause();
+    }
+
+    resume_timer() 
+    {
+        this.timer?.play();
+    }
+
+    get_current_reading(index?: number): BibleReaderSection | null 
+    {
+        const idx = index ?? this.readingIndex;
+        // Similar logic to Rust code to fetch BibleReaderSection
+        // e.g., from bible.getView().incrementChapter() or readingsDatabase.getReadings()
+        return null; // Replace with actual logic
+    }
+
+    get_queue(radius: number): { current: number; sections: BibleReaderSection[] } 
+    {
+        const queueIndex = Math.min(this.readingIndex, radius);
+        const len = queueIndex + 1 + radius;
+        const offset = this.readingIndex <= radius ? 0 : this.readingIndex - radius - 1;
+
+        const sections = Array.from({ length: len }, (_, i) => i + offset)
+            .map((i) => this.get_current_reading(i))
+            .filter(Boolean) as BibleReaderSection[];
+
+        return {
+            current: queueIndex,
+            sections,
+        };
+    }
+
+    private getDurationFromBehavior(behavior: ReaderBehavior): number | null 
+    {
+        const options = behavior.data.options;
+        if (options.type === "repeat_time") return options.data;
         return null;
     }
-
-    return JSON.parse(json);
 }
 
-export async function to_next()
-{
-    return await invoke_bible_reader_command('to_next').then(_ => {});
-}
 
-export async function get_behavior(): Promise<ReaderBehavior> 
+export class ReaderTimer 
 {
-    let json = await invoke_bible_reader_command('get_behavior') as string;
-    return JSON.parse(json);
-}
+    private interval: ReturnType<typeof setInterval> | null = null;
+    private state: "playing" | "paused" | "stopped" = "playing";
+    private currentTime = 0;
+    private lastTick = 0;
 
-export async function set_behavior(behavior: ReaderBehavior): Promise<void>
-{
-    return await invoke_bible_reader_command('set_behavior', behavior).then(_ => {});
-}
-
-export async function get_queue(radius: number): Promise<RenderQueueData>
-{
-    let json = await invoke_bible_reader_command('get_queue', radius) as string;
-    return JSON.parse(json);
-}
-
-export async function reset_index(): Promise<void>
-{
-    return await invoke_bible_reader_command('reset').then(_ => {});
-}
-
-async function invoke_bible_reader_command(cmd: string, args?: any): Promise<string | null>
-{
-    let a: string | null = null;
-    if(args !== undefined)
+    constructor(private duration: number) 
     {
-        a = JSON.stringify(args);
+        this.start();
     }
-    return await utils.invoke('run_bible_reader_command', { command: cmd, args: a }) as string | null;
+
+    private start() 
+    {
+        const TICK_TIME = 0.5;
+        let lastTime = Date.now();
+
+        this.interval = setInterval(() => {
+            if (this.state === "paused") return;
+
+            const now = Date.now();
+            this.currentTime += (now - lastTime) / 1000;
+            lastTime = now;
+
+            if (this.currentTime - this.lastTick >= TICK_TIME) 
+            {
+                this.lastTick = this.currentTime;
+                // emit a tick event
+            }
+
+            if (this.currentTime >= this.duration) 
+            {
+                this.stop();
+                // emit a stop event
+            }
+        }, 100);
+    }
+
+    play() 
+    {
+        this.state = "playing";
+    }
+
+    pause() 
+    {
+        this.state = "paused";
+    }
+
+    stop() 
+    {
+        this.state = "stopped";
+        if (this.interval) clearInterval(this.interval);
+    }
+
+    reset() 
+    {
+        this.currentTime = 0;
+    }
+
+    get_current_time(): number
+    {
+        return this.currentTime;
+    }
+
+    get_duration(): number
+    {
+        return this.duration;
+    }
 }
+

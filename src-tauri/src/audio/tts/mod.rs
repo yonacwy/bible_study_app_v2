@@ -1,7 +1,6 @@
 pub mod events;
 pub mod player_thread;
 pub mod synth;
-pub mod bible_reader;
 
 use std::{collections::HashMap, sync::{Arc, Mutex}, thread::spawn};
 
