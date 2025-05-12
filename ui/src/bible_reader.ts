@@ -1,5 +1,7 @@
 import { ChapterIndex, VerseRange } from "./bindings.js";
 import * as utils from "./utils/index.js";
+import * as bible from "./bible.js";
+import * as dr from "./page_scripts/daily_readings_page.js"
 
 export type RepeatOptionsType = "no_repeat" | "repeat_count" | "repeat_time" | "infinite";
 
@@ -40,33 +42,30 @@ export type BibleReaderSection = {
     verses: VerseRange | null,
 }
 
-export class ReaderState 
+export class PlayerBehaviorState 
 {
     private timer: ReaderTimer | null = null;
     private readingIndex = 0;
+    
+    constructor() {}
 
-    constructor(
-        private behavior: ReaderBehavior,
-    ) {}
-
-    set_behavior(behavior: ReaderBehavior) 
+    async set_behavior(behavior: ReaderBehavior): Promise<void>
     {
-        this.behavior = behavior;
         this.readingIndex = 0;
-        // emit a behavior changed event
+        // fire off behavior set event?
         this.stop_timer();
-        // sync to backend
+        return await utils.invoke('set_reader_behavior', { reader_behavior: behavior });
     }
 
-    get_behavior(): ReaderBehavior
+    async get_behavior(): Promise<ReaderBehavior>
     {
-        return this.behavior;
+        return await utils.invoke('get_reader_behavior', {});
     }
 
-    start_timer() 
+    async start_timer() 
     {
         this.stop_timer();
-        const duration = this.getDurationFromBehavior(this.behavior);
+        let duration = this.get_duration_from_behavior(await this.get_behavior());
         if (duration) {
             this.timer = new ReaderTimer(duration);
         }
@@ -88,22 +87,82 @@ export class ReaderState
         this.timer?.play();
     }
 
-    get_current_reading(index?: number): BibleReaderSection | null 
+    async get_section(index?: number): Promise<BibleReaderSection | null>
     {
-        const idx = index ?? this.readingIndex;
-        // Similar logic to Rust code to fetch BibleReaderSection
-        // e.g., from bible.getView().incrementChapter() or readingsDatabase.getReadings()
-        return null; // Replace with actual logic
+        index = index ?? this.readingIndex;
+        let behavior = await this.get_behavior();
+
+        let repeat_count;
+        if (behavior.data.options.type === 'no_repeat')
+        {
+            repeat_count = 1;
+        }
+        else if (behavior.data.options.type === 'repeat_count')
+        {
+            repeat_count = behavior.data.options.data as number;
+        }
+        else 
+        {
+            repeat_count = Number.MAX_SAFE_INTEGER;
+        }
+        
+        if (behavior.type === 'segment')
+        {
+            let { start, length } = behavior.data as SegmentReaderBehavior;
+            if (length === null) 
+            {
+                length = Number.POSITIVE_INFINITY;
+            }
+
+            if (index / length >= repeat_count)
+            {
+                return null;
+            }
+
+            let count = index % length;
+            let view = await bible.get_bible_view();
+            let chapter = bible.increment_chapter(view, start, count);
+            return {
+                chapter: chapter,
+                verses: null,
+            }
+        }
+
+        if (behavior.type === 'daily')
+        {
+            let { month, day } = behavior.data as DailyReaderBehavior;
+            if (index / length >= repeat_count)
+            {
+                return null;
+            }
+
+            let daily_readings = await dr.get_readings(month, day);
+            let reading = daily_readings[index % daily_readings.length];
+
+            let book = await bible.get_book_index(reading.prefix, reading.book) as number; // if it returns null, we have a bigger problem
+            
+            let chapter: ChapterIndex = {
+                book: book,
+                number: reading.chapter
+            }
+
+            return {
+                chapter: chapter,
+                verses: null,
+            }
+        }
+
+        return null;
     }
 
-    get_queue(radius: number): { current: number; sections: BibleReaderSection[] } 
+    async get_queue(radius: number): Promise<{ current: number; sections: BibleReaderSection[] }>
     {
         const queueIndex = Math.min(this.readingIndex, radius);
         const len = queueIndex + 1 + radius;
         const offset = this.readingIndex <= radius ? 0 : this.readingIndex - radius - 1;
 
-        const sections = Array.from({ length: len }, (_, i) => i + offset)
-            .map((i) => this.get_current_reading(i))
+        const sections = (await Promise.all(Array.from({ length: len }, (_, i) => i + offset)
+            .map((i) => this.get_section(i))))
             .filter(Boolean) as BibleReaderSection[];
 
         return {
@@ -112,7 +171,7 @@ export class ReaderState
         };
     }
 
-    private getDurationFromBehavior(behavior: ReaderBehavior): number | null 
+    private get_duration_from_behavior(behavior: ReaderBehavior): number | null 
     {
         const options = behavior.data.options;
         if (options.type === "repeat_time") return options.data;

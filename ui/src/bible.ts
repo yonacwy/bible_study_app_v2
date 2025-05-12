@@ -314,6 +314,19 @@ export function expand_chapter_index(bible_view: BookView[], index: number): Cha
     }
 }
 
+export function increment_chapter(bible_view: BookView[], start: ChapterIndex, count: number): ChapterIndex
+{
+    let chapter_index = flatten_chapter_index(bible_view, start) + count;
+    let total = bible_view.map(v => v.chapter_count).reduce((a, b) => a + b);
+
+    if (chapter_index >= total)
+    {
+        chapter_index = chapter_index - total;
+    }
+
+    return expand_chapter_index(bible_view, chapter_index);
+}
+
 export function get_chapter_distance(bible_view: BookView[], start: ChapterIndex, end: ChapterIndex): number
 {
     let start_index = flatten_chapter_index(bible_view, start);

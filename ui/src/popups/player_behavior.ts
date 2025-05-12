@@ -1,6 +1,6 @@
 import { ChapterIndex, ReferenceLocation, VerseRange } from "../bindings.js";
 import * as utils from "../utils/index.js";
-import { ReaderState, RepeatOptionsType, SegmentReaderBehavior, DailyReaderBehavior, ReaderBehavior, RepeatOptions } from "../bible_reader.js";
+import { PlayerBehaviorState, RepeatOptionsType, SegmentReaderBehavior, DailyReaderBehavior, ReaderBehavior, RepeatOptions } from "../bible_reader.js";
 import { EventHandler } from "../utils/events.js";
 import * as bible from "../bible.js";
 import * as readings from "../page_scripts/daily_readings_page.js";
@@ -25,14 +25,9 @@ type BehaviorSelectorData = {
     section_selector: SectionSelectorData,
 }
 
-type BehaviorStorageData = { should_play: boolean };
-const BEHAVIOR_STORAGE = new utils.storage.ValueStorage<BehaviorStorageData>('player-behavior-storage', {
-    should_play: false,
-});
-
-export async function spawn_behavior_selector(reader: ReaderState): Promise<HTMLElement>
+export async function spawn_behavior_selector(reader: PlayerBehaviorState): Promise<HTMLElement>
 {
-    let current = reader.get_behavior();
+    let current = await reader.get_behavior();
     let bt: BehaviorType = 'single';
     if(current.type === 'daily')
     {
@@ -108,28 +103,14 @@ export async function spawn_behavior_selector(reader: ReaderState): Promise<HTML
         section_selector,
     };
 
-    BEHAVIOR_SETTINGS_CHANGED.add_listener(_ => {
+    BEHAVIOR_SETTINGS_CHANGED.add_listener(async _ => {
         on_behavior_changed(data);
+        reader.set_behavior(await get_reader_behavior(data));
     });
     BEHAVIOR_SETTINGS_CHANGED.invoke();
 
-    BEHAVIOR_SETTINGS_CHANGED.add_listener(_ => {
-        BEHAVIOR_STORAGE.update(v => {
-            v.should_play = false;
-            return v;
-        });
-        update_backend_behavior(data);
-    })
-
-    player.ON_PLAYER_PLAY.add_listener(_ => {
-        BEHAVIOR_STORAGE.update(v => {
-            v.should_play = true;
-            return v;
-        });
-    });
-
     let open_queue_button = utils.spawn_image_button(utils.images.HISTORY_VERTICAL, e => {
-        queue.show_queue_display();
+        queue.show_queue_display(reader);
     });
 
     open_queue_button.button.classList.add('open-queue-button');
@@ -152,46 +133,6 @@ export async function spawn_behavior_selector(reader: ReaderState): Promise<HTML
             s.appendChild(section_selector.root);
         });
     });
-}
-
-/**
- * externally called by the audio player, whenever an event is invoked
- */
-export async function on_player_event(event: utils.tts.TtsFrontendEvent)
-{
-    if (event.type === 'finished')
-    {
-        reader.to_next();
-        let reading = await reader.get_reading();
-        if (reading === null) {
-            BEHAVIOR_STORAGE.update(d => {
-                if (d !== null)
-                {
-                    d.should_play = false;
-                }
-
-                return d;
-            })
-            return;
-        }
-
-        view_states.push_section({
-            book: reading.chapter.book,
-            chapter: reading.chapter.number,
-            verse_range: reading.verses
-        });
-
-        view_states.goto_current_view_state();
-    }
-
-    let behavior_data = BEHAVIOR_STORAGE.get();
-    
-    if (event.type === 'ready' && behavior_data !== null && behavior_data.should_play)
-    {
-        await utils.sleep(100); // no idea why this works...
-        player.play();
-        utils.debug_print('should be playing now');
-    }
 }
 
 function on_behavior_changed(data: BehaviorSelectorData)
@@ -247,12 +188,6 @@ function on_behavior_changed(data: BehaviorSelectorData)
         data.time_selector.root.classList.add('hidden');
         data.count_selector.root.classList.add('hidden');
     }
-}
-
-async function update_backend_behavior(data: BehaviorSelectorData)
-{
-    let behavior = get_reader_behavior(data);
-    return await reader.set_behavior(await behavior);
 }
 
 async function get_reader_behavior(data: BehaviorSelectorData): Promise<ReaderBehavior>

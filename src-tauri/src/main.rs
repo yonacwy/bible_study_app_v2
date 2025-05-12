@@ -101,6 +101,8 @@ fn main() -> Result<(), tts::Error>
             get_bible_versions,
             is_initialized,
             audio::run_tts_command,
+            get_reader_behavior,
+            set_reader_behavior,
         ])
         .run(tauri::generate_context!()) 
         .expect("error while running tauri application");

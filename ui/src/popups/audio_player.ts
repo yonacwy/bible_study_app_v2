@@ -2,7 +2,8 @@ import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
 import { TtsFrontendEvent, TtsGenerationProgressEvent, TtsPlayingEvent } from "../utils/tts.js";
 import * as view_states from "../view_states.js";
-import { on_player_event, spawn_behavior_selector } from "./player_behavior.js";
+import { spawn_behavior_selector } from "./player_behavior.js";
+import { PlayerBehaviorState } from "../bible_reader.js";
 
 // To implement on a page, need to call `init_player()` before anything, then whenever the passage chapter is rendered, `on_passage_rendered()` needs to be called
 
@@ -37,17 +38,18 @@ type AudioPlayerData = {
     playing_verse_index: number | null,
     verses_elements: HTMLLIElement[],
 
-    is_setting_time: boolean
+    is_setting_time: boolean,
+    behavior_state: PlayerBehaviorState,
 }
 
 let AUDIO_PLAYER_DATA: AudioPlayerData | null = null;
 
-const PLAYER = new utils.tts.TtsPlayer(async e => {
+const TTS_PLAYER = new utils.tts.TtsPlayer(async e => {
     if(!AUDIO_PLAYER_DATA) return;
 
     if(e.type === 'ready')
     {
-        update_progress_visual(0.0, await PLAYER.get_duration());
+        update_progress_visual(0.0, await TTS_PLAYER.get_duration());
 
         AUDIO_PLAYER_DATA.play_button.button.classList.remove('hidden');
         AUDIO_PLAYER_DATA.generating_indicator.classList.add('hidden');
@@ -87,7 +89,7 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
     }
 
     update_playback_controls_opacity(e);
-    on_player_event(e);
+    // on_player_event(e);
     ON_PLAYER_EVENT.invoke(e);
 });
 
@@ -105,7 +107,7 @@ export async function show_player()
 
     update_player_data_storage();
 
-    PLAYER.request({
+    TTS_PLAYER.request({
         bible_name,
         chapter
     });
@@ -115,9 +117,9 @@ export async function show_player()
 
 export async function play()
 {
-    if (!PLAYER.is_ready() || !AUDIO_PLAYER_DATA) { return; }
+    if (!TTS_PLAYER.is_ready() || !AUDIO_PLAYER_DATA) { return; }
 
-    if (!await PLAYER.is_playing())
+    if (!await TTS_PLAYER.is_playing())
     {
         AUDIO_PLAYER_DATA.play_button.button.click();
     }
@@ -128,7 +130,7 @@ export function hide_player()
     if(!AUDIO_PLAYER_DATA) return;
     
     AUDIO_PLAYER_DATA.popup.classList.add('hidden');
-    PLAYER.stop();
+    TTS_PLAYER.stop();
     AUDIO_PLAYER_DATA.play_button.image.src = "../images/light-play.svg";
     clear_current_reading_verse();
     update_player_data_storage();
@@ -185,12 +187,12 @@ export function init_player()
 
         audio_range.addEventListener('change', e => {
             if(!AUDIO_PLAYER_DATA) return;
-            PLAYER.set_time(+audio_range.value);
+            TTS_PLAYER.set_time(+audio_range.value);
             AUDIO_PLAYER_DATA.is_setting_time = false;
         })
 
         audio_range.addEventListener('input', async e => {
-            update_progress_visual(+audio_range.value, await PLAYER.get_duration())
+            update_progress_visual(+audio_range.value, await TTS_PLAYER.get_duration())
         })
     });
 
@@ -198,6 +200,8 @@ export function init_player()
         text.innerHTML = '--:--';
     });
 
+    
+    let behavior_state = new PlayerBehaviorState();
     let popup = document.body.append_element_ex('div', ['audio-player', 'hidden'], player_div => {
         player_div.id = 'audio-player';
         player_div.classList.add('spawned');
@@ -225,7 +229,7 @@ export function init_player()
 
             // TODO: Hidden
             content.append_element_ex('div', ['strategy-settings'], async strategy_settings => {
-                let selector = await spawn_behavior_selector();
+                let selector = await spawn_behavior_selector(behavior_state);
                 strategy_settings.appendChild(selector);
             });
         });
@@ -273,7 +277,8 @@ export function init_player()
         generating_indicator,
         is_setting_time: false,
         playing_verse_index: null,
-        verses_elements: []
+        verses_elements: [],
+        behavior_state,
     }
 
     let dropdown_button = popup.querySelector('.dropdown-button') as HTMLElement;
@@ -356,21 +361,21 @@ function spawn_volume_slider(): HTMLElement
         update_volume_slider_image(+input.value, button.image);
         utils.update_sliders();
 
-        PLAYER.get_settings().then(settings => {
+        TTS_PLAYER.get_settings().then(settings => {
             settings.volume = +input.value;
-            PLAYER.set_settings(settings);
+            TTS_PLAYER.set_settings(settings);
         });
     },
     (input, button) => {
         update_volume_slider_image(+input.value, button.image);
 
-        PLAYER.get_settings().then(settings => {
+        TTS_PLAYER.get_settings().then(settings => {
             settings.volume = +input.value;
-            PLAYER.set_settings(settings);
+            TTS_PLAYER.set_settings(settings);
         });
     });
 
-    PLAYER.get_settings().then(settings => {
+    TTS_PLAYER.get_settings().then(settings => {
         let e = slider.querySelector('input[type=range]') as HTMLInputElement;
         let image = slider.querySelector('img') as HTMLImageElement;
         
@@ -416,9 +421,9 @@ function spawn_playback_slider(): HTMLElement
 
             v = Math.abs(Math.pow(v, Math.sign(v)));
 
-            PLAYER.get_settings().then(settings => {
+            TTS_PLAYER.get_settings().then(settings => {
                 settings.playback_speed = v;
-                PLAYER.set_settings(settings);
+                TTS_PLAYER.set_settings(settings);
             });
         }
     }, 
@@ -436,16 +441,16 @@ function spawn_playback_slider(): HTMLElement
 
         v = Math.abs(Math.pow(v, Math.sign(v)));
 
-        PLAYER.get_settings().then(settings => {
+        TTS_PLAYER.get_settings().then(settings => {
             settings.playback_speed = v;
-            PLAYER.set_settings(settings);
+            TTS_PLAYER.set_settings(settings);
         });
     },
     (input, button) => {
         update_playback_slider_image(+input.value, button.image);
     });
 
-    PLAYER.get_settings().then(settings => {
+    TTS_PLAYER.get_settings().then(settings => {
         let loaded = settings.playback_speed;
         let processed = 0.5;
         if(loaded <= 1 && loaded >= 0)
@@ -586,15 +591,15 @@ function spawn_play_button(): utils.ImageButton
     play_button.button.title = 'Play'
 
     play_button.button.addEventListener('click', async e => {
-        if(await PLAYER.is_playing())
+        if(await TTS_PLAYER.is_playing())
         {
-            PLAYER.pause();
+            TTS_PLAYER.pause();
             play_button.image.src = PLAY_IMAGE_SRC;
             play_button.button.title = 'Play';
         }
         else 
         {
-            PLAYER.play();
+            TTS_PLAYER.play();
             play_button.image.src = PAUSE_IMAGE_SRC;
             play_button.button.title = 'Pause';
             ON_PLAYER_PLAY.invoke();
@@ -608,7 +613,7 @@ function update_playback_controls_opacity(event: utils.tts.TtsFrontendEvent)
 {
     if(!AUDIO_PLAYER_DATA) return;
 
-    if (PLAYER.is_ready())
+    if (TTS_PLAYER.is_ready())
     {
         AUDIO_PLAYER_DATA.fast_forward_button.button.classList.remove('inactive');
         AUDIO_PLAYER_DATA.rewind_button.button.classList.remove('inactive');
@@ -625,13 +630,13 @@ function update_playback_controls_opacity(event: utils.tts.TtsFrontendEvent)
 function spawn_rewind_button(): utils.ImageButton
 {
     let button = utils.spawn_image_button(utils.images.ANGLES_LEFT, async e => {
-        if(!AUDIO_PLAYER_DATA || !PLAYER.is_ready()) return;
+        if(!AUDIO_PLAYER_DATA || !TTS_PLAYER.is_ready()) return;
 
         let time = +AUDIO_PLAYER_DATA.progress_bar.value;
-        let duration = await PLAYER.get_duration();
+        let duration = await TTS_PLAYER.get_duration();
         let offset_percent = SKIP_TIME / duration;
         time = Math.clamp(0.0, 1.0, time - offset_percent);
-        await PLAYER.set_time(time);
+        await TTS_PLAYER.set_time(time);
         
         update_progress_visual(time, duration);
     });
@@ -643,13 +648,13 @@ function spawn_rewind_button(): utils.ImageButton
 function spawn_fast_forward_button(): utils.ImageButton
 {
     let button = utils.spawn_image_button(utils.images.ANGLES_RIGHT, async e => {
-        if(!AUDIO_PLAYER_DATA || !PLAYER.is_ready()) return;
+        if(!AUDIO_PLAYER_DATA || !TTS_PLAYER.is_ready()) return;
 
         let time = +AUDIO_PLAYER_DATA.progress_bar.value;
-        let duration = await PLAYER.get_duration();
+        let duration = await TTS_PLAYER.get_duration();
         let offset_percent = SKIP_TIME / duration;
         time = Math.clamp(0.0, 1.0, time + offset_percent);
-        await PLAYER.set_time(time);
+        await TTS_PLAYER.set_time(time);
 
         update_progress_visual(time, duration);
     });
@@ -661,12 +666,12 @@ function spawn_fast_forward_button(): utils.ImageButton
 function spawn_restart_button(): utils.ImageButton
 {
     let button = utils.spawn_image_button(utils.images.ARROWS_ROTATE, async _ => {
-        if(!AUDIO_PLAYER_DATA || !PLAYER.is_ready()) return;
+        if(!AUDIO_PLAYER_DATA || !TTS_PLAYER.is_ready()) return;
 
-        await PLAYER.set_time(0.0);
-        update_progress_visual(0.0, await PLAYER.get_duration());
+        await TTS_PLAYER.set_time(0.0);
+        update_progress_visual(0.0, await TTS_PLAYER.get_duration());
 
-        if(PLAYER.is_finished())
+        if(TTS_PLAYER.is_finished())
         {
             // If we are finished, and need to restart, we just hit the play button
             // Quick and dirty way to make this work

@@ -2,9 +2,9 @@ import * as utils from "../utils/index.js";
 import * as reader from "../bible_reader.js";
 import * as bible from "../bible.js";
 
-export async function show_queue_display()
+export async function show_queue_display(state: reader.PlayerBehaviorState)
 {
-    let queue = await reader.get_queue(5);
+    let queue = await state.get_queue(5);
 
     let display = utils.spawn_element('div', ['queue-display'], display => {
         display.append_element_ex('div', ['popup-content'], content => {

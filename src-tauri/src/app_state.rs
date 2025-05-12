@@ -5,7 +5,7 @@ use tauri::{
 };
 
 use crate::{
-    audio::TtsSettings, bible::*, bible_parsing, debug_release_val, migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION}, notes::*, settings::Settings
+    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, debug_release_val, migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION}, notes::*, settings::Settings
 };
 
 pub const SAVE_NAME: &str = "save.json";
@@ -100,6 +100,7 @@ pub struct AppData {
     settings: Mutex<RefCell<Settings>>,
 
     selected_reading: Mutex<RefCell<u32>>,
+    reader_behavior: Mutex<RefCell<ReaderBehavior>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -113,6 +114,7 @@ struct AppSave {
     settings: Settings,
     selected_reading: u32,
     tts_settings: TtsSettings,
+    reader_behavior: ReaderBehavior,
 }
 
 impl AppData {
@@ -144,8 +146,9 @@ impl AppData {
                 (save, migrated, false)
             },
             None => {
+                let chapter = ChapterIndex { book: 0, number: 0 };
                 let view_states = vec![ViewState::Chapter {
-                    chapter: ChapterIndex { book: 0, number: 0 },
+                    chapter,
                     verse_range: None,
                     scroll: 0.0,
                 }];
@@ -160,6 +163,7 @@ impl AppData {
                     settings: Settings::default(),
                     selected_reading: 0,
                     tts_settings: TtsSettings::default(),
+                    reader_behavior: ReaderBehavior::default(chapter)
                 }, false, true)
             }
         };
@@ -211,6 +215,7 @@ impl AppData {
             need_display_no_save: Mutex::new(RefCell::new(no_save)),
             settings: Mutex::new(RefCell::new(save.settings)),
             selected_reading: Mutex::new(RefCell::new(save.selected_reading)),
+            reader_behavior: Mutex::new(RefCell::new(save.reader_behavior)),
         }
     }
 
@@ -227,6 +232,7 @@ impl AppData {
         let settings = self.settings.lock().unwrap().borrow().clone();
         let save_version = self.save_version;
         let selected_reading = self.selected_reading.lock().unwrap().borrow().clone();
+        let reading_behavior = self.reader_behavior.lock().unwrap().borrow().clone();
 
         let save = AppSave {
             notebooks,
@@ -238,6 +244,7 @@ impl AppData {
             settings,
             selected_reading,
             tts_settings,
+            reader_behavior: reading_behavior,
         };
 
         let save_json = serde_json::to_string_pretty(&save).unwrap();
@@ -388,6 +395,14 @@ impl AppData {
         let old = *need_display_no_save;
         *need_display_no_save = false;
         old
+    }
+
+    pub fn read_reader_behavior<F, R>(&self, mut f: F) -> R 
+        where F: FnMut(&mut ReaderBehavior) -> R
+    {
+        let binding = self.reader_behavior.lock().unwrap();
+        let mut selected_reading = binding.borrow_mut();
+        f(&mut *selected_reading)
     }
 
     fn get_bible_paths<R>(path_resolver: &PathResolver<R>) -> Vec<PathBuf>

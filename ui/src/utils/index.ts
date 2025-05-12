@@ -43,9 +43,16 @@ export function debug_print(msg: string)
     invoke('debug_print', {message: msg});
 }
 
-export function debug_json(value: any)
+export function debug_json(value: any, pretty_print: boolean = false)
 {
-    debug_print(JSON.stringify(value));
+    if (pretty_print)
+    {
+        debug_print(format_json(JSON.stringify(value)));
+    }
+    else 
+    {
+        debug_print(JSON.stringify(value));
+    }
 }
 
 // a la chatgpt

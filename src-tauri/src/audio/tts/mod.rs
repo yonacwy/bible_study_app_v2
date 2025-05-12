@@ -1,6 +1,7 @@
 pub mod events;
 pub mod player_thread;
 pub mod synth;
+pub mod reader_behavior;
 
 use std::{collections::HashMap, sync::{Arc, Mutex}, thread::spawn};
 
@@ -23,23 +24,12 @@ pub fn init_espeak<R>(resolver: &PathResolver<R>)
     std::env::set_var("PIPER_ESPEAKNG_DATA_DIRECTORY", tts_dir.into_os_string());
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default)]
-#[serde(rename_all = "snake_case")]
-pub enum TtsPlayerState
-{
-    #[default]
-    None,
-    Repeat,
-    Continuous,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct TtsSettings
 {
     pub volume: f32,
     pub playback_speed: f32,
-    pub player_state: TtsPlayerState,
 }
 
 impl Default for TtsSettings
@@ -49,7 +39,6 @@ impl Default for TtsSettings
         {
             volume: 1.0,
             playback_speed: 1.0,
-            player_state: TtsPlayerState::None,
         }
     }
 }
