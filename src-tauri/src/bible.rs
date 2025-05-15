@@ -126,7 +126,7 @@ impl ChapterView {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct VerseRange {
     pub start: u32,
     pub end: u32,

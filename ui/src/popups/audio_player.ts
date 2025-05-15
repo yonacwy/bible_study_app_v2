@@ -3,7 +3,7 @@ import * as bible from "../bible.js";
 import { TtsFrontendEvent, TtsGenerationProgressEvent, TtsPlayingEvent } from "../utils/tts.js";
 import * as view_states from "../view_states.js";
 import { spawn_behavior_selector } from "./player_behavior.js";
-import { PlayerBehaviorState } from "../bible_reader.js";
+import { BibleReaderSection, PlayerBehaviorState } from "../bible_reader.js";
 
 // To implement on a page, need to call `init_player()` before anything, then whenever the passage chapter is rendered, `on_passage_rendered()` needs to be called
 
@@ -20,6 +20,7 @@ type PlayerData = {
     left: number | null,
     is_open: boolean,
     is_expanded: boolean,
+    should_play: boolean,
 };
 
 const PLAYER_DATA_STORAGE: utils.storage.ValueStorage<PlayerData> = new utils.storage.ValueStorage<PlayerData>('audio-player-visual-data');
@@ -36,6 +37,7 @@ type AudioPlayerData = {
     progress_text: HTMLElement,
 
     playing_verse_index: number | null,
+    playing_section: BibleReaderSection | null,
     verses_elements: HTMLLIElement[],
 
     is_setting_time: boolean,
@@ -53,6 +55,15 @@ const TTS_PLAYER = new utils.tts.TtsPlayer(async e => {
 
         AUDIO_PLAYER_DATA.play_button.button.classList.remove('hidden');
         AUDIO_PLAYER_DATA.generating_indicator.classList.add('hidden');
+
+        if (PLAYER_DATA_STORAGE.get()?.should_play)
+        {
+            PLAYER_DATA_STORAGE.update(d => {
+                d.should_play = false;
+                return d;
+            });
+            utils.sleep(100).then(_ => play()); // don't know why we need to sleep :shrug:
+        }
     }
     if(e.type === 'generating')
     {
@@ -86,10 +97,30 @@ const TTS_PLAYER = new utils.tts.TtsPlayer(async e => {
         AUDIO_PLAYER_DATA.play_button.image.src = PLAY_IMAGE_SRC;
         AUDIO_PLAYER_DATA.progress_bar.value = `${1.0}`;
         utils.update_sliders();
+
+        AUDIO_PLAYER_DATA.behavior_state.reading_index += 1;
+        let next = await AUDIO_PLAYER_DATA.behavior_state.get_section();
+        if (next !== null) // if we have a next reader state, go to the next one
+        {
+            PLAYER_DATA_STORAGE.update(d => {
+                d.should_play = true;
+                return d;
+            });
+            
+            view_states.push_section({
+                book: next.chapter.book,
+                chapter: next.chapter.number,
+                verse_range: next.verses,
+            });
+            view_states.goto_current_view_state();
+        }
+        else // if we don't, reset
+        {
+            AUDIO_PLAYER_DATA.behavior_state.reading_index = 0;
+        }
     }
 
     update_playback_controls_opacity(e);
-    // on_player_event(e);
     ON_PLAYER_EVENT.invoke(e);
 });
 
@@ -102,17 +133,25 @@ export async function show_player()
     if(!AUDIO_PLAYER_DATA) return;
 
     AUDIO_PLAYER_DATA.popup.classList.remove('hidden');
-    let chapter = await bible.get_chapter() ?? { book: 0, number: 0 };
+    await request_section_tts();
+
+    ON_PLAYER_VISIBILITY_CHANGED.invoke(true);
+}
+
+async function request_section_tts() 
+{
+    if(!AUDIO_PLAYER_DATA) return;
+    let section = await AUDIO_PLAYER_DATA.behavior_state.get_section() ?? { chapter: { book: 0, number: 0 }, verses: null };
     let bible_name = await bible.get_current_bible_version();
 
     update_player_data_storage();
 
     TTS_PLAYER.request({
         bible_name,
-        chapter
+        chapter: section.chapter,
+        verse_range: section.verses,
     });
-
-    ON_PLAYER_VISIBILITY_CHANGED.invoke(true);
+    AUDIO_PLAYER_DATA.playing_section = section;
 }
 
 export async function play()
@@ -121,6 +160,7 @@ export async function play()
 
     if (!await TTS_PLAYER.is_playing())
     {
+
         AUDIO_PLAYER_DATA.play_button.button.click();
     }
 }
@@ -200,7 +240,6 @@ export function init_player()
         text.innerHTML = '--:--';
     });
 
-    
     let behavior_state = new PlayerBehaviorState();
     let popup = document.body.append_element_ex('div', ['audio-player', 'hidden'], player_div => {
         player_div.id = 'audio-player';
@@ -276,10 +315,15 @@ export function init_player()
         progress_text,
         generating_indicator,
         is_setting_time: false,
+        playing_section: null,
         playing_verse_index: null,
         verses_elements: [],
         behavior_state,
     }
+
+    behavior_state.on_behavior_changed.add_listener(_ => {
+        request_section_tts();
+    })
 
     let dropdown_button = popup.querySelector('.dropdown-button') as HTMLElement;
 
@@ -338,6 +382,7 @@ function update_player_data_storage()
         left,
         is_open: !AUDIO_PLAYER_DATA.popup.classList.contains('hidden'),
         is_expanded: hidden_content.classList.contains('active'),
+        should_play: PLAYER_DATA_STORAGE.get()?.should_play ?? false,
     }
 
     PLAYER_DATA_STORAGE.set(data);
@@ -523,11 +568,12 @@ function update_current_reading_verse_visual()
     clear_current_reading_verse();
     if(AUDIO_PLAYER_DATA.playing_verse_index !== null && AUDIO_PLAYER_DATA.verses_elements.length > AUDIO_PLAYER_DATA.playing_verse_index)
     {
-        let verse_element = AUDIO_PLAYER_DATA.verses_elements[AUDIO_PLAYER_DATA.playing_verse_index];
+        let offset = AUDIO_PLAYER_DATA.playing_section?.verses?.start ?? 0;
+        let verse_element = AUDIO_PLAYER_DATA.verses_elements[AUDIO_PLAYER_DATA.playing_verse_index + offset];
         verse_element.classList.add('reading');
         verse_element.scrollIntoView({
             behavior: "smooth",
-            block: "center"
+            block: "center",
         });
     }
 }
@@ -600,6 +646,7 @@ function spawn_play_button(): utils.ImageButton
         else 
         {
             TTS_PLAYER.play();
+            on_play();
             play_button.image.src = PAUSE_IMAGE_SRC;
             play_button.button.title = 'Pause';
             ON_PLAYER_PLAY.invoke();
@@ -607,6 +654,12 @@ function spawn_play_button(): utils.ImageButton
     });
 
     return play_button;
+}
+
+function on_play()
+{
+    if (AUDIO_PLAYER_DATA === null) return;
+    let current = null;
 }
 
 function update_playback_controls_opacity(event: utils.tts.TtsFrontendEvent)
@@ -675,7 +728,7 @@ function spawn_restart_button(): utils.ImageButton
         {
             // If we are finished, and need to restart, we just hit the play button
             // Quick and dirty way to make this work
-            AUDIO_PLAYER_DATA.play_button.button.click();
+            play()
         }
     });
 

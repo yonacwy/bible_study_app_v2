@@ -1,4 +1,4 @@
-import { ChapterIndex } from "../bindings.js";
+import { ChapterIndex, VerseRange } from "../bindings.js";
 import * as utils from "./index.js";
 
 export async function listen_tts_event(callback: (e: utils.AppEvent<TtsEvent>) => void): Promise<utils.UnlistenFn>
@@ -58,6 +58,7 @@ export type TtsRequest = {
 export type PassageAudioKey = {
     bible_name: string,
     chapter: ChapterIndex,
+    verse_range: VerseRange | null,
 }
 
 export type TtsSettings = {

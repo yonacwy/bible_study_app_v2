@@ -163,7 +163,7 @@ impl AppData {
                     settings: Settings::default(),
                     selected_reading: 0,
                     tts_settings: TtsSettings::default(),
-                    reader_behavior: ReaderBehavior::default(chapter)
+                    reader_behavior: ReaderBehavior::default()
                 }, false, true)
             }
         };

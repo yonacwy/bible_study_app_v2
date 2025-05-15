@@ -30,6 +30,18 @@ export async function get_chapter(): Promise<ChapterIndex | null>
     return view_state.chapter;
 }
 
+export async function get_verse_range(): Promise<VerseRange | null>
+{
+    let view_state = await get_current_view_state();
+    if(view_state.type !== 'chapter')
+    {
+        debug_print('tried to get non chapter view state');
+        return null;
+    }
+
+    return view_state.verse_range;
+}
+
 export async function get_chapter_words(chapter: ChapterIndex): Promise<string[]>
 {
     let chapter_text = JSON.parse(await invoke('get_chapter_text', { chapter: chapter }));

@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use synth::SpeechSynth;
 use tauri::{path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Listener, Manager, Runtime};
 
-use crate::{bible::{Bible, ChapterIndex}, utils};
+use crate::{bible::{Bible, ChapterIndex, VerseRange}, utils};
 use self::player_thread::TtsPlayerThread;
 
 pub const TTS_SAMPLE_RATE: u32 = 22050;
@@ -59,12 +59,16 @@ pub struct VerseAudioData
 
 impl PassageAudio
 {
-    pub fn new(bible: &Bible, chapter_index: ChapterIndex, synth: &SpeechSynth, app_handle: &AppHandle, id: String) -> Self 
+    pub fn new(bible: &Bible, chapter_index: ChapterIndex, verse_range: Option<VerseRange>, synth: &SpeechSynth, app_handle: &AppHandle, id: String) -> Self 
     {
         const CHAPTER_SILENCE_TIME: f32 = 0.5;
         let book = &bible.books[chapter_index.book as usize].name;
         let chapter = chapter_index.number + 1;
-        let mut chapter_intro = synth.synth_text_to_frames(format!("{} Chapter {}", book, chapter));
+        let mut chapter_intro = match verse_range {
+            Some(range) => synth.synth_text_to_frames(format!("{} Chapter {} verses {} to {}", book, chapter, range.start + 1, range.end + 1)),
+            None => synth.synth_text_to_frames(format!("{} Chapter {}", book, chapter))
+        };
+
 
         chapter_intro.append(&mut vec![Frame::ZERO; (TTS_SAMPLE_RATE as f32 * CHAPTER_SILENCE_TIME).floor() as usize]); // appends a longer silence time to the chapter intro
 
@@ -74,7 +78,13 @@ impl PassageAudio
         let silence_length = (TTS_SAMPLE_RATE as f32 * SILENCE_TIME).floor() as usize;
         let silence = vec![Frame::ZERO; silence_length];
 
-        let verses = bible.get_chapter(chapter_index).verses.iter()
+        let chapter = bible.get_chapter(chapter_index);
+        let verses = match verse_range {
+            Some(r) => &chapter.verses.as_slice()[(r.start as usize)..=(r.end as usize)],
+            None => &chapter.verses[..],
+        };
+
+        let verses = verses.iter()
             .map(|v| v.words.iter().map(|w| w.text.clone()).join(" "))
             .collect::<Vec<_>>();
 
@@ -130,6 +140,7 @@ pub struct PassageAudioKey
 {
     pub bible_name: String,
     pub chapter: ChapterIndex,
+    pub verse_range: Option<VerseRange>,
 }
 
 enum TtsSoundData
@@ -186,10 +197,10 @@ impl TtsPlayer
         }
     }
 
-    pub fn request_tts(&mut self, bible: Arc<Bible>, chapter_index: ChapterIndex) -> TtsRequest
+    pub fn request_tts(&mut self, bible: Arc<Bible>, chapter_index: ChapterIndex, verse_range: Option<VerseRange>) -> TtsRequest
     {
         let mut sources_binding = self.sources.lock().unwrap();
-        let passage_key = PassageAudioKey { bible_name: bible.name.clone(), chapter: chapter_index };
+        let passage_key = PassageAudioKey { bible_name: bible.name.clone(), chapter: chapter_index, verse_range };
         
         if let Some(id) = self.source_ids.get(&passage_key)
         {
@@ -211,7 +222,7 @@ impl TtsPlayer
             let app_handle = self.app_handle.clone();
 
             spawn(move || {
-                let audio = PassageAudio::new(&bible, chapter_index, &synth, &app_handle, id_inner.clone());
+                let audio = PassageAudio::new(&bible, chapter_index, verse_range, &synth, &app_handle, id_inner.clone());
                 sources.lock().unwrap().insert(id_inner.clone(), TtsSoundData::Generated(Arc::new(audio)));
                 app_handle.emit(TTS_EVENT_NAME, TtsEvent::Generated { id: id_inner }).unwrap();
             });

@@ -34,8 +34,8 @@ fn main() -> Result<(), tts::Error>
             app.manage(ReadingsDatabase::new(app.path()));
             app.manage(AppState::create(app.path(), app.handle().clone()));
 
-            // let window = app.get_webview_window("main").unwrap();
-            // window.open_devtools();
+            let window = app.get_webview_window("main").unwrap();
+            window.open_devtools();
             
             Ok(())
         })

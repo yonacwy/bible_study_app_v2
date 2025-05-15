@@ -2,7 +2,7 @@ use std::num::NonZeroU32;
 
 use serde::{Deserialize, Serialize};
 
-use crate::bible::ChapterIndex;
+use crate::bible::{ChapterIndex, VerseRange};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq)]
 #[serde(rename_all = "snake_case", tag = "type", content = "data")]
@@ -29,17 +29,19 @@ pub enum ReaderBehavior
         month: u32,
         day: u32,
         options: RepeatOptions
+    },
+    Single
+    {
+        options: RepeatOptions,
     }
 }
 
 impl ReaderBehavior
 {
-    pub fn default(chapter: ChapterIndex) -> Self 
+    pub fn default() -> Self 
     {
-        Self::Segment { 
-            start: chapter, 
-            length: Some(NonZeroU32::new(1).unwrap()), 
-            options: RepeatOptions::NoRepeat 
+        Self::Single { 
+            options: RepeatOptions::NoRepeat,
         }
     }
 }

@@ -17,7 +17,7 @@ export async function is_first_view_state(): Promise<boolean>
     return current <= 0;
 }
 
-export async function push_section(section: BibleSection)
+export async function push_section(section: BibleSection): Promise<void>
 {
     return await utils.invoke('push_view_state', { view_state: {
         type: 'chapter',
@@ -30,7 +30,7 @@ export async function push_section(section: BibleSection)
     }});
 }
 
-export async function push_search(words: string[], display_index: number)
+export async function push_search(words: string[], display_index: number): Promise<void>
 {
     return await utils.invoke('push_view_state', { view_state: {
         type: 'search',

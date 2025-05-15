@@ -10,7 +10,14 @@ import * as view_states from "../view_states.js";
 
 type BehaviorType = 'single' | 'section' | 'reading' | 'continuous';
 
+type BehaviorData = {
+    is_queue_open: boolean,
+}
+
 const BEHAVIOR_SETTINGS_CHANGED: EventHandler<void> = new EventHandler();
+const BEHAVIOR_DATA_STORAGE = new utils.storage.ValueStorage<BehaviorData>('behavior-data-storage', {
+    is_queue_open: false,
+});
 
 type BehaviorSelectorData = {
     type_selector: utils.TextDropdown<BehaviorType>,
@@ -33,16 +40,16 @@ export async function spawn_behavior_selector(reader: PlayerBehaviorState): Prom
     {
         bt = 'reading';
     }
+    else if (current.type === 'single')
+    {
+        bt = 'single';
+    }
     else 
     {
         let data: SegmentReaderBehavior = current.data as SegmentReaderBehavior;
         if(data.length === null)
         {
             bt = 'continuous';
-        }
-        else if(data.length === 1)
-        {
-            bt = 'single';
         }
         else 
         {
@@ -102,16 +109,27 @@ export async function spawn_behavior_selector(reader: PlayerBehaviorState): Prom
         count_selector,
         section_selector,
     };
-
+    
+    update_selector_visuals(data); // shows/hides all panels
+    
     BEHAVIOR_SETTINGS_CHANGED.add_listener(async _ => {
-        on_behavior_changed(data);
+        update_selector_visuals(data); // shows/hides all panels
         reader.set_behavior(await get_reader_behavior(data));
-    });
-    BEHAVIOR_SETTINGS_CHANGED.invoke();
+    })
 
     let open_queue_button = utils.spawn_image_button(utils.images.HISTORY_VERTICAL, e => {
-        queue.show_queue_display(reader);
+        BEHAVIOR_DATA_STORAGE.update(b => {
+            b.is_queue_open = true;
+            return b;
+        });
+
+        spawn_queue_display();
     });
+
+    if (BEHAVIOR_DATA_STORAGE.get()!.is_queue_open)
+    {
+        spawn_queue_display();
+    }
 
     open_queue_button.button.classList.add('open-queue-button');
     
@@ -133,9 +151,18 @@ export async function spawn_behavior_selector(reader: PlayerBehaviorState): Prom
             s.appendChild(section_selector.root);
         });
     });
+
+    function spawn_queue_display() {
+        queue.show_queue_display(reader, () => {
+            BEHAVIOR_DATA_STORAGE.update(b => {
+                b.is_queue_open = false;
+                return b;
+            });
+        });
+    }
 }
 
-function on_behavior_changed(data: BehaviorSelectorData)
+function update_selector_visuals(data: BehaviorSelectorData)
 {
     let behavior_type = data.type_selector.get_value().value;
     if(behavior_type === 'continuous')
@@ -194,7 +221,7 @@ async function get_reader_behavior(data: BehaviorSelectorData): Promise<ReaderBe
 {
     let bt = data.type_selector.get_value().value;
 
-    if(bt !== 'reading')
+    if(bt === 'section' || bt === 'continuous')
     {
         let segment = await get_section_behavior(data);
         return {
@@ -202,9 +229,18 @@ async function get_reader_behavior(data: BehaviorSelectorData): Promise<ReaderBe
             data: segment,
         }
     }
+    else if (bt === 'single')
+    {
+        return {
+            type: 'single',
+            data: {
+                options: get_repeat_options(data)
+            }
+        }
+    }
     else 
     {
-        let daily = get_reading_behavior(data);
+        let daily = get_daily_reading_behavior(data);
         return {
             type: 'daily',
             data: daily
@@ -259,7 +295,7 @@ async function get_section_behavior(data: BehaviorSelectorData): Promise<Segment
     }
 }
 
-function get_reading_behavior(data: BehaviorSelectorData): DailyReaderBehavior 
+function get_daily_reading_behavior(data: BehaviorSelectorData): DailyReaderBehavior 
 {
     let month = data.reading_selector.month_selector.get_value().value;
     let day = data.reading_selector.day_selector.get_value().value;

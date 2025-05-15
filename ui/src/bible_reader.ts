@@ -22,9 +22,13 @@ export type DailyReaderBehavior = {
     options: RepeatOptions,
 }
 
+export type SingleReaderBehavior = {
+    options: RepeatOptions
+}
+
 export type ReaderBehavior = {
-    type: "segment" | "daily",
-    data: SegmentReaderBehavior | DailyReaderBehavior
+    type: "segment" | "daily" | "single",
+    data: SegmentReaderBehavior | DailyReaderBehavior | SingleReaderBehavior
 }
 
 export type BehaviorChangedEvent = {
@@ -45,16 +49,31 @@ export type BibleReaderSection = {
 export class PlayerBehaviorState 
 {
     private timer: ReaderTimer | null = null;
-    private readingIndex = 0;
+    private _reading_index = new utils.storage.ValueStorage<number>('current-reader-index', 0);
+    public on_behavior_changed = new utils.events.EventHandler<ReaderBehavior>();
     
-    constructor() {}
+    constructor() {
+        
+    }
+
+    public get reading_index(): number
+    {
+        return this._reading_index.get() as number;
+    }
+
+    public set reading_index(v: number) 
+    {
+        this._reading_index.set(v);
+    }
 
     async set_behavior(behavior: ReaderBehavior): Promise<void>
     {
-        this.readingIndex = 0;
+        this.reading_index = 0;
         // fire off behavior set event?
         this.stop_timer();
-        return await utils.invoke('set_reader_behavior', { reader_behavior: behavior });
+        return await utils.invoke('set_reader_behavior', { reader_behavior: behavior }).then(_ => {
+            this.on_behavior_changed.invoke(behavior);
+        });
     }
 
     async get_behavior(): Promise<ReaderBehavior>
@@ -89,7 +108,7 @@ export class PlayerBehaviorState
 
     async get_section(index?: number): Promise<BibleReaderSection | null>
     {
-        index = index ?? this.readingIndex;
+        index = index ?? this.reading_index;
         let behavior = await this.get_behavior();
 
         let repeat_count;
@@ -114,11 +133,6 @@ export class PlayerBehaviorState
                 length = Number.POSITIVE_INFINITY;
             }
 
-            if (index / length >= repeat_count)
-            {
-                return null;
-            }
-
             let count = index % length;
             let view = await bible.get_bible_view();
             let chapter = bible.increment_chapter(view, start, count);
@@ -131,12 +145,13 @@ export class PlayerBehaviorState
         if (behavior.type === 'daily')
         {
             let { month, day } = behavior.data as DailyReaderBehavior;
-            if (index / length >= repeat_count)
+
+            let daily_readings = await dr.get_readings(month, day);
+            if (index / daily_readings.length >= repeat_count)
             {
                 return null;
             }
 
-            let daily_readings = await dr.get_readings(month, day);
             let reading = daily_readings[index % daily_readings.length];
 
             let book = await bible.get_book_index(reading.prefix, reading.book) as number; // if it returns null, we have a bigger problem
@@ -148,26 +163,42 @@ export class PlayerBehaviorState
 
             return {
                 chapter: chapter,
-                verses: null,
+                verses: reading.range,
+            }
+        }
+
+        if (behavior.type === 'single')
+        {
+            if (index >= repeat_count)
+            {
+                return null;
+            }
+
+            let verse_range = await bible.get_verse_range();
+
+            return {
+                chapter: await bible.get_chapter() as ChapterIndex,
+                verses: verse_range,
             }
         }
 
         return null;
     }
 
-    async get_queue(radius: number): Promise<{ current: number; sections: BibleReaderSection[] }>
+    async get_queue(radius: number): Promise<{ current: number; sections: BibleReaderSection[], offset: number }>
     {
-        const queueIndex = Math.min(this.readingIndex, radius);
-        const len = queueIndex + 1 + radius;
-        const offset = this.readingIndex <= radius ? 0 : this.readingIndex - radius - 1;
+        let queue_index = Math.min(this.reading_index, radius);
+        let len = queue_index + 1 + radius;
+        let offset = this.reading_index <= radius ? 0 : this.reading_index - radius - 1;
 
-        const sections = (await Promise.all(Array.from({ length: len }, (_, i) => i + offset)
+        let sections = (await Promise.all(Array.from({ length: len }, (_, i) => i + offset)
             .map((i) => this.get_section(i))))
             .filter(Boolean) as BibleReaderSection[];
 
         return {
-            current: queueIndex,
+            current: queue_index,
             sections,
+            offset
         };
     }
 
