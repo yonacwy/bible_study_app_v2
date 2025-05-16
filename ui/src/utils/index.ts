@@ -233,52 +233,6 @@ export function spawn_element<K extends keyof HTMLElementTagNameMap>(key: K, cla
     return element;
 }
 
-export type SliderArgs = {
-    min?: number,
-    max?: number,
-    step?: number,
-    default?: number,
-    on_input?: (v: number) => void, 
-    on_change?: (v: number) => void,
-    classes?: string[],
-}
-
-export function spawn_slider(args: SliderArgs): HTMLInputElement
-{
-    let min = (args.min ?? 0).toString();
-    let max = (args.max ?? 1).toString();
-    let value = (args.default ?? 0.5).toString();
-    let step = (args.step ?? 0.001).toString();
-
-    let input = spawn_element('input', args.classes ?? [], slider => {
-        slider.type = 'range';
-
-        slider.style.setProperty('--min', min);
-        slider.style.setProperty('--max', max);
-
-        slider.min = min;
-        slider.max = max;
-        slider.step = step;
-
-        if(args.on_input !== undefined)
-        {
-            slider.addEventListener('input', _ => {
-                (args.on_input as (v: number) => void)(+slider.value);
-            })
-        }
-
-        if(args.on_change !== undefined)
-        {
-            slider.addEventListener('change', _ => {
-                (args.on_change as (v: number) => void)(+slider.value);
-            })
-        }
-    });
-
-    input.value = value; // doesn't work if we put it in the `spawn_element` block for some reason.
-    return input;
-}
-
 
 export function get_month_length(month: number, is_leap_year: boolean): number
 {

@@ -6,6 +6,7 @@
     position: fixed;
     display: block;
     z-index: 1000000;
+    max-width: 500px * @ui-scale;
 
     &.spawned {
         bottom: 10px;
@@ -83,6 +84,7 @@
         max-height: 0px;
         transition: max-height 0.4s ease-out, padding 0.4s ease-out;
         overflow: hidden;
+        flex-wrap: wrap;
 
         .dropdown-content {
             max-height: 200px;
@@ -168,10 +170,33 @@
                 }
             }
         }
+
+        @timer-progress-width: 400px;
+
+        .timer-progress {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            margin: 10px auto 0 auto; // top margin, centered horizontally
+            padding: 0;
+
+            flex: 0 0 auto; // ⬅ Prevent flex from stretching it
+            width: @timer-progress-width; // ⬅ Set the exact width you want
+            max-width: 100%; // ⬅ Prevent overflow if parent is too narrow
+            gap: 10px;
+
+            .time-text {
+                text-wrap: nowrap;
+                .font-medium();
+            }
+            
+            .styled-slider(@timer-progress-width, 7px * @ui-scale, 7px * @ui-scale, #ccc, #3498db);
+        }
     }
 
     .hidden-content.active {
-        max-height: 100px * @ui-scale;
+        max-height: 140px * @ui-scale;
         padding: 10px;
 
         border-top: 1px solid #333;

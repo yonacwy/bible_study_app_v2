@@ -32,6 +32,10 @@ type BehaviorSelectorData = {
     section_selector: SectionSelectorData,
 }
 
+export type TimerSliderData = {
+    
+}
+
 export async function spawn_behavior_selector(reader: PlayerBehaviorState): Promise<HTMLElement>
 {
     let current = await reader.get_behavior();

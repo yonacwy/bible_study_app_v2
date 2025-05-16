@@ -1,6 +1,6 @@
 import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
-import { TtsFrontendEvent, TtsGenerationProgressEvent, TtsPlayingEvent } from "../utils/tts.js";
+import { TtsFrontendEvent, TtsGenerationProgressEvent, TtsPlayingEvent, TtsSettings } from "../utils/tts.js";
 import * as view_states from "../view_states.js";
 import { spawn_behavior_selector } from "./player_behavior.js";
 import { BibleReaderSection, PlayerBehaviorState } from "../bible_reader.js";
@@ -266,10 +266,27 @@ export function init_player()
                 sliders.appendChild(playback_slider);
             });
 
-            // TODO: Hidden
             content.append_element_ex('div', ['strategy-settings'], async strategy_settings => {
                 let selector = await spawn_behavior_selector(behavior_state);
                 strategy_settings.appendChild(selector);
+            });
+
+            content.append_element_ex('div', ['break'], _ => {});
+
+            content.append_element_ex('div', ['timer-progress'], t => {
+                let input = utils.spawn_slider({
+                    min: 0,
+                    max: 1,
+                    default: 0.0,
+                    step: 1 / 100000,
+                    classes: [],
+                });
+                input.element.addEventListener('mousedown', e => e.stopPropagation()); // makes sure we don't drag while modifying slider
+                t.appendChild(input.element);
+
+                t.append_element_ex('div', ['time-text'], t => {
+                    t.innerHTML = `--:--:--`
+                })
             });
         });
 
@@ -390,8 +407,12 @@ function update_player_data_storage()
 
 function spawn_volume_slider(): HTMLElement
 {
-    let slider = spawn_settings_slider(VOLUME_IMAGE_SRC, {
-        default: 1.0,
+    let [slider, element] = spawn_settings_slider(VOLUME_IMAGE_SRC, {
+        min: 0,
+        max: 1,
+        default: 1,
+        step: 0.0001,
+        classes: []
     }, 
     (input, button) => {
         if(+input.value === 0)
@@ -404,7 +425,6 @@ function spawn_volume_slider(): HTMLElement
         }
 
         update_volume_slider_image(+input.value, button.image);
-        utils.update_sliders();
 
         TTS_PLAYER.get_settings().then(settings => {
             settings.volume = +input.value;
@@ -421,16 +441,12 @@ function spawn_volume_slider(): HTMLElement
     });
 
     TTS_PLAYER.get_settings().then(settings => {
-        let e = slider.querySelector('input[type=range]') as HTMLInputElement;
-        let image = slider.querySelector('img') as HTMLImageElement;
-        
-        e.value = settings.volume.toString();
-        update_volume_slider_image(+e.value, image);
+        slider.set_value(settings.volume);
     });
 
-    slider.title = 'Change the volume';
+    element.title = 'Change the volume';
 
-    return slider;
+    return element;
 }
 
 function update_volume_slider_image(value: number, image: HTMLImageElement)
@@ -455,22 +471,12 @@ function update_volume_slider_image(value: number, image: HTMLImageElement)
 
 function spawn_playback_slider(): HTMLElement
 {
-    let slider = spawn_settings_slider(PLAYBACK_SPEED_SRC, {
+    let [slider, element] = spawn_settings_slider(PLAYBACK_SPEED_SRC, {
         default: 0.5,
-        on_input: v => {
-            v = Math.lerp(-1, 1, v);
-            v = v + Math.sign(v);
-
-            if (Math.abs(v) == 0) 
-                v = 1;
-
-            v = Math.abs(Math.pow(v, Math.sign(v)));
-
-            TTS_PLAYER.get_settings().then(settings => {
-                settings.playback_speed = v;
-                TTS_PLAYER.set_settings(settings);
-            });
-        }
+        max: 1,
+        min: 0,
+        step: 0.0001,
+        classes: []
     }, 
     (input, button) => {
         input.value = '0.5';
@@ -492,6 +498,20 @@ function spawn_playback_slider(): HTMLElement
         });
     },
     (input, button) => {
+        let v = +input.value;
+        v = Math.lerp(-1, 1, v);
+        v = v + Math.sign(v);
+
+        if (Math.abs(v) == 0) 
+            v = 1;
+
+        v = Math.abs(Math.pow(v, Math.sign(v)));
+
+        TTS_PLAYER.get_settings().then(settings => {
+            settings.playback_speed = v;
+            TTS_PLAYER.set_settings(settings);
+        });
+
         update_playback_slider_image(+input.value, button.image);
     });
 
@@ -506,18 +526,15 @@ function spawn_playback_slider(): HTMLElement
         {
             processed = loaded / 2;
         }
-        let e = slider.querySelector('input[type=range]') as HTMLInputElement;
-        let image = slider.querySelector('img') as HTMLImageElement;
         
-        e.value = processed.toString();
-        update_playback_slider_image(+e.value, image);
+        slider.set_value(processed)
     });
 
     
 
-    slider.title = 'Change the playback rate';
+    element.title = 'Change the playback rate';
 
-    return slider;
+    return element;
 }
 
 function update_playback_slider_image(value: number, image: HTMLImageElement)
@@ -544,22 +561,25 @@ function update_playback_slider_image(value: number, image: HTMLImageElement)
     }
 }
 
-function spawn_settings_slider(image_src: string, args: utils.SliderArgs, on_click: (e: HTMLInputElement, image: utils.ImageButton) => void, on_input: (input: HTMLInputElement, button: utils.ImageButton) => void): HTMLElement
+function spawn_settings_slider(image_src: string, args: utils.SliderArgs, on_click: (e: HTMLInputElement, image: utils.ImageButton) => void, on_input: (input: HTMLInputElement, button: utils.ImageButton) => void): [utils.Slider, HTMLElement]
 {
-    return utils.spawn_element('div', ['setting-slider'], root => {        
-        let input = utils.spawn_slider(args);
+    let input = utils.spawn_slider(args);
+
+    let e = utils.spawn_element('div', ['setting-slider'], root => {        
         
-        input.addEventListener('mousedown', e => e.stopPropagation()); // makes sure we don't drag while modifying slider
+        input.element.addEventListener('mousedown', e => e.stopPropagation()); // makes sure we don't drag while modifying slider
 
-        let button = utils.spawn_image_button(image_src, (_, button) => on_click(input, button));
+        let button = utils.spawn_image_button(image_src, (_, button) => on_click(input.element, button));
 
-        input.addEventListener('input', e => {
-            on_input(input, button);
+        input.on_input.add_listener(_ => {
+            on_input(input.element, button)
         })
 
         root.appendChild(button.button);
-        root.appendChild(input);
+        root.appendChild(input.element);
     });
+
+    return [input, e];
 }
 
 function update_current_reading_verse_visual()
