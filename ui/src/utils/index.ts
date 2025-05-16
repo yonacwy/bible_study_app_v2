@@ -90,6 +90,61 @@ export function format_json(str: string, tab: string = '   '): string
     }
 }
 
+type Primitive = number | string | boolean | null | undefined;
+type Comparable = 
+    | Primitive
+    | Comparable[]
+    | { [key: string]: Comparable }
+
+
+export function is_equivalent<T extends Comparable>(a: T, b: T): boolean
+{
+    if (a === b) return true;
+
+    if (Array.isArray(a) && Array.isArray(b))
+    {
+        if (a.length !== b.length) return false;
+        for(let i = 0; i < a.length; i++)
+        {
+            if (!is_equivalent(a[i], b[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    if (is_plain_object(a) && is_plain_object(b))
+    {
+        let a_keys = Object.keys(a);
+        let b_keys = Object.keys(b);
+        if (a_keys.length !== b_keys.length) return false;
+
+        for(let i = 0; i < a_keys.length; i++)
+        {
+            let key = a_keys[i];
+            if (!is_equivalent(a[key], b[key]))
+            {
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+
+    return false;
+}
+
+export function is_plain_object(value: any): value is Record<string, unknown> 
+{
+    if (typeof value !== 'object' || value === null) return false;
+
+    const proto = Object.getPrototypeOf(value);
+    return proto === Object.prototype || proto === null;
+}
+
 export function overlap<T>(a: T[], b: T[]): T[]
 {
     return a.filter(i => b.includes(i))

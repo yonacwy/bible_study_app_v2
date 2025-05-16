@@ -4,6 +4,7 @@ import { TtsFrontendEvent, TtsGenerationProgressEvent, TtsPlayingEvent, TtsSetti
 import * as view_states from "../view_states.js";
 import { spawn_behavior_selector } from "./player_behavior.js";
 import { BibleReaderSection, PlayerBehaviorState } from "../bible_reader.js";
+import { ChapterIndex } from "../bindings.js";
 
 // To implement on a page, need to call `init_player()` before anything, then whenever the passage chapter is rendered, `on_passage_rendered()` needs to be called
 
@@ -160,7 +161,6 @@ export async function play()
 
     if (!await TTS_PLAYER.is_playing())
     {
-
         AUDIO_PLAYER_DATA.play_button.button.click();
     }
 }
@@ -665,8 +665,10 @@ function spawn_play_button(): utils.ImageButton
         }
         else 
         {
+            // checks to see if we are in the right chapter, if not, stops requesting so that we don't get a weird ticking noise
+            if (!await on_play()) return;
+
             TTS_PLAYER.play();
-            on_play();
             play_button.image.src = PAUSE_IMAGE_SRC;
             play_button.button.title = 'Pause';
             ON_PLAYER_PLAY.invoke();
@@ -676,10 +678,39 @@ function spawn_play_button(): utils.ImageButton
     return play_button;
 }
 
-function on_play()
+async function on_play(): Promise<boolean>
 {
-    if (AUDIO_PLAYER_DATA === null) return;
-    let current = null;
+    if (AUDIO_PLAYER_DATA === null) return true;
+    let chapter = await bible.get_chapter();
+    let verses = await bible.get_verse_range();
+    let section = await AUDIO_PLAYER_DATA.behavior_state.get_section();
+
+    if (section === null || chapter === null) return true;
+
+    let current_section: BibleReaderSection = {
+        chapter,
+        verses,
+    };
+
+    if (!utils.is_equivalent(section, current_section))
+    {
+        PLAYER_DATA_STORAGE.update(d => {
+            d.should_play = true;
+            return d;
+        });
+
+        view_states.push_section({
+            chapter: section.chapter.number,
+            book: section.chapter.book,
+            verse_range: section.verses,
+        }).then(_ => {
+            view_states.goto_current_view_state()
+        });
+
+        return false;
+    }
+
+    return true;
 }
 
 function update_playback_controls_opacity(event: utils.tts.TtsFrontendEvent)

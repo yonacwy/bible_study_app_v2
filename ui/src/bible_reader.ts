@@ -133,6 +133,11 @@ export class PlayerBehaviorState
                 length = Number.POSITIVE_INFINITY;
             }
 
+            if (index / length >= repeat_count)
+            {
+                return null;
+            }
+
             let count = index % length;
             let view = await bible.get_bible_view();
             let chapter = bible.increment_chapter(view, start, count);
