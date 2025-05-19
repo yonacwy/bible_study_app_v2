@@ -30,13 +30,18 @@ type BehaviorSelectorData = {
     count_selector: utils.TextDropdown<number>,
     
     section_selector: SectionSelectorData,
+
+    timer_slider: TimerSliderData,
 }
 
 export type TimerSliderData = {
-    
+    parent: HTMLElement,
+    slider: utils.Slider,
+    text: HTMLElement,
+    restart: utils.ImageButton,
 }
 
-export async function spawn_behavior_selector(reader: PlayerBehaviorState): Promise<HTMLElement>
+export async function spawn_behavior_selector(reader: PlayerBehaviorState, timer_slider: TimerSliderData): Promise<HTMLElement>
 {
     let current = await reader.get_behavior();
     let bt: BehaviorType = 'single';
@@ -112,13 +117,54 @@ export async function spawn_behavior_selector(reader: PlayerBehaviorState): Prom
         time_selector,
         count_selector,
         section_selector,
+        timer_slider,
     };
     
     update_selector_visuals(data); // shows/hides all panels
+    update_timer_data(reader, current); // syncs the timer
     
     BEHAVIOR_SETTINGS_CHANGED.add_listener(async _ => {
         update_selector_visuals(data); // shows/hides all panels
-        reader.set_behavior(await get_reader_behavior(data));
+        let behavior = await get_reader_behavior(data);
+        reader.set_behavior(behavior);
+        update_timer_data(reader, behavior); // syncs the timer
+    });
+
+    reader.on_timer_event.add_listener(async e => {
+        let behavior = await reader.get_behavior();
+        if (behavior.data.options.type !== 'repeat_time') return;
+
+        
+        let duration_seconds = behavior.data.options.data as number;
+        function format_time(seconds_total: number): string 
+        {
+            let hours = Math.floor(seconds_total / (60 * 60));
+            let minutes = Math.floor((seconds_total - hours * (60 * 60)) / 60);
+            let seconds = Math.floor((seconds_total - minutes * 60 - hours * 60 * 60));
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        if (e.type === 'tick')
+        {
+            utils.debug_print(`tick = ${e.value}`);
+            let elapsed = Math.floor((1 - (e.value as number)) * duration_seconds);
+            let str = format_time(elapsed);
+            timer_slider.text.innerHTML = str;
+            timer_slider.slider.set_value(e.value as number);
+        }
+
+        if (e.type === 'started')
+        {
+            let str = format_time(duration_seconds);
+            timer_slider.text.innerHTML = str;
+            timer_slider.slider.set_value(0);
+        }
+
+        if (e.type === 'stopped')
+        {
+            timer_slider.text.innerHTML = format_time(0);
+            timer_slider.slider.set_value(1);
+        }
     })
 
     let open_queue_button = utils.spawn_image_button(utils.images.HISTORY_VERTICAL, e => {
@@ -163,6 +209,20 @@ export async function spawn_behavior_selector(reader: PlayerBehaviorState): Prom
                 return b;
             });
         });
+    }
+}
+
+async function update_timer_data(state: PlayerBehaviorState, behavior: ReaderBehavior): Promise<void>
+{
+    if (behavior.data.options.type === 'repeat_time')
+    {
+        return await state.start_timer().then(_ => {
+            state.pause_timer();
+        });
+    }
+    else 
+    {
+        return state.stop_timer();
     }
 }
 
@@ -219,6 +279,8 @@ function update_selector_visuals(data: BehaviorSelectorData)
         data.time_selector.root.classList.add('hidden');
         data.count_selector.root.classList.add('hidden');
     }
+    
+    data.timer_slider.parent.hide(repeat_behavior !== 'repeat_time');
 }
 
 async function get_reader_behavior(data: BehaviorSelectorData): Promise<ReaderBehavior>
@@ -532,6 +594,9 @@ function spawn_day_selector(month: number, default_value: number): utils.TextDro
     return dropdown;
 }
 
+/**
+ * The dropdown value is in minutes
+ */
 function spawn_time_selector(value: number | null): utils.TextDropdown<number>
 {
     let options = utils.ranges.range(0, 12).map(h => {
@@ -552,6 +617,11 @@ function spawn_time_selector(value: number | null): utils.TextDropdown<number>
     options.push({
         text: `12:00`,
         value: 12 * 60  
+    });
+
+    options.push({
+        text: `test 10s`,
+        value: 1 / 6
     });
 
     let default_index = 0;

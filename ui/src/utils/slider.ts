@@ -29,6 +29,7 @@ export type SliderArgs = {
     step: number,
     default: number,
     classes: string[],
+    intractable?: boolean,
 }
 
 export type Slider = {
@@ -53,6 +54,11 @@ export function spawn_slider(args: SliderArgs): Slider
         slider.value = Math.clamp(args.min, args.max, args.default).toString();
         slider.style.setProperty('--val', slider.value);
     });
+
+    if (!(args.intractable ?? true))
+    {
+        slider.style.pointerEvents = 'none';
+    }
 
     let on_input = new events.EventHandler<number>();
     let on_change = new events.EventHandler<number>();

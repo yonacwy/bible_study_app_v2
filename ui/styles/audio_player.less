@@ -6,7 +6,7 @@
     position: fixed;
     display: block;
     z-index: 1000000;
-    max-width: 500px * @ui-scale;
+    width: min-content;
 
     &.spawned {
         bottom: 10px;
@@ -85,6 +85,7 @@
         transition: max-height 0.4s ease-out, padding 0.4s ease-out;
         overflow: hidden;
         flex-wrap: wrap;
+        width: 100%;
 
         .dropdown-content {
             max-height: 200px;

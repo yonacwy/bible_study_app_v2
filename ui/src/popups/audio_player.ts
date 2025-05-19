@@ -2,7 +2,7 @@ import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
 import { TtsFrontendEvent, TtsGenerationProgressEvent, TtsPlayingEvent, TtsSettings } from "../utils/tts.js";
 import * as view_states from "../view_states.js";
-import { spawn_behavior_selector } from "./player_behavior.js";
+import { spawn_behavior_selector, TimerSliderData } from "./player_behavior.js";
 import { BibleReaderSection, PlayerBehaviorState } from "../bible_reader.js";
 import { ChapterIndex } from "../bindings.js";
 
@@ -63,7 +63,7 @@ const TTS_PLAYER = new utils.tts.TtsPlayer(async e => {
                 d.should_play = false;
                 return d;
             });
-            utils.sleep(100).then(_ => play()); // don't know why we need to sleep :shrug:
+            utils.sleep(100).then(_ => player_play()); // don't know why we need to sleep :shrug:
         }
     }
     if(e.type === 'generating')
@@ -145,6 +145,11 @@ async function request_section_tts()
     let section = await AUDIO_PLAYER_DATA.behavior_state.get_section() ?? { chapter: { book: 0, number: 0 }, verses: null };
     let bible_name = await bible.get_current_bible_version();
 
+    if (await TTS_PLAYER.is_playing()) // if we are playing, need to make sure that we pause
+    {
+        player_pause();
+    }
+
     update_player_data_storage();
 
     TTS_PLAYER.request({
@@ -153,16 +158,6 @@ async function request_section_tts()
         verse_range: section.verses,
     });
     AUDIO_PLAYER_DATA.playing_section = section;
-}
-
-export async function play()
-{
-    if (!TTS_PLAYER.is_ready() || !AUDIO_PLAYER_DATA) { return; }
-
-    if (!await TTS_PLAYER.is_playing())
-    {
-        AUDIO_PLAYER_DATA.play_button.button.click();
-    }
 }
 
 export function hide_player()
@@ -257,6 +252,7 @@ export function init_player()
             main_content.appendChild(close_button.button);
         });
 
+        let timer_slider = spawn_timer_slider();
         let hidden_content = player_div.append_element_ex('div', ['hidden-content'], content => {
             content.append_element_ex('div', ['slider-settings'], sliders => { 
                 let volume_slider = spawn_volume_slider();
@@ -267,27 +263,13 @@ export function init_player()
             });
 
             content.append_element_ex('div', ['strategy-settings'], async strategy_settings => {
-                let selector = await spawn_behavior_selector(behavior_state);
+                let selector = await spawn_behavior_selector(behavior_state, timer_slider);
                 strategy_settings.appendChild(selector);
             });
 
             content.append_element_ex('div', ['break'], _ => {});
-
-            content.append_element_ex('div', ['timer-progress'], t => {
-                let input = utils.spawn_slider({
-                    min: 0,
-                    max: 1,
-                    default: 0.0,
-                    step: 1 / 100000,
-                    classes: [],
-                });
-                input.element.addEventListener('mousedown', e => e.stopPropagation()); // makes sure we don't drag while modifying slider
-                t.appendChild(input.element);
-
-                t.append_element_ex('div', ['time-text'], t => {
-                    t.innerHTML = `--:--:--`
-                })
-            });
+            content.appendChild(timer_slider.parent);
+            
         });
 
         player_div.append_element_ex('div', ['dropdown-button'], button => {
@@ -403,6 +385,37 @@ function update_player_data_storage()
     }
 
     PLAYER_DATA_STORAGE.set(data);
+}
+
+function spawn_timer_slider(): TimerSliderData
+{
+    let button = utils.spawn_image_button(utils.images.ARROWS_ROTATE);
+    
+
+    let input = utils.spawn_slider({
+        min: 0,
+        max: 1,
+        default: 0.0,
+        step: 1 / 100000,
+        classes: [],
+        intractable: false,
+    });
+    input.element.addEventListener('mousedown', e => e.stopPropagation()); // makes sure we don't drag while modifying slider
+    
+    let time_text = utils.spawn_element('div', ['time-text'], t => t.innerHTML = `--:--:--`);
+
+    let parent = utils.spawn_element('div', ['timer-progress'], t => {
+        t.appendChild(button.button);
+        t.appendChild(input.element);
+        t.appendChild(time_text);
+    });
+
+    return {
+        restart: button,
+        slider: input,
+        text: time_text,
+        parent: parent,
+    }
 }
 
 function spawn_volume_slider(): HTMLElement
@@ -659,26 +672,54 @@ function spawn_play_button(): utils.ImageButton
     play_button.button.addEventListener('click', async e => {
         if(await TTS_PLAYER.is_playing())
         {
-            TTS_PLAYER.pause();
-            play_button.image.src = PLAY_IMAGE_SRC;
-            play_button.button.title = 'Play';
+            player_pause();
         }
         else 
         {
-            // checks to see if we are in the right chapter, if not, stops requesting so that we don't get a weird ticking noise
-            if (!await on_play()) return;
-
-            TTS_PLAYER.play();
-            play_button.image.src = PAUSE_IMAGE_SRC;
-            play_button.button.title = 'Pause';
-            ON_PLAYER_PLAY.invoke();
+            player_play();
         }
     });
 
     return play_button;
 }
 
-async function on_play(): Promise<boolean>
+async function player_play()
+{
+    if (!AUDIO_PLAYER_DATA) return;
+    
+    // `on_play_requested` checks to see if we are in the right chapter, 
+    // if we are not, stops requesting so that we don't get a weird ticking noise, then goes to the necessary chapter
+    if (!await on_play_requested() || await TTS_PLAYER.is_playing()) return;
+
+    TTS_PLAYER.play();
+    AUDIO_PLAYER_DATA.play_button.image.src = PAUSE_IMAGE_SRC;
+    AUDIO_PLAYER_DATA.play_button.button.title = 'Pause';
+    ON_PLAYER_PLAY.invoke();
+
+    let behavior = await AUDIO_PLAYER_DATA.behavior_state.get_behavior();
+    if (behavior.data.options.type === 'repeat_time')
+    {
+        AUDIO_PLAYER_DATA.behavior_state.resume_timer();
+    }
+}
+
+async function player_pause()
+{
+    if (!AUDIO_PLAYER_DATA) return;
+    if(!await TTS_PLAYER.is_playing()) return;
+
+    TTS_PLAYER.pause();
+    AUDIO_PLAYER_DATA.play_button.image.src = PLAY_IMAGE_SRC;
+    AUDIO_PLAYER_DATA.play_button.button.title = 'Play';
+
+    let behavior = await AUDIO_PLAYER_DATA.behavior_state.get_behavior();
+    if (behavior.data.options.type === 'repeat_time')
+    {
+        AUDIO_PLAYER_DATA.behavior_state.pause_timer();
+    }
+}
+
+async function on_play_requested(): Promise<boolean>
 {
     if (AUDIO_PLAYER_DATA === null) return true;
     let chapter = await bible.get_chapter();
@@ -777,9 +818,8 @@ function spawn_restart_button(): utils.ImageButton
 
         if(TTS_PLAYER.is_finished())
         {
-            // If we are finished, and need to restart, we just hit the play button
-            // Quick and dirty way to make this work
-            play()
+            // If we are finished playing the section, we restart
+            player_play();
         }
     });
 

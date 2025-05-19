@@ -46,14 +46,25 @@ export type BibleReaderSection = {
     verses: VerseRange | null,
 }
 
+export type TimerEvent = {
+    type: 'started' | 'stopped' | 'tick',
+    value: number | null,
+}
+
 export class PlayerBehaviorState 
 {
     private timer: ReaderTimer | null = null;
     private _reading_index = new utils.storage.ValueStorage<number>('current-reader-index', 0);
     public on_behavior_changed = new utils.events.EventHandler<ReaderBehavior>();
+    public on_timer_event = new utils.events.EventHandler<TimerEvent>();
     
     constructor() {
-        
+        this.on_timer_event.add_listener(e => {
+            if (e.type === 'stopped')
+            {
+                this.timer = null;
+            }
+        })
     }
 
     public get reading_index(): number
@@ -86,14 +97,24 @@ export class PlayerBehaviorState
         this.stop_timer();
         let duration = this.get_duration_from_behavior(await this.get_behavior());
         if (duration) {
-            this.timer = new ReaderTimer(duration);
+            this.timer = new ReaderTimer(duration, this.on_timer_event);
+            this.on_timer_event.invoke({
+                type: 'started',
+                value: null,
+            })
         }
     }
 
     stop_timer() 
     {
-        this.timer?.stop();
-        this.timer = null;
+        if (this.timer !== null)
+        {
+            this.timer.stop();
+            this.on_timer_event.invoke({
+                type: 'stopped',
+                value: null,
+            })
+        }
     }
 
     pause_timer() 
@@ -223,14 +244,14 @@ export class ReaderTimer
     private currentTime = 0;
     private lastTick = 0;
 
-    constructor(private duration: number) 
+    constructor(private duration: number, private event_handler: utils.events.EventHandler<TimerEvent>) 
     {
         this.start();
     }
 
     private start() 
     {
-        const TICK_TIME = 0.5;
+        const TICK_TIME = 0.1;
         let lastTime = Date.now();
 
         this.interval = setInterval(() => {
@@ -243,13 +264,19 @@ export class ReaderTimer
             if (this.currentTime - this.lastTick >= TICK_TIME) 
             {
                 this.lastTick = this.currentTime;
-                // emit a tick event
+                this.event_handler.invoke({
+                    type: 'tick',
+                    value: this.currentTime / this.duration
+                })
             }
 
             if (this.currentTime >= this.duration) 
             {
                 this.stop();
-                // emit a stop event
+                this.event_handler.invoke({
+                    type: 'stopped',
+                    value: null,
+                })
             }
         }, 100);
     }
