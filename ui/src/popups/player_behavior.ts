@@ -146,7 +146,6 @@ export async function spawn_behavior_selector(reader: PlayerBehaviorState, timer
 
         if (e.type === 'tick')
         {
-            utils.debug_print(`tick = ${e.value}`);
             let elapsed = Math.floor((1 - (e.value as number)) * duration_seconds);
             let str = format_time(elapsed);
             timer_slider.text.innerHTML = str;
@@ -614,19 +613,25 @@ function spawn_time_selector(value: number | null): utils.TextDropdown<number>
     })
     .filter(v => v.value > 0);
 
-    options.push({
-        text: `12:00`,
-        value: 12 * 60  
-    });
-
-    options.push({
+    
+    // FOR TESTING
+    options.unshift({
         text: `test 10s`,
         value: 1 / 6
     });
 
+
+    options.push({
+        text: `12:00`,
+        value: 12 * 60  
+    });
+    
     let default_index = 0;
     if(value !== null) 
-        Math.round(value / 60 / 60 * 4);
+    {
+        // ADD -1 WHEN REMOVING TESTING VALUE
+        default_index = Math.round(value / 60 / 60 * 4);
+    }
 
     return utils.spawn_text_dropdown({
         title_text: null,

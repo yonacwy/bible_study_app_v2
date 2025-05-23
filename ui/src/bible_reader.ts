@@ -96,7 +96,7 @@ export class PlayerBehaviorState
     {
         this.stop_timer();
         let duration = this.get_duration_from_behavior(await this.get_behavior());
-        if (duration) {
+        if (duration !== null) {
             this.timer = new ReaderTimer(duration, this.on_timer_event);
             this.on_timer_event.invoke({
                 type: 'started',
@@ -110,6 +110,7 @@ export class PlayerBehaviorState
         if (this.timer !== null)
         {
             this.timer.stop();
+            this.timer = null;
             this.on_timer_event.invoke({
                 type: 'stopped',
                 value: null,
@@ -122,13 +123,23 @@ export class PlayerBehaviorState
         this.timer?.pause();
     }
 
-    resume_timer() 
+    resume_or_restart() 
     {
+        if(this.timer === null || this.timer.is_finished())
+        {
+            this.start_timer();
+        }
+        
         this.timer?.play();
     }
 
     async get_section(index?: number): Promise<BibleReaderSection | null>
     {
+        if(this.timer !== null && this.timer.is_finished())
+        {
+            return null;
+        }
+
         index = index ?? this.reading_index;
         let behavior = await this.get_behavior();
 
@@ -241,44 +252,50 @@ export class ReaderTimer
 {
     private interval: ReturnType<typeof setInterval> | null = null;
     private state: "playing" | "paused" | "stopped" = "playing";
-    private currentTime = 0;
-    private lastTick = 0;
+    private current_time = 0;
+    private last_time: number | null = null;
 
     constructor(private duration: number, private event_handler: utils.events.EventHandler<TimerEvent>) 
     {
         this.start();
+        this.pause();
     }
 
     private start() 
     {
         const TICK_TIME = 0.1;
-        let lastTime = Date.now();
 
         this.interval = setInterval(() => {
             if (this.state === "paused") return;
 
-            const now = Date.now();
-            this.currentTime += (now - lastTime) / 1000;
-            lastTime = now;
-
-            if (this.currentTime - this.lastTick >= TICK_TIME) 
+            if (this.last_time === null)
             {
-                this.lastTick = this.currentTime;
+                this.last_time = Date.now();
+                return;
+            }
+
+            const now = Date.now();
+            this.current_time += (now - this.last_time) / 1000;
+            this.last_time = now;
+
+            if (this.current_time < this.duration) 
+            {
                 this.event_handler.invoke({
                     type: 'tick',
-                    value: this.currentTime / this.duration
+                    value: this.current_time / this.duration
                 })
             }
 
-            if (this.currentTime >= this.duration) 
+            if (this.current_time >= this.duration) 
             {
+                utils.debug_print('invoking!');
                 this.stop();
                 this.event_handler.invoke({
                     type: 'stopped',
                     value: null,
                 })
             }
-        }, 100);
+        }, TICK_TIME * 1000);
     }
 
     play() 
@@ -289,27 +306,34 @@ export class ReaderTimer
     pause() 
     {
         this.state = "paused";
+        this.last_time = null;
     }
 
     stop() 
     {
         this.state = "stopped";
+        this.last_time = null;
         if (this.interval) clearInterval(this.interval);
     }
 
     reset() 
     {
-        this.currentTime = 0;
+        this.current_time = 0;
     }
 
     get_current_time(): number
     {
-        return this.currentTime;
+        return this.current_time;
     }
 
     get_duration(): number
     {
         return this.duration;
+    }
+
+    is_finished(): boolean
+    {
+        return this.current_time >= this.duration;
     }
 }
 

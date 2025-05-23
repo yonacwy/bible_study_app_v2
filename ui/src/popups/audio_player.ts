@@ -43,6 +43,7 @@ type AudioPlayerData = {
 
     is_setting_time: boolean,
     behavior_state: PlayerBehaviorState,
+    stop_after_verse: boolean,
 }
 
 let AUDIO_PLAYER_DATA: AudioPlayerData | null = null;
@@ -90,6 +91,14 @@ const TTS_PLAYER = new utils.tts.TtsPlayer(async e => {
         if(AUDIO_PLAYER_DATA.playing_verse_index !== event_data.verse_index)
         {
             AUDIO_PLAYER_DATA.playing_verse_index = event_data.verse_index;
+
+            if(AUDIO_PLAYER_DATA.stop_after_verse)
+            {
+                AUDIO_PLAYER_DATA.stop_after_verse = false;
+                AUDIO_PLAYER_DATA.playing_verse_index = null;
+                await player_pause();
+            }
+            
             update_current_reading_verse_visual();
         }
     }
@@ -318,10 +327,18 @@ export function init_player()
         playing_verse_index: null,
         verses_elements: [],
         behavior_state,
+        stop_after_verse: false,
     }
 
     behavior_state.on_behavior_changed.add_listener(_ => {
         request_section_tts();
+    });
+
+    behavior_state.on_timer_event.add_listener(e => {
+        if (e.type === 'stopped' && AUDIO_PLAYER_DATA !== null)
+        {
+            AUDIO_PLAYER_DATA.stop_after_verse = true;
+        }
     })
 
     let dropdown_button = popup.querySelector('.dropdown-button') as HTMLElement;
@@ -428,19 +445,19 @@ function spawn_volume_slider(): HTMLElement
         classes: []
     }, 
     (input, button) => {
-        if(+input.value === 0)
+        if(input.get_value() === 0)
         {
-            input.value = '1';
+            input.set_value(1);
         }
         else 
         {
-            input.value = '0';
+            input.set_value(0);
         }
 
-        update_volume_slider_image(+input.value, button.image);
+        update_volume_slider_image(+input.get_value(), button.image);
 
         TTS_PLAYER.get_settings().then(settings => {
-            settings.volume = +input.value;
+            settings.volume = +input.get_value();
             TTS_PLAYER.set_settings(settings);
         });
     },
@@ -492,11 +509,10 @@ function spawn_playback_slider(): HTMLElement
         classes: []
     }, 
     (input, button) => {
-        input.value = '0.5';
-        update_playback_slider_image(+input.value, button.image)
-        utils.update_sliders();
+        input.set_value(0.5)
+        update_playback_slider_image(+input.element.value, button.image)
 
-        let v = +input.value;
+        let v = +input.element.value;
         v = Math.lerp(-1, 1, v);
         v = v + Math.sign(v);
 
@@ -574,7 +590,7 @@ function update_playback_slider_image(value: number, image: HTMLImageElement)
     }
 }
 
-function spawn_settings_slider(image_src: string, args: utils.SliderArgs, on_click: (e: HTMLInputElement, image: utils.ImageButton) => void, on_input: (input: HTMLInputElement, button: utils.ImageButton) => void): [utils.Slider, HTMLElement]
+function spawn_settings_slider(image_src: string, args: utils.SliderArgs, on_click: (e: utils.Slider, image: utils.ImageButton) => void, on_input: (input: HTMLInputElement, button: utils.ImageButton) => void): [utils.Slider, HTMLElement]
 {
     let input = utils.spawn_slider(args);
 
@@ -582,7 +598,7 @@ function spawn_settings_slider(image_src: string, args: utils.SliderArgs, on_cli
         
         input.element.addEventListener('mousedown', e => e.stopPropagation()); // makes sure we don't drag while modifying slider
 
-        let button = utils.spawn_image_button(image_src, (_, button) => on_click(input.element, button));
+        let button = utils.spawn_image_button(image_src, (_, button) => on_click(input, button));
 
         input.on_input.add_listener(_ => {
             on_input(input.element, button)
@@ -699,7 +715,7 @@ async function player_play()
     let behavior = await AUDIO_PLAYER_DATA.behavior_state.get_behavior();
     if (behavior.data.options.type === 'repeat_time')
     {
-        AUDIO_PLAYER_DATA.behavior_state.resume_timer();
+        AUDIO_PLAYER_DATA.behavior_state.resume_or_restart();
     }
 }
 
