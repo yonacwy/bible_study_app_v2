@@ -83,6 +83,10 @@ export class PlayerBehaviorState
         // fire off behavior set event?
         this.stop_timer();
         return await utils.invoke('set_reader_behavior', { reader_behavior: behavior }).then(_ => {
+            if (behavior.data.options.type === 'repeat_time')
+            {
+                this.start_timer();
+            }
             this.on_behavior_changed.invoke(behavior);
         });
     }
@@ -131,6 +135,12 @@ export class PlayerBehaviorState
         }
         
         this.timer?.play();
+    }
+
+    restart()
+    {
+        if(!this.timer) return;
+        this.timer.reset();
     }
 
     async get_section(index?: number): Promise<BibleReaderSection | null>

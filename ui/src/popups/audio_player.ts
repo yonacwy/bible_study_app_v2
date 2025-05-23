@@ -407,7 +407,6 @@ function update_player_data_storage()
 function spawn_timer_slider(): TimerSliderData
 {
     let button = utils.spawn_image_button(utils.images.ARROWS_ROTATE);
-    
 
     let input = utils.spawn_slider({
         min: 0,

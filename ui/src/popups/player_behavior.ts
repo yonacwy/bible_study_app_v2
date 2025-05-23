@@ -130,6 +130,10 @@ export async function spawn_behavior_selector(reader: PlayerBehaviorState, timer
         update_timer_data(reader, behavior); // syncs the timer
     });
 
+    timer_slider.restart.button.addEventListener('click', e => {
+        reader.restart();
+    })
+
     reader.on_timer_event.add_listener(async e => {
         let behavior = await reader.get_behavior();
         if (behavior.data.options.type !== 'repeat_time') return;
@@ -146,7 +150,7 @@ export async function spawn_behavior_selector(reader: PlayerBehaviorState, timer
 
         if (e.type === 'tick')
         {
-            let elapsed = Math.floor((1 - (e.value as number)) * duration_seconds);
+            let elapsed = Math.floor((1 - (e.value as number)) * duration_seconds + 1);
             let str = format_time(elapsed);
             timer_slider.text.innerHTML = str;
             timer_slider.slider.set_value(e.value as number);
