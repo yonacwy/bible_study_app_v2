@@ -617,14 +617,6 @@ function spawn_time_selector(value: number | null): utils.TextDropdown<number>
     })
     .filter(v => v.value > 0);
 
-    
-    // FOR TESTING
-    options.unshift({
-        text: `test 10s`,
-        value: 1 / 6
-    });
-
-
     options.push({
         text: `12:00`,
         value: 12 * 60  
@@ -633,8 +625,7 @@ function spawn_time_selector(value: number | null): utils.TextDropdown<number>
     let default_index = 0;
     if(value !== null) 
     {
-        // ADD -1 WHEN REMOVING TESTING VALUE
-        default_index = Math.round(value / 60 / 60 * 4);
+        default_index = Math.round(Math.max(0, value / 60 / 60 * 4 - 1)); // make sure isn't -1 with max(0, x)
     }
 
     return utils.spawn_text_dropdown({

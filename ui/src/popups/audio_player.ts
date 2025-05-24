@@ -637,7 +637,7 @@ function update_progress_visual(progress: number, duration: number)
     if(!AUDIO_PLAYER_DATA) return;
 
     let elapsed = progress * duration;
-    let remaining = duration - elapsed;
+    let remaining = duration - elapsed + 1;
 
     AUDIO_PLAYER_DATA.progress_bar.value = progress.toString();
 

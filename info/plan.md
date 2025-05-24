@@ -26,6 +26,7 @@
   - [x] Verse quotations in notes can be a tad too long
   - [x] Excluded verses aren't handled
   - [x] Unable to search for `song of solomon` (bug introduced in this update)
+  - [x] Audio player playback slider finishing on 0 instead of 1
 - [ ] Finalize audio playback
 - [ ] Theme support
   - [ ] Custom themes

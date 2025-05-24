@@ -55,6 +55,17 @@ export function debug_json(value: any, pretty_print: boolean = false)
     }
 }
 
+/**
+ * Should generate a uuid in the version v4, although is not tested
+ * @returns 
+ */
+export function gen_uuid_v4(): string 
+{
+    return '10000000-1000-4000-8000-100000000000'.replace(/018/g, c => 
+        (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+    );
+}
+
 // a la chatgpt
 export function format_html(html: string, tab: string = '  '): string
 {

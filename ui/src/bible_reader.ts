@@ -51,6 +51,8 @@ export type TimerEvent = {
     value: number | null,
 }
 
+const TIMER_STORAGE = new utils.storage.ValueStorage<number>('timer-value-storage')
+
 export class PlayerBehaviorState 
 {
     private timer: ReaderTimer | null = null;
@@ -63,6 +65,17 @@ export class PlayerBehaviorState
             if (e.type === 'stopped')
             {
                 this.timer = null;
+                TIMER_STORAGE.set(null);
+            }
+
+            if(e.type === 'started')
+            {
+                TIMER_STORAGE.set(0);
+            }
+
+            if (e.type === 'tick')
+            {
+                TIMER_STORAGE.set(this.timer!.current_time);
             }
         })
     }
@@ -80,8 +93,8 @@ export class PlayerBehaviorState
     async set_behavior(behavior: ReaderBehavior): Promise<void>
     {
         this.reading_index = 0;
-        // fire off behavior set event?
-        this.stop_timer();
+        this.timer?.stop(); // stop the timer without invoking the timer stopped event
+        this.timer = null;
         return await utils.invoke('set_reader_behavior', { reader_behavior: behavior }).then(_ => {
             if (behavior.data.options.type === 'repeat_time')
             {
@@ -101,7 +114,7 @@ export class PlayerBehaviorState
         this.stop_timer();
         let duration = this.get_duration_from_behavior(await this.get_behavior());
         if (duration !== null) {
-            this.timer = new ReaderTimer(duration, this.on_timer_event);
+            this.timer = new ReaderTimer(duration, this.on_timer_event, TIMER_STORAGE.get() ?? 0);
             this.on_timer_event.invoke({
                 type: 'started',
                 value: null,
@@ -139,8 +152,14 @@ export class PlayerBehaviorState
 
     restart()
     {
-        if(!this.timer) return;
-        this.timer.reset();
+        if(!this.timer)
+        {
+            this.start_timer();
+        }
+        else 
+        {
+            this.timer.reset();
+        }
     }
 
     async get_section(index?: number): Promise<BibleReaderSection | null>
@@ -257,15 +276,13 @@ export class PlayerBehaviorState
     }
 }
 
-
 export class ReaderTimer 
 {
     private interval: ReturnType<typeof setInterval> | null = null;
     private state: "playing" | "paused" | "stopped" = "playing";
-    private current_time = 0;
     private last_time: number | null = null;
 
-    constructor(private duration: number, private event_handler: utils.events.EventHandler<TimerEvent>) 
+    constructor(private duration: number, private event_handler: utils.events.EventHandler<TimerEvent>, public current_time: number) 
     {
         this.start();
         this.pause();
@@ -298,7 +315,6 @@ export class ReaderTimer
 
             if (this.current_time >= this.duration) 
             {
-                utils.debug_print('invoking!');
                 this.stop();
                 this.event_handler.invoke({
                     type: 'stopped',
