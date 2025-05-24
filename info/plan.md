@@ -21,6 +21,7 @@
   - [x] Invalid display when creating an empty note
   - [x] Edit note button changed to make like rest
   - [x] Reference buttons on notes and section buttons on notes now have curser pointer
+  - [x] Reference buttons on notes and the edit note button now have proper titles
   - [x] Note not saving when moving to a different page (ie: next chapter)
   - [x] Long text not wrapping via `-` In the note viewer
   - [x] Verse quotations in notes can be a tad too long

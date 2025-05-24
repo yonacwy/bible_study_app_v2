@@ -1,9 +1,8 @@
 use std::sync::Mutex;
 use kira::{Decibels, Tween, Tweenable};
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::State;
-use crate::{app_state::AppState, readings::{ReadingsDatabase, SelectedReading}};
+use crate::app_state::AppState;
 
 pub mod player;
 pub mod tts;

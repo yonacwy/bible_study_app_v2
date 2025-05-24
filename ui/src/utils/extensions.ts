@@ -167,7 +167,12 @@ declare global {
 
 String.prototype.limit_length = function(this: String, max: number, terminator: string): String {
     let s = this.slice(0, Math.min(this.length, max));
-    return s + terminator;
+    if(this.length > max)
+    {
+        return s + terminator;
+    }
+
+    return s;
 }
 
 export {};

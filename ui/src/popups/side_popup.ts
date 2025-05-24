@@ -91,6 +91,7 @@ async function append_notes(annotations: WordAnnotations, target: Element, on_se
                     view_states.goto_current_view_state();
                 });
             });
+            edit_btn.button.title = 'Edit note';
 
             edit_btn.button.style.float = 'right';
             div.appendChild(edit_btn.button);
@@ -104,7 +105,8 @@ async function append_notes(annotations: WordAnnotations, target: Element, on_se
                 references.forEach(ref => {
                     grid.append_element('button', button => {
                         button.innerHTML = `${ref[0]}: '${ref[1]}'`;
-                        button.addEventListener('click', e => {
+                        button.title = `Go to ${ref[0]}`;
+                        button.addEventListener('click', _ => {
                             on_search(ref[0]);
                         });
                     });

@@ -17,7 +17,6 @@ pub mod audio;
 pub mod readings;
 
 use audio::{init_espeak, AudioPlayer, TtsPlayer};
-use bible::ChapterIndex;
 use commands::*;
 use readings::ReadingsDatabase;
 use tauri::{webview::PageLoadEvent, Manager};
