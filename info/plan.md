@@ -1,8 +1,17 @@
 # Plan:
 
 
-### Version 0.6.0
+### Version 0.7.0
 - [ ] Notebook Support
+
+### Version 0.6.1: Cloud Saving
+- [ ] Cloud saving via Google Drive
+
+### Version 0.6.0: Multi-Platform Support
+- [ ] Android
+- [ ] MAC
+- [ ] IOS
+- [ ] Linux?
 
 
 ### Version 0.5.3: Bug Fixes
@@ -12,10 +21,13 @@
   - [x] Invalid display when creating an empty note
   - [x] Edit note button changed to make like rest
   - [x] Reference buttons on notes and section buttons on notes now have curser pointer
+  - [x] Reference buttons on notes and the edit note button now have proper titles
   - [x] Note not saving when moving to a different page (ie: next chapter)
   - [x] Long text not wrapping via `-` In the note viewer
   - [x] Verse quotations in notes can be a tad too long
   - [x] Excluded verses aren't handled
+  - [x] Unable to search for `song of solomon` (bug introduced in this update)
+  - [x] Audio player playback slider finishing on 0 instead of 1
 - [ ] Finalize audio playback
 - [ ] Theme support
   - [ ] Custom themes

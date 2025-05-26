@@ -4,7 +4,7 @@ use itertools::Itertools;
 use tauri::{path::BaseDirectory, Manager, Runtime, State};
 
 use crate::{
-    app_state::{self, AppState, ViewState}, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, NoteSourceType, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
+    app_state::{self, AppState, ViewState}, audio::reader_behavior::ReaderBehavior, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, NoteSourceType, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
 };
 
 #[tauri::command(rename_all = "snake_case")]
@@ -421,4 +421,16 @@ pub fn get_bible_versions(app_state: State<'_, AppState>) -> Vec<String>
     app_state.get_ref().get_bibles()
         .map(|v| v.clone())
         .collect()
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn get_reader_behavior(app_state: State<'_, AppState>) -> ReaderBehavior
+{
+    app_state.get_ref().read_reader_behavior(|b| b.clone())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn set_reader_behavior(app_state: State<'_, AppState>, reader_behavior: ReaderBehavior)
+{
+    app_state.get_ref().read_reader_behavior(|b| *b = reader_behavior)
 }

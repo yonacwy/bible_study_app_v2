@@ -67,7 +67,7 @@ export function display_on_div(div: HTMLElement, word: string, annotations: Word
 
 async function build_popup_content(word: string, annotations: WordAnnotations, target: Element, on_search: (msg: string) => void)
 {
-    target.appendElement('div', div => {
+    target.append_element('div', div => {
         div.classList.add('panel-title');
         div.innerHTML = `"${word}"`;
     });
@@ -84,27 +84,29 @@ async function append_notes(annotations: WordAnnotations, target: Element, on_se
         let id = annotations.notes[i];
         let note_data = await notes.get_note(id);
         let references = await notes.get_note_references(note_data);
-        target.appendElement('div', div => {
+        target.append_element('div', div => {
             div.classList.add('note-viewer');
             let edit_btn = utils.spawn_image_button(utils.images.PENCIL, _ => {
                 notes.set_editing_note(note_data.id).then(_ => {
                     view_states.goto_current_view_state();
                 });
             });
+            edit_btn.button.title = 'Edit note';
 
             edit_btn.button.style.float = 'right';
             div.appendChild(edit_btn.button);
 
-            div.appendElement('div', content => {
+            div.append_element('div', content => {
                 content.classList.add('note-content');
                 render_note_data(note_data, on_search, content);
             });
-            div.appendElement('div', grid => {
+            div.append_element('div', grid => {
                 grid.classList.add('reference-buttons')
                 references.forEach(ref => {
-                    grid.appendElement('button', button => {
+                    grid.append_element('button', button => {
                         button.innerHTML = `${ref[0]}: '${ref[1]}'`;
-                        button.addEventListener('click', e => {
+                        button.title = `Go to ${ref[0]}`;
+                        button.addEventListener('click', _ => {
                             on_search(ref[0]);
                         });
                     });
@@ -123,21 +125,21 @@ function append_highlights(annotations: WordAnnotations, target: Element)
         let color: Color = CATEGORIES[id].color;
         let description: string = CATEGORIES[id].description;
 
-        target.appendElement('div', div => {
+        target.append_element('div', div => {
             div.classList.add('highlight-viewer');
 
-            div.appendElement('div', color_bar => {
+            div.append_element('div', color_bar => {
                 color_bar.classList.add('color-bar');
                 color_bar.style.backgroundColor = utils.color_to_hex(color);
             });
 
-            div.appendElement('div', content => {
+            div.append_element('div', content => {
                 content.classList.add('highlight-content');
-                content.appendElement('div', title => {
+                content.append_element('div', title => {
                     title.classList.add('highlight-title');
                     title.innerHTML = name;
                 });
-                content.appendElement('div', desc => desc.innerHTML = utils.render_markdown(description));
+                content.append_element('div', desc => desc.innerHTML = utils.render_markdown(description));
             })
         });
     }

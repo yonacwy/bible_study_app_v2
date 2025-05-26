@@ -1,11 +1,11 @@
 declare global {
     export interface Element {
-        appendElement<K extends keyof HTMLElementTagNameMap>(key: K, builder?: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K];
-        appendElementEx<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K];
+        append_element<K extends keyof HTMLElementTagNameMap>(key: K, builder?: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K];
+        append_element_ex<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K];
     }
 }
 
-Element.prototype.appendElement = function<K extends keyof HTMLElementTagNameMap>(key: K, builder?: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K] {
+Element.prototype.append_element = function<K extends keyof HTMLElementTagNameMap>(key: K, builder?: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K] {
     let child = document.createElement(key);
     if(builder !== undefined)
     {
@@ -15,7 +15,7 @@ Element.prototype.appendElement = function<K extends keyof HTMLElementTagNameMap
     return child;
 };
 
-Element.prototype.appendElementEx = function<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K] {
+Element.prototype.append_element_ex = function<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K] {
     let child = document.createElement(key);
     child.classList.add(...classes);
     builder(child);
@@ -167,7 +167,12 @@ declare global {
 
 String.prototype.limit_length = function(this: String, max: number, terminator: string): String {
     let s = this.slice(0, Math.min(this.length, max));
-    return s + terminator;
+    if(this.length > max)
+    {
+        return s + terminator;
+    }
+
+    return s;
 }
 
 export {};

@@ -45,7 +45,7 @@ pub fn parse_verse(text: &str) -> Verse {
 }
 
 pub fn parse_bible(text: &str) -> Result<Bible, String> {
-    let pattern = Regex::new(r"\s*(?<book>[1-2]?\s*\w+)\s+(?<chapter>\d+):(?<verse>\d+)(?:(?<text>[^\n]*))").unwrap();
+    let pattern = Regex::new(r"\s*(?<book>[1-2]?\s*[a-zA-Z]+(?:\s+[a-zA-Z]+)*)\s+(?<chapter>\d+):(?<verse>\d+)(?:(?<text>[^\n]*))").unwrap();
 
     let mut lines = text.lines();
     let Some(version) = lines.next() else {

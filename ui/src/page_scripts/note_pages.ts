@@ -105,7 +105,7 @@ async function render_note_references(on_text_require_rerender: () => void, on_s
 
     references.forEach((r, index) => {
         let link = utils.spawn_element('div', ['note-reference'], link => {
-            link.appendElement('div', text_node => {
+            link.append_element('div', text_node => {
                 text_node.classList.add('reference-text');
                 text_node.innerHTML = `${r[0]}: ${r[1]}`;
             })
