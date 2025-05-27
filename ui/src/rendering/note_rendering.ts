@@ -1,9 +1,14 @@
-import { NoteData } from "../bindings.js";
+import { NoteSourceType } from "../bindings.js";
 import { SCHEMA } from "../text_editor/schema.js";
 import { DOMSerializer } from "../vendor/prosemirror/prosemirror-model/index.js";
 import * as utils from "../utils/index.js"
 
-export function render_note_data(note: NoteData, on_search: (msg: string) => void, target: HTMLElement)
+export type NoteText = {
+    text: string, 
+    source_type: NoteSourceType,
+}
+
+export function render_note_data(note: NoteText, on_search: (msg: string) => void, target: HTMLElement)
 {
     if(note.source_type === 'markdown')
     {
