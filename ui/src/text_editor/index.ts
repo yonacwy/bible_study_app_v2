@@ -11,6 +11,7 @@ export type TextEditorArgs = {
     id: string,
     parent: HTMLElement | null,
     save?: TextEditorSave,
+    has_misc_options: boolean, // close, delete, etc
 }
 
 export type TextEditorSaveType = 'html' | 'markdown' | 'json';
@@ -54,7 +55,7 @@ export class TextEditor
         let parent = args.parent ?? document.body;
         parent.appendChild(this.root);
     
-        this.view = new EditorView(document.querySelector(`#${args.id} > .editor`), {
+        this.view = new EditorView(this.root.querySelector(`#${args.id} > .editor`), {
             state: EditorState.create({
                 doc: DOMParser.fromSchema(SCHEMA).parse(this.content),
                 plugins: setup.build_plugins({
@@ -66,6 +67,7 @@ export class TextEditor
                     on_close: this.on_close,
                     on_save: this.on_save,
                     on_delete: this.on_delete,
+                    has_misc_options: args.has_misc_options,
                 })
             })
         });

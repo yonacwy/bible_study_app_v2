@@ -4,7 +4,7 @@ export type ImageButton = {
     image: HTMLImageElement
 }
 
-export function spawn_image_button(image_src: string, on_click?: (e: MouseEvent, button: ImageButton) => void): ImageButton
+export function spawn_image_button(image_src: string, on_click?: (e: MouseEvent, button: ImageButton) => void, parent?: HTMLElement): ImageButton
 {
     let button = document.createElement('button');
     button.classList.add('image-btn');
@@ -18,6 +18,11 @@ export function spawn_image_button(image_src: string, on_click?: (e: MouseEvent,
             image,
             button,
         }));
+
+    if (parent)
+    {
+        parent.appendChild(button);
+    }
     
     return {
         button,

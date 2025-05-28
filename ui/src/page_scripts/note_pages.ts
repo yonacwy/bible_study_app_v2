@@ -30,7 +30,8 @@ async function init_text_editor(note_id: string)
 {
     let editor = new TextEditor({
         id: 'note-editor',
-        parent: document.getElementById('right-pane')
+        parent: document.getElementById('right-pane'),
+        has_misc_options: true,
     });
 
     let note = await notes.get_note(note_id);

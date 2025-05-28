@@ -17,6 +17,7 @@ export type PluginArgs = {
     on_close?: EventHandler<void>,
     on_save?: EventHandler<EditorState>,
     on_delete?: EventHandler<void>,
+    has_misc_options: boolean,
 }
 
 export function build_plugins(args: PluginArgs): Plugin[]
@@ -36,6 +37,7 @@ export function build_plugins(args: PluginArgs): Plugin[]
             on_close: args.on_close,
             on_save: args.on_save,
             on_delete: args.on_delete,
+            has_misc_menu: args.has_misc_options,
         })}),
         build_state_changed_plugin(args),
         new Plugin({

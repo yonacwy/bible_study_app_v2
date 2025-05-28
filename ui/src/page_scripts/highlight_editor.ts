@@ -6,6 +6,7 @@ import * as confirm_popup from "../popups/confirm_popup.js";
 import * as header_utils from "./menu_header.js";
 import * as pages from "./pages.js";
 import * as settings from "../settings.js"
+import { TextEditor } from "../text_editor/index.js";
 
 export type HighlightEditorData = {
     old_path: string
@@ -44,6 +45,10 @@ export async function run()
 
     utils.init_sliders();
     init_view_toggle();
+
+    let editor_node = spawn_highlight_editor_popup();
+    document.body.appendChild(editor_node);
+    editor_node.style.display = 'flex';
 
     document.body.style.visibility = 'visible';
 }
@@ -248,4 +253,54 @@ export function render_categories(on_delete: (id: string) => void, on_edit: (id:
             });
         };
     });
+}
+
+function spawn_highlight_editor_popup(): HTMLElement
+{
+    let background = utils.spawn_element('div', ['highlight-editor-popup'], b => {
+        let editor_section = utils.spawn_element('div', ['editor-section'], s => {
+
+            utils.spawn_element('div', ['title-section'], title => {
+                utils.spawn_element('input', [], input => {
+                    input.type = 'text';
+                    input.placeholder = 'Name';
+                }, title);
+
+                let btn = utils.spawn_image_button(utils.images.X_MARK, c => {
+                    utils.debug_print('close button clicked');
+                }, title);
+
+                btn.button.title = 'Save and Close'
+            }, s);
+
+            let editor = new TextEditor({
+                id: 'desc-editor',
+                parent: s,
+                has_misc_options: false,
+            });
+
+            editor.load_save({
+                data_type: 'markdown',
+                source: 'This is a **test** highlight *description*'
+            });
+
+            utils.spawn_element('div', ['slider-section'], s => {
+                let slider = utils.spawn_slider({
+                    min: 0,
+                    max: 10,
+                    step: 1,
+                    default: 0,
+                    classes: [],
+                });
+
+                utils.spawn_image_button(utils.images.HISTORY_VERTICAL, e => {
+                    slider.set_value(0);
+                });
+            }, s);
+        }, b);
+    })
+
+    
+
+    return background;
 }
