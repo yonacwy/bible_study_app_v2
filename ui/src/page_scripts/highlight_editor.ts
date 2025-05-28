@@ -12,6 +12,8 @@ export type HighlightEditorData = {
     old_path: string
 }
 
+const HIGHLIGHT_EDITOR_POPUP_ID: string = 'highlight-editor';
+
 export async function run()
 {
     let data = utils.decode_from_url(window.location.href) as HighlightEditorData;
@@ -37,18 +39,13 @@ export async function run()
         utils.set_display('highlight-popup', 'flex');
     });
 
-    utils.on_click('submit-btn', on_submit);
+    // utils.on_click('submit-btn', on_submit);
 
-    utils.on_click('cancel-submit-btn', e => {
-        utils.set_display('highlight-popup', 'none');
-    });
+    // utils.on_click('cancel-submit-btn', e => {
+    //     utils.set_display('highlight-popup', 'none');
+    // });
 
     utils.init_sliders();
-    init_view_toggle();
-
-    let editor_node = spawn_highlight_editor_popup();
-    document.body.appendChild(editor_node);
-    editor_node.style.display = 'flex';
 
     document.body.style.visibility = 'visible';
 }
@@ -58,16 +55,7 @@ function on_edit(id: string)
 {
     highlights.get_categories().then(categories => {
         let category: HighlightCategory = categories[id];
-        let color = utils.color_to_hex(category.color);
-        utils.set_value('color-in', color);
-        utils.set_value('name-in', category.name);
-        utils.set_value('description-in', category.description);
-
-        utils.set_value('priority-in', category.priority.toString());
-
-        editing_id = category.id;
-        utils.set_display('highlight-popup', 'flex');
-        utils.update_sliders();
+        spawn_highlight_editor_popup(category);
     })
 }
 
@@ -255,24 +243,66 @@ export function render_categories(on_delete: (id: string) => void, on_edit: (id:
     });
 }
 
-function spawn_highlight_editor_popup(): HTMLElement
+function spawn_highlight_editor_popup(category: HighlightCategory): HTMLElement
 {
-    let background = utils.spawn_element('div', ['highlight-editor-popup'], b => {
-        let editor_section = utils.spawn_element('div', ['editor-section'], s => {
+    let background = utils.spawn_element('div', ['highlight-editor-popup', 'hidden'], b => {
+        utils.spawn_element('div', ['editor-section'], s => {
 
+            // title
             utils.spawn_element('div', ['title-section'], title => {
-                utils.spawn_element('input', [], input => {
-                    input.type = 'text';
-                    input.placeholder = 'Name';
+
+                utils.spawn_element('div', ['name-input'], d => {
+                    d.style.position = 'relative';
+                    d.style.flex = '1';
+                    utils.spawn_element('input', [], input => {
+                        input.type = 'text';
+                        input.placeholder = 'Name';
+                    }, d);
+
+                    utils.spawn_element('div', ['error-popup'], err => {
+                        err.id = 'name-error-message';
+                    }, d); 
                 }, title);
 
-                let btn = utils.spawn_image_button(utils.images.X_MARK, c => {
+                let color_picker = utils.spawn_element('input', [], color => {
+                    color.type = 'color';
+                    color.value = '#FFD700'
+                }, title);
+
+                let save_btn = utils.spawn_image_button(utils.images.SAVE, c => {
+                    utils.debug_print('save button clicked');
+                });
+
+                let cancel_btn = utils.spawn_image_button(utils.images.X_MARK, c => {
                     utils.debug_print('close button clicked');
+                    show_error_popup('name-error-message', true, 'This is a test error message');
                 }, title);
 
-                btn.button.title = 'Save and Close'
+                cancel_btn.button.title = 'Cancel'
             }, s);
 
+            // slider
+            utils.spawn_element('div', ['slider-section'], s => {
+
+                utils.spawn_element('div', ['slider-text'], t => {
+                    t.innerHTML = 'Priority'
+                }, s);
+
+                let slider = utils.spawn_slider({
+                    min: 0,
+                    max: 10,
+                    step: 1,
+                    default: 0,
+                    classes: [],
+                    parent: s,
+                });
+
+                let button = utils.spawn_image_button(utils.images.HISTORY_VERTICAL, e => {
+                    slider.set_value(0);
+                }, s);
+            }, s);
+
+            // Text editor
             let editor = new TextEditor({
                 id: 'desc-editor',
                 parent: s,
@@ -283,20 +313,6 @@ function spawn_highlight_editor_popup(): HTMLElement
                 data_type: 'markdown',
                 source: 'This is a **test** highlight *description*'
             });
-
-            utils.spawn_element('div', ['slider-section'], s => {
-                let slider = utils.spawn_slider({
-                    min: 0,
-                    max: 10,
-                    step: 1,
-                    default: 0,
-                    classes: [],
-                });
-
-                utils.spawn_image_button(utils.images.HISTORY_VERTICAL, e => {
-                    slider.set_value(0);
-                });
-            }, s);
         }, b);
     })
 

@@ -190,6 +190,8 @@
 
 .highlight-editor-popup {
     position: fixed;
+    display: flex;
+    flex-direction: column;
     top: 0;
     left: 0;
     width: 100%;
@@ -210,8 +212,8 @@
         transition: width 0.3s ease-in-out;
         white-space: nowrap;
         box-sizing: border-box;
-        width: 50%;
-        height: 75%;
+        width: 80%;
+        height: 80%;
         background-color: white;
         border-radius: 10px;
 
@@ -224,21 +226,45 @@
             gap: 10px;
             margin-bottom: 10px;
 
-            input[type=text] {
+            .name-input {
                 flex: 1;
-                border-radius: 5px;
-                border: 1px solid #ccc;
-                .font-medium();
-                height: calc(@button-size - @button-margin);
-                padding-left: 5px;
-                padding-right: 5px;;
+                width: 100%;
+                height: 100%;
+                position: relative;
+
+                input[type=text] {
+                    flex: 1;
+                    border-radius: 5px;
+                    border: 1px solid #ccc;
+                    box-sizing: border-box;
+                    width: 100%;
+                    height: calc(@button-size - @button-margin);
+                    padding-left: 5px;
+                    padding-right: 5px;;
+                    .font-medium();
+                }
             }
         }
 
         .slider-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
+            gap: 10px;
             box-sizing: border-box;
-            .styled-slider((100% - @button-size - 2 * @button-margin), 7px * @ui-scale, 7px * @ui-scale);
+            margin-bottom: 10px;
+            .styled-slider(calc(100% - @button-size - 2 * @button-margin - 10px), 7px * @ui-scale, 7px * @ui-scale);
+
+            .slider-text {
+                font-weight: bold;
+                .font-small();
+            }
+        }
+
+        .text-editor {
+            // this is REALLY stupid, but it works so hahahahah
+            height: calc(100% - 2 * @button-size - 4 * @button-margin - 10px * 2);
         }
     }
 }

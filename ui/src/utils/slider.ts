@@ -30,6 +30,7 @@ export type SliderArgs = {
     default: number,
     classes: string[],
     intractable?: boolean,
+    parent?: HTMLElement,
 }
 
 export type Slider = {
@@ -73,13 +74,20 @@ export function spawn_slider(args: SliderArgs): Slider
 
     slider.addEventListener('input', _ => {
         current_value = +slider.value;
+        slider.style.setProperty('--val', slider.value);
         on_input.invoke(current_value);
     });
 
     slider.addEventListener('change', _ => {
         current_value = +slider.value;
+        slider.style.setProperty('--val', slider.value);
         on_change.invoke(current_value);
     });
+
+    if (args.parent)
+    {
+        args.parent.appendChild(slider);
+    }
     
     return {
         on_input,

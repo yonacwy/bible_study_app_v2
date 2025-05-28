@@ -1,7 +1,7 @@
 
 export type ImageButton = {
     button: HTMLButtonElement,
-    image: HTMLImageElement
+    image: HTMLImageElement,
 }
 
 export function spawn_image_button(image_src: string, on_click?: (e: MouseEvent, button: ImageButton) => void, parent?: HTMLElement): ImageButton
@@ -14,10 +14,12 @@ export function spawn_image_button(image_src: string, on_click?: (e: MouseEvent,
     });
 
     if(on_click !== undefined)
+    {
         button.addEventListener('click', e => on_click(e, {
             image,
             button,
         }));
+    }
 
     if (parent)
     {
@@ -28,6 +30,29 @@ export function spawn_image_button(image_src: string, on_click?: (e: MouseEvent,
         button,
         image
     };
+}
+
+export function spawn_image_button_args(args: {
+    image: string,
+    on_click?: (e: Event) => void,
+    title?: string,
+    parent?: HTMLElement,
+    classes?: string[],
+}): ImageButton
+{
+    let button = spawn_image_button(args.image, args.on_click, args.parent);
+
+    if (args.title !== undefined)
+    {
+        button.button.title = args.title;
+    }
+
+    if (args.classes !== undefined)
+    {
+        button.button.classList.add(...args.classes);
+    }
+
+    return button;
 }
 
 export function create_image_button(parent: Element, image_src: string, on_click?: (e: MouseEvent, button: ImageButton) => void): ImageButton
