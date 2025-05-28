@@ -14,6 +14,7 @@ pub struct HighlightCategory {
     pub color: Color,
     pub name: String,
     pub description: String,
+    pub source_type: NoteSourceType,
     pub priority: u32,
     pub id: String, // this is slow as heck, but should suffice for now
 }

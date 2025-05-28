@@ -3,10 +3,10 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::{app_state::DEFAULT_BIBLE, audio::TtsSettings, settings::Settings};
+use crate::{app_state::DEFAULT_BIBLE, audio::{reader_behavior::ReaderBehavior, TtsSettings}, settings::Settings};
 
 const SAVE_FIELD_NAME: &str = "save_version";
-pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV6;
+pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV7;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SaveVersion {
@@ -24,6 +24,8 @@ pub enum SaveVersion {
     SV5,
     #[serde(rename = "6")]
     SV6,
+    #[serde(rename = "7")]
+    SV7,
 }
 
 impl SaveVersion {
@@ -65,6 +67,7 @@ pub fn migrate_save_latest(data: &str) -> MigrationResult {
     migrate_sv3(&mut json);
     migrate_sv4(&mut json);
     migrate_sv5(&mut json);
+    migrate_sv6(&mut json);
 
     if CURRENT_SAVE_VERSION != version {
         MigrationResult::Different {
@@ -197,6 +200,30 @@ fn migrate_sv5(json: &mut Value)
     }
     
     json.insert(SAVE_FIELD_NAME.to_owned(), serde_json::to_value(SaveVersion::SV6).unwrap());
+}
+
+fn migrate_sv6(json: &mut Value)
+{
+    if !check_save_field(json, SaveVersion::SV6) { return; }
+
+    let json = json.as_object_mut().unwrap();
+
+    let notebooks = json.get_mut("notebooks").unwrap().as_object_mut().unwrap();
+
+    for (_, notebook) in notebooks.iter_mut()
+    {
+        let categories = notebook.get_mut("highlight_categories").unwrap().as_object_mut().unwrap();
+        for (_, data) in categories.iter_mut()
+        {
+            let category = data.as_object_mut().unwrap();
+            category.insert("source_type".into(), Value::String("markdown".into()));
+        }
+    }
+
+    const READER_BEHAVIOR_FIELD: &str = "reader_behavior";
+    json.insert(READER_BEHAVIOR_FIELD.to_string(), serde_json::to_value(ReaderBehavior::default()).unwrap());
+
+    json.insert(SAVE_FIELD_NAME.to_owned(), serde_json::to_value(SaveVersion::SV7).unwrap());
 }
 
 fn check_save_field(json: &mut Value, expected: SaveVersion) -> bool

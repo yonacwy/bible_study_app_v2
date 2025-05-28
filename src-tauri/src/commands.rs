@@ -133,7 +133,7 @@ pub fn get_highlight_categories(app_state: State<'_, AppState>) -> String {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn add_highlight_category(app_state: State<'_, AppState>, color: &str, name: &str, description: &str, priority: &str) {
+pub fn add_highlight_category(app_state: State<'_, AppState>, color: &str, name: &str, description: &str, source_type: NoteSourceType, priority: &str) {
     app_state.get_ref().read_notes(|notebook| {
         let color = Color::from_hex(color).unwrap();
         let name = name.to_string();
@@ -144,6 +144,7 @@ pub fn add_highlight_category(app_state: State<'_, AppState>, color: &str, name:
         let category = HighlightCategory {
             color,
             name,
+            source_type,
             description,
             priority,
             id: id.clone(),
@@ -168,6 +169,7 @@ pub fn set_highlight_category(
     color: &str,
     name: &str,
     description: &str,
+    source_type: NoteSourceType,
     priority: &str,
 ) {
     app_state.get_ref().read_notes(|notebook| {
@@ -181,6 +183,7 @@ pub fn set_highlight_category(
             name,
             description,
             priority,
+            source_type,
             id: id.to_string(),
         };
 

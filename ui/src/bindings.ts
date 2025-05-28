@@ -13,9 +13,9 @@ export type VersePosition = { book: number, chapter: number, verse: number};
 export type BookView = { name: string, chapter_count: number };
 export type ChapterView = { verses: Array<number> };
 
-// ---------------------- Notes Bindings -----------------------
+// ---------------------- Note Bindings -----------------------
 export type HighlightCategories = { [key: string]: HighlightCategory }
-export type HighlightCategory = { color: Color, name: string, description: string, priority: number, id: string };
+export type HighlightCategory = { color: Color, name: string, description: string, priority: number, source_type: NoteSourceType, id: string };
 export type NoteSourceType = 'html' | 'json' | 'markdown';
 export type NoteData = { id: string, text: string, locations: Array<ReferenceLocation>, source_type: NoteSourceType };
 export type WordAnnotations = { highlights: Array<string>, notes: Array<string> };

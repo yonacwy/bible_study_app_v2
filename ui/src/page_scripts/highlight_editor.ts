@@ -116,11 +116,11 @@ function on_submit(_e: Event)
     {
         if(editing_id === null)
         {
-            highlights.create_category(color, name, description, priority.toString());
+            highlights.create_category(color, name, description, 'markdown', priority.toString());
         }
         else 
         {
-            highlights.set_category(editing_id, color, name, description, priority);
+            highlights.set_category(editing_id, color, name, description, 'markdown', priority);
         }
         utils.set_display('highlight-popup', 'none');
         location.reload();

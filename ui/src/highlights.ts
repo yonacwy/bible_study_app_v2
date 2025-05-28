@@ -1,25 +1,27 @@
 import { get_chapter } from "./bible.js";
-import { ChapterIndex, HighlightCategories, HighlightCategory } from "./bindings.js";
+import { ChapterIndex, HighlightCategories, HighlightCategory, NoteSourceType } from "./bindings.js";
 import * as utils from "./utils/index.js";
 
-export function create_category(color: string, name: string, description: string, priority: string)
+export function create_category(color: string, name: string, description: string | null, source_type: NoteSourceType, priority: string)
 {
     utils.invoke('add_highlight_category', {
         color: color,
         name: name,
         description: description ?? "",
-        priority: priority
+        priority: priority,
+        source_type: source_type,
     });
 }
 
-export function set_category(id: string, color: string, name: string, description: string, priority: number)
+export function set_category(id: string, color: string, name: string, description: string, source_type: NoteSourceType, priority: number)
 {
     utils.invoke('set_highlight_category', {
         id: id,
         color: color,
         name: name,
         description: description,
-        priority: priority.toString()
+        priority: priority.toString(),
+        source_type: source_type,
     });
 }
 
