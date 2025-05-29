@@ -31,6 +31,7 @@ export type SliderArgs = {
     classes: string[],
     intractable?: boolean,
     parent?: HTMLElement,
+    id?: string,
 }
 
 export type Slider = {
@@ -59,6 +60,11 @@ export function spawn_slider(args: SliderArgs): Slider
     if (!(args.intractable ?? true))
     {
         slider.style.pointerEvents = 'none';
+    }
+
+    if (args.id !== undefined)
+    {
+        slider.id = args.id;
     }
 
     let on_input = new events.EventHandler<number>();

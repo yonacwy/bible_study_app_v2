@@ -145,3 +145,26 @@ export async function clear_view_states(): Promise<void>
 {
     return await utils.invoke('clear_view_states', {});
 }
+
+export async function push_search_query(text: string): Promise<boolean>
+{
+    return utils.invoke('parse_bible_search', { text: text }).then(async result => {
+
+        if(result.type === 'error')
+        {
+            return false;
+        }
+        else if(result.type === 'word')
+        {
+            return await push_search(result.words, 0).then(_ => true);
+        }
+        else if (result.type === 'section')
+        {
+            return await push_section(result.section).then(_ => true);
+        }
+        else 
+        {
+            return false;
+        }
+    });
+}

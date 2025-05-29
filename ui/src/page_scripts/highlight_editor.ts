@@ -1,24 +1,23 @@
 import * as utils from "../utils/index.js";
 import * as highlights from "../highlights.js";
 import { show_error_popup } from "../popups/error_popup.js";
-import { HighlightCategory } from "../bindings.js";
+import { HighlightCategories, HighlightCategory } from "../bindings.js";
 import * as confirm_popup from "../popups/confirm_popup.js";
 import * as header_utils from "./menu_header.js";
 import * as pages from "./pages.js";
 import * as settings from "../settings.js"
 import { TextEditor } from "../text_editor/index.js";
+import { render_note_data } from "../rendering/note_rendering.js";
+import * as view_states from "../view_states.js";
 
 export type HighlightEditorData = {
     old_path: string
 }
 
-const HIGHLIGHT_EDITOR_POPUP_ID: string = 'highlight-editor';
-
 export async function run()
 {
     let data = utils.decode_from_url(window.location.href) as HighlightEditorData;
 
-    editing_id = null;
     deleting_id = null;
 
     header_utils.init_settings_page_header(() => {
@@ -29,28 +28,36 @@ export async function run()
         `;
     });
 
+    utils.on_click('new-btn', e => {
+        utils.debug_print('got here');
+        let popup = spawn_highlight_editor_popup(null);
+        document.body.appendChild(popup);
+    })
+
     pages.init_back_button(data.old_path);
     pages.init_settings_buttons(data.old_path);
     settings.init_less_sync();
 
-    render_categories(on_delete, on_edit);
+    let on_search = (msg: string) => {
+        view_states.push_search_query(msg).then(success => {
+            if (success)
+            {
+                view_states.goto_current_view_state();
+            }
+        })
+    }
+
+    render_categories(on_delete, on_edit, on_search);
 
     utils.on_click('new-btn', (e) => {
         utils.set_display('highlight-popup', 'flex');
     });
-
-    // utils.on_click('submit-btn', on_submit);
-
-    // utils.on_click('cancel-submit-btn', e => {
-    //     utils.set_display('highlight-popup', 'none');
-    // });
 
     utils.init_sliders();
 
     document.body.style.visibility = 'visible';
 }
 
-let editing_id: string | null = null;
 function on_edit(id: string)
 {
     highlights.get_categories().then(categories => {
@@ -79,131 +86,32 @@ function on_delete(id: string)
     })
 }
 
-function on_submit(_e: Event)
-{
-    let color = utils.read_value('color-in') ?? "#FFFFFF";
-    let name = utils.read_value('name-in') ?? "";
-    let description = utils.read_value('description-in') ?? "";
-    let priority = +(utils.read_value('priority-in') ?? 0) ;
-
-    let was_error = false;
-
-    const NAME_MIN_LENGTH = 3;
-    const NAME_MAX_LENGTH = 20;
-    if(name.length < 3)
-    {
-        was_error = true;
-        show_error_popup('name-err-msg', true, `Name must be at least ${NAME_MIN_LENGTH} characters long.`);
-    }
-    else if(name.length > NAME_MAX_LENGTH)
-    {
-        was_error = true;
-        show_error_popup('name-err-msg', true, `Cant be longer than ${NAME_MAX_LENGTH} characters long.`);
-    }
-    else if(!utils.is_valid_title(name))
-    {
-        was_error = true;
-        show_error_popup('name-err-msg', true, `Name must contain only letters, numbers, and spaces`);
-    }
-
-    if(!was_error)
-    {
-        if(editing_id === null)
-        {
-            highlights.create_category(color, name, description, 'markdown', priority.toString());
-        }
-        else 
-        {
-            highlights.set_category(editing_id, color, name, description, 'markdown', priority);
-        }
-        utils.set_display('highlight-popup', 'none');
-        location.reload();
-        editing_id = null;
-    }
-}
-
-enum MdState 
-{
-    Viewing = 'v',
-    Editing = 'e',
-}
-
-function init_view_toggle()
-{
-    let current_state: MdState = MdState.Editing;
-
-    const button = document.getElementById('view-toggle-btn');
-    const image = button?.getElementsByTagName('img')[0];
-    const text_input = document.getElementById('description-in') as HTMLTextAreaElement | null;
-    const text_view = document.getElementById('description-view');
-
-    if(!button || !image || !text_input || !text_view) return;
-
-    function opposite_state(state: MdState): MdState
-    {
-        if (state == MdState.Editing) return MdState.Viewing;
-        return MdState.Editing;
-    }
-
-    const BUTTON_DATA = {
-        'v': {
-            image: '../images/light-text.svg',
-            title: 'Enter view mode',
-            view: 'block',
-            edit: 'none',
-        },
-        'e': {
-            image: '../images/light-eye.svg',
-            title: 'Enter edit mode',
-            view: 'none',
-            edit: 'block',
-        }
-    }
-
-    let set_data = (state: MdState) =>
-    {
-        let data = BUTTON_DATA[state];
-        button.title = data.title;
-        image.src = data.image;
-        text_input.style.display = data.edit;
-        text_view.style.display = data.view;
-    }
-
-    button.addEventListener('click', e => {
-        current_state = opposite_state(current_state);
-
-        if(current_state === MdState.Viewing)
-        {
-            text_view.innerHTML = utils.render_markdown(text_input.value);
-        }
-        else 
-        {
-            text_view.innerHTML = '';
-        }
-
-        set_data(current_state);
-    });
-
-    set_data(current_state);
-}
-
-export function render_categories(on_delete: (id: string) => void, on_edit: (id: string) => void)
+export function render_categories(on_delete: (id: string) => void, on_edit: (id: string) => void, on_search: (msg: string) => void)
 {
     utils.invoke('get_highlight_categories', {}).then((categories_json: string) => {
         let container = document.getElementById('highlights');
         if (container === null) return;
-        let categories = JSON.parse(categories_json);
+        let categories = JSON.parse(categories_json) as HighlightCategories;
 
-        if (categories.length == 0)
+        if (Object.values(categories).length === 0)
         {
             let messageDiv = document.createElement('div');
             messageDiv.innerHTML = "No Highlights created";
             return;
         }
 
-        for(let id in categories)
+        let category_array = Object.values(categories).sort((a, b) => {
+            if (a.name === b.name)
+            {
+                return a.id > b.id ? 1 : -1;
+            }
+
+            return a.name > b.name ? 1 : -1;
+        });
+
+        for(let i = 0; i < category_array.length; i++)
         {
-            let category: HighlightCategory = categories[id];
+            let category = category_array[i];
             let name = category.name;
             let description = category.description;
             let color = category.color;
@@ -217,11 +125,17 @@ export function render_categories(on_delete: (id: string) => void, on_edit: (id:
                 highlight_div.append_element_ex('div', ['highlight-content'], content_div => {
                     content_div.append_element('h2', header => header.innerHTML = name);
 
-                    if (!utils.is_empty_str(description))
-                    {
-                        content_div.append_element_ex('div', ['highlight-description'], desc => desc.innerHTML = utils.render_markdown(description));
-                    }
+                    content_div.append_element_ex('div', ['highlight-description'], desc => {
+                        render_note_data({
+                            text: description,
+                            source_type: category.source_type,
+                        }, on_search, desc);
 
+                        if (desc.innerText.length === 0)
+                        {
+                            desc.hide(true);
+                        }
+                    });
 
                     content_div.append_element('p', p => {
                         p.innerHTML = `<span class="priority">Priority:</span> ${priority}`;
@@ -244,8 +158,13 @@ export function render_categories(on_delete: (id: string) => void, on_edit: (id:
     });
 }
 
+const HL_NAME_INPUT_ID: string = 'hl-name-input';
+const HL_COLOR_INPUT_ID: string = 'hl-color-input';
+const HL_PRIORITY_INPUT_ID: string = 'hl-priority-input';
+
 function spawn_highlight_editor_popup(category: HighlightCategory | null): HTMLElement
 {
+    let was_edited = false;
     let background = utils.spawn_element('div', ['highlight-editor-popup'], background => {
         utils.spawn_element('div', ['editor-section'], s => {
 
@@ -258,6 +177,8 @@ function spawn_highlight_editor_popup(category: HighlightCategory | null): HTMLE
                         input.type = 'text';
                         input.placeholder = 'Name';
                         input.value = category?.name ?? '';
+                        input.id = HL_NAME_INPUT_ID;
+                        input.addEventListener('input', _ => was_edited = true)
                     }, d);
 
                     utils.spawn_element('div', ['error-popup'], err => {
@@ -265,7 +186,7 @@ function spawn_highlight_editor_popup(category: HighlightCategory | null): HTMLE
                     }, d); 
                 }, title);
 
-                let color_picker = utils.spawn_element('input', [], color => {
+                utils.spawn_element('input', [], color => {
                     color.type = 'color';
                     if (category)
                     {
@@ -275,17 +196,32 @@ function spawn_highlight_editor_popup(category: HighlightCategory | null): HTMLE
                     {
                         color.value = '#FFD700';
                     }
+
+                    color.id = HL_COLOR_INPUT_ID;
+                    color.addEventListener('input', _ => was_edited = true);
                 }, title);
 
-                let save_btn = utils.spawn_image_button_args({
+                utils.spawn_image_button_args({
                     image: utils.images.SAVE,
                     title: 'Save and Close',
                     classes: ['save-btn'],
                     parent: title,
+                    on_click: _ => save_highlight(),
                 });
 
                 let cancel_btn = utils.spawn_image_button(utils.images.X_MARK, c => {
-                    background.remove();
+                    if(!was_edited)
+                    {
+                        background.remove();
+                        return;
+                    }
+
+                    confirm_popup.show_confirm_popup({
+                        message: 'Are you sure you want to close the editor without saving?',
+                        on_confirm: _ => {
+                            background.remove();
+                        }
+                    })
                 }, title);
 
                 cancel_btn.button.title = 'Cancel'
@@ -293,21 +229,30 @@ function spawn_highlight_editor_popup(category: HighlightCategory | null): HTMLE
 
             // slider
             utils.spawn_element('div', ['slider-section'], s => {
-
-                utils.spawn_element('div', ['slider-text'], t => {
-                    t.innerHTML = 'Priority'
+                let priority = category?.priority ?? 1;
+                let slider_text = utils.spawn_element('div', ['slider-text'], t => {
+                    t.innerHTML = `Priority: ${priority}`
                 }, s);
 
                 let slider = utils.spawn_slider({
-                    min: 0,
+                    min: 1,
                     max: 10,
                     step: 1,
-                    default: category?.priority ?? 0,
+                    default: priority,
                     classes: [],
                     parent: s,
+                    id: HL_PRIORITY_INPUT_ID,
                 });
 
-                let button = utils.spawn_image_button(utils.images.HISTORY_VERTICAL, e => {
+                slider.on_input.add_listener(_ => {
+                    was_edited = true;
+                });
+
+                slider.on_input.add_listener(v => {
+                    slider_text.innerHTML = `Priority: ${v}`;
+                })
+
+                utils.spawn_image_button(utils.images.HISTORY_VERTICAL, e => {
                     slider.set_value(0);
                 }, s);
             }, s);
@@ -319,14 +264,71 @@ function spawn_highlight_editor_popup(category: HighlightCategory | null): HTMLE
                 has_misc_options: false,
             });
 
+            editor.on_save.add_listener(_ => {
+                was_edited = true;
+            })
+
             editor.load_save({
                 data_type: category?.source_type ?? 'markdown',
                 source: category?.description ?? ''
             });
+
+            function save_highlight()
+            {
+                editor.get_save();
+
+                let name = utils.read_value(HL_NAME_INPUT_ID)!;
+
+                let error = validate_title(name);
+                if(error)
+                {
+                    show_error_popup('name-error-message', true, error);
+                    return;
+                }
+
+                let { data_type, source } = editor.get_save();
+                let priority = utils.read_value(HL_PRIORITY_INPUT_ID)!;
+                let id = category?.id ?? null;
+                let color = utils.read_value(HL_COLOR_INPUT_ID)!; 
+
+                if (id === null) // creating a new highlight
+                {
+                    highlights.create_category(color, name, source, data_type, priority);
+                }
+                else 
+                {
+                    highlights.set_category(id, color, name, source, data_type, +priority);
+                }
+
+                background.remove();
+                location.reload();
+            }
         }, background);
     })
 
     
 
     return background;
+}
+
+function validate_title(title: string): string | null
+{
+    const NAME_MIN_LENGTH = 3;
+    const NAME_MAX_LENGTH = 20;
+    if(title.length < 3)
+    {
+        return `Name must be at least ${NAME_MIN_LENGTH} characters long.`;
+    }
+    else if(title.length > NAME_MAX_LENGTH)
+    {
+        return `Cant be longer than ${NAME_MAX_LENGTH} characters long.`;
+    }
+    else if(!utils.is_valid_title(title))
+    {
+        return `Name must contain only letters, numbers, and spaces`;
+    }
+    else 
+    {
+        return null;
+    }
 }
