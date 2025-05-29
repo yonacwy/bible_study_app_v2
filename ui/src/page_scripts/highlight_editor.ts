@@ -55,7 +55,8 @@ function on_edit(id: string)
 {
     highlights.get_categories().then(categories => {
         let category: HighlightCategory = categories[id];
-        spawn_highlight_editor_popup(category);
+        let popup = spawn_highlight_editor_popup(category);
+        document.body.appendChild(popup);
     })
 }
 
@@ -243,20 +244,20 @@ export function render_categories(on_delete: (id: string) => void, on_edit: (id:
     });
 }
 
-function spawn_highlight_editor_popup(category: HighlightCategory): HTMLElement
+function spawn_highlight_editor_popup(category: HighlightCategory | null): HTMLElement
 {
-    let background = utils.spawn_element('div', ['highlight-editor-popup', 'hidden'], b => {
+    let background = utils.spawn_element('div', ['highlight-editor-popup'], background => {
         utils.spawn_element('div', ['editor-section'], s => {
 
             // title
             utils.spawn_element('div', ['title-section'], title => {
-
                 utils.spawn_element('div', ['name-input'], d => {
                     d.style.position = 'relative';
                     d.style.flex = '1';
                     utils.spawn_element('input', [], input => {
                         input.type = 'text';
                         input.placeholder = 'Name';
+                        input.value = category?.name ?? '';
                     }, d);
 
                     utils.spawn_element('div', ['error-popup'], err => {
@@ -266,16 +267,25 @@ function spawn_highlight_editor_popup(category: HighlightCategory): HTMLElement
 
                 let color_picker = utils.spawn_element('input', [], color => {
                     color.type = 'color';
-                    color.value = '#FFD700'
+                    if (category)
+                    {
+                        color.value = utils.color_to_hex(category.color);
+                    }
+                    else 
+                    {
+                        color.value = '#FFD700';
+                    }
                 }, title);
 
-                let save_btn = utils.spawn_image_button(utils.images.SAVE, c => {
-                    utils.debug_print('save button clicked');
+                let save_btn = utils.spawn_image_button_args({
+                    image: utils.images.SAVE,
+                    title: 'Save and Close',
+                    classes: ['save-btn'],
+                    parent: title,
                 });
 
                 let cancel_btn = utils.spawn_image_button(utils.images.X_MARK, c => {
-                    utils.debug_print('close button clicked');
-                    show_error_popup('name-error-message', true, 'This is a test error message');
+                    background.remove();
                 }, title);
 
                 cancel_btn.button.title = 'Cancel'
@@ -292,7 +302,7 @@ function spawn_highlight_editor_popup(category: HighlightCategory): HTMLElement
                     min: 0,
                     max: 10,
                     step: 1,
-                    default: 0,
+                    default: category?.priority ?? 0,
                     classes: [],
                     parent: s,
                 });
@@ -310,10 +320,10 @@ function spawn_highlight_editor_popup(category: HighlightCategory): HTMLElement
             });
 
             editor.load_save({
-                data_type: 'markdown',
-                source: 'This is a **test** highlight *description*'
+                data_type: category?.source_type ?? 'markdown',
+                source: category?.description ?? ''
             });
-        }, b);
+        }, background);
     })
 
     
