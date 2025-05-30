@@ -29,6 +29,7 @@
   - [x] Unable to search for `song of solomon` (bug introduced in this update)
   - [x] Audio player playback slider finishing on 0 instead of 1
   - [x] References are now clickable while in the text editor
+  - [x] Section note page did not have the extra spacing after the chapter content like its non-note counterpart
 - [x] Finalize audio playback
 - [ ] ~~Theme support~~
   - [ ] ~~Custom themes~~
@@ -43,8 +44,10 @@
   - [x] Words with notes now have `pointer` curser when hovered
   - [ ] When closing editing note, scroll to where edited it
   - [x] Scroll offset to center, not top
-  - [x] Migrate save settings
+  - [ ] Migrate save settings
     - [x] Audio player
+    - [ ] Recent highlights
+  - [x] Added a Footer to Bible pages (apparently they were looking a bit bare)
 
 ### Version 0.5.2: Note QoL Changes
 - [x] Selecting Notes and Highlights

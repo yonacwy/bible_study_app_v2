@@ -1,4 +1,4 @@
-import { ChapterIndex } from "../bindings.js";
+import { ChapterIndex, Color } from "../bindings.js";
 import { EventHandler } from "./events.js";
 import * as utils from "./index.js";
 

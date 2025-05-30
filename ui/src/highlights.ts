@@ -30,6 +30,20 @@ export async function get_categories(): Promise<HighlightCategories>
     return JSON.parse(await utils.invoke('get_highlight_categories', {}));
 }
 
+export async function get_sorted_categories(): Promise<HighlightCategory[]>
+{
+    return get_categories().then(cats => {
+        return Object.values(cats).sort((a, b) => {
+            if (a.name === b.name)
+            {
+                return a.id > b.id ? 1 : -1;
+            }
+
+            return a.name > b.name ? 1 : -1;
+        });
+    })
+}
+
 export async function get_chapter_annotations(chapter: ChapterIndex): Promise<any>
 {
     let annotations_json = await utils.invoke('get_chapter_annotations', { chapter: chapter });

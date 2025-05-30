@@ -82,7 +82,6 @@ function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
             .toArray();
 
         let ranges = utils.ranges.range(0, selection.rangeCount).map(r => selection.getRangeAt(r)).toArray();
-        
 
         selected_words = all_words.filter(w => {
             for(let i = 0; i < ranges.length; i++)
@@ -151,72 +150,36 @@ async function spawn_selection_popup(): Promise<HTMLElement>
 
 async function spawn_erase_dropdown(popup: HTMLElement): Promise<HTMLElement>
 {
-    return spawn_highlight_selector(utils.images.ERASER, 'Erase a highlight', id => {
-        erase_highlight(id, popup);
+    return spawn_highlight_selector({
+        image: utils.images.ERASER,
+        tooltip: 'Erase highlights',
+        color_options: await highlights.get_sorted_categories(),
+        on_select: id => {
+            popup.classList.add('hidden');
+            erase_highlight(id);
+        }
     })
 }
 
 async function spawn_highlight_dropdown(popup: HTMLElement): Promise<HTMLElement>
 {
-    return spawn_highlight_selector(utils.images.HIGHLIGHTER, 'Select a highlight', id => {
-        paint_highlight(id, popup);
-    });
-}
-
-async function spawn_highlight_selector(image: string, tooltip: string, on_select: (id: string) => void): Promise<HTMLElement>
-{
-    let categories = await highlights.get_categories();
-    let options = Object.entries(categories).map(v => {
-        return {
-            id: v[0],
-            name: v[1].name,
-            color: v[1].color,
+    return spawn_highlight_selector({
+        image: utils.images.HIGHLIGHTER,
+        tooltip: 'Erase highlights',
+        color_options: await highlights.get_sorted_categories(),
+        on_select: id => {
+            popup.classList.add('hidden');
+            paint_highlight(id);
+        },
+        on_new: () => {
+            popup.classList.add('hidden');
+            utils.debug_print(`created new highlight`);
         }
-    });
-
-    let option_nodes = options.map(o => utils.spawn_element('div', ['dropdown-option'], div => {
-        div.append_element('span', s => s.innerHTML = o.name);
-        div.append_element_ex('div', ['color-square'], square => {
-            square.style.backgroundColor = utils.color_to_hex(o.color);
-        });
-
-        div.addEventListener('click', _ => on_select(o.id));
-    }));
-
-    let dropdown = utils.spawn_element('div', ['dropdown'], dropdown => {
-        let btn = utils.spawn_image_button(image);
-        btn.button.title = tooltip;
-        dropdown.appendChild(btn.button);
-
-        let content = utils.spawn_element('div', ['dropdown-content'], content => {
-            if(option_nodes.length > 0)
-            {
-                content.append(...option_nodes);
-            }
-            else 
-            {
-                let no_select = utils.spawn_element('div', ['dropdown-option'], div => {
-                    div.innerHTML = 'No highlight created, click here to create a new highlight';
-                });
-
-                no_select.addEventListener('click', _ => {
-                    window.location.href = utils.encode_to_url('highlight_editor.html', { old_path: window.location.href });
-                })
-
-                content.appendChild(no_select);
-            }
-        });
-
-        dropdown.appendChild(content);
-    });
-
-    return dropdown;
+    })
 }
 
-async function erase_highlight(id: string, popup: HTMLElement)
+async function erase_highlight(id: string)
 {
-    popup.classList.add('hidden');
-
     let vs = selected_ranges.map(r => {
         return utils.ranges.range_inclusive(r.begin, r.end).map(i => {
             return highlights.erase_chapter_highlight(r.chapter, i, id);
@@ -229,10 +192,8 @@ async function erase_highlight(id: string, popup: HTMLElement)
     
 }
 
-async function paint_highlight(id: string, popup: HTMLElement)
+async function paint_highlight(id: string)
 {
-    popup.classList.add('hidden');
-
     let vs = selected_ranges.map(r => {
         return utils.ranges.range_inclusive(r.begin, r.end).map(i => {
             return highlights.highlight_chapter_word(r.chapter, i, id);
@@ -318,4 +279,51 @@ function spawn_new_note_button(): HTMLElement
 
     button.button.title = 'Create new note';
     return button.button;
+}
+
+function spawn_highlight_selector(args: {
+    tooltip: string,
+    image: string,
+    color_options: { color: Color, name: string, id: string }[],
+    on_new?: () => void,
+    on_select: (id: string) => void,
+}): HTMLElement
+{
+    let dropdown = utils.spawn_element('div', ['small-dropdown'], _ => {});
+
+    let option_nodes = args.color_options.map(o => utils.spawn_element('div', ['dropdown-option'], div => {
+        div.append_element_ex('div', ['color-square'], square => {
+            square.style.backgroundColor = utils.color_to_hex(o.color);
+        });
+
+        div.title = `Select highlight ${o.name}`;
+
+        div.addEventListener('click', e => {
+            dropdown.classList.remove('active');
+            args.on_select(o.id);
+        });
+    })) as HTMLElement[];
+
+    if (args.on_new)
+    {
+        let new_btn = utils.spawn_image_button(utils.images.PLUS, e => {
+            dropdown.classList.remove('active');
+            if(args.on_new) args.on_new();
+        });
+        option_nodes.push(new_btn.button);
+    }
+    
+    let title_button = utils.spawn_image_button(args.image, (e, img) => {
+        img.button.classList.toggle('active');
+        dropdown.classList.toggle('active');
+    });
+
+    title_button.button.title = args.tooltip;
+
+    dropdown.appendChild(title_button.button);
+    dropdown.append_element_ex('div', ['small-dropdown-content'], content => {
+        option_nodes.forEach(n => content.appendChild(n));
+    });
+    
+    return dropdown;
 }
