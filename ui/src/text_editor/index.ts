@@ -10,6 +10,7 @@ import { EventHandler } from "../utils/events.js";
 export type TextEditorArgs = {
     id: string,
     parent: HTMLElement | null,
+    on_ref_clicked: (text: string) => void,
     save?: TextEditorSave,
     has_misc_options: boolean, // close, delete, etc
 }
@@ -71,6 +72,24 @@ export class TextEditor
                 })
             })
         });
+
+        let on_ref_clicked = (ev: MouseEvent) => {
+            let target = ev.target as HTMLElement;
+            let full_text = target.innerHTML;
+            let trimmed = full_text.substring(1, full_text.length - 1); // [Gen 1:1] => Gen 1:1
+            args.on_ref_clicked(trimmed);
+        }; 
+
+
+        let update_ref_click_listeners = () => 
+        {
+            this.view.dom.querySelectorAll('.bible-ref').values().filter(e => e instanceof HTMLElement).forEach(r => {
+                r.removeEventListener('click', on_ref_clicked);
+                r.addEventListener('click', on_ref_clicked);
+            });
+        }
+        
+        this.on_save.add_listener(_ => update_ref_click_listeners());
 
         // idk why we need to do this
         this.editor.querySelectorAll('.ProseMirror-menuseparator').forEach(s => {

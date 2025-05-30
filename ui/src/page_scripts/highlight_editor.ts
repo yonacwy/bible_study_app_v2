@@ -253,7 +253,7 @@ function spawn_highlight_editor_popup(category: HighlightCategory | null): HTMLE
                 })
 
                 utils.spawn_image_button(utils.images.HISTORY_VERTICAL, e => {
-                    slider.set_value(0);
+                    slider.set_value(1);
                 }, s);
             }, s);
 
@@ -262,6 +262,20 @@ function spawn_highlight_editor_popup(category: HighlightCategory | null): HTMLE
                 id: 'desc-editor',
                 parent: s,
                 has_misc_options: false,
+                on_ref_clicked: (ref) => {
+
+                    confirm_popup.show_confirm_popup({
+                        message: 'Do you want to exit this highlight? All data changed will not be saved.',
+                        on_confirm: () => {
+                            view_states.push_search_query(ref).then(success => {
+                                if (success)
+                                {
+                                    view_states.goto_current_view_state();
+                                }
+                            });
+                        }
+                    });
+                }
             });
 
             editor.on_save.add_listener(_ => {

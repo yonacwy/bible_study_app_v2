@@ -20,18 +20,21 @@ export async function init_note_page(note_id: string, on_text_require_rerender: 
 
     Promise.all([
         init_resizer(),
-        init_text_editor(note_id).then(_ => {
+        init_text_editor(note_id, on_search).then(_ => {
             init_note_references(on_text_require_rerender, on_search);
         }),
     ]);
 }
 
-async function init_text_editor(note_id: string)
+async function init_text_editor(note_id: string, on_search: (msg: string) => void)
 {
     let editor = new TextEditor({
         id: 'note-editor',
         parent: document.getElementById('right-pane'),
         has_misc_options: true,
+        on_ref_clicked: (ref) => {
+            on_search(ref)
+        }
     });
 
     let note = await notes.get_note(note_id);

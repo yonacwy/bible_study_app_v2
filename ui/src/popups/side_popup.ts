@@ -1,4 +1,4 @@
-import { Color, WordAnnotations } from "../bindings.js";
+import { Color, HighlightCategories, WordAnnotations } from "../bindings.js";
 import * as highlight_utils from "../highlights.js";
 import * as utils from "../utils/index.js";
 import * as notes from "../notes.js";
@@ -8,7 +8,7 @@ import { render_note_data } from "../rendering/note_rendering.js";
 
 const INITIAL_WIDTH = 250;
 const WIDTH_STORAGE_NAME = "side-popup-width-value";
-const CATEGORIES: any = await highlight_utils.get_categories();
+const CATEGORIES: HighlightCategories = await highlight_utils.get_categories();
 
 export type PanelData = {
     popup_panel: HTMLElement,
@@ -72,7 +72,7 @@ async function build_popup_content(word: string, annotations: WordAnnotations, t
         div.innerHTML = `"${word}"`;
     });
 
-    append_highlights(annotations, target);
+    append_highlights(annotations, target, on_search);
     let r = await append_notes(annotations, target, on_search);
     return r;
 }
@@ -116,7 +116,7 @@ async function append_notes(annotations: WordAnnotations, target: Element, on_se
     }
 }
 
-function append_highlights(annotations: WordAnnotations, target: Element) 
+function append_highlights(annotations: WordAnnotations, target: Element, on_search: (msg: string) => void) 
 {
     for (let i = 0; i < annotations.highlights.length; i++) 
     {
@@ -124,6 +124,7 @@ function append_highlights(annotations: WordAnnotations, target: Element)
         let name: string = CATEGORIES[id].name;
         let color: Color = CATEGORIES[id].color;
         let description: string = CATEGORIES[id].description;
+        let source_type = CATEGORIES[id].source_type;
 
         target.append_element('div', div => {
             div.classList.add('highlight-viewer');
@@ -139,7 +140,12 @@ function append_highlights(annotations: WordAnnotations, target: Element)
                     title.classList.add('highlight-title');
                     title.innerHTML = name;
                 });
-                content.append_element('div', desc => desc.innerHTML = utils.render_markdown(description));
+                content.append_element('div', async desc => {
+                    render_note_data({ 
+                        source_type,
+                        text: description,
+                    }, on_search, desc);
+                });
             })
         });
     }

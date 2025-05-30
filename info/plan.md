@@ -28,13 +28,14 @@
   - [x] Excluded verses aren't handled
   - [x] Unable to search for `song of solomon` (bug introduced in this update)
   - [x] Audio player playback slider finishing on 0 instead of 1
+  - [x] References are now clickable while in the text editor
 - [x] Finalize audio playback
 - [ ] ~~Theme support~~
   - [ ] ~~Custom themes~~
   - [ ] ~~Given presets~~
 - [ ] Better highlighting
   - [ ] No highlights created
-  - [ ] Better highlight editor
+  - [x] Better highlight editor
   - [ ] Preset highlights
   - [ ] Highlight selector (recents)
   - [ ] Better eraser system
@@ -42,8 +43,8 @@
   - [x] Words with notes now have `pointer` curser when hovered
   - [ ] When closing editing note, scroll to where edited it
   - [x] Scroll offset to center, not top
-  - [ ] Migrate save settings
-    - [ ] Audio player
+  - [x] Migrate save settings
+    - [x] Audio player
 
 ### Version 0.5.2: Note QoL Changes
 - [x] Selecting Notes and Highlights
