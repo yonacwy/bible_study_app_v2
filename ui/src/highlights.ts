@@ -1,5 +1,5 @@
 import { get_chapter } from "./bible.js";
-import { ChapterIndex, HighlightCategories, HighlightCategory, NoteSourceType } from "./bindings.js";
+import { ChapterAnnotations, ChapterIndex, HighlightCategories, HighlightCategory, NoteSourceType } from "./bindings.js";
 import * as utils from "./utils/index.js";
 
 export function create_category(color: string, name: string, description: string | null, source_type: NoteSourceType, priority: string)
@@ -44,7 +44,19 @@ export async function get_sorted_categories(): Promise<HighlightCategory[]>
     })
 }
 
-export async function get_chapter_annotations(chapter: ChapterIndex): Promise<any>
+export function sort_highlights(categories: HighlightCategory[]): HighlightCategory[]
+{
+    return categories.sort((a, b) => {
+        if (a.name === b.name)
+        {
+            return a.id > b.id ? 1 : -1;
+        }
+
+        return a.name > b.name ? 1 : -1;
+    });
+}
+
+export async function get_chapter_annotations(chapter: ChapterIndex): Promise<ChapterAnnotations>
 {
     let annotations_json = await utils.invoke('get_chapter_annotations', { chapter: chapter });
     return JSON.parse(annotations_json);
@@ -88,12 +100,10 @@ export async function erase_highlight(chapter: any, word_index: number, highligh
 
 export async function erase_chapter_highlight(chapter: ChapterIndex, word_pos: number, highlight_id: string) 
 {
-    if(highlight_id !== null && highlight_id !== undefined)
-    {
-        utils.invoke('erase_highlight', {
-            chapter: chapter,
-            word_position: word_pos,
-            highlight_id: highlight_id,
-        });
-    }
+    utils.debug_print(`erasing highlight ${highlight_id}`);
+    utils.invoke('erase_highlight', {
+        chapter: chapter,
+        word_position: word_pos,
+        highlight_id: highlight_id,
+    });
 }

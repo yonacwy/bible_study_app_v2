@@ -27,6 +27,21 @@
     opacity: 0;
     transition: opacity 0.3s ease;
 
+    .color-square {
+        width: @button-size;
+        height: @button-size;
+        margin: @button-margin;
+        border: 2px solid #ccc;
+        box-sizing: border-box;
+        border-radius: 5px * @ui-scale;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+    }
+
+    .color-square:hover {
+        border: 2px solid #333;
+    }
+
     .drop-shadow-m();
 }
 
@@ -98,9 +113,11 @@
 
 /* Color square in the dropdown option */
 .dropdown-option .color-square {
-    width: 20px;
-    height: 20px;
+    width: @button-size;
+    height: @button-size;
+    margin: @button-margin;
     border: 1px solid #ccc;
+    border-radius: 3px * @ui-scale;
 }
 
 /* Option hover effect */

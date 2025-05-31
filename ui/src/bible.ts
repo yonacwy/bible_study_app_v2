@@ -1,6 +1,6 @@
 import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils/index.js";
 import { push_section, get_current_view_state } from "./view_states.js";
-import { BibleSection, BookView, ChapterIndex, ChapterView, VerseRange } from "./bindings.js";
+import { BibleSection, BookView, ChapterIndex, ChapterView, Verse, VerseRange } from "./bindings.js";
 import { EventHandler, Listener } from "./utils/events.js";
 import * as utils from "./utils/index.js";
 
@@ -58,6 +58,11 @@ export async function get_chapter_words(chapter: ChapterIndex): Promise<string[]
     }
 
     return words;
+}
+
+export async function get_verse_data(chapter: ChapterIndex, verse: number): Promise<Verse>
+{
+    return await utils.invoke('get_verse', { book: chapter.book, chapter: chapter.number, verse: verse });
 }
 
 export async function to_next_chapter(): Promise<void>

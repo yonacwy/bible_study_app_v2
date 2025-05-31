@@ -1,7 +1,7 @@
 // ---------------------- Bible Bindings ----------------------
 export type Word = { text: string, italicized: boolean, red: boolean };
 
-export type Verse = { words: Array<string> };
+export type Verse = { words: Array<Word> };
 export type Chapter = { verses: Array<Verse> };
 
 export type ChapterIndex = { book: number, number: number };
@@ -19,6 +19,7 @@ export type HighlightCategory = { color: Color, name: string, description: strin
 export type NoteSourceType = 'html' | 'json' | 'markdown';
 export type NoteData = { id: string, text: string, locations: Array<ReferenceLocation>, source_type: NoteSourceType };
 export type WordAnnotations = { highlights: Array<string>, notes: Array<string> };
+export type ChapterAnnotations = { [key: number]: WordAnnotations | undefined };
 
 // ------------------------ Misc Bindings ----------------------------
 export type Color = { r: number, g: number, b: number };

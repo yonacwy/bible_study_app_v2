@@ -30,6 +30,9 @@
   - [x] Audio player playback slider finishing on 0 instead of 1
   - [x] References are now clickable while in the text editor
   - [x] Section note page did not have the extra spacing after the chapter content like its non-note counterpart
+  - [x] Word popup stopping interactions with selection menu
+  - [ ] Highlight menu not clamped to inside of page
+  - [ ] Audio Player not clamped to inside of page
 - [x] Finalize audio playback
 - [ ] ~~Theme support~~
   - [ ] ~~Custom themes~~

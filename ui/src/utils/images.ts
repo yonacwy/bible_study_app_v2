@@ -79,3 +79,4 @@ export const INDENT: string = '../images/text_editor/light-indent.svg';
 export const OUTDENT: string = '../images/text_editor/light-outdent.svg';
 export const JOIN: string = '../images/text_editor/light-arrows-to-dot.svg';
 export const SAVE: string = '../images/text_editor/light-floppy-disk.svg';
+export const CLEAR: string = '../images/light-circle-xmark.svg';

@@ -50,6 +50,7 @@ declare global {
         find_map<R>(predicate: (v: T) => R | null): R | undefined;
         any(p: (v: T) => boolean): boolean;
         all(p: (v: T) => boolean): boolean;
+        flatten_promise<R>(): Promise<R[]>,
     }
 }
 
@@ -115,6 +116,10 @@ Array.prototype.filter_map = function<T, R>(this: T[], predicate: (v: T) => R | 
 
     return array;
 };
+
+Array.prototype.flatten_promise = function<R>(this: Promise<R>[]): Promise<R[]> {
+    return Promise.all(this);
+}
 
 Array.prototype.find_map = function<T, R>(this: T[], predicate: (v: T) => R | null): R | undefined
 {
