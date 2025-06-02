@@ -115,18 +115,29 @@ function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
 
         let ranges = utils.ranges.range(0, selection.rangeCount).map(r => selection.getRangeAt(r)).toArray();
 
-        selected_words = all_words.filter(w => {
-            for(let i = 0; i < ranges.length; i++)
-            {
-                if(ranges[i].intersectsNode(w))
-                {
+        selected_words = all_words.filter(wordEl => {
+            const wordTextNodes: Node[] = [];
+
+            // Collect all text nodes within the word element
+            const walker = document.createTreeWalker(wordEl, NodeFilter.SHOW_TEXT, null);
+            while (walker.nextNode()) {
+                wordTextNodes.push(walker.currentNode);
+            }
+
+            // Check if any of the selected nodes match the word's text nodes
+            for (const range of ranges) {
+                const selectedNodes = get_selected_nodes(range);
+                if (selectedNodes.some(n => wordTextNodes.includes(n))) {
                     return true;
                 }
             }
 
             return false;
-        })
+        });
     }
+
+    utils.debug_print(selected_words.map(w => w.innerHTML).join(','))
+
     
     selected_ranges = [];
 
@@ -400,4 +411,23 @@ function spawn_highlight_selector(args: {
     });
     
     return dropdown;
+}
+
+function get_selected_nodes(range: Range): Node[] {
+    const nodes: Node[] = [];
+    const tree_walker = document.createTreeWalker(
+        range.commonAncestorContainer,
+        NodeFilter.SHOW_TEXT,
+        {
+            acceptNode: node => {
+                return range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+            }
+        }
+    );
+
+    while (tree_walker.nextNode()) {
+        nodes.push(tree_walker.currentNode);
+    }
+
+    return nodes;
 }

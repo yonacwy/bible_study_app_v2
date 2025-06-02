@@ -58,7 +58,7 @@ export function get_highest_priority_highlight(word_highlights: string[], catego
 export function create_bible_space(): HTMLElement
 {
     let space = document.createElement('span');
-    space.innerHTML = "&nbsp;"
+    space.innerHTML = "&nbsp; "; // NEED THE SPACE AFTER THIS, VERY IMPORTANT
     space.classList.add('bible-space');
     return space;
 }
@@ -66,7 +66,7 @@ export function create_bible_space(): HTMLElement
 export function create_bible_word(t: string): HTMLElement
 {
     let word = document.createElement('span');
-    word.innerHTML = t;
+    word.innerHTML = t.trim();
     word.classList.add('bible-word');
     return word;
 }

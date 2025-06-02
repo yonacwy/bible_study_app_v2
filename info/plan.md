@@ -33,6 +33,7 @@
   - [x] Word popup stopping interactions with selection menu
   - [ ] Highlight menu not clamped to inside of page
   - [ ] Audio Player not clamped to inside of page
+  - [x] When selecting words, if a space was selected after a given word, it would select the next word as well (also fixed a hidden rendering bug as well)
 - [x] Finalize audio playback
 - [ ] ~~Theme support~~
   - [ ] ~~Custom themes~~

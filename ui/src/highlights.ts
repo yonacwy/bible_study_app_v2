@@ -100,7 +100,6 @@ export async function erase_highlight(chapter: any, word_index: number, highligh
 
 export async function erase_chapter_highlight(chapter: ChapterIndex, word_pos: number, highlight_id: string) 
 {
-    utils.debug_print(`erasing highlight ${highlight_id}`);
     utils.invoke('erase_highlight', {
         chapter: chapter,
         word_position: word_pos,
