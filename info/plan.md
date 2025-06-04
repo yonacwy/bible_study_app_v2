@@ -14,7 +14,7 @@
 - [ ] Linux?
 
 
-### Version 0.5.3: Bug Fixes
+### Version 0.5.3: Bug Fixes and Improvements
 - [ ] Lots o Bugs fixes
   - [x] Removed close image on search note page
   - [x] Pointer curser now on chapter buttons
@@ -37,9 +37,6 @@
   - [x] Fixed visuals when closing a note on faster computers (now has an animated collapse)
   - [ ] Highlighting and opening the context menu, then clicking on the text or its parent again, removes the curser highlights, but leaves the context menu
 - [x] Finalize audio playback
-- [ ] ~~Theme support~~
-  - [ ] ~~Custom themes~~
-  - [ ] ~~Given presets~~
 - [ ] Better highlighting
   - [ ] No highlights created
   - [x] Better highlight editor

@@ -268,7 +268,7 @@ async function spawn_highlight_dropdown(popup: HTMLElement): Promise<HTMLElement
 {
     return spawn_highlight_selector({
         image: utils.images.HIGHLIGHTER,
-        tooltip: 'Erase highlights',
+        tooltip: 'Highlight',
         color_options: await highlights.get_sorted_categories(),
         on_select: id => {
             popup.classList.add('hidden');
