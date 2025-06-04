@@ -135,13 +135,16 @@ export class TextEditor
             case "json":
                 try 
                 {
-                    let data = JSON.parse(save.source);
-                    this.view.state.doc = Node.fromJSON(SCHEMA, data);
-                    this.view.update({ state: this.view.state });
+                    if (!utils.is_empty_str(save.source))
+                    {
+                        let data = JSON.parse(save.source);
+                        this.view.state.doc = Node.fromJSON(SCHEMA, data);
+                        this.view.update({ state: this.view.state });
+                    }
                 }
                 catch 
                 {
-                    utils.debug_print('Error formatting json content');
+                    utils.debug_print(`Error formatting json content: ${save.source}`);
                     return false;
                 }
                 break;

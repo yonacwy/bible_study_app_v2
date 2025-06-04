@@ -31,9 +31,11 @@
   - [x] References are now clickable while in the text editor
   - [x] Section note page did not have the extra spacing after the chapter content like its non-note counterpart
   - [x] Word popup stopping interactions with selection menu
-  - [ ] Highlight menu not clamped to inside of page
-  - [ ] Audio Player not clamped to inside of page
+  - [x] Highlight menu not restricted to inside of page
+  - [x] Audio Player not clamped to inside of page
   - [x] When selecting words, if a space was selected after a given word, it would select the next word as well (also fixed a hidden rendering bug as well)
+  - [x] Fixed visuals when closing a note on faster computers (now has an animated collapse)
+  - [ ] Highlighting and opening the context menu, then clicking on the text or its parent again, removes the curser highlights, but leaves the context menu
 - [x] Finalize audio playback
 - [ ] ~~Theme support~~
   - [ ] ~~Custom themes~~
@@ -41,11 +43,16 @@
 - [ ] Better highlighting
   - [ ] No highlights created
   - [x] Better highlight editor
-  - [ ] Preset highlights
+    - [x] Now with WYSIWYG
+    - [x] Looks nicer
+  - [ ] Preset highlights (when none created)
   - [ ] Highlight selector (recents)
-  - [ ] Better eraser system
+  - [x] Better selector system
+    - [ ] Improve look
+    - [x] Erase all highlight button
+    - [ ] Create new highlight button
 - [ ] Miscellanies
-  - [x] Words with notes now have `pointer` curser when hovered
+  - [x] Words with notes or highlights now have `pointer` curser when hovered
   - [ ] When closing editing note, scroll to where edited it
   - [x] Scroll offset to center, not top
   - [ ] Migrate save settings

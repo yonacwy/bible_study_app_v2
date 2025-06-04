@@ -56,9 +56,10 @@ async function init_text_editor(note_id: string, on_search: (msg: string) => voi
     editor.on_save.add_listener(save_note);
 
     editor.on_close.add_listener(async () => {
-        save_note().then(_ => {
+        save_note().then(async _ => {
             apply_transitions();
             collapse_pane(PaneSideType.Right);
+            await utils.sleep(300);
             notes.set_editing_note(null).then(_ => {
                 view_states.goto_current_view_state();
             });
@@ -295,8 +296,8 @@ function remove_transitions()
 
 function apply_transitions() 
 {
-    leftPane.style.transition = 'width 0.3s ease-in-out';
-    rightPane.style.transition = 'width 0.3s ease-in-out';
+    leftPane.style.transition = 'width 0.4s ease-in-out';
+    rightPane.style.transition = 'width 0.4s ease-in-out';
 }
 
 function collapse_pane(side: PaneSideType) 

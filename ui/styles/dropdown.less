@@ -13,6 +13,14 @@
 .small-dropdown {
     .dropdown();
     width: min-content;
+
+    &.reverse .small-dropdown-content {
+        top: auto;
+        bottom: 100%;
+        margin-top: 0;
+        margin-bottom: 0;
+        /* Optional: add a little spacing if you want */
+    }
 }
 
 .small-dropdown-content {

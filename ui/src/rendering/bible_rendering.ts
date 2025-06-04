@@ -33,6 +33,7 @@ export function render_word(data: WordData)
     if(data.color !== null)
     {
         word_node = color(word_node, data.color);
+        word_node.style.cursor = 'pointer';
     }
 
     return word_node

@@ -5,6 +5,7 @@ import * as view_states from "../view_states.js";
 import { spawn_behavior_selector, TimerSliderData } from "./player_behavior.js";
 import { BibleReaderSection, PlayerBehaviorState } from "../bible_reader.js";
 import { ChapterIndex } from "../bindings.js";
+import { get_settings } from "../settings.js";
 
 // To implement on a page, need to call `init_player()` before anything, then whenever the passage chapter is rendered, `on_passage_rendered()` needs to be called
 
@@ -842,31 +843,32 @@ function spawn_restart_button(): utils.ImageButton
     return button;
 }
 
-function handle_dragging(element: HTMLElement)
+function handle_dragging(player_element: HTMLElement)
 {
     let is_dragging = false;
     let offset = { x: 0, y: 0 };
-    element.addEventListener('mousedown', e => {
+    player_element.addEventListener('mousedown', e => {
         is_dragging = true;
 
-        let rect = element.getBoundingClientRect();
+        let rect = player_element.getBoundingClientRect();
 
         offset = {
             x: e.clientX - rect.left,
             y: e.clientY - rect.top,
         };
 
-        element.style.top = (e.clientY - offset.y) + 'px';
-        element.style.left = (e.clientX - offset.x) + 'px';
+        player_element.style.top = (e.clientY - offset.y) + 'px';
+        player_element.style.left = (e.clientX - offset.x) + 'px';
 
-        element.classList.remove('spawned');
+        player_element.classList.remove('spawned');
     });
 
     document.addEventListener('mousemove', e => {
         if(is_dragging)
         {
-            element.style.top = (e.clientY - offset.y) + 'px';
-            element.style.left = (e.clientX - offset.x) + 'px';
+            let x = (e.clientX - offset.x);
+            let y = (e.clientY - offset.y);
+            clamp_player(player_element, { x, y });
         }
     });
 
@@ -874,4 +876,43 @@ function handle_dragging(element: HTMLElement)
         is_dragging = false;
         update_player_data_storage();
     })
+}
+
+async function clamp_player(player: HTMLElement, desired: { x: number, y: number})
+{
+    if (player.classList.contains('spawned')) return;
+
+    let ui_scale = (await get_settings()).ui_scale;
+
+    player.style.left = desired.x + 'px';
+    player.style.top = desired.y + 'px';
+
+    const POS_BUFFER: number = 40 * ui_scale;
+
+    let window_size = {
+        width: document.documentElement.clientWidth,
+        height: document.documentElement.clientHeight,
+    };
+
+    let player_rect = player.getBoundingClientRect();
+
+    if (player_rect.right - POS_BUFFER < 0)
+    {
+        player.style.left = -(player_rect.width - POS_BUFFER) + 'px'
+    }
+
+    if (player_rect.left + POS_BUFFER > window_size.width)
+    {
+        player.style.left = (window_size.width - POS_BUFFER) + 'px';
+    }
+
+    if (player_rect.bottom - POS_BUFFER < 0)
+    {
+        player.style.top = -(player_rect.height - POS_BUFFER) + 'px';
+    }
+
+    if (player_rect.top + POS_BUFFER > window_size.height)
+    {
+        player.style.top = (window_size.height - POS_BUFFER) + 'px';
+    }
 }

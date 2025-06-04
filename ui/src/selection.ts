@@ -95,13 +95,10 @@ let selected_ranges: SelectedWordRange[] = [];
 
 function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
 {
-    if (popup.contains(e.target as HTMLElement) || popup === e.target)
+    if (popup.contains(e.target as HTMLElement) || popup === e.target) // if we clicked on the popup, do nothing
     {
         return;
     }
-    
-    popup.style.left = e.clientX + 10 + 'px';
-    popup.style.top = e.clientY + 10 + 'px';
     
     let selection = window.getSelection();
 
@@ -128,9 +125,6 @@ function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
             });
         });
     }
-
-    utils.debug_print(selected_words.map(w => w.innerHTML).join(','))
-
     
     selected_ranges = [];
 
@@ -158,11 +152,13 @@ function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
             }
         });
 
-        popup.classList.remove('hidden');
+        show_popup(popup, e);
     }
     else 
     {
-        popup.classList.add('hidden');
+        hide_popup(popup);
+        selected_ranges = [];
+        return;
     }
     
     popup.replaceChildren();
@@ -176,12 +172,62 @@ function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
         for(let i = 0; i < children.length; i++)
         {
             let c = children[i];
-            if (c)
+            if (!c) return;
+            
+            popup.appendChild(c);
+            if(c.classList.contains('small-dropdown'))
             {
-                popup.appendChild(c);
+                let content = c.querySelector('.small-dropdown-content') as HTMLElement;
+
+                content.style.display = 'block';
+                let rect = content.getBoundingClientRect();
+                let window_height = document.documentElement.clientHeight;
+
+                if (rect.bottom > window_height + 10)
+                {
+                    c.classList.add('reverse');
+                    content.reverse_children();
+                }
+
+                content.style.display = '';
             }
         }
     });
+}
+
+function show_popup(popup: HTMLElement, e: MouseEvent) 
+{
+    popup.classList.remove('hidden');
+    const SIZE_PADDING: number = 10;
+    let window_size = {
+        width: document.documentElement.clientWidth,
+        height: document.documentElement.clientHeight,
+    }
+
+    let popup_rect = popup.getBoundingClientRect();
+
+    if(e.clientX + popup_rect.width + SIZE_PADDING > window_size.width)
+    {
+        popup.style.left = (window_size.width - popup_rect.width - SIZE_PADDING) + 'px';
+    }
+    else 
+    {
+        popup.style.left = e.clientX + SIZE_PADDING + 'px';
+    }
+
+    if(e.clientY + popup_rect.height + SIZE_PADDING > window_size.height)
+    {
+        popup.style.top = (window_size.height - popup_rect.height - SIZE_PADDING) + 'px';
+    }
+    else 
+    {
+        popup.style.top = e.clientY + SIZE_PADDING + 'px';
+    }
+}
+
+function hide_popup(popup: HTMLElement)
+{
+    popup.classList.add('hidden');
 }
 
 async function spawn_selection_popup(): Promise<HTMLElement>
@@ -417,6 +463,7 @@ function spawn_highlight_selector(args: {
     title_button.button.title = args.tooltip;
 
     dropdown.appendChild(title_button.button);
+
     dropdown.append_element_ex('div', ['small-dropdown-content'], content => {
         option_nodes.forEach(n => content.appendChild(n));
     });

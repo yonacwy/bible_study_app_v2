@@ -2,6 +2,7 @@ declare global {
     export interface Element {
         append_element<K extends keyof HTMLElementTagNameMap>(key: K, builder?: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K];
         append_element_ex<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K];
+        reverse_children(): Element;
     }
 }
 
@@ -21,6 +22,14 @@ Element.prototype.append_element_ex = function<K extends keyof HTMLElementTagNam
     builder(child);
     this.appendChild(child);
     return child;
+}
+
+Element.prototype.reverse_children = function(this: Element): Element {
+    let array = Array.from(this.children);
+    array.forEach(c => c.remove());
+    array.reverse();
+    array.forEach(c => this.appendChild(c));
+    return this;
 }
 
 declare global {
