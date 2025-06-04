@@ -116,23 +116,16 @@ function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
         let ranges = utils.ranges.range(0, selection.rangeCount).map(r => selection.getRangeAt(r)).toArray();
 
         selected_words = all_words.filter(wordEl => {
-            const wordTextNodes: Node[] = [];
+            const word_range = document.createRange();
+            word_range.selectNodeContents(wordEl);
 
-            // Collect all text nodes within the word element
-            const walker = document.createTreeWalker(wordEl, NodeFilter.SHOW_TEXT, null);
-            while (walker.nextNode()) {
-                wordTextNodes.push(walker.currentNode);
-            }
-
-            // Check if any of the selected nodes match the word's text nodes
-            for (const range of ranges) {
-                const selectedNodes = get_selected_nodes(range);
-                if (selectedNodes.some(n => wordTextNodes.includes(n))) {
-                    return true;
-                }
-            }
-
-            return false;
+            // Check if the selection overlaps with the word's range
+            return ranges.some(range => {
+                return (
+                    range.compareBoundaryPoints(Range.END_TO_START, word_range) < 0 &&
+                    range.compareBoundaryPoints(Range.START_TO_END, word_range) > 0
+                );
+            });
         });
     }
 
@@ -220,7 +213,8 @@ async function spawn_erase_dropdown(popup: HTMLElement): Promise<HTMLElement | n
         on_clear: () => {
             popup.classList.add('hidden');
             clear_all_highlights()
-        }
+        },
+        select_type: 'erase'
     })
 }
 
@@ -237,7 +231,8 @@ async function spawn_highlight_dropdown(popup: HTMLElement): Promise<HTMLElement
         on_new: () => {
             popup.classList.add('hidden');
             utils.debug_print(`created new highlight`);
-        }
+        },
+        select_type: 'highlight',
     })
 }
 
@@ -360,6 +355,7 @@ function spawn_highlight_selector(args: {
     on_new?: () => void,
     on_clear?: () => void,
     on_select: (id: string) => void,
+    select_type: 'highlight' | 'erase',
 }): HTMLElement
 {
     let dropdown = utils.spawn_element('div', ['small-dropdown'], _ => {});
@@ -372,9 +368,22 @@ function spawn_highlight_selector(args: {
     let option_nodes = args.color_options.map(o => utils.spawn_element('div', [], div => {
         div.append_element_ex('div', ['color-square'], square => {
             square.style.backgroundColor = utils.color_to_hex(o.color);
+
+            if (args.select_type === 'erase')
+            {
+                square.append_element_ex('img', [], i => i.src = utils.images.DO_NOT_ENTER);
+            }
         });
 
-        div.title = `Select highlight ${o.name}`;
+        if (args.select_type === 'highlight')
+        {
+            div.title = `Select highlight ${o.name}`;
+        }
+        
+        if (args.select_type === 'erase')
+        {
+            div.title = `Erase highlight ${o.name}`;
+        }
 
         div.addEventListener('click', e => {
             title_button.button.classList.remove('active');
@@ -390,6 +399,7 @@ function spawn_highlight_selector(args: {
             dropdown.classList.remove('active');
             if(args.on_new) args.on_new();
         });
+        new_btn.button.title = 'Make new highlight';
         option_nodes.push(new_btn.button);
     }
 
@@ -400,6 +410,7 @@ function spawn_highlight_selector(args: {
             dropdown.classList.remove('active');
             if (args.on_clear) args.on_clear();
         });
+        clear_btn.button.title = 'Clear all highlights';
         option_nodes.push(clear_btn.button);
     }
 
@@ -411,23 +422,4 @@ function spawn_highlight_selector(args: {
     });
     
     return dropdown;
-}
-
-function get_selected_nodes(range: Range): Node[] {
-    const nodes: Node[] = [];
-    const tree_walker = document.createTreeWalker(
-        range.commonAncestorContainer,
-        NodeFilter.SHOW_TEXT,
-        {
-            acceptNode: node => {
-                return range.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-            }
-        }
-    );
-
-    while (tree_walker.nextNode()) {
-        nodes.push(tree_walker.currentNode);
-    }
-
-    return nodes;
 }
