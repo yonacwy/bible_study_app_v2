@@ -4,6 +4,7 @@ import * as notes from "./notes.js";
 import { ChapterIndex, Color } from "./bindings.js";
 import * as view_states from "./view_states.js";
 import * as highlights from "./highlights.js";
+import { goto_highlight_editor_page } from "./page_scripts/highlight_editor.js";
 
 export async function init_selection()
 {
@@ -276,7 +277,7 @@ async function spawn_highlight_dropdown(popup: HTMLElement): Promise<HTMLElement
         },
         on_new: () => {
             popup.classList.add('hidden');
-            utils.debug_print(`created new highlight`);
+            goto_highlight_editor_page(true);
         },
         select_type: 'highlight',
     })

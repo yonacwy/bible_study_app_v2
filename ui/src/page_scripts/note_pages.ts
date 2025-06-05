@@ -59,7 +59,7 @@ async function init_text_editor(note_id: string, on_search: (msg: string) => voi
         save_note().then(async _ => {
             apply_transitions();
             collapse_pane(PaneSideType.Right);
-            await utils.sleep(300);
+            await utils.sleep(500);
             notes.set_editing_note(null).then(_ => {
                 view_states.goto_current_view_state();
             });
@@ -219,12 +219,10 @@ function init_resizer()
         if (leftWidth < collapseThreshold) 
         {
             collapse_pane(PaneSideType.Left);
-            hide_resizer();
         } 
         else if ((100 - leftWidth) < collapseThreshold) 
         {
             collapse_pane(PaneSideType.Right);
-            hide_resizer();
         } 
         else 
         {
@@ -234,7 +232,6 @@ function init_resizer()
             rightPane.style.padding = "10px";
 
             update_collapse_images(null);
-            show_resizer();
         }
     });
 
@@ -255,15 +252,10 @@ function init_resizer()
             leftPane.style.padding = '10px';  // Restore padding
             rightPane.style.width = '50%';
             update_collapse_images(null);
-            show_resizer();
         } 
         else 
         {
             collapse_pane(PaneSideType.Left);
-            show_resizer();
-            setTimeout(() => {
-                hide_resizer();
-            }, 300);
         }
     });
 
@@ -275,15 +267,10 @@ function init_resizer()
             rightPane.style.padding = '10px';  // Restore padding
             leftPane.style.width = '50%';
             update_collapse_images(null);
-            show_resizer();
         } 
         else 
         {
             collapse_pane(PaneSideType.Right);
-            show_resizer();
-            setTimeout(() => {
-                hide_resizer();
-            }, 300);
         }
     });
 }
@@ -349,16 +336,4 @@ function update_collapse_images(type: PaneSideType | null) {
         left_min_img.classList.remove('hidden');
         left_max_img.classList.add('hidden');
     }
-}
-
-function hide_resizer()
-{
-    if(!resizer) return;
-    resizer.style.display = 'none';
-}
-
-function show_resizer()
-{
-    if(!resizer) return;
-    resizer.style.display = 'block';
 }

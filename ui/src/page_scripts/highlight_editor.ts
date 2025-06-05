@@ -11,7 +11,16 @@ import { render_note_data } from "../rendering/note_rendering.js";
 import * as view_states from "../view_states.js";
 
 export type HighlightEditorData = {
-    old_path: string
+    old_path: string,
+    should_make_new?: boolean,
+}
+
+export function goto_highlight_editor_page(should_make_new: boolean)
+{
+    window.location.href = utils.encode_to_url('highlight_editor.html', {
+        old_path: window.location.href,
+        should_make_new,
+    } as HighlightEditorData);
 }
 
 export async function run()
@@ -29,7 +38,6 @@ export async function run()
     });
 
     utils.on_click('new-btn', e => {
-        utils.debug_print('got here');
         let popup = spawn_highlight_editor_popup(null);
         document.body.appendChild(popup);
     })
@@ -56,6 +64,12 @@ export async function run()
     utils.init_sliders();
 
     document.body.style.visibility = 'visible';
+
+    if (data.should_make_new ?? false)
+    {
+        let popup = spawn_highlight_editor_popup(null);
+        document.body.appendChild(popup);
+    }
 }
 
 function on_edit(id: string)

@@ -56,6 +56,8 @@
     - [x] Audio player
     - [ ] Recent highlights
   - [x] Added a Footer to Bible pages (apparently they were looking a bit bare)
+  - [x] Resizer bar now shows if a side page is collapsed
+  - [ ] Rename collapse buttons to be clearer
 
 ### Version 0.5.2: Note QoL Changes
 - [x] Selecting Notes and Highlights
