@@ -13,7 +13,7 @@ export type ImageDropdownOption<T> = {
     value: T
 }
 
-export type ImageDropdownArgs<T> = {
+export type ToggleImageDropdownArgs<T> = {
     title_image: string | null,
     default_index: number,
     tooltip?: string,
@@ -23,7 +23,7 @@ export type ImageDropdownArgs<T> = {
     id?: string,
 };
 
-export type ImageDropdown<T> = {
+export type ToggleImageDropdown<T> = {
     root: HTMLElement,
     title: utils.ImageButton,
     options: utils.ImageButton[],
@@ -32,7 +32,7 @@ export type ImageDropdown<T> = {
     on_change: EventHandler<DropdownValue<T>>,
 }
 
-export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdown<T>
+export function spawn_toggle_image_dropdown<T>(args: ToggleImageDropdownArgs<T>): ToggleImageDropdown<T>
 {
     let handler = new EventHandler<DropdownValue<T>>();
     let dropdown = utils.spawn_element('div', ['small-dropdown'], _ => {});
@@ -115,7 +115,7 @@ export type TextDropdownOption<T> = {
     value: T,
 }
 
-export type TextDropdownArgs<T> = {
+export type ToggleTextDropdownArgs<T> = {
     title_text: string | null,
     tooltip?: string,
     default_index: number,
@@ -125,7 +125,7 @@ export type TextDropdownArgs<T> = {
     id?: string,
 }
 
-export type TextDropdown<T> = {
+export type ToggleTextDropdown<T> = {
     root: HTMLElement,
     title: HTMLElement,
     options: HTMLElement[],
@@ -134,7 +134,7 @@ export type TextDropdown<T> = {
     on_change: EventHandler<DropdownValue<T>>,
 }
 
-export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown<T>
+export function spawn_toggle_text_dropdown<T>(args: ToggleTextDropdownArgs<T>): ToggleTextDropdown<T>
 {
     let handler = new EventHandler<DropdownValue<T>>();
     let dropdown = utils.spawn_element('div', ['text-dropdown'], _ => {});
@@ -216,7 +216,7 @@ export function spawn_text_dropdown<T>(args: TextDropdownArgs<T>): TextDropdown<
     };
 }
 
-export type TextDropdownBasicArgs = {
+export type ToggleTextDropdownBasicArgs = {
     default: number,
     options: string[],
     tooltip?: string,
@@ -225,7 +225,7 @@ export type TextDropdownBasicArgs = {
     id?: string
 }
 
-export function spawn_text_dropdown_simple(args: TextDropdownBasicArgs): TextDropdown<number>
+export function spawn_toggle_text_dropdown_simple(args: ToggleTextDropdownBasicArgs): ToggleTextDropdown<number>
 {
     let options: TextDropdownOption<number>[] = args.options.map((v, i) => ({
         text: v,
@@ -234,7 +234,7 @@ export function spawn_text_dropdown_simple(args: TextDropdownBasicArgs): TextDro
         id: args.id,
     }));
 
-    return spawn_text_dropdown({
+    return spawn_toggle_text_dropdown({
         title_text: null,
         tooltip: args.tooltip,
         default_index: args.default,
@@ -242,4 +242,67 @@ export function spawn_text_dropdown_simple(args: TextDropdownBasicArgs): TextDro
         parent: args.parent,
         on_change: args.on_change,
     });
+}
+
+export type ImageDropdownArgs<T> = {
+    title_image: string,
+    tooltip: string,
+    options: ImageDropdownOption<T>[],
+    parent: HTMLElement | null,
+    id: string | null,
+}
+
+export type ImageDropdown<T> = {
+    root: HTMLElement,
+    on_select: utils.events.EventHandler<DropdownValue<T>>,
+}
+
+export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdown<T>
+{
+    let on_select = new EventHandler<DropdownValue<T>>();
+    let dropdown = utils.spawn_element('div', ['small-dropdown'], _ => {});
+    dropdown.id = args.id ?? '';
+
+    let title_image = args.title_image;
+    let title_button = utils.spawn_image_button(title_image, (_, img) => {
+        img.button.classList.toggle('active');
+        dropdown.classList.toggle('active');
+    });
+
+    on_select.add_listener(_ => {
+        title_button.button.classList.remove('active');
+        dropdown.classList.remove('active');
+    })
+
+    title_button.button.title = args.tooltip;
+
+    let option_buttons = args.options.map(o => {
+        let button = utils.spawn_image_button(o.image);
+        button.button.title = o.tooltip;
+        return button;
+    });
+
+    option_buttons.forEach((button, index) => {
+        button.button.addEventListener('click', e => {
+            on_select.invoke({
+                index,
+                value: args.options[index].value
+            });
+        });
+    });
+
+    dropdown.appendChild(title_button.button);
+    dropdown.append_element_ex('div', ['small-dropdown-content'], content => {
+        option_buttons.forEach(b => content.appendChild(b.button));
+    });
+
+    if(args.parent)
+    {
+        args.parent.appendChild(dropdown);
+    }
+
+    return {
+        root: dropdown,
+        on_select,
+    };
 }

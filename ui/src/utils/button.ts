@@ -34,8 +34,8 @@ export function spawn_image_button(image_src: string, on_click?: (e: MouseEvent,
 
 export function spawn_image_button_args(args: {
     image: string,
-    on_click?: (e: Event) => void,
-    title?: string,
+    on_click?: (e: Event, button: ImageButton) => void,
+    title: string,
     parent?: HTMLElement,
     classes?: string[],
 }): ImageButton

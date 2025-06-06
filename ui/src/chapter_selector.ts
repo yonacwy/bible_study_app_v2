@@ -1,5 +1,5 @@
 import { get_bible_view } from "./bible.js";
-import { debug_print } from "./utils/index.js";
+import * as utils from "./utils/index.js";
 
 function spawn_normal_option(name: string): HTMLElement
 {
@@ -43,55 +43,42 @@ function spawn_expanded_option(name: string, count: number, on_selected: (name: 
     return option_div;
 }
 
-function spawn_option(name: string, count: number, selected: boolean, on_selected: (name: string, number: number) => void): HTMLElement
-{
-    if(selected)
-    {
-        return spawn_expanded_option(name, count, on_selected); 
-    }
-    else 
-    {
-        return spawn_normal_option(name);
-    }
-}
-
-var current_selected_books: any = {};
-
-export async function build_chapter_selection_dropdown(dropdown_content_id: string, on_selected: (name: string, number: number) => void)
+export async function spawn_chapter_selection_dropdown(on_selected: (name: string, number: number) => void): Promise<HTMLElement>
 {
     let books = await get_bible_view();
+    return utils.spawn_element('div', ['dropdown'], dropdown => {
+        utils.spawn_image_button_args({
+            image: utils.images.BOOKS,
+            on_click: (_, btn) => {
+                btn.button.classList.toggle('active');
+                dropdown.classList.toggle('active');
+            },
+            title: 'Bible chapter selection',
 
-    let dropdown = document.getElementById(dropdown_content_id);
-    if(dropdown === null) return;
-    dropdown.replaceChildren();
-
-    for(let i = 0; i < books.length; i++)
-    {
-        let name = books[i].name;
-        let chapter_count = books[i].chapter_count;
-
-        let option = spawn_option(name, chapter_count, name === current_selected_books[dropdown_content_id], on_selected);
-        let selection_element = option as HTMLElement;
-
-        let titles = option.getElementsByClassName('expanded-option-title');
-        if(titles.length !== 0)
-        {
-            selection_element = titles[0] as HTMLElement;
-        }
-        
-        selection_element.addEventListener('click', e => {
-            if(name === current_selected_books[dropdown_content_id])
+        })
+        dropdown.append_element_ex('div', ['dropdown-content'], content => {
+            for (let i = 0; i < books.length; i++)
             {
-                current_selected_books[dropdown_content_id] = null;
-                build_chapter_selection_dropdown(dropdown_content_id, on_selected);
-            }
-            else 
-            {
-                current_selected_books[dropdown_content_id] = name;
-                build_chapter_selection_dropdown(dropdown_content_id, on_selected);
+                let name = books[i].name;
+                let chapter_count = books[i].chapter_count;
+
+                let normal = spawn_normal_option(name);
+                content.appendChild(normal);
+
+                let expanded = spawn_expanded_option(name, chapter_count, on_selected);
+                expanded.hide(true);
+                content.appendChild(expanded);
+
+                normal.addEventListener('click', _ => {
+                    normal.hide(true);
+                    expanded.hide(false);
+                });
+
+                (expanded.querySelector('.expanded-option-title') as HTMLElement).addEventListener('click', _ => {
+                    normal.hide(false);
+                    expanded.hide(true);
+                });
             }
         })
-
-        dropdown.appendChild(option);
-    }
+    })
 }

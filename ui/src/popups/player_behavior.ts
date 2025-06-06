@@ -20,14 +20,14 @@ const BEHAVIOR_DATA_STORAGE = new utils.storage.ValueStorage<BehaviorData>('beha
 });
 
 type BehaviorSelectorData = {
-    type_selector: utils.TextDropdown<BehaviorType>,
-    repeat_selector: utils.TextDropdown<RepeatOptionsType>,
-    continuous_repeat_selector: utils.TextDropdown<RepeatOptionsType>,
+    type_selector: utils.ToggleTextDropdown<BehaviorType>,
+    repeat_selector: utils.ToggleTextDropdown<RepeatOptionsType>,
+    continuous_repeat_selector: utils.ToggleTextDropdown<RepeatOptionsType>,
 
     reading_selector: ReadingsSelectorData,
 
-    time_selector: utils.TextDropdown<number>,
-    count_selector: utils.TextDropdown<number>,
+    time_selector: utils.ToggleTextDropdown<number>,
+    count_selector: utils.ToggleTextDropdown<number>,
     
     section_selector: SectionSelectorData,
 
@@ -402,13 +402,13 @@ function get_repeat_options(data: BehaviorSelectorData): RepeatOptions
     }
 }
 
-function spawn_continuous_repeat_selector(value: RepeatOptionsType): utils.TextDropdown<RepeatOptionsType>
+function spawn_continuous_repeat_selector(value: RepeatOptionsType): utils.ToggleTextDropdown<RepeatOptionsType>
 {
     let index = 1;
     if(value === 'infinite') index = 1;
     if(value === 'repeat_time') index = 1;
 
-    return utils.spawn_text_dropdown<RepeatOptionsType>({
+    return utils.spawn_toggle_text_dropdown<RepeatOptionsType>({
         title_text: null,
         default_index: index,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
@@ -427,7 +427,7 @@ function spawn_continuous_repeat_selector(value: RepeatOptionsType): utils.TextD
     });
 }
 
-function spawn_repeat_selector(value: RepeatOptionsType): utils.TextDropdown<RepeatOptionsType>
+function spawn_repeat_selector(value: RepeatOptionsType): utils.ToggleTextDropdown<RepeatOptionsType>
 {
     let index = 0;
     if(value === 'no_repeat') index = 0;
@@ -435,7 +435,7 @@ function spawn_repeat_selector(value: RepeatOptionsType): utils.TextDropdown<Rep
     if(value === 'repeat_time') index = 2;
     if(value === 'infinite') index = 3;
 
-    return utils.spawn_text_dropdown<RepeatOptionsType>({
+    return utils.spawn_toggle_text_dropdown<RepeatOptionsType>({
         title_text: null,
         tooltip: 'Repeat settings',
         default_index: index,
@@ -465,7 +465,7 @@ function spawn_repeat_selector(value: RepeatOptionsType): utils.TextDropdown<Rep
     });
 }
 
-function spawn_behavior_type_selector(value: BehaviorType): utils.TextDropdown<BehaviorType>
+function spawn_behavior_type_selector(value: BehaviorType): utils.ToggleTextDropdown<BehaviorType>
 {
     let index = 0;
     if(value === 'single') index = 0;
@@ -473,7 +473,7 @@ function spawn_behavior_type_selector(value: BehaviorType): utils.TextDropdown<B
     if(value === 'reading') index = 2;
     if(value === 'continuous') index = 3;
 
-    return utils.spawn_text_dropdown<BehaviorType>({
+    return utils.spawn_toggle_text_dropdown<BehaviorType>({
         title_text: null,
         tooltip: 'Behavior settings',
         default_index: index,
@@ -505,9 +505,9 @@ function spawn_behavior_type_selector(value: BehaviorType): utils.TextDropdown<B
 
 type ReadingsSelectorData = {
     root: HTMLElement,
-    readings_schedule_selector: utils.TextDropdown<number>,
-    month_selector: utils.TextDropdown<number>,
-    day_selector: utils.TextDropdown<number>,
+    readings_schedule_selector: utils.ToggleTextDropdown<number>,
+    month_selector: utils.ToggleTextDropdown<number>,
+    day_selector: utils.ToggleTextDropdown<number>,
 }
 
 type ReadingsSelectorArgs = {
@@ -544,9 +544,9 @@ async function spawn_readings_selector(args: ReadingsSelectorArgs | null): Promi
     return data;
 }
 
-async function spawn_readings_schedule_selector(): Promise<utils.TextDropdown<number>>
+async function spawn_readings_schedule_selector(): Promise<utils.ToggleTextDropdown<number>>
 {
-    return utils.spawn_text_dropdown_simple({
+    return utils.spawn_toggle_text_dropdown_simple({
         default: await readings.get_selected_reading(),
         tooltip: 'Select month',
         on_change: r => {
@@ -561,9 +561,9 @@ async function spawn_readings_schedule_selector(): Promise<utils.TextDropdown<nu
     });
 }
 
-function spawn_month_selector(value: number): utils.TextDropdown<number>
+function spawn_month_selector(value: number): utils.ToggleTextDropdown<number>
 {
-    return utils.spawn_text_dropdown_simple({
+    return utils.spawn_toggle_text_dropdown_simple({
         default: value,
         tooltip: 'Select month',
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
@@ -584,10 +584,10 @@ function spawn_month_selector(value: number): utils.TextDropdown<number>
     });
 }
 
-function spawn_day_selector(month: number, default_value: number): utils.TextDropdown<number>
+function spawn_day_selector(month: number, default_value: number): utils.ToggleTextDropdown<number>
 {
     let options = utils.ranges.range(0, utils.get_month_length(month, true)).map(v => (v + 1).toString()).toArray();
-    let dropdown = utils.spawn_text_dropdown_simple({
+    let dropdown = utils.spawn_toggle_text_dropdown_simple({
         default: default_value,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         tooltip: 'Select Day',
@@ -600,7 +600,7 @@ function spawn_day_selector(month: number, default_value: number): utils.TextDro
 /**
  * The dropdown value is in minutes
  */
-function spawn_time_selector(value: number | null): utils.TextDropdown<number>
+function spawn_time_selector(value: number | null): utils.ToggleTextDropdown<number>
 {
     let options = utils.ranges.range(0, 12).map(h => {
         return utils.ranges.range(0, 4).map((m): [number, number] => [h, m]).toArray();
@@ -628,7 +628,7 @@ function spawn_time_selector(value: number | null): utils.TextDropdown<number>
         default_index = Math.round(Math.max(0, value / 60 / 60 * 4 - 1)); // make sure isn't -1 with max(0, x)
     }
 
-    return utils.spawn_text_dropdown({
+    return utils.spawn_toggle_text_dropdown({
         title_text: null,
         default_index,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
@@ -637,11 +637,11 @@ function spawn_time_selector(value: number | null): utils.TextDropdown<number>
     });
 }
 
-function spawn_repeat_count_selector(value: number): utils.TextDropdown<number>
+function spawn_repeat_count_selector(value: number): utils.ToggleTextDropdown<number>
 {
     let default_index = Math.round(Math.clamp(1, 10, value)) - 1;
     let options = utils.ranges.range_inclusive(1, 10).map(v => 'x' + v.toString()).toArray();
-    return utils.spawn_text_dropdown_simple({
+    return utils.spawn_toggle_text_dropdown_simple({
         default: default_index,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         tooltip: 'Select Count',
@@ -651,11 +651,11 @@ function spawn_repeat_count_selector(value: number): utils.TextDropdown<number>
 
 type SectionSelectorData = {
     root: HTMLElement,
-    begin_book_selector: utils.TextDropdown<string>,
-    begin_chapter_selector: utils.TextDropdown<number>,
+    begin_book_selector: utils.ToggleTextDropdown<string>,
+    begin_chapter_selector: utils.ToggleTextDropdown<number>,
 
-    end_book_selector: utils.TextDropdown<string>,
-    end_chapter_selector: utils.TextDropdown<number>,
+    end_book_selector: utils.ToggleTextDropdown<string>,
+    end_chapter_selector: utils.ToggleTextDropdown<number>,
 }
 
 async function spawn_section_selector(start: ChapterIndex, end: ChapterIndex): Promise<SectionSelectorData>
@@ -704,7 +704,7 @@ async function spawn_section_selector(start: ChapterIndex, end: ChapterIndex): P
     return data;
 }
 
-async function spawn_book_selector(value: number): Promise<utils.TextDropdown<string>>
+async function spawn_book_selector(value: number): Promise<utils.ToggleTextDropdown<string>>
 {
     let options: utils.TextDropdownOption<string>[] = (await bible.get_bible_view()).map(v => {
         let display = bible.shorten_book_name(v.name);
@@ -714,7 +714,7 @@ async function spawn_book_selector(value: number): Promise<utils.TextDropdown<st
             value: v.name
         };
     });
-    return utils.spawn_text_dropdown<string>({
+    return utils.spawn_toggle_text_dropdown<string>({
         title_text: null,
         default_index: value,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
@@ -727,7 +727,7 @@ async function spawn_chapter_selector(chapter: ChapterIndex)
 {
     let chapter_count = (await bible.get_bible_view())[chapter.book].chapter_count;
     let options = utils.ranges.range(0, chapter_count).map(c => (c + 1).toString()).toArray();
-    return utils.spawn_text_dropdown_simple({
+    return utils.spawn_toggle_text_dropdown_simple({
         default: chapter.number,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         tooltip: 'Select Chapter',
