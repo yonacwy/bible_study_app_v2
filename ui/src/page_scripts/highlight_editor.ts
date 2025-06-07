@@ -27,23 +27,25 @@ export async function run()
 {
     let data = utils.decode_from_url(window.location.href) as HighlightEditorData;
 
-    deleting_id = null;
+    deleting_id = null; 
 
-    header_utils.init_settings_page_header(() => {
-        return `
-        <button class="image-btn" id="new-btn" title="Create new highlight">
-            <img src="../images/light-plus.svg">
-        </button>
-        `;
+    header_utils.init_settings_page_header({
+        middle: [
+            utils.spawn_image_button_args({
+                image: utils.images.PLUS,
+                on_click: _ => {
+                    let popup = spawn_highlight_editor_popup(null);
+                    document.body.appendChild(popup);
+                },
+                title: 'Create new highlight',
+            }).button as HTMLElement
+        ],
+        on_back_clicked: () => {
+            window.location.href = data.old_path;
+        },
+        old_path: data.old_path,
     });
 
-    utils.on_click('new-btn', e => {
-        let popup = spawn_highlight_editor_popup(null);
-        document.body.appendChild(popup);
-    })
-
-    pages.init_back_button(data.old_path);
-    pages.init_settings_buttons(data.old_path);
     settings.init_less_sync();
 
     let on_search = (msg: string) => {
@@ -56,10 +58,6 @@ export async function run()
     }
 
     render_categories(on_delete, on_edit, on_search);
-
-    utils.on_click('new-btn', (e) => {
-        utils.set_display('highlight-popup', 'flex');
-    });
 
     utils.init_sliders();
 

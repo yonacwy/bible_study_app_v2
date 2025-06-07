@@ -428,7 +428,7 @@ impl AppData {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", tag = "type")]
+#[serde(rename_all = "snake_case", tag = "type")]
 pub enum ViewState {
     Chapter {
         chapter: ChapterIndex,

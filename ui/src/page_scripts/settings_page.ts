@@ -12,9 +12,14 @@ export type SettingsPageData = {
 export async function run()
 {
     let data = utils.decode_from_url(window.location.href) as SettingsPageData;
-    init_settings_page_header(() => '');
-    pages.init_back_button(data.old_path);
-    pages.init_settings_buttons(data.old_path);
+    init_settings_page_header({
+        middle: [],
+        old_path: data.old_path,
+        on_back_clicked: () => {
+            window.location.href = data.old_path;
+        }
+    });
+
     settings.init_less_sync();
     
     await sync_display_settings();

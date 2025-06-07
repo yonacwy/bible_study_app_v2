@@ -8,7 +8,7 @@ import { TextEditor } from "../text_editor/index.js";
 
 export type BibleNotePageData = { note: string, section: BibleSection };
 
-export function run()
+export async function run()
 {
     let data = utils.decode_from_url(window.location.href) as BibleNotePageData;
     utils.init_format_copy_event_listener();
@@ -20,17 +20,18 @@ export function run()
 
     audio_player.init_player();
 
+    let header_data = await pages.init_header(e => {
+        let last = e.children[e.children.length - 1];
+        let button = bible_page.spawn_audio_player_button();
+        e.insertBefore(button, last);
+    });
+
     Promise.all([
-        pages.init_header(e => {
-            let last = e.children[e.children.length - 1];
-            let button = bible_page.spawn_audio_player_button();
-            e.insertBefore(button, last);
-        }),
         init_note_page(data.note, () => {
             utils.conserve_scroll(() => {
                 return bible_page.display_chapter(chapter, data.section.verse_range);
             }, 'left-pane')
-        }, pages.on_require_search),
+        }, header_data.on_search),
         bible_page.display_chapter(chapter, data.section.verse_range),
         bible_page.init_chapter_buttons(),
     ]).then(_ => {

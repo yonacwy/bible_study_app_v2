@@ -51,6 +51,7 @@
 - [ ] Miscellanies
   - [x] Words with notes or highlights now have `pointer` curser when hovered
   - [ ] When closing editing note, scroll to where edited it
+  - [ ] When editing an already created note, scroll to where editing it
   - [x] Scroll offset to center, not top
   - [ ] Migrate save settings
     - [x] Audio player
@@ -58,6 +59,10 @@
   - [x] Added a Footer to Bible pages (apparently they were looking a bit bare)
   - [x] Resizer bar now shows if a side page is collapsed
   - [ ] Rename collapse buttons to be clearer
+  - [x] Header Ui Refactor
+    - [x] Dropdowns can now be toggled to active
+    - [x] Backend fixed to make the code less reliant on ids
+    - [x] Some visual upgrades
 
 ### Version 0.5.2: Note QoL Changes
 - [x] Selecting Notes and Highlights

@@ -1,4 +1,4 @@
-import { BibleSection, SearchSection } from "./bindings.js";
+import { BibleSection, ChapterIndex, SearchSection, VerseRange } from "./bindings.js";
 import * as utils from "./utils/index.js";
 import * as notes from "./notes.js";
 import { BibleNotePageData } from "./page_scripts/bible_note_page.js";
@@ -126,7 +126,21 @@ export async function get_view_state_type(): Promise<ViewStateType | null>
     }
 }
 
-export async function get_current_view_state(): Promise<any>
+export type ViewState =
+  | {
+      type: "chapter";
+      chapter: ChapterIndex;
+      verse_range: VerseRange | null;
+      scroll: number;
+    }
+  | {
+      type: "search";
+      words: string[];
+      display_index: number;
+      scroll: number;
+    };
+
+export async function get_current_view_state(): Promise<ViewState>
 {
     return await utils.invoke('get_current_view_state', {});
 }

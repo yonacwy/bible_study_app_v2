@@ -108,6 +108,11 @@
     opacity: 1;
 }
 
+.dropdown.active .dropdown-content {
+    display: block;
+    opacity: 1;
+}
+
 /* Dropdown option */
 .dropdown-option {
     display: flex;
@@ -216,6 +221,7 @@
     .dropdown-title.active {
         background-color: #333;
         color: white;
+        border: 1px solid white;
     }
 
     &:hover .dropdown-content, &.active .dropdown-content {

@@ -1,5 +1,5 @@
 import * as utils from "../utils/index.js";
-import { init_settings_page_header, BIBLE_VERSION_DROPDOWN } from "./menu_header.js";
+import * as menu_header from "./menu_header.js";
 import * as pages from "./pages.js";
 import * as settings from "../settings.js"
 import { VerseRange } from "../bindings.js";
@@ -10,14 +10,19 @@ export type DailyReadingsPageData = {
     old_path: string,
 }
 
-export function run()
+export async function run()
 {
     let data = utils.decode_from_url(window.location.href) as DailyReadingsPageData;
-    init_settings_page_header(() => BIBLE_VERSION_DROPDOWN);
-    pages.init_back_button(data.old_path);
-    pages.init_settings_buttons(data.old_path);
+    menu_header.init_settings_page_header({
+        middle: [
+            await menu_header.spawn_version_dropdown(),
+        ],
+        on_back_clicked: () => {
+            return window.location.href = data.old_path;
+        },
+        old_path: data.old_path,
+    });
     settings.init_less_sync();
-    pages.init_bible_version_dropdown();
 
     generate_calender();
 

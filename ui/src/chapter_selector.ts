@@ -1,4 +1,5 @@
 import { get_bible_view } from "./bible.js";
+import { ChapterIndex } from "./bindings.js";
 import * as utils from "./utils/index.js";
 
 function spawn_normal_option(name: string): HTMLElement
@@ -9,7 +10,7 @@ function spawn_normal_option(name: string): HTMLElement
     return option_div;
 }
 
-function spawn_expanded_option(name: string, count: number, on_selected: (name: string, number: number) => void): HTMLElement
+function spawn_expanded_option(book_index: number, name: string, count: number, on_selected: (chapter: ChapterIndex) => void): HTMLElement
 {
     let option_div = document.createElement('div');
     option_div.classList.add('dropdown-option');
@@ -33,7 +34,10 @@ function spawn_expanded_option(name: string, count: number, on_selected: (name: 
         grid_item_div.innerHTML = `${number}`;
 
         grid_item_div.addEventListener('click', e => {
-            on_selected(name, number);
+            on_selected({
+                book: book_index,
+                number: i,
+            });
         })
 
         grid_div.appendChild(grid_item_div);
@@ -43,9 +47,12 @@ function spawn_expanded_option(name: string, count: number, on_selected: (name: 
     return option_div;
 }
 
-export async function spawn_chapter_selection_dropdown(on_selected: (name: string, number: number) => void): Promise<HTMLElement>
+export async function spawn_chapter_selection_dropdown(on_selected: (chapter: ChapterIndex) => void): Promise<HTMLElement>
 {
     let books = await get_bible_view();
+    let expanded_options: HTMLElement[] = [];
+    let normal_options: HTMLElement[] = [];
+
     return utils.spawn_element('div', ['dropdown'], dropdown => {
         utils.spawn_image_button_args({
             image: utils.images.BOOKS,
@@ -54,7 +61,7 @@ export async function spawn_chapter_selection_dropdown(on_selected: (name: strin
                 dropdown.classList.toggle('active');
             },
             title: 'Bible chapter selection',
-
+            parent: dropdown,
         })
         dropdown.append_element_ex('div', ['dropdown-content'], content => {
             for (let i = 0; i < books.length; i++)
@@ -64,19 +71,24 @@ export async function spawn_chapter_selection_dropdown(on_selected: (name: strin
 
                 let normal = spawn_normal_option(name);
                 content.appendChild(normal);
+                normal_options.push(normal);
 
-                let expanded = spawn_expanded_option(name, chapter_count, on_selected);
+                let expanded = spawn_expanded_option(i, name, chapter_count, on_selected);
                 expanded.hide(true);
                 content.appendChild(expanded);
+                expanded_options.push(expanded);
 
                 normal.addEventListener('click', _ => {
+                    normal_options.forEach(n => n.hide(false));
+                    expanded_options.forEach(n => n.hide(true));
+
                     normal.hide(true);
                     expanded.hide(false);
                 });
 
                 (expanded.querySelector('.expanded-option-title') as HTMLElement).addEventListener('click', _ => {
-                    normal.hide(false);
-                    expanded.hide(true);
+                    normal_options.forEach(n => n.hide(false));
+                    expanded_options.forEach(n => n.hide(true));
                 });
             }
         })

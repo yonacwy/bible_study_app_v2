@@ -5,25 +5,25 @@ import * as search from "../rendering/word_search.js";
 import { PanelData } from "../popups/side_popup.js";
 import * as bible from "../bible.js";
 
-export function run()
+export async function run()
 {
     let section = utils.decode_from_url(window.location.href) as SearchSection;
     utils.init_format_copy_event_listener();
 
     bible.add_version_changed_listener(_ => {
         utils.scrolling.save_scroll(null);
-    })
+    });
 
+    const header_data = await pages.init_header();
     Promise.all([
-        pages.init_header(),
-        display_search(section),
+        display_search(section, header_data.update_nav_active),
     ]).then(() => {
         document.body.style.visibility = 'visible';
         utils.scrolling.load_scroll();
     })
 }
 
-export async function display_search(section: SearchSection): Promise<void>
+export async function display_search(section: SearchSection, update_nav_buttons_opacity: () => void): Promise<void>
 {
     const word_popup = document.getElementById('word-popup');
     const side_popup = document.getElementById('popup-panel');
@@ -46,7 +46,7 @@ export async function display_search(section: SearchSection): Promise<void>
 
     await search.render_search_result(search_result, section.words, 'word-search-content', word_popup, side_popup_data, section.display_index, 
         () => {
-            pages.update_nav_buttons_opacity();
+            update_nav_buttons_opacity();
         }, 
         (msg: string) => {
             utils.set_value('search-input', msg);

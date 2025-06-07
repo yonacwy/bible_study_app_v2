@@ -27,9 +27,7 @@ export async function run()
 
     Promise.all([
         pages.init_header(e => {
-            let last = e.children[e.children.length - 1];
-            let button = spawn_audio_player_button();
-            e.insertBefore(button, last);
+            e.appendChild(spawn_audio_player_button());
         }),
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range),

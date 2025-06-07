@@ -1,73 +1,221 @@
 import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
 import { spawn_chapter_selection_dropdown } from "../chapter_selector.js";
+import * as view_states from "../view_states.js";
+import { show_error_popup } from "../popups/error_popup.js";
+import { ChapterIndex } from "../bindings.js";
 
 export function get_header(): HTMLElement
 {
     return document.getElementsByTagName('header')[0];
 }
 
+export type MainPageHeaderData = {
+    update_nav_active: () => Promise<void>,
+    on_search: (msg: string) => void,
+}
+
 export async function init_main_page_header(args: {
     extra?: (e: HTMLElement) => void,
-    on_chapter_select: (name: string, number: number) => void,
-})
+    old_path: string,
+}): Promise<MainPageHeaderData>
 {
     let header = get_header();
-    header.appendChild(await spawn_version_dropdown())
-    header.appendChild(await spawn_chapter_selection_dropdown(args.on_chapter_select))
+    header.appendChild(await spawn_version_dropdown());
 
-    header.innerHTML = `
-        <div class="searchbar" style="position: relative;">
-            <input type="text" id="search-input">
-            <button id="search-btn" class="image-btn" title="Search the bible">
-                <img src="../images/light-magnifying-glass.svg">
-            </button> 
-            <div class="error-popup" id="error-message"></div>
-        </div>
-        <button class="image-btn" id="back-btn" title="Go back">
-            <img src="../images/light-arrow-turn-left.svg">
-        </button>
-        <button class="image-btn" id="forward-btn" title="Go forward">
-            <img src="../images/light-arrow-turn-right.svg">
-        </button>
-        ${SETTINGS_DROPDOWN}
-    `;
+    let on_chapter_select = (chapter: ChapterIndex): void => {
+        view_states.push_section({
+            book: chapter.book,
+            chapter: chapter.number,
+            verse_range: null,
+        }).then(_ => {
+            view_states.goto_current_view_state();
+        })
+    }
 
-    if(extra !== undefined)
+    header.appendChild(await spawn_chapter_selection_dropdown(on_chapter_select));
+
+    let searchbar = spawn_searchbar();
+    header.appendChild(searchbar.root);
+
+    let nav = await spawn_nav_buttons();
+    header.appendChild(nav.back);
+    header.appendChild(nav.forward);
+
+    if (args.extra)
     {
-        extra(header);
+        args.extra(header);
+    }
+
+    header.appendChild(spawn_settings_dropdown(args.old_path));
+
+    return {
+        on_search: searchbar.on_search,
+        update_nav_active: nav.update_active,
     }
 }
 
-export function init_settings_page_header(middle: () => HTMLElement[], on_back_clicked: () => void, old_path: string)
+export function init_settings_page_header(args: {
+    middle: HTMLElement[], 
+    on_back_clicked: () => void, 
+    old_path: string
+})
 {
     let header = get_header();
-    utils.create_image_button(header, utils.images.BACKWARD, on_back_clicked);
-    header.append(...middle());
-    header.appendChild(spawn_settings_dropdown(old_path))
+    utils.create_image_button(header, utils.images.BACKWARD, args.on_back_clicked);
+    header.append(...args.middle);
+    header.appendChild(spawn_settings_dropdown(args.old_path))
 }
 
-function spawn_searchbar(): HTMLElement
+export type SearchBarData = {
+    root: HTMLElement,
+    on_search: (msg: string) => void,
+}
+
+function spawn_searchbar(): SearchBarData
 {
     const SEARCH_ERROR_ID = 'search-error-id';
 
-    return utils.spawn_element('div', ['searchbar'], searchbar => {
-        searchbar.style.position = 'relative';
-        let input = searchbar.append_element('input', i => i.type = 'text');
-        
-        let button = utils.spawn_image_button_args({
-            image: utils.images.MAGNIFYING_GLASS,
-            title: 'Search the Bible',
-            parent: searchbar,
-        });
+    // FIXME-LATER: might want to move setting the input value to the individual pages as opposed to all in this file, 
+    // but this is fine for now
+    let input = utils.spawn_element('input', [], async i => {
+        i.type = 'text';
 
-        let error_popup = searchbar.append_element_ex('div', ['error-popup'], err => {
+        let view_state = await view_states.get_current_view_state();
+        if (view_state.type === 'chapter')
+        {
+            let book_name = await bible.get_book_name(view_state.chapter.book);
+            let chapter = view_state.chapter.number + 1;
+            i.value = `${book_name} ${chapter}`;
+            if (view_state.verse_range !== null)
+            {
+                if (view_state.verse_range.start === view_state.verse_range.end)
+                {
+                    i.value += `:${view_state.verse_range.start + 1}`;
+                }
+                else 
+                {
+                    i.value += `:${view_state.verse_range.start + 1}-${view_state.verse_range.end + 1}`;
+                }
+            }
+        }
+        else 
+        {
+            i.value = view_state.words.join(' ');
+        }
+    });
+        
+    let button = utils.spawn_image_button_args({
+        image: utils.images.MAGNIFYING_GLASS,
+        title: 'Search the Bible',
+    });
+
+    let on_search = (msg: string): void => {
+        input.value = msg;
+        button.button.click();
+    }
+
+    let root = utils.spawn_element('div', ['searchbar'], searchbar => {
+        searchbar.style.position = 'relative';
+        searchbar.appendChild(input);
+        searchbar.appendChild(button.button);
+
+        searchbar.append_element_ex('div', ['error-popup'], err => {
             err.id = SEARCH_ERROR_ID;
         });
-    })
+
+        button.button.addEventListener('click', e => {
+            let value = input.value;
+            utils.invoke('parse_bible_search', { text: value }).then(result => {
+                if(result.type !== 'error') { utils.reset_scroll() }
+    
+                if(result.type === 'error')
+                {
+                    show_error_popup('error-message', true, result.error);
+                }
+                else if(result.type === 'word')
+                {
+                    view_states.push_search(result.words, 0).then(() => {
+                        view_states.goto_current_view_state();
+                    });
+                }
+                else if (result.type === 'section')
+                {
+                    view_states.push_section(result.section).then(() => {
+                        view_states.goto_current_view_state();
+                    });
+                }
+                else 
+                {
+                    show_error_popup(SEARCH_ERROR_ID, true, `Search type ${result.type} unsupported on the front end`)
+                }
+            })
+        });
+
+        input.addEventListener('keydown', e => {
+            if(e.key === 'Enter')
+            {
+                button.button.click();
+            }
+        });
+    });
+
+    return {
+        root,
+        on_search,
+    }
 }
 
-async function spawn_version_dropdown(): Promise<HTMLElement>
+export type NavButtons = {
+    back: HTMLElement,
+    forward: HTMLElement,
+    update_active: () => Promise<void>,
+}
+
+async function spawn_nav_buttons(): Promise<NavButtons>
+{
+    let back_btn = utils.spawn_image_button_args({
+        image: utils.images.ARROW_TURN_LEFT,
+        title: 'Go back',
+        on_click: _ => {
+            view_states.previous_view_state().then(_ => {
+                view_states.goto_current_view_state();
+            });
+        }
+    });
+
+    let forward_btn = utils.spawn_image_button_args({
+        image: utils.images.ARROW_TURN_RIGHT,
+        title: 'Go forward',
+        on_click: _ => {
+            view_states.next_view_state().then(_ => {
+                view_states.goto_current_view_state();
+            });
+        }
+    });
+
+    let update_active = async (): Promise<void> => {
+        if (await view_states.is_first_view_state())
+        {
+            back_btn.button.classList.add('inactive');
+        }
+
+        if (await view_states.is_last_view_state())
+        {
+            forward_btn.button.classList.add('inactive');
+        }
+    }
+
+    await update_active();
+
+    return {
+        back: back_btn.button,
+        forward: forward_btn.button,
+        update_active,
+    }
+}
+
+export async function spawn_version_dropdown(): Promise<HTMLElement>
 {
     let versions = await bible.get_bible_versions().then(vs => vs.sort());
 
@@ -130,6 +278,8 @@ function spawn_settings_dropdown(old_path: string): HTMLElement
         ],
         parent: null,
         id: null,
+        is_small: false,
+        is_content_small: true,
     });
 
     dropdown.root.classList.add('shift-right');
@@ -158,9 +308,4 @@ function spawn_settings_dropdown(old_path: string): HTMLElement
     });
 
     return dropdown.root;
-}
-
-function spawn_chapter_selector()
-{
-
 }

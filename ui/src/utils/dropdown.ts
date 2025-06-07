@@ -156,6 +156,8 @@ export function spawn_toggle_text_dropdown<T>(args: ToggleTextDropdownArgs<T>): 
         });
     });
 
+    option_buttons[args.default_index].classList.add('selected-option');
+
     let selected_index = args.default_index;
 
     let set_value = (i: number) => {
@@ -250,6 +252,8 @@ export type ImageDropdownArgs<T> = {
     options: ImageDropdownOption<T>[],
     parent: HTMLElement | null,
     id: string | null,
+    is_small?: boolean, // flag if to use `dropdown` or `small-dropdown`
+    is_content_small?: boolean,
 }
 
 export type ImageDropdown<T> = {
@@ -259,8 +263,11 @@ export type ImageDropdown<T> = {
 
 export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdown<T>
 {
+    let dropdown_class = args.is_small ? 'small-dropdown' : 'dropdown';
+    let dropdown_content_class = args.is_content_small ? 'small-dropdown-content' : 'dropdown-content';
+
     let on_select = new EventHandler<DropdownValue<T>>();
-    let dropdown = utils.spawn_element('div', ['small-dropdown'], _ => {});
+    let dropdown = utils.spawn_element('div', [dropdown_class], _ => {});
     dropdown.id = args.id ?? '';
 
     let title_image = args.title_image;
@@ -292,7 +299,7 @@ export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdo
     });
 
     dropdown.appendChild(title_button.button);
-    dropdown.append_element_ex('div', ['small-dropdown-content'], content => {
+    dropdown.append_element_ex('div', [dropdown_content_class], content => {
         option_buttons.forEach(b => content.appendChild(b.button));
     });
 
