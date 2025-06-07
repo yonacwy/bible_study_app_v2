@@ -1,18 +1,17 @@
 # Plan:
 
 
-### Version 0.7.0
+### Version 0.8.0
 - [ ] Notebook Support
 
-### Version 0.6.1: Cloud Saving
-- [ ] Cloud saving via Google Drive
-
-### Version 0.6.0: Multi-Platform Support
+### Version 0.7.0: Multi-Platform Support
 - [ ] Android
 - [ ] MAC
 - [ ] IOS
 - [ ] Linux?
 
+### Version 0.6.0: Cloud Saving
+- [ ] Cloud saving via Google Drive
 
 ### Version 0.5.3: Bug Fixes and Improvements
 - [ ] Lots o Bugs fixes
@@ -35,7 +34,7 @@
   - [x] Audio Player not clamped to inside of page
   - [x] When selecting words, if a space was selected after a given word, it would select the next word as well (also fixed a hidden rendering bug as well)
   - [x] Fixed visuals when closing a note on faster computers (now has an animated collapse)
-  - [ ] Highlighting and opening the context menu, then clicking on the text or its parent again, removes the curser highlights, but leaves the context menu
+  - [x] Highlighting and opening the context menu, then clicking on the text or its parent again, removes the curser highlights, but leaves the context menu
 - [x] Finalize audio playback
 - [ ] Better highlighting
   - [ ] No highlights created

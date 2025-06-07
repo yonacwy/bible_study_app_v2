@@ -10,7 +10,12 @@ export async function init_selection()
 {
     let popup = await spawn_selection_popup();
     document.body.appendChild(popup);
-    document.addEventListener('mouseup', e => on_selection_stopped(e, popup));
+    document.addEventListener('mouseup', async e => {
+        // need to do this, so that when clicking on text that is already selected, it will wait for the selection to be cleared before firing.
+        // 10ms should be enough, and the user should not notice
+        await utils.sleep(10);
+        on_selection_stopped(e, popup);
+    });
 }
 
 export type SelectionEventType = 'edited-note' | 'highlighted' | 'erased';
