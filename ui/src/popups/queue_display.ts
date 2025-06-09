@@ -24,11 +24,14 @@ export async function show_queue_display(state: reader.PlayerBehaviorState, on_c
             content.append_element_ex('div', ['reading-list'], async list => {
                 for(let i = 0; i < queue.sections.length; i++)
                 {
-                    list.appendChild(await spawn_reading(queue.sections[i], i === queue.current, () => {
+                    list.appendChild(await spawn_reading(queue.sections[i], i === queue.current, async () => {
                         let index = i + queue.offset;
                         state.reading_index = index;
                         display.remove();
                         show_queue_display(state, on_close);
+
+                        // HACK: this triggers the audio player to request another tts section, which SHOULD load the page to the correct section.
+                        state.on_behavior_changed.invoke(await state.get_behavior()); 
                     }));
                 }
             });

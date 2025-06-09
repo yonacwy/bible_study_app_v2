@@ -139,9 +139,9 @@ export function is_equivalent<T extends Comparable>(a: T, b: T): boolean
             {
                 return false;
             }
-
-            return true;
         }
+
+        return true;
     }
 
 

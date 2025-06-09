@@ -332,7 +332,7 @@ export function init_player()
     }
 
     behavior_state.on_behavior_changed.add_listener(_ => {
-        request_section_tts();
+        on_play_requested();
     });
 
     behavior_state.on_timer_event.add_listener(e => {
@@ -737,6 +737,7 @@ async function player_pause()
 
 async function on_play_requested(): Promise<boolean>
 {
+
     if (AUDIO_PLAYER_DATA === null) return true;
     let chapter = await bible.get_chapter();
     let verses = await bible.get_verse_range();
@@ -748,7 +749,7 @@ async function on_play_requested(): Promise<boolean>
         chapter,
         verses,
     };
-
+    
     if (!utils.is_equivalent(section, current_section))
     {
         PLAYER_DATA_STORAGE.update(d => {
