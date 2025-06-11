@@ -214,6 +214,12 @@ async function generate_readings()
                 li.innerHTML += `:${r.range.start + 1}-${r.range.end + 1}`;
             }
 
+            li.title = 'Go to ' + `${r.book} ${r.chapter + 1}`;
+            if (r.range !== null)
+            {
+                li.title += `:${r.range.start + 1}-${r.range.end + 1}`;
+            }
+
             li.addEventListener('click', async e => {
                 let book = await bible.get_book_index(r.prefix, r.book);
                 if(book === null) return; // make sure nothing breaks when in debug

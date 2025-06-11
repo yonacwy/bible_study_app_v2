@@ -37,16 +37,17 @@
   - [x] Highlighting and opening the context menu, then clicking on the text or its parent again, removes the curser highlights, but leaves the context menu
 - [x] Finalize audio playback
 - [ ] Better highlighting
-  - [ ] No highlights created
+  - [x] No highlights created
   - [x] Better highlight editor
     - [x] Now with WYSIWYG
     - [x] Looks nicer
-  - [ ] Preset highlights (when none created)
+    - [x] Change highlight viewer layout
+  - [x] Preset highlights (when none created)
   - [ ] Highlight selector (recents)
   - [x] Better selector system
-    - [ ] Improve look
+    - [x] Improve look
     - [x] Erase all highlight button
-    - [ ] Create new highlight button
+    - [x] Create new highlight button
 - [ ] Miscellanies
   - [x] Words with notes or highlights now have `pointer` curser when hovered
   - [ ] When closing editing note, scroll to where edited it
@@ -62,6 +63,7 @@
     - [x] Dropdowns can now be toggled to active
     - [x] Backend fixed to make the code less reliant on ids
     - [x] Some visual upgrades
+  - [x] Added tooltip for chapter links on the daily readings page
 
 ### Version 0.5.2: Note QoL Changes
 - [x] Selecting Notes and Highlights

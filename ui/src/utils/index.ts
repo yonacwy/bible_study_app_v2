@@ -294,7 +294,11 @@ export function open_save_in_file_explorer()
 export function spawn_element<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (e: HTMLElementTagNameMap[K]) => void, parent?: HTMLElement): HTMLElementTagNameMap[K]
 {
     let element = document.createElement(key);
-    element.classList.add(...classes);
+    if (classes.length > 0)
+    {
+        element.classList.add(...classes);
+    }
+    
     builder(element);
     if(parent !== undefined)
     {

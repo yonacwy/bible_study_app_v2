@@ -9,6 +9,50 @@
     margin-top: @header-height;
 }
 
+
+.presets-popup {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: min(40vw, 300px * @ui-scale);
+    height: min(40vh, 200px * @ui-scale);
+    min-height: fit-content;
+    margin: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: white;
+    margin-top: calc(30vh + @header-height);
+    padding: 15px * @ui-scale;
+    .drop-shadow-m();
+
+    p {
+        text-align: center;
+        .font-medium();
+    }
+
+    button {
+        cursor: pointer;
+        padding: 10px * @ui-scale;
+        border: (1px * @ui-scale) solid #ccc;
+        border-radius: 4px * @ui-scale;
+
+        margin: @button-margin;
+        box-sizing: border-box;
+        cursor: pointer;
+
+        background-color: #5bc0de;
+        transition: background-color 0.2s ease;
+        width: min-content;
+        color: white;
+        .font-medium();
+
+        &:hover {
+            background-color: darken(#5bc0de, 10%)
+        }
+    }
+}
+
 .highlight {
     @hover-resize: 15px;
 
@@ -23,6 +67,7 @@
     width: 100%;
     // transition: padding 0.3s ease, width 0.3s ease, margin-left 0.3s ease;
     transition: 0.3s ease;
+    .drop-shadow-m();
 
     .color-bar {
         width: 10px;
@@ -36,21 +81,29 @@
         flex-direction: column;
         justify-content: center;
         box-sizing: border-box;
+        justify-content: center;
         width: 100%;
 
-        h2 
-        {
-            margin: 0;
-            font-size: 1.5em;
+        .title {
+            display: flex;
+            box-sizing: border-box;
+            width: 100%;
+            .title-text {
+                padding-bottom: 10px * @ui-scale;
+                font-size: calc(@button-size - 2 * @button-margin);
+                font-weight: bold;
+                flex: 1;
+                border-bottom: 1px solid #ccc;
+            }
+
+            .image-btn:nth-child(2) {
+                margin-left: 10%;
+            }
         }
 
         .highlight-description
         {
             box-sizing: border-box;
-            border: 2px solid #333;
-            border-radius: 8px;
-            padding: 10px * @ui-scale;
-            margin: 5px 0;
             width: 100%;
             text-wrap: wrap;
         }

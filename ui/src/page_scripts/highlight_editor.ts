@@ -57,7 +57,15 @@ export async function run()
         })
     }
 
-    render_categories(on_delete, on_edit, on_search);
+    let categories = await highlights.get_categories();
+    if (Object.values(categories).length > 0)
+    {
+        render_categories(on_delete, on_edit, on_search);
+    }
+    else 
+    {
+        show_create_highlight_presets();
+    }
 
     utils.init_sliders();
 
@@ -98,81 +106,64 @@ function on_delete(id: string)
     })
 }
 
-export function render_categories(on_delete: (id: string) => void, on_edit: (id: string) => void, on_search: (msg: string) => void)
+export async function render_categories(on_delete: (id: string) => void, on_edit: (id: string) => void, on_search: (msg: string) => void)
 {
-    utils.invoke('get_highlight_categories', {}).then((categories_json: string) => {
-        let container = document.getElementById('highlights');
-        if (container === null) return;
-        let categories = JSON.parse(categories_json) as HighlightCategories;
+    let container = document.getElementById('highlights');
+    if (container === null) return;
+    let categories = await highlights.get_sorted_categories();
 
-        if (Object.values(categories).length === 0)
-        {
-            let messageDiv = document.createElement('div');
-            messageDiv.innerHTML = "No Highlights created";
-            return;
-        }
-
-        let category_array = Object.values(categories).sort((a, b) => {
-            if (a.name === b.name)
-            {
-                return a.id > b.id ? 1 : -1;
-            }
-
-            return a.name > b.name ? 1 : -1;
-        });
-
-        for(let i = 0; i < category_array.length; i++)
-        {
-            let category = category_array[i];
-            let name = category.name;
-            let description = category.description;
-            let color = category.color;
-            let priority = category.priority;
-
-            container.append_element_ex('div', ['highlight'], highlight_div => {
-                highlight_div.append_element_ex('div', ['color-bar'], color_bar => {
-                    color_bar.style.backgroundColor = utils.color_to_hex(color);
-                });
-
-                highlight_div.append_element_ex('div', ['highlight-content'], content_div => {
-                    content_div.append_element('h2', header => header.innerHTML = name);
-
-                    content_div.append_element_ex('div', ['highlight-description'], desc => {
-                        render_note_data({
-                            text: description,
-                            source_type: category.source_type,
-                        }, on_search, desc);
-
-                        if (desc.innerText.length === 0)
-                        {
-                            desc.hide(true);
-                        }
-                    });
-
-                    content_div.append_element('p', p => {
-                        p.innerHTML = `<span class="priority">Priority:</span> ${priority}`;
-                    });
-
-                    content_div.append_element_ex('div', ['highlight-button-container'], button_container => {
-                        let edit_btn = utils.create_image_button(button_container, '../images/light-pencil.svg', e => {
-                            on_edit(category.id);
-                        });
-                        edit_btn.button.title = 'Edit category';
-
-                        let delete_btn = utils.create_image_button(button_container, '../images/light-trash-can.svg', e => {
-                            on_delete(category.id);
-                        });
-                        delete_btn.button.title = 'Delete category';
-                    })
-                });
-            });
-        };
+    categories.forEach(category => 
+    {
+        let visual = spawn_category_visual(category, on_search, on_edit, on_delete);
+        container.appendChild(visual);
     });
 }
 
 const HL_NAME_INPUT_ID: string = 'hl-name-input';
 const HL_COLOR_INPUT_ID: string = 'hl-color-input';
 const HL_PRIORITY_INPUT_ID: string = 'hl-priority-input';
+
+function spawn_category_visual(category: HighlightCategory, on_search: (msg: string) => void, on_edit: (id: string) => void, on_delete: (id: string) => void) 
+{
+    return utils.spawn_element('div', ['highlight'], highlight_div => {
+        highlight_div.append_element_ex('div', ['color-bar'], color_bar => {
+            color_bar.style.backgroundColor = utils.color_to_hex(category.color);
+        });
+
+        highlight_div.append_element_ex('div', ['highlight-content'], content_div => {
+            content_div.append_element_ex('div', ['title'], title => {
+                title.append_element_ex('div', ['title-text'], title_text => {
+                    title_text.innerHTML = category.name;
+                });
+
+                let edit_btn = utils.spawn_image_button('../images/light-pencil.svg', e => {
+                    on_edit(category.id);
+                }, title);
+                edit_btn.button.title = 'Edit category';
+
+                let delete_btn = utils.spawn_image_button('../images/light-trash-can.svg', e => {
+                    on_delete(category.id);
+                }, title);
+                delete_btn.button.title = 'Delete category';
+            })
+
+            content_div.append_element_ex('div', ['highlight-description'], desc => {
+                render_note_data({
+                    text: category.description,
+                    source_type: category.source_type,
+                }, on_search, desc);
+
+                if (desc.innerText.length === 0) {
+                    desc.hide(true);
+                }
+            });
+
+            content_div.append_element('p', p => {
+                p.innerHTML = `<span class="priority">Priority:</span> ${category.priority}`;
+            });
+        });
+    });
+}
 
 function spawn_highlight_editor_popup(category: HighlightCategory | null): HTMLElement
 {
@@ -335,6 +326,49 @@ function spawn_highlight_editor_popup(category: HighlightCategory | null): HTMLE
     
 
     return background;
+}
+
+function show_create_highlight_presets()
+{
+    let container = document.querySelector('main');
+    if (container !== null) 
+    {
+        container.hide(true);
+    }
+    
+    
+    let popup = utils.spawn_element('div', ['presets-popup'], div => {
+        div.append_element('p', p => {
+            p.innerHTML = 'You have no highlights created. Would you like to create generate some from presets?'
+        });
+
+        div.append_element('button', b => {
+            b.innerHTML = 'Generate';
+            b.title = 'Generate highlight presets';
+
+            b.addEventListener('click', _ => {
+                generate_presets().then(_ => {
+                    location.reload();
+                })
+            })
+        });
+    }, document.body);
+}
+
+const HIGHLIGHT_PRESETS: { color: string, name: string}[] = [
+    { color: '#FFFF00', name: 'Yellow' },
+    { color:  '#00BFFF', name: 'Blue' },
+    { color: '#32CD32', name: 'Green' },
+    { color: '#FF0000', name: 'Red' },
+    { color: '#FFA500', name: 'Orange' },
+    { color: '#800080', name: 'Purple' },
+];
+
+async function generate_presets(): Promise<void>
+{
+    return HIGHLIGHT_PRESETS.map(p => {
+        return highlights.create_category(p.color, p.name, null, 'markdown', '5');
+    }).flatten_promise().then(_ => {});
 }
 
 function validate_title(title: string): string | null
