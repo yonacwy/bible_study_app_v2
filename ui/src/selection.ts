@@ -300,6 +300,11 @@ async function spawn_recent_highlights(popup: HTMLElement): Promise<HTMLElement[
     let recents = await highlights.get_recent_highlights();
 
     return recents.map(id => {
+        if (categories[id] === undefined)
+        {
+            return null;
+        }
+
         let color = categories[id].color;
         let name = categories[id].name;
 
@@ -312,7 +317,7 @@ async function spawn_recent_highlights(popup: HTMLElement): Promise<HTMLElement[
                 paint_highlight(id);
             })
         });
-    })
+    }).filter(r => r !== null);
 }
 
 async function erase_highlight(id: string)
@@ -350,13 +355,7 @@ async function paint_highlight(id: string)
         ON_SELECTION_EVENT.invoke('highlighted');
     });
     
-    highlights.push_recent_highlight(id).then(async stack => {
-        let hs = await highlights.get_categories();
-
-        let msg = stack.map(h => hs[h].name).join(',');
-
-        utils.debug_print(`[${msg}]`);
-    })
+    highlights.push_recent_highlight(id);
 }
 
 async function spawn_editing_note_button()
