@@ -1,22 +1,11 @@
 declare global {
     export interface Element {
-        append_element<K extends keyof HTMLElementTagNameMap>(key: K, builder?: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K];
-        append_element_ex<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K];
+        append_element<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K];
         reverse_children(): Element;
     }
 }
 
-Element.prototype.append_element = function<K extends keyof HTMLElementTagNameMap>(key: K, builder?: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K] {
-    let child = document.createElement(key);
-    if(builder !== undefined)
-    {
-        builder(child);
-    }
-    this.appendChild(child);
-    return child;
-};
-
-Element.prototype.append_element_ex = function<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K] {
+Element.prototype.append_element = function<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (k: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K] {
     let child = document.createElement(key);
     child.classList.add(...classes);
     builder(child);

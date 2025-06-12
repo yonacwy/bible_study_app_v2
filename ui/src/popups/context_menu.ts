@@ -132,7 +132,7 @@ function build_menu(root_menu: HTMLElement, menu: HTMLElement, args: ContextMenu
 {
     let z_index = menu.style.zIndex + 1;
     args.forEach(arg => {
-        menu.append_element('li', div => {
+        menu.append_element('li', [], div => {
             let command = arg as ContextMenuCommand
             if(command.command !== undefined)
             {
@@ -146,12 +146,11 @@ function build_menu(root_menu: HTMLElement, menu: HTMLElement, args: ContextMenu
             let sub_menu = arg as ContextSubMenu;
             if(sub_menu.args !== undefined)
             {
-                div.append_element('span', span => span.innerHTML = sub_menu.name);
+                div.append_element('span', [], span => span.innerHTML = sub_menu.name);
                 if (sub_menu.args.length > 0)
                 {
-                    div.append_element('div', sub_menu_node => {
+                    div.append_element('div', ['sub-menu'], sub_menu_node => {
                         sub_menu_node.style.zIndex = z_index;
-                        sub_menu_node.classList.add('sub-menu');
                         build_menu(root_menu, sub_menu_node, sub_menu.args, false);
                     });
                 }

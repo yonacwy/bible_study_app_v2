@@ -246,12 +246,12 @@ export function init_player()
     });
 
     let behavior_state = new PlayerBehaviorState();
-    let popup = document.body.append_element_ex('div', ['audio-player', 'hidden'], player_div => {
+    let popup = document.body.append_element('div', ['audio-player', 'hidden'], player_div => {
         player_div.id = 'audio-player';
         player_div.classList.add('spawned');
         handle_dragging(player_div);
 
-        player_div.append_element_ex('div', ['main-content'], main_content => {
+        player_div.append_element('div', ['main-content'], main_content => {
             main_content.appendChild(rewind_button.button);
             main_content.appendChild(play_button.button);
             main_content.appendChild(generating_indicator);
@@ -263,8 +263,8 @@ export function init_player()
         });
 
         let timer_slider = spawn_timer_slider();
-        let hidden_content = player_div.append_element_ex('div', ['hidden-content'], content => {
-            content.append_element_ex('div', ['slider-settings'], sliders => { 
+        let hidden_content = player_div.append_element('div', ['hidden-content'], content => {
+            content.append_element('div', ['slider-settings'], sliders => { 
                 let volume_slider = spawn_volume_slider();
                 let playback_slider = spawn_playback_slider();
                 
@@ -272,22 +272,22 @@ export function init_player()
                 sliders.appendChild(playback_slider);
             });
 
-            content.append_element_ex('div', ['strategy-settings'], async strategy_settings => {
+            content.append_element('div', ['strategy-settings'], async strategy_settings => {
                 let selector = await spawn_behavior_selector(behavior_state, timer_slider);
                 strategy_settings.appendChild(selector);
             });
 
-            content.append_element_ex('div', ['break'], _ => {});
+            content.append_element('div', ['break'], _ => {});
             content.appendChild(timer_slider.parent);
             
         });
 
-        player_div.append_element_ex('div', ['dropdown-button'], button => {
+        player_div.append_element('div', ['dropdown-button'], button => {
             button.title = 'Show advanced options';
 
-            let container = button.append_element_ex('div', ['image-container'], _ => {});
+            let container = button.append_element('div', ['image-container'], _ => {});
 
-            let image = container.append_element('img', img => {
+            let image = container.append_element('img', [], img => {
                 img.src = OPEN_DROPDOWN_IMAGE_SRC;
             });
 
@@ -444,7 +444,7 @@ function spawn_volume_slider(): HTMLElement
         step: 0.0001,
         classes: []
     }, 
-    (input, button) => {
+    (input, _) => {
         if(input.get_value() === 0)
         {
             input.set_value(1);
@@ -453,13 +453,6 @@ function spawn_volume_slider(): HTMLElement
         {
             input.set_value(0);
         }
-
-        update_volume_slider_image(+input.get_value(), button.image);
-
-        TTS_PLAYER.get_settings().then(settings => {
-            settings.volume = +input.get_value();
-            TTS_PLAYER.set_settings(settings);
-        });
     },
     (input, button) => {
         update_volume_slider_image(+input.value, button.image);
@@ -469,6 +462,15 @@ function spawn_volume_slider(): HTMLElement
             TTS_PLAYER.set_settings(settings);
         });
     });
+
+    slider.on_input.add_listener(v => {
+        update_volume_slider_image(v, element.getElementsByTagName('img')[0]);
+
+        TTS_PLAYER.get_settings().then(settings => {
+            settings.volume = v;
+            TTS_PLAYER.set_settings(settings);
+        });
+    })
 
     TTS_PLAYER.get_settings().then(settings => {
         slider.set_value(settings.volume);

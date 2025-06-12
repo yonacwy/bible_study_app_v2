@@ -120,7 +120,7 @@ function spawn_searchbar(): SearchBarData
         searchbar.appendChild(input);
         searchbar.appendChild(button.button);
 
-        searchbar.append_element_ex('div', ['error-popup'], err => {
+        searchbar.append_element('div', ['error-popup'], err => {
             err.id = SEARCH_ERROR_ID;
         });
 
@@ -131,7 +131,7 @@ function spawn_searchbar(): SearchBarData
     
                 if(result.type === 'error')
                 {
-                    show_error_popup('error-message', true, result.error);
+                    show_error_popup(SEARCH_ERROR_ID, true, result.error);
                 }
                 else if(result.type === 'word')
                 {
@@ -147,7 +147,7 @@ function spawn_searchbar(): SearchBarData
                 }
                 else 
                 {
-                    show_error_popup(SEARCH_ERROR_ID, true, `Search type ${result.type} unsupported on the front end`)
+                    show_error_popup(SEARCH_ERROR_ID, true, `Search type ${result.type} unsupported on the front end`);
                 }
             })
         });

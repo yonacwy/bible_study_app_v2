@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 use std::{cell::RefCell, collections::HashMap, io::Read, ops::Deref, path::PathBuf, sync::{Arc, Mutex, MutexGuard}, thread::spawn};
 use tauri::{
     path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Runtime
@@ -101,6 +102,8 @@ pub struct AppData {
 
     selected_reading: Mutex<RefCell<u32>>,
     reader_behavior: Mutex<RefCell<ReaderBehavior>>,
+
+    recent_highlights: Mutex<RefCell<Vec<Uuid>>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -115,6 +118,7 @@ struct AppSave {
     selected_reading: u32,
     tts_settings: TtsSettings,
     reader_behavior: ReaderBehavior,
+    recent_highlights: Vec<Uuid>,
 }
 
 impl AppData {
@@ -163,7 +167,8 @@ impl AppData {
                     settings: Settings::default(),
                     selected_reading: 0,
                     tts_settings: TtsSettings::default(),
-                    reader_behavior: ReaderBehavior::default()
+                    reader_behavior: ReaderBehavior::default(),
+                    recent_highlights: vec![],
                 }, false, true)
             }
         };
@@ -216,6 +221,7 @@ impl AppData {
             settings: Mutex::new(RefCell::new(save.settings)),
             selected_reading: Mutex::new(RefCell::new(save.selected_reading)),
             reader_behavior: Mutex::new(RefCell::new(save.reader_behavior)),
+            recent_highlights: Mutex::new(RefCell::new(save.recent_highlights)),
         }
     }
 
@@ -232,7 +238,8 @@ impl AppData {
         let settings = self.settings.lock().unwrap().borrow().clone();
         let save_version = self.save_version;
         let selected_reading = self.selected_reading.lock().unwrap().borrow().clone();
-        let reading_behavior = self.reader_behavior.lock().unwrap().borrow().clone();
+        let reader_behavior = self.reader_behavior.lock().unwrap().borrow().clone();
+        let recent_highlights = self.recent_highlights.lock().unwrap().borrow().clone();
 
         let save = AppSave {
             notebooks,
@@ -244,7 +251,8 @@ impl AppData {
             settings,
             selected_reading,
             tts_settings,
-            reader_behavior: reading_behavior,
+            reader_behavior,
+            recent_highlights
         };
 
         let save_json = serde_json::to_string_pretty(&save).unwrap();
@@ -403,6 +411,14 @@ impl AppData {
         let binding = self.reader_behavior.lock().unwrap();
         let mut selected_reading = binding.borrow_mut();
         f(&mut *selected_reading)
+    }
+
+    pub fn read_recent_highlights<F, R>(&self, mut f: F) -> R 
+        where F : FnMut(&mut Vec<Uuid>) -> R
+    {
+        let binding = self.recent_highlights.lock().unwrap();
+        let mut recent_highlights = binding.borrow_mut();
+        f(&mut *recent_highlights)
     }
 
     fn get_bible_paths<R>(path_resolver: &PathResolver<R>) -> Vec<PathBuf>

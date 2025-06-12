@@ -12,20 +12,26 @@ import * as view_states from "../view_states.js";
 
 export type HighlightEditorData = {
     old_path: string,
-    should_make_new?: boolean,
+    highlight_id?: string | null,
 }
 
-export function goto_highlight_editor_page(should_make_new: boolean)
+/**
+ * Goes to the highlight editor page
+ * @param highlight_id if undefined -> goes to page; if null -> creates new highlight; if defined -> edits existing highlight
+ */
+export function goto_highlight_editor_page(highlight_id?: string | null)
 {
     window.location.href = utils.encode_to_url('highlight_editor.html', {
         old_path: window.location.href,
-        should_make_new,
+        highlight_id,
     } as HighlightEditorData);
 }
 
+let old_path = window.location.href;
 export async function run()
 {
     let data = utils.decode_from_url(window.location.href) as HighlightEditorData;
+    old_path = data.old_path;
 
     deleting_id = null; 
 
@@ -71,9 +77,15 @@ export async function run()
 
     document.body.style.visibility = 'visible';
 
-    if (data.should_make_new ?? false)
+    if (data.highlight_id === null)
     {
         let popup = spawn_highlight_editor_popup(null);
+        document.body.appendChild(popup);
+    }
+
+    if (data.highlight_id)
+    {
+        let popup = spawn_highlight_editor_popup(categories[data.highlight_id]);
         document.body.appendChild(popup);
     }
 }
@@ -101,7 +113,10 @@ function on_delete(id: string)
                 utils.invoke('remove_highlight_category', { id: deleting_id });
             }
 
-            location.reload();
+            // can't do a normal location.reload, as we are passing data via the url
+            window.location.href = utils.encode_to_url('highlight_editor.html', {
+                old_path: old_path,
+            } as HighlightEditorData);
         }
     })
 }
@@ -126,13 +141,13 @@ const HL_PRIORITY_INPUT_ID: string = 'hl-priority-input';
 function spawn_category_visual(category: HighlightCategory, on_search: (msg: string) => void, on_edit: (id: string) => void, on_delete: (id: string) => void) 
 {
     return utils.spawn_element('div', ['highlight'], highlight_div => {
-        highlight_div.append_element_ex('div', ['color-bar'], color_bar => {
+        highlight_div.append_element('div', ['color-bar'], color_bar => {
             color_bar.style.backgroundColor = utils.color_to_hex(category.color);
         });
 
-        highlight_div.append_element_ex('div', ['highlight-content'], content_div => {
-            content_div.append_element_ex('div', ['title'], title => {
-                title.append_element_ex('div', ['title-text'], title_text => {
+        highlight_div.append_element('div', ['highlight-content'], content_div => {
+            content_div.append_element('div', ['title'], title => {
+                title.append_element('div', ['title-text'], title_text => {
                     title_text.innerHTML = category.name;
                 });
 
@@ -147,7 +162,7 @@ function spawn_category_visual(category: HighlightCategory, on_search: (msg: str
                 delete_btn.button.title = 'Delete category';
             })
 
-            content_div.append_element_ex('div', ['highlight-description'], desc => {
+            content_div.append_element('div', ['highlight-description'], desc => {
                 render_note_data({
                     text: category.description,
                     source_type: category.source_type,
@@ -158,7 +173,7 @@ function spawn_category_visual(category: HighlightCategory, on_search: (msg: str
                 }
             });
 
-            content_div.append_element('p', p => {
+            content_div.append_element('p', [], p => {
                 p.innerHTML = `<span class="priority">Priority:</span> ${category.priority}`;
             });
         });
@@ -317,8 +332,10 @@ function spawn_highlight_editor_popup(category: HighlightCategory | null): HTMLE
                     highlights.set_category(id, color, name, source, data_type, +priority);
                 }
 
-                background.remove();
-                location.reload();
+                // can't do a normal location.reload, as we are passing data via the url
+                window.location.href = utils.encode_to_url('highlight_editor.html', {
+                    old_path: old_path,
+                } as HighlightEditorData);
             }
         }, background);
     })
@@ -338,11 +355,11 @@ function show_create_highlight_presets()
     
     
     let popup = utils.spawn_element('div', ['presets-popup'], div => {
-        div.append_element('p', p => {
+        div.append_element('p', [], p => {
             p.innerHTML = 'You have no highlights created. Would you like to create generate some from presets?'
         });
 
-        div.append_element('button', b => {
+        div.append_element('button', [], b => {
             b.innerHTML = 'Generate';
             b.title = 'Generate highlight presets';
 

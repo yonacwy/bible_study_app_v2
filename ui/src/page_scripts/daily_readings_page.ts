@@ -48,11 +48,11 @@ function generate_calender()
     let day_count = new Date(selected_year, selected_month + 1, 0).getDate();
     
     CALENDER_BODY.replaceChildren();
-    CALENDER_BODY.append_element('caption', caption => {
-        caption.append_element_ex('div', ['caption-content'], caption_content => {
+    CALENDER_BODY.append_element('caption', [], caption => {
+        caption.append_element('div', ['caption-content'], caption_content => {
 
-            caption_content.append_element_ex('button', ['image-btn', 'first'], button => {
-                button.append_element('img', img => img.src = '../images/light-arrow-left.svg');
+            caption_content.append_element('button', ['image-btn', 'first'], button => {
+                button.append_element('img', [], img => img.src = '../images/light-arrow-left.svg');
                 button.addEventListener('click', e => {
                     if(selected_month <= 0)
                     {
@@ -68,12 +68,12 @@ function generate_calender()
                 button.title = 'Previous month';
             });
 
-            caption_content.append_element_ex('div', ['title-container'], title_container => {
-                title_container.append_element_ex('div', ['dropdown'], dropdown => {
-                    dropdown.append_element_ex('div', ['calender-month'], title => title.innerHTML = MONTH_NAMES[selected_month]);
-                    dropdown.append_element_ex('div', ['dropdown-content'], content => {
+            caption_content.append_element('div', ['title-container'], title_container => {
+                title_container.append_element('div', ['dropdown'], dropdown => {
+                    dropdown.append_element('div', ['calender-month'], title => title.innerHTML = MONTH_NAMES[selected_month]);
+                    dropdown.append_element('div', ['dropdown-content'], content => {
                         MONTH_NAMES.forEach((m, i) => {
-                            content.append_element_ex('div', ['dropdown-option'], option => {
+                            content.append_element('div', ['dropdown-option'], option => {
                                 option.innerHTML = m;
                                 option.addEventListener('click', e => {
                                     selected_month = i;
@@ -85,7 +85,7 @@ function generate_calender()
                     });
                 });
     
-                title_container.append_element_ex('div', ['calender-year'], year_title => {
+                title_container.append_element('div', ['calender-year'], year_title => {
                     year_title.innerHTML = `${selected_year}`;
                 });
 
@@ -99,8 +99,8 @@ function generate_calender()
                 reset_button.button.title = 'Go to current date'
             });
 
-            caption_content.append_element_ex('button', ['image-btn', 'last'], button => {
-                button.append_element('img', img => img.src = '../images/light-arrow-right.svg');
+            caption_content.append_element('button', ['image-btn', 'last'], button => {
+                button.append_element('img', [], img => img.src = '../images/light-arrow-right.svg');
                 button.addEventListener('click', e => {
                     if(selected_month >= 11)
                     {
@@ -118,24 +118,23 @@ function generate_calender()
         });
     })
     // Table header
-    CALENDER_BODY.append_element('tr', hrow => {
+    CALENDER_BODY.append_element('tr', [], hrow => {
         ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(name => {
-            hrow.append_element('th', th => th.innerHTML = name);
+            hrow.append_element('th', [], th => th.innerHTML = name);
         });
     });
 
     let current_row = CALENDER_BODY.appendChild(document.createElement('tr')) as HTMLTableRowElement;
     for(let i = 0; i < start_day; i++)
     {
-        current_row.append_element('td', td => td.innerHTML = '&nbsp;');
+        current_row.append_element('td', [], td => td.innerHTML = '&nbsp;');
     }
 
     let row_index = start_day;
     for(let i = 0; i < day_count; i++)
     {
-        current_row.append_element('td', td => {
+        current_row.append_element('td', ['hoverable'], td => {
             td.innerHTML = `${i + 1}`;
-            td.classList.add('hoverable');
 
             if(i === selected_day)
                 td.classList.add('selected-date');
@@ -164,7 +163,7 @@ function generate_calender()
 
     for(let i = row_index; i < 7; i++)
     {
-        current_row.append_element('td', td => td.innerHTML = '&nbsp;');
+        current_row.append_element('td', [], td => td.innerHTML = '&nbsp;');
     }
 }
 
@@ -197,7 +196,7 @@ async function generate_readings()
     
     readings_content.replaceChildren();
     readings.forEach(r => {
-        readings_content.append_element('li', li => {
+        readings_content.append_element('li', [], li => {
 
             li.innerHTML = '';
             if(r.prefix !== null)
@@ -253,7 +252,7 @@ async function generate_readings_dropdown()
     title.innerHTML = current_reading.name;
 
     READING_PLANS.forEach(r => {
-        dropdown_content.append_element_ex('div', ['dropdown-option'], option => {
+        dropdown_content.append_element('div', ['dropdown-option'], option => {
             option.innerHTML = r.name;
             option.addEventListener('click', e => {
                 set_selected_reading(r.id).then(() => {

@@ -84,7 +84,7 @@ export function spawn_toggle_image_dropdown<T>(args: ToggleImageDropdownArgs<T>)
     });
 
     dropdown.appendChild(title_button.button);
-    dropdown.append_element_ex('div', ['small-dropdown-content'], content => {
+    dropdown.append_element('div', ['small-dropdown-content'], content => {
         option_buttons.forEach(b => content.appendChild(b.button));
     });
 
@@ -299,7 +299,7 @@ export function spawn_image_dropdown<T>(args: ImageDropdownArgs<T>): ImageDropdo
     });
 
     dropdown.appendChild(title_button.button);
-    dropdown.append_element_ex('div', [dropdown_content_class], content => {
+    dropdown.append_element('div', [dropdown_content_class], content => {
         option_buttons.forEach(b => content.appendChild(b.button));
     });
 

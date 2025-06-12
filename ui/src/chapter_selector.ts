@@ -63,7 +63,7 @@ export async function spawn_chapter_selection_dropdown(on_selected: (chapter: Ch
             title: 'Bible chapter selection',
             parent: dropdown,
         })
-        dropdown.append_element_ex('div', ['dropdown-content'], content => {
+        dropdown.append_element('div', ['dropdown-content'], content => {
             for (let i = 0; i < books.length; i++)
             {
                 let name = books[i].name;

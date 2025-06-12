@@ -76,6 +76,17 @@ main {
     margin-bottom: calc(100vh - @header-height - 40px);
 }
 
+.note-target {
+    ul, ol, li p {
+        margin-block-end: 0;
+        margin-block-start: 0;
+    }
+
+    p:has(+ ul) {
+        margin-bottom: 0;
+    }
+}
+
 .bible-content h1 {
     margin-top: 0;
     .font-large();

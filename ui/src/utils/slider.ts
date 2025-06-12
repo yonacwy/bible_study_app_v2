@@ -73,6 +73,7 @@ export function spawn_slider(args: SliderArgs): Slider
 
     let get_value = (): number => current_value;
     let set_value = (n: number): void => {
+        current_value = n;
         slider.value = n.toString();
         slider.style.setProperty('--val', slider.value);
         on_input.invoke(n);

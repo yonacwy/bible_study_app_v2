@@ -106,3 +106,35 @@ export async function erase_chapter_highlight(chapter: ChapterIndex, word_pos: n
         highlight_id: highlight_id,
     });
 }
+
+export const MAX_RECENT_HIGHLIGHT_COUNT: number = 3;
+
+export async function push_recent_highlight(id: string): Promise<string[]> {
+    let highlights_stack = await get_recent_highlights();
+
+    // Remove the ID if it already exists
+    highlights_stack = highlights_stack.filter(h => h !== id);
+
+    // Add the new ID to the front (most recent)
+    highlights_stack.unshift(id);
+
+    // Enforce the max limit from the back (oldest)
+    while (highlights_stack.length > MAX_RECENT_HIGHLIGHT_COUNT) {
+        highlights_stack.pop();
+    }
+
+    await set_recent_highlights(highlights_stack);
+    return highlights_stack;
+}
+
+export async function clear_recent_highlights(): Promise<void> {
+    return await set_recent_highlights([]);
+}
+
+export async function get_recent_highlights(): Promise<string[]> {
+    return await utils.invoke('get_recent_highlights', {});
+}
+
+async function set_recent_highlights(highlights: string[]): Promise<void> {
+    return await utils.invoke('set_recent_highlights', { recent_highlights: highlights }).then(_ => {});
+}

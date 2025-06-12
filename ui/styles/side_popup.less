@@ -18,7 +18,6 @@
     // set by code
     // min-width: 200px;
     // max-width: 500px;
-
     
     overflow-y: auto;
 
@@ -51,8 +50,8 @@
 }
 
 .popup-panel .panel-title {
-    text-align: center;
     .font-large();
+    text-align: center;
     font-weight: bold;
     border-bottom: 1px solid #333;
 }
@@ -86,10 +85,25 @@
 }
 
 .popup-panel-content .highlight-viewer .highlight-content .highlight-title {
-    margin: 0px;
-    font-weight: bold;
-    border-bottom: 1px solid #333;
-    .font-medium();
+    display: flex;
+    width: 100%;
+    align-items: flex-start; /* aligns items to the top */
+    
+    .title-text {
+        flex: 1;
+        padding-bottom: 10px * @ui-scale;
+        font-size: calc(@button-size - 2 * @button-margin);
+        font-weight: bold;
+        border-bottom: 1px solid #ccc;
+        word-break: break-word;
+        .hyphens-auto();
+    }
+
+    .image-btn {
+        margin-left: calc(10px * @ui-scale);
+        flex-shrink: 0;
+        align-self: flex-start;
+    }
 }
 
 .popup-panel-content .highlight-viewer .highlight-content div {

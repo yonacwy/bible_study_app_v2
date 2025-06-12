@@ -36,34 +36,37 @@
   - [x] Fixed visuals when closing a note on faster computers (now has an animated collapse)
   - [x] Highlighting and opening the context menu, then clicking on the text or its parent again, removes the curser highlights, but leaves the context menu
 - [x] Finalize audio playback
-- [ ] Better highlighting
+- [x] Better highlighting
   - [x] No highlights created
   - [x] Better highlight editor
     - [x] Now with WYSIWYG
     - [x] Looks nicer
     - [x] Change highlight viewer layout
   - [x] Preset highlights (when none created)
-  - [ ] Highlight selector (recents)
+  - [x] Highlight selector (recents)
   - [x] Better selector system
     - [x] Improve look
     - [x] Erase all highlight button
     - [x] Create new highlight button
+  - [x] Can now edit highlight in sidebar menu
 - [ ] Miscellanies
   - [x] Words with notes or highlights now have `pointer` curser when hovered
   - [ ] When closing editing note, scroll to where edited it
   - [ ] When editing an already created note, scroll to where editing it
   - [x] Scroll offset to center, not top
-  - [ ] Migrate save settings
+  - [x] Migrate save settings
     - [x] Audio player
-    - [ ] Recent highlights
+    - [x] Recent highlights
   - [x] Added a Footer to Bible pages (apparently they were looking a bit bare)
   - [x] Resizer bar now shows if a side page is collapsed
-  - [ ] Rename collapse buttons to be clearer
+  - [x] Rename collapse buttons to be clearer
   - [x] Header Ui Refactor
     - [x] Dropdowns can now be toggled to active
     - [x] Backend fixed to make the code less reliant on ids
     - [x] Some visual upgrades
   - [x] Added tooltip for chapter links on the daily readings page
+  - [x] Changed ul/ol margins for notes and highlight descriptions
+  - [x] Side info panel's min and max size is now dependent on the window min and max size
 
 ### Version 0.5.2: Note QoL Changes
 - [x] Selecting Notes and Highlights

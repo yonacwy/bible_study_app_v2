@@ -33,6 +33,7 @@ export function render_note_data(note: NoteText, on_search: (msg: string) => voi
         }
     }
 
+    target.classList.add('note-target');
     target.querySelectorAll('div.bible-ref').forEach(ref => {
         ref.addEventListener('click', e => {
             let search_text = ref.innerHTML.substring(1, ref.innerHTML.length - 1);

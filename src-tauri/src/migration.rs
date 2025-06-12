@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use uuid::Uuid;
 
 use crate::{app_state::DEFAULT_BIBLE, audio::{reader_behavior::ReaderBehavior, TtsSettings}, settings::Settings};
 
@@ -222,6 +223,9 @@ fn migrate_sv6(json: &mut Value)
 
     const READER_BEHAVIOR_FIELD: &str = "reader_behavior";
     json.insert(READER_BEHAVIOR_FIELD.to_string(), serde_json::to_value(ReaderBehavior::default()).unwrap());
+
+    const RECENT_HIGHLIGHTS_FIELD: &str = "recent_highlights";
+    json.insert(RECENT_HIGHLIGHTS_FIELD.to_string(), serde_json::to_value(Vec::<Uuid>::new()).unwrap());
 
     json.insert(SAVE_FIELD_NAME.to_owned(), serde_json::to_value(SaveVersion::SV7).unwrap());
 }

@@ -1,7 +1,8 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use itertools::Itertools;
 use tauri::{path::BaseDirectory, Manager, Runtime, State};
+use uuid::Uuid;
 
 use crate::{
     app_state::{self, AppState, ViewState}, audio::reader_behavior::ReaderBehavior, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, NoteSourceType, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
@@ -436,4 +437,22 @@ pub fn get_reader_behavior(app_state: State<'_, AppState>) -> ReaderBehavior
 pub fn set_reader_behavior(app_state: State<'_, AppState>, reader_behavior: ReaderBehavior)
 {
     app_state.get_ref().read_reader_behavior(|b| *b = reader_behavior)
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn get_recent_highlights(app_state: State<'_, AppState>) -> Vec<String>
+{
+    app_state.get_ref().read_recent_highlights(|r| {
+        r.iter().map(|id| id.to_string()).collect_vec()
+    })
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn set_recent_highlights(app_state: State<'_, AppState>, recent_highlights: Vec<String>)
+{
+    app_state.get_ref().read_recent_highlights(move |r| {
+        *r = recent_highlights.iter()
+            .map(|id| Uuid::from_str(id).unwrap())
+            .collect_vec()
+    })
 }

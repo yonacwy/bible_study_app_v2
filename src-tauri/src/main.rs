@@ -106,6 +106,8 @@ fn main() -> Result<(), tts::Error>
             audio::run_tts_command,
             get_reader_behavior,
             set_reader_behavior,
+            get_recent_highlights,
+            set_recent_highlights,
         ])
         .run(tauri::generate_context!()) 
         .expect("error while running tauri application");

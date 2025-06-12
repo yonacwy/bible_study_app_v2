@@ -30,33 +30,6 @@ type WordRange = {
 
 let ranges: WordRange[] = [];
 
-async function get_used_highlights(): Promise<string[]>
-{
-    let ret: string[] = [];
-    
-    return selected_ranges.map(r => (async () => {
-        let annotations = await highlights.get_chapter_annotations(r.chapter);
-        for (let i = r.begin; i <= r.end; i++)
-        {
-            let wa = annotations[i];
-            if(wa)
-            {
-                for(let j = 0; j < wa.highlights.length; j++)
-                {
-                    if (!ret.includes(wa.highlights[j]))
-                    {
-                        ret.push(wa.highlights[j]);
-                    }
-                }
-            }
-        }
-
-        return;
-    })()).flatten_promise().then(_ => {
-        return ret;
-    });
-}
-
 function get_ranges_info(w: HTMLElement): [ChapterIndex, number, HTMLElement] | null
 {
     for(let i = 0; i < ranges.length; i++)
@@ -170,15 +143,21 @@ function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
     popup.replaceChildren();
 
     Promise.all([
+        spawn_highlight_dropdown(popup),
+        spawn_erase_dropdown(popup),
         spawn_new_note_button(),
         spawn_editing_note_button(),
-        spawn_highlight_dropdown(popup),
-        spawn_erase_dropdown(popup)
-    ]).then(c => c as (HTMLElement | null)[]).then(children => {
+    ]).then(c => c as (HTMLElement | null)[]).then(async children => {
+        let recents = await spawn_recent_highlights(popup);
+
+        recents.forEach(r => {
+            popup.appendChild(r);
+        })
+
         for(let i = 0; i < children.length; i++)
         {
             let c = children[i];
-            if (!c) return;
+            if (!c) continue;
             
             popup.appendChild(c);
             if(c.classList.contains('small-dropdown'))
@@ -270,6 +249,33 @@ async function spawn_erase_dropdown(popup: HTMLElement): Promise<HTMLElement | n
     })
 }
 
+async function get_used_highlights(): Promise<string[]>
+{
+    let ret: string[] = [];
+    
+    return selected_ranges.map(r => (async () => {
+        let annotations = await highlights.get_chapter_annotations(r.chapter);
+        for (let i = r.begin; i <= r.end; i++)
+        {
+            let wa = annotations[i];
+            if(wa)
+            {
+                for(let j = 0; j < wa.highlights.length; j++)
+                {
+                    if (!ret.includes(wa.highlights[j]))
+                    {
+                        ret.push(wa.highlights[j]);
+                    }
+                }
+            }
+        }
+
+        return;
+    })()).flatten_promise().then(_ => {
+        return ret;
+    });
+}
+
 async function spawn_highlight_dropdown(popup: HTMLElement): Promise<HTMLElement>
 {
     return spawn_highlight_selector({
@@ -282,9 +288,30 @@ async function spawn_highlight_dropdown(popup: HTMLElement): Promise<HTMLElement
         },
         on_new: () => {
             popup.classList.add('hidden');
-            goto_highlight_editor_page(true);
+            goto_highlight_editor_page(null);
         },
         select_type: 'highlight',
+    })
+}
+
+async function spawn_recent_highlights(popup: HTMLElement): Promise<HTMLElement[]>
+{
+    let categories = await highlights.get_categories();
+    let recents = await highlights.get_recent_highlights();
+
+    return recents.map(id => {
+        let color = categories[id].color;
+        let name = categories[id].name;
+
+        return utils.spawn_element('div', ['recent'], div => {
+            div.style.backgroundColor = utils.color_to_hex(color);
+            div.title = `Select highlight ${name}`;
+
+            div.addEventListener('click', e => {
+                popup.classList.add('hidden');
+                paint_highlight(id);
+            })
+        });
     })
 }
 
@@ -323,6 +350,13 @@ async function paint_highlight(id: string)
         ON_SELECTION_EVENT.invoke('highlighted');
     });
     
+    highlights.push_recent_highlight(id).then(async stack => {
+        let hs = await highlights.get_categories();
+
+        let msg = stack.map(h => hs[h].name).join(',');
+
+        utils.debug_print(`[${msg}]`);
+    })
 }
 
 async function spawn_editing_note_button()
@@ -418,12 +452,12 @@ function spawn_highlight_selector(args: {
     });
 
     let option_nodes = args.color_options.map(o => utils.spawn_element('div', [], div => {
-        div.append_element_ex('div', ['color-square'], square => {
+        div.append_element('div', ['color-square'], square => {
             square.style.backgroundColor = utils.color_to_hex(o.color);
 
             if (args.select_type === 'erase')
             {
-                square.append_element_ex('img', [], i => i.src = utils.images.DO_NOT_ENTER);
+                square.append_element('img', [], i => i.src = utils.images.DO_NOT_ENTER);
             }
         });
 
@@ -470,7 +504,7 @@ function spawn_highlight_selector(args: {
 
     dropdown.appendChild(title_button.button);
 
-    dropdown.append_element_ex('div', ['small-dropdown-content'], content => {
+    dropdown.append_element('div', ['small-dropdown-content'], content => {
         option_nodes.forEach(n => content.appendChild(n));
     });
     

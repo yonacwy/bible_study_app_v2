@@ -4,7 +4,11 @@ export function show_error_popup(id: string, show: boolean, message: string)
 {
     const error_message = document.getElementById(id);
 
-    if(error_message === null) return;
+    if(error_message === null)
+    {
+        debug_print(`No popup ${id} exists`);
+        return;
+    }
 
     if (show) 
     {
