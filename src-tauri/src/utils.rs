@@ -57,7 +57,6 @@ macro_rules! debug_release_val
         }
     };
 }
-
 pub fn open(path: &str) -> Result<(), Box<dyn Error>> 
 {
     open::that(path)?;

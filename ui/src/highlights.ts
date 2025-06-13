@@ -2,9 +2,9 @@ import { get_chapter } from "./bible.js";
 import { ChapterAnnotations, ChapterIndex, HighlightCategories, HighlightCategory, NoteSourceType } from "./bindings.js";
 import * as utils from "./utils/index.js";
 
-export function create_category(color: string, name: string, description: string | null, source_type: NoteSourceType, priority: string)
+export async function create_category(color: string, name: string, description: string | null, source_type: NoteSourceType, priority: string): Promise<void>
 {
-    utils.invoke('add_highlight_category', {
+    return await utils.invoke('add_highlight_category', {
         color: color,
         name: name,
         description: description ?? "",
@@ -13,9 +13,9 @@ export function create_category(color: string, name: string, description: string
     });
 }
 
-export function set_category(id: string, color: string, name: string, description: string, source_type: NoteSourceType, priority: number)
+export async function set_category(id: string, color: string, name: string, description: string, source_type: NoteSourceType, priority: number): Promise<void>
 {
-    utils.invoke('set_highlight_category', {
+    return await utils.invoke('set_highlight_category', {
         id: id,
         color: color,
         name: name,
@@ -62,11 +62,11 @@ export async function get_chapter_annotations(chapter: ChapterIndex): Promise<Ch
     return JSON.parse(annotations_json);
 }
 
-export async function highlight_word(chapter: any, word_pos: number, highlight_id: string) 
+export async function highlight_word(chapter: any, word_pos: number, highlight_id: string): Promise<void>
 {
     if(highlight_id !== null && highlight_id !== undefined)
     {
-        utils.invoke('highlight_word', {
+        return await utils.invoke('highlight_word', {
             chapter: chapter,
             word_position: word_pos,
             highlight_id: highlight_id,
@@ -74,11 +74,11 @@ export async function highlight_word(chapter: any, word_pos: number, highlight_i
     }
 }
 
-export async function highlight_chapter_word(chapter: ChapterIndex, word_pos: number, highlight_id: string) 
+export async function highlight_chapter_word(chapter: ChapterIndex, word_pos: number, highlight_id: string): Promise<void>
 {
     if(highlight_id !== null && highlight_id !== undefined)
     {
-        utils.invoke('highlight_word', {
+        return await utils.invoke('highlight_word', {
             chapter: chapter,
             word_position: word_pos,
             highlight_id: highlight_id,
@@ -86,11 +86,11 @@ export async function highlight_chapter_word(chapter: ChapterIndex, word_pos: nu
     }
 }
 
-export async function erase_highlight(chapter: any, word_index: number, highlight_id: string) 
+export async function erase_highlight(chapter: any, word_index: number, highlight_id: string): Promise<void>
 {
     if(highlight_id !== null && highlight_id !== undefined)
     {
-        utils.invoke('erase_highlight', {
+        return await utils.invoke('erase_highlight', {
             chapter: chapter,
             word_position: word_index,
             highlight_id: highlight_id,
@@ -98,9 +98,9 @@ export async function erase_highlight(chapter: any, word_index: number, highligh
     }
 }
 
-export async function erase_chapter_highlight(chapter: ChapterIndex, word_pos: number, highlight_id: string) 
+export async function erase_chapter_highlight(chapter: ChapterIndex, word_pos: number, highlight_id: string): Promise<void>
 {
-    utils.invoke('erase_highlight', {
+    return await utils.invoke('erase_highlight', {
         chapter: chapter,
         word_position: word_pos,
         highlight_id: highlight_id,

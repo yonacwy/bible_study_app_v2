@@ -383,9 +383,11 @@ const HIGHLIGHT_PRESETS: { color: string, name: string}[] = [
 
 async function generate_presets(): Promise<void>
 {
-    return HIGHLIGHT_PRESETS.map(p => {
-        return highlights.create_category(p.color, p.name, null, 'markdown', '5');
-    }).flatten_promise().then(_ => {});
+    for(let i = 0; i < HIGHLIGHT_PRESETS.length; i++)
+    {
+        let { color, name } = HIGHLIGHT_PRESETS[i];
+        await highlights.create_category(color, name, null, 'markdown', '5');
+    }
 }
 
 function validate_title(title: string): string | null

@@ -107,7 +107,10 @@ export async function render_search_result(args: {
         e.classList.add('searched');
     })
 
-    let render_section = (i: number) => render_search_result(args);
+    let render_section = (i: number) => {
+        args.display_index = i;
+        render_search_result(args);
+    };
     let buttons = await generate_section_buttons(result, render_section, display_index, searched);
     if(buttons !== null)
     {
