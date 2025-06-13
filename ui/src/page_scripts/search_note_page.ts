@@ -14,10 +14,10 @@ export async function run()
     let header_data = await pages.init_header()
 
     Promise.all([
-        search_page.display_search(data.section, header_data.update_nav_active),
+        search_page.display_search(data.section, header_data),
         init_note_page(data.note, () => {
             utils.conserve_scroll(() => {
-                return search_page.display_search(data.section, header_data.update_nav_active);
+                return search_page.display_search(data.section, header_data);
             }, 'left-pane')
         }, header_data.on_search),
     ]).then(() => {

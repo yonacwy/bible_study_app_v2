@@ -12,17 +12,9 @@ import * as settings from '../settings.js';
 import * as bible from '../bible.js';
 import { get_editing_note } from "../notes.js";
 
-export const SEARCH_INPUT_ID: string = "search-input";
-export const SEARCH_BUTTON_ID: string = "search-btn";
-export const BACK_BUTTON_ID: string = "back-btn";
-export const FORWARD_BUTTON_ID: string = "forward-btn";
 export const POPUP_PANEL_ID: string = "popup-panel";
 export const POPUP_PANEL_CONTENT_ID: string = "popup-panel-content";
 export const WORD_POPUP_ID: string = "word-popup";
-export const HIGHLIGHT_SELECTOR_ID: string = "highlight-selector-btn";
-export const HIGHLIGHT_EDITOR_BUTTON_ID: string = "highlight-settings";
-
-const CHAPTER_SELECTOR_ID: string = "book-selection-content";
 
 export async function init_header(extra?: (e: HTMLElement) => void): Promise<MainPageHeaderData>
 {

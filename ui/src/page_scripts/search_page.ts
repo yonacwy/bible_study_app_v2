@@ -4,6 +4,7 @@ import { ReferenceLocation, SearchSection } from "../bindings.js";
 import * as search from "../rendering/word_search.js";
 import { PanelData } from "../popups/side_popup.js";
 import * as bible from "../bible.js";
+import { MainPageHeaderData } from "./menu_header.js";
 
 export async function run()
 {
@@ -16,14 +17,14 @@ export async function run()
 
     const header_data = await pages.init_header();
     Promise.all([
-        display_search(section, header_data.update_nav_active),
+        display_search(section, header_data),
     ]).then(() => {
         document.body.style.visibility = 'visible';
         utils.scrolling.load_scroll();
     })
 }
 
-export async function display_search(section: SearchSection, update_nav_buttons_opacity: () => void): Promise<void>
+export async function display_search(section: SearchSection, header_data: MainPageHeaderData): Promise<void>
 {
     const word_popup = document.getElementById('word-popup');
     const side_popup = document.getElementById('popup-panel');
@@ -41,8 +42,6 @@ export async function display_search(section: SearchSection, update_nav_buttons_
     }
     
     let search_result = await utils.invoke('run_word_search', { words: section.words });
-    
-    utils.set_value('search-input', section.words.join(" "));
 
     await search.render_search_result({
             result: search_result, 
@@ -52,11 +51,8 @@ export async function display_search(section: SearchSection, update_nav_buttons_
             display_index: section.display_index, 
             editing_note_location: section.editing_note_location,
             on_rendered: () => {
-                update_nav_buttons_opacity();
+                header_data.update_nav_active();;
             }, 
-            on_search: (msg: string) => {
-                utils.set_value('search-input', msg);
-                document.getElementById('search-btn')?.click();
-            }
+            on_search: header_data.on_search
         });
 }

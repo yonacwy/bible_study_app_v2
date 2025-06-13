@@ -28,10 +28,10 @@ export async function run()
     Promise.all([
         init_note_page(data.note, () => {
             utils.conserve_scroll(() => {
-                return bible_page.display_chapter(chapter, data.section.verse_range);
+                return bible_page.display_chapter(chapter, data.section.verse_range, header_data.on_search);
             }, 'left-pane')
         }, header_data.on_search),
-        bible_page.display_chapter(chapter, data.section.verse_range),
+        bible_page.display_chapter(chapter, data.section.verse_range, header_data.on_search),
         bible_page.init_chapter_buttons(),
     ]).then(_ => {
         document.body.style.visibility = 'visible';
