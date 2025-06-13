@@ -1,7 +1,7 @@
 import * as utils from "./utils/index.js";
 import * as bible from "./bible.js";
 import * as notes from "./notes.js";
-import { ChapterIndex, Color } from "./bindings.js";
+import { ChapterIndex, Color, ReferenceLocation } from "./bindings.js";
 import * as view_states from "./view_states.js";
 import * as highlights from "./highlights.js";
 import { goto_highlight_editor_page } from "./page_scripts/highlight_editor.js";
@@ -420,12 +420,11 @@ function spawn_new_note_button(): HTMLElement
             chapter: selected_range.chapter,
             range: verse_range,
         }).then(r => {
-            if (r !== null) // if created a new note, set it as the currently editing note
-            {
-                notes.set_editing_note(r).then(_ => {
-                    view_states.goto_current_view_state();
-                });
+            let loc: ReferenceLocation = {
+                chapter: selected_range.chapter,
+                range: verse_range
             }
+            view_states.goto_edit_note_page(r, loc);
         });
     });
 

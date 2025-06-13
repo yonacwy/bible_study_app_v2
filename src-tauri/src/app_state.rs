@@ -455,5 +455,6 @@ pub enum ViewState {
         words: Vec<String>,
         display_index: u32,
         scroll: f32,
+        note_editing_location: Option<ReferenceLocation>,
     },
 }

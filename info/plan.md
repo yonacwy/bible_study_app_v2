@@ -14,7 +14,7 @@
 - [ ] Cloud saving via Google Drive
 
 ### Version 0.5.3: Bug Fixes and Improvements
-- [ ] Lots o Bugs fixes
+- [x] Lots o Bugs fixes
   - [x] Removed close image on search note page
   - [x] Pointer curser now on chapter buttons
   - [x] Invalid display when creating an empty note
@@ -49,10 +49,10 @@
     - [x] Erase all highlight button
     - [x] Create new highlight button
   - [x] Can now edit highlight in sidebar menu
-- [ ] Miscellanies
+- [x] Miscellanies
   - [x] Words with notes or highlights now have `pointer` curser when hovered
-  - [ ] When closing editing note, scroll to where edited it
-  - [ ] When editing an already created note, scroll to where editing it
+  - [x] When closing editing note, scroll to where edited it
+  - [x] When editing an already created note, scroll to where editing it
   - [x] Scroll offset to center, not top
   - [x] Migrate save settings
     - [x] Audio player

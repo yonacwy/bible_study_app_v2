@@ -135,7 +135,7 @@ function spawn_searchbar(): SearchBarData
                 }
                 else if(result.type === 'word')
                 {
-                    view_states.push_search(result.words, 0).then(() => {
+                    view_states.push_word_search(result.words, 0).then(() => {
                         view_states.goto_current_view_state();
                     });
                 }

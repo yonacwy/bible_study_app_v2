@@ -1,4 +1,4 @@
-import { ChapterIndex, Color, Word, WordAnnotations } from "../bindings.js";
+import { ChapterIndex, Color, ReferenceLocation, Word, WordAnnotations } from "../bindings.js";
 import * as utils from "../utils/index.js"
 import * as rendering from "./bible_rendering.js";
 import * as bible from "../bible.js";
@@ -101,7 +101,24 @@ export async function render_verse(args: VerseRenderArgs): Promise<HTMLElement[]
             if(args.side_popup_data !== null)
             {
                 let word = utils.trim_string(words[i].text);
-                sp.display_on_div(word_node, word, word_annotations, args.side_popup_data, args.on_search);    
+                let location: ReferenceLocation = {
+                    chapter: args.chapter,
+                    range: {
+                        verse_start: args.verse,
+                        verse_end: args.verse,
+                        word_start: i,
+                        word_end: i,
+                    }
+                }
+
+                sp.display_on_div({ 
+                    div: word_node, 
+                    word, 
+                    annotations: word_annotations, 
+                    panel_data: args.side_popup_data, 
+                    on_search: args.on_search,
+                    location
+                });    
             }
         }
 

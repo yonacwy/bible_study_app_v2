@@ -2,7 +2,8 @@ import { NoteData, NoteSourceType, ReferenceLocation } from "./bindings.js";
 import * as utils from "./utils/index.js";
 import * as bible from "./bible.js";
 
-const CREATED_NOTE_STORAGE: utils.storage.ValueStorage<ReferenceLocation> = new utils.storage.ValueStorage<ReferenceLocation>("created-note");
+const CREATED_NOTE_STORAGE = new utils.storage.ValueStorage<ReferenceLocation>("created-note");
+
 // Will return true ONCE when called after creating a note. 
 // All subsequent calls before creating another note will return null
 export function get_did_create_note(): ReferenceLocation | null

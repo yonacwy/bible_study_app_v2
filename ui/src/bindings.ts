@@ -24,5 +24,5 @@ export type ChapterAnnotations = { [key: number]: WordAnnotations | undefined };
 // ------------------------ Misc Bindings ----------------------------
 export type Color = { r: number, g: number, b: number };
 export type BibleSection = { book: number, chapter: number, verse_range: VerseRange | null };
-export type SearchSection = { words: string[], display_index: number };
+export type SearchSection = { words: string[], display_index: number, editing_note_location: ReferenceLocation | null };
 export type AppSettings = { ui_scale: number, volume: number, font: string | null };

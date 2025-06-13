@@ -1,4 +1,4 @@
-import { Color, HighlightCategories, WordAnnotations } from "../bindings.js";
+import { Color, HighlightCategories, ReferenceLocation, WordAnnotations } from "../bindings.js";
 import * as highlight_utils from "../highlights.js";
 import * as utils from "../utils/index.js";
 import * as notes from "../notes.js";
@@ -48,8 +48,17 @@ export async function init_popup_panel(id: string)
     });
 }
 
-export function display_on_div(div: HTMLElement, word: string, annotations: WordAnnotations | null, panel_data: PanelData, on_search: (msg: string) => void)
+export function display_on_div(args: { 
+    div: HTMLElement; 
+    word: string; 
+    annotations: WordAnnotations | null; 
+    panel_data: PanelData; 
+    on_search: (msg: string) => void;
+    location: ReferenceLocation,
+})
 {
+    let { div, word, annotations, panel_data, on_search, location } = args;
+
     div.addEventListener('click', e => {
         if(annotations === null          ||
            annotations === undefined     ||
@@ -63,22 +72,22 @@ export function display_on_div(div: HTMLElement, word: string, annotations: Word
         
         panel_data.popup_panel.classList.add('open');
         panel_data.popup_panel_content.replaceChildren();
-        build_popup_content(word, annotations, panel_data.popup_panel_content, on_search)
+        build_popup_content(word, annotations, panel_data.popup_panel_content, on_search, location)
     })
 }
 
-async function build_popup_content(word: string, annotations: WordAnnotations, target: Element, on_search: (msg: string) => void)
+async function build_popup_content(word: string, annotations: WordAnnotations, target: Element, on_search: (msg: string) => void, location: ReferenceLocation)
 {
     target.append_element('div', ['panel-title'], div => {
         div.innerHTML = `"${word}"`;
     });
 
     append_highlights(annotations, target, on_search);
-    let r = await append_notes(annotations, target, on_search);
+    let r = await append_notes(annotations, target, on_search, location);
     return r;
 }
 
-async function append_notes(annotations: WordAnnotations, target: Element, on_search: (msg: string) => void) 
+async function append_notes(annotations: WordAnnotations, target: Element, on_search: (msg: string) => void, location: ReferenceLocation) 
 {
     for (let i = 0; i < annotations.notes.length; i++) 
     {
@@ -87,9 +96,7 @@ async function append_notes(annotations: WordAnnotations, target: Element, on_se
         let references = await notes.get_note_references(note_data);
         target.append_element('div', ['note-viewer'], div => {
             let edit_btn = utils.spawn_image_button(utils.images.PENCIL, _ => {
-                notes.set_editing_note(note_data.id).then(_ => {
-                    view_states.goto_current_view_state();
-                });
+                view_states.goto_edit_note_page(id, location);
             });
             edit_btn.button.title = 'Edit note';
 

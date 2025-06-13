@@ -227,6 +227,19 @@ fn migrate_sv6(json: &mut Value)
     const RECENT_HIGHLIGHTS_FIELD: &str = "recent_highlights";
     json.insert(RECENT_HIGHLIGHTS_FIELD.to_string(), serde_json::to_value(Vec::<Uuid>::new()).unwrap());
 
+
+    const VIEW_STATES_FIELD: &str = "view_states";
+    let view_states = json.get_mut(VIEW_STATES_FIELD).unwrap().as_array_mut().unwrap();
+    for v in view_states
+    {
+        let v = v.as_object_mut().unwrap();
+        let t = v.get("type").unwrap().as_str().unwrap();
+        if t == "search"
+        {
+            v.insert("note_editing_location".to_string(), serde_json::to_value(Option::<String>::None).unwrap());
+        }
+    }
+
     json.insert(SAVE_FIELD_NAME.to_owned(), serde_json::to_value(SaveVersion::SV7).unwrap());
 }
 
