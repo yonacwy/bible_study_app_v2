@@ -25,21 +25,20 @@ export async function run()
 
     audio_player.init_player();
 
+    let header_data = await pages.init_header(e => {
+        e.appendChild(spawn_audio_player_button());
+    });
+
     Promise.all([
-        pages.init_header(e => {
-            let last = e.children[e.children.length - 1];
-            let button = spawn_audio_player_button();
-            e.insertBefore(button, last);
-        }),
         init_chapter_buttons(),
-        display_chapter({book: data.book, number: data.chapter}, data.verse_range),
+        display_chapter({book: data.book, number: data.chapter}, data.verse_range, header_data.on_search),
     ]).then(_ => {
         document.body.style.visibility = 'visible';
         utils.scrolling.load_scroll();
     });
 }
 
-export async function display_chapter(chapter: ChapterIndex, verse_range: VerseRange | null)
+export async function display_chapter(chapter: ChapterIndex, verse_range: VerseRange | null, on_search: (msg: string) => void)
 {
     const content = document.getElementById(CONTENT_ID);
     const word_popup = document.getElementById(pages.WORD_POPUP_ID);
@@ -76,13 +75,7 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
         }
     }
 
-    utils.set_value(pages.SEARCH_INPUT_ID, input_value);
     utils.set_html(CHAPTER_NAME_ID, `${name} ${number}`);
-
-    let on_search = (msg: string): void => {
-        utils.set_value('search-input', msg);
-        document.getElementById('search-btn')?.click();
-    }
 
     let on_render = (): void => {
         audio_player.on_passage_render();
@@ -116,8 +109,10 @@ export async function display_chapter(chapter: ChapterIndex, verse_range: VerseR
                 let element = content.getElementsByClassName(`verse-index-${start}`)[0];
                 if (element !== undefined)
                 {
-                    element.scrollIntoView();
-                    window.scrollBy(0, -40);
+                    element.scrollIntoView({
+                        block: 'center',
+                        behavior: 'smooth',
+                    });
                 }
             }
         }

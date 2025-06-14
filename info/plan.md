@@ -1,7 +1,7 @@
 # Plan:
 
 
-### Version 0.6.0
+### Version 0.8.0
 - [ ] Notebook Support
   - [ ] Seperates different notes into notebooks
   - [ ] Enable/Disable for viewing
@@ -11,20 +11,70 @@
   - [ ] Searching based on keywords?
   - [ ] View multiple notebooks
 
+### Version 0.7.0: Multi-Platform Support
+- [ ] Android
+- [ ] MAC
+- [ ] IOS
+- [ ] Linux?
 
-### Version 0.5.3: Bug Fixes
-- [ ] Lots o Bugs fixes
-- [ ] Finalize audio playback (See Version 0.5.1)
-- [ ] Theme support
-  - [ ] Custom themes
-  - [ ] Given presets
-- [ ] More audio sounds???
-- [ ] Better highlighting
-  - [ ] No highlights created info
-  - [ ] Better highlight editor
-  - [ ] Preset highlights
-  - [ ] Highlight selector (recents)
-  - [ ] Better eraser system
+### Version 0.6.0: Cloud Saving
+- [ ] Cloud saving via Google Drive
+
+### Version 0.5.3: Bug Fixes and Improvements
+- [x] Lots o Bugs fixes
+  - [x] Removed close image on search note page
+  - [x] Pointer curser now on chapter buttons
+  - [x] Invalid display when creating an empty note
+  - [x] Edit note button changed to make like rest
+  - [x] Reference buttons on notes and section buttons on notes now have curser pointer
+  - [x] Reference buttons on notes and the edit note button now have proper titles
+  - [x] Note not saving when moving to a different page (ie: next chapter)
+  - [x] Long text not wrapping via `-` In the note viewer
+  - [x] Verse quotations in notes can be a tad too long
+  - [x] Excluded verses aren't handled
+  - [x] Unable to search for `song of solomon` (bug introduced in this update)
+  - [x] Audio player playback slider finishing on 0 instead of 1
+  - [x] References are now clickable while in the text editor
+  - [x] Section note page did not have the extra spacing after the chapter content like its non-note counterpart
+  - [x] Word popup stopping interactions with selection menu
+  - [x] Highlight menu not restricted to inside of page
+  - [x] Audio Player not clamped to inside of page
+  - [x] When selecting words, if a space was selected after a given word, it would select the next word as well (also fixed a hidden rendering bug as well)
+  - [x] Fixed visuals when closing a note on faster computers (now has an animated collapse)
+  - [x] Highlighting and opening the context menu, then clicking on the text or its parent again, removes the curser highlights, but leaves the context menu
+- [x] Finalize audio playback
+- [x] Better highlighting
+  - [x] No highlights created
+  - [x] Better highlight editor
+    - [x] Now with WYSIWYG
+    - [x] Looks nicer
+    - [x] Change highlight viewer layout
+  - [x] Preset highlights (when none created)
+  - [x] Highlight selector (recents)
+  - [x] Better selector system
+    - [x] Improve look
+    - [x] Erase all highlight button
+    - [x] Create new highlight button
+  - [x] Can now edit highlight in sidebar menu
+- [x] Miscellanies
+  - [x] Words with notes or highlights now have `pointer` curser when hovered
+  - [x] When closing editing note, scroll to where edited it
+  - [x] When editing an already created note, scroll to where editing it
+  - [x] Scroll offset to center, not top
+  - [x] Migrate save settings
+    - [x] Audio player
+    - [x] Recent highlights
+  - [x] Added a Footer to Bible pages (apparently they were looking a bit bare)
+  - [x] Resizer bar now shows if a side page is collapsed
+  - [x] Rename collapse buttons to be clearer
+  - [x] Header Ui Refactor
+    - [x] Dropdowns can now be toggled to active
+    - [x] Backend fixed to make the code less reliant on ids
+    - [x] Some visual upgrades
+  - [x] Added tooltip for chapter links on the daily readings page
+  - [x] Changed ul/ol margins for notes and highlight descriptions
+  - [x] Side info panel's min and max size is now dependent on the window min and max size
+
 
 ### Version 0.5.2: Note QoL Changes
 - [x] Selecting Notes and Highlights

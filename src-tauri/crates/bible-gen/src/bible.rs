@@ -119,6 +119,7 @@ pub fn make_small(bible: &Bible) -> Bible
     const SOS_INDEX: usize = 21;
     const MAL_INDEX: usize = 38;
     const MAT_INDEX: usize = 39;
+    const MK_INDEX: usize = 40;
     
     make_gen_copy(bible, &[
         (GEN_INDEX, &[Some(9)]),
@@ -128,7 +129,8 @@ pub fn make_small(bible: &Bible) -> Bible
         (PS_INDEX, &[None; 10]),
         (SOS_INDEX, &[Some(9)]),
         (MAL_INDEX, &[Some(14), Some(1)]),
-        (MAT_INDEX, &[Some(9)])
+        (MAT_INDEX, &[Some(9)]),
+        (MK_INDEX, &[None; 7]),
     ])
 }
 

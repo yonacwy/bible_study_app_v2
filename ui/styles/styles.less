@@ -76,6 +76,17 @@ main {
     margin-bottom: calc(100vh - @header-height - 40px);
 }
 
+.note-target {
+    ul, ol, li p {
+        margin-block-end: 0;
+        margin-block-start: 0;
+    }
+
+    p:has(+ ul) {
+        margin-bottom: 0;
+    }
+}
+
 .bible-content h1 {
     margin-top: 0;
     .font-large();
@@ -92,4 +103,16 @@ main {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+footer {
+    height: @footer-height;
+    text-align: center;
+    color: white;
+    background-color: #333;
+    dominant-baseline: middle;
+    font-style: italic;
+    margin: -20px;
+    .font-tiny();
+    padding-top: calc(10px - 1em / 2);
 }

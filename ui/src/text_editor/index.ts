@@ -10,7 +10,9 @@ import { EventHandler } from "../utils/events.js";
 export type TextEditorArgs = {
     id: string,
     parent: HTMLElement | null,
+    on_ref_clicked: (text: string) => void,
     save?: TextEditorSave,
+    has_misc_options: boolean, // close, delete, etc
 }
 
 export type TextEditorSaveType = 'html' | 'markdown' | 'json';
@@ -54,7 +56,7 @@ export class TextEditor
         let parent = args.parent ?? document.body;
         parent.appendChild(this.root);
     
-        this.view = new EditorView(document.querySelector(`#${args.id} > .editor`), {
+        this.view = new EditorView(this.root.querySelector(`#${args.id} > .editor`), {
             state: EditorState.create({
                 doc: DOMParser.fromSchema(SCHEMA).parse(this.content),
                 plugins: setup.build_plugins({
@@ -66,13 +68,31 @@ export class TextEditor
                     on_close: this.on_close,
                     on_save: this.on_save,
                     on_delete: this.on_delete,
+                    has_misc_options: args.has_misc_options,
                 })
             })
         });
 
+        let on_ref_clicked = (ev: MouseEvent) => {
+            let target = ev.target as HTMLElement;
+            let full_text = target.innerHTML;
+            let trimmed = full_text.substring(1, full_text.length - 1); // [Gen 1:1] => Gen 1:1
+            args.on_ref_clicked(trimmed);
+        }; 
+
+
+        let update_ref_click_listeners = () => 
+        {
+            this.view.dom.querySelectorAll('.bible-ref').values().filter(e => e instanceof HTMLElement).forEach(r => {
+                r.removeEventListener('click', on_ref_clicked);
+                r.addEventListener('click', on_ref_clicked);
+            });
+        }
+        
+        this.on_save.add_listener(_ => update_ref_click_listeners());
+
         // idk why we need to do this
         this.editor.querySelectorAll('.ProseMirror-menuseparator').forEach(s => {
-            utils.debug_print('setting value');
             if(s instanceof HTMLElement)
             {
                 s.style.display = 'block';
@@ -115,13 +135,16 @@ export class TextEditor
             case "json":
                 try 
                 {
-                    let data = JSON.parse(save.source);
-                    this.view.state.doc = Node.fromJSON(SCHEMA, data);
-                    this.view.update({ state: this.view.state });
+                    if (!utils.is_empty_str(save.source))
+                    {
+                        let data = JSON.parse(save.source);
+                        this.view.state.doc = Node.fromJSON(SCHEMA, data);
+                        this.view.update({ state: this.view.state });
+                    }
                 }
                 catch 
                 {
-                    utils.debug_print('Error formatting json content');
+                    utils.debug_print(`Error formatting json content: ${save.source}`);
                     return false;
                 }
                 break;

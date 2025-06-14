@@ -17,11 +17,12 @@ export function render_word(data: WordData)
     if(data.has_note)
     {
         word_node.style.textDecoration = 'underline';
+        word_node.style.cursor = 'pointer';
     }
 
     if (data.word.italicized)
     {
-        word_node.style.fontStyle = 'italic'
+        word_node.style.fontStyle = 'italic';
     }
     
     if (data.searched !== null && data.searched.includes(utils.trim_string(data.word.text).toLocaleLowerCase()))
@@ -32,6 +33,7 @@ export function render_word(data: WordData)
     if(data.color !== null)
     {
         word_node = color(word_node, data.color);
+        word_node.style.cursor = 'pointer';
     }
 
     return word_node
@@ -57,7 +59,7 @@ export function get_highest_priority_highlight(word_highlights: string[], catego
 export function create_bible_space(): HTMLElement
 {
     let space = document.createElement('span');
-    space.innerHTML = "&nbsp;"
+    space.innerHTML = "&nbsp; "; // NEED THE SPACE AFTER THIS, VERY IMPORTANT
     space.classList.add('bible-space');
     return space;
 }
@@ -65,7 +67,7 @@ export function create_bible_space(): HTMLElement
 export function create_bible_word(t: string): HTMLElement
 {
     let word = document.createElement('span');
-    word.innerHTML = t;
+    word.innerHTML = t.trim();
     word.classList.add('bible-word');
     return word;
 }

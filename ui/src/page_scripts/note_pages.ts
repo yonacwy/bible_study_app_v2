@@ -2,12 +2,8 @@ import * as utils from "../utils/index.js";
 import * as notes from "../notes.js";
 import * as view_states from "../view_states.js";
 import * as confirm_popup from "../popups/confirm_popup.js";
-import * as bible from "../bible.js";
-import { format_reference_id } from "../rendering/word_search.js";
 import * as selection from "../selection.js";
 import { TextEditor } from "../text_editor/index.js";
-
-const DELETE_NOTE_BUTTON = 'delete-note-btn'
 
 export async function init_note_page(note_id: string, on_text_require_rerender: () => void, on_search: (msg: string) => void): Promise<void>
 {
@@ -20,17 +16,21 @@ export async function init_note_page(note_id: string, on_text_require_rerender: 
 
     Promise.all([
         init_resizer(),
-        init_text_editor(note_id).then(_ => {
+        init_text_editor(note_id, on_search).then(_ => {
             init_note_references(on_text_require_rerender, on_search);
         }),
     ]);
 }
 
-async function init_text_editor(note_id: string)
+async function init_text_editor(note_id: string, on_search: (msg: string) => void)
 {
     let editor = new TextEditor({
         id: 'note-editor',
-        parent: document.getElementById('right-pane')
+        parent: document.getElementById('right-pane'),
+        has_misc_options: true,
+        on_ref_clicked: (ref) => {
+            on_search(ref)
+        }
     });
 
     let note = await notes.get_note(note_id);
@@ -52,9 +52,10 @@ async function init_text_editor(note_id: string)
     editor.on_save.add_listener(save_note);
 
     editor.on_close.add_listener(async () => {
-        save_note().then(_ => {
+        save_note().then(async _ => {
             apply_transitions();
             collapse_pane(PaneSideType.Right);
+            await utils.sleep(500);
             notes.set_editing_note(null).then(_ => {
                 view_states.goto_current_view_state();
             });
@@ -105,8 +106,7 @@ async function render_note_references(on_text_require_rerender: () => void, on_s
 
     references.forEach((r, index) => {
         let link = utils.spawn_element('div', ['note-reference'], link => {
-            link.appendElement('div', text_node => {
-                text_node.classList.add('reference-text');
+            link.append_element('div', ['reference-text'], text_node => {
                 text_node.innerHTML = `${r[0]}: ${r[1]}`;
             })
     
@@ -144,42 +144,6 @@ async function delete_reference(index: number, on_text_require_rerender: () => v
     });
 }
 
-export async function scroll_to_editing()
-{
-    let editing = notes.get_did_create_note();
-    if(!editing) return;
-
-    let view_state_type = await view_states.get_view_state_type();
-
-    if (view_state_type == view_states.ViewStateType.Chapter)
-    {
-        let chapter = await bible.get_chapter();
-        if(!chapter) return;
-
-        let view = await bible.get_chapter_view(chapter);
-        let word_index = bible.flatten_verse_index(view, editing.range.verse_start, editing.range.word_start);
-        
-        let words = leftPane.getElementsByClassName('bible-word');
-        if(!words) return;
-        words[word_index].scrollIntoView();
-        leftPane.scrollBy(0, -40);
-    }
-    else if (view_state_type == view_states.ViewStateType.Search)
-    {
-        let ids = await Promise.all(utils.ranges.range_inclusive(editing.range.verse_start, editing.range.verse_end)
-            .map(async v => format_reference_id(editing.chapter.book, editing.chapter.number, v))
-            .toArray());
-
-        let verse = ids.find_map(id => document.getElementById(id));
-        if (verse !== undefined)
-        {
-            verse.scrollIntoView();
-            leftPane.scrollBy(0, -40);
-        }
-    }
-}
-
-
 enum PaneSideType 
 {
     Right,
@@ -214,12 +178,10 @@ function init_resizer()
         if (leftWidth < collapseThreshold) 
         {
             collapse_pane(PaneSideType.Left);
-            hide_resizer();
         } 
         else if ((100 - leftWidth) < collapseThreshold) 
         {
             collapse_pane(PaneSideType.Right);
-            hide_resizer();
         } 
         else 
         {
@@ -229,7 +191,6 @@ function init_resizer()
             rightPane.style.padding = "10px";
 
             update_collapse_images(null);
-            show_resizer();
         }
     });
 
@@ -250,15 +211,10 @@ function init_resizer()
             leftPane.style.padding = '10px';  // Restore padding
             rightPane.style.width = '50%';
             update_collapse_images(null);
-            show_resizer();
         } 
         else 
         {
             collapse_pane(PaneSideType.Left);
-            show_resizer();
-            setTimeout(() => {
-                hide_resizer();
-            }, 300);
         }
     });
 
@@ -270,15 +226,10 @@ function init_resizer()
             rightPane.style.padding = '10px';  // Restore padding
             leftPane.style.width = '50%';
             update_collapse_images(null);
-            show_resizer();
         } 
         else 
         {
             collapse_pane(PaneSideType.Right);
-            show_resizer();
-            setTimeout(() => {
-                hide_resizer();
-            }, 300);
         }
     });
 }
@@ -291,8 +242,8 @@ function remove_transitions()
 
 function apply_transitions() 
 {
-    leftPane.style.transition = 'width 0.3s ease-in-out';
-    rightPane.style.transition = 'width 0.3s ease-in-out';
+    leftPane.style.transition = 'width 0.4s ease-in-out';
+    rightPane.style.transition = 'width 0.4s ease-in-out';
 }
 
 function collapse_pane(side: PaneSideType) 
@@ -344,16 +295,4 @@ function update_collapse_images(type: PaneSideType | null) {
         left_min_img.classList.remove('hidden');
         left_max_img.classList.add('hidden');
     }
-}
-
-function hide_resizer()
-{
-    if(!resizer) return;
-    resizer.style.display = 'none';
-}
-
-function show_resizer()
-{
-    if(!resizer) return;
-    resizer.style.display = 'block';
 }

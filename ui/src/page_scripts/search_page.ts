@@ -1,29 +1,30 @@
 import * as utils from "../utils/index.js";
 import * as pages from "./pages.js";
-import { SearchSection } from "../bindings.js";
+import { ReferenceLocation, SearchSection } from "../bindings.js";
 import * as search from "../rendering/word_search.js";
 import { PanelData } from "../popups/side_popup.js";
 import * as bible from "../bible.js";
+import { MainPageHeaderData } from "./menu_header.js";
 
-export function run()
+export async function run()
 {
     let section = utils.decode_from_url(window.location.href) as SearchSection;
     utils.init_format_copy_event_listener();
 
     bible.add_version_changed_listener(_ => {
         utils.scrolling.save_scroll(null);
-    })
+    });
 
+    const header_data = await pages.init_header();
     Promise.all([
-        pages.init_header(),
-        display_search(section),
+        display_search(section, header_data),
     ]).then(() => {
         document.body.style.visibility = 'visible';
         utils.scrolling.load_scroll();
     })
 }
 
-export async function display_search(section: SearchSection): Promise<void>
+export async function display_search(section: SearchSection, header_data: MainPageHeaderData): Promise<void>
 {
     const word_popup = document.getElementById('word-popup');
     const side_popup = document.getElementById('popup-panel');
@@ -41,16 +42,17 @@ export async function display_search(section: SearchSection): Promise<void>
     }
     
     let search_result = await utils.invoke('run_word_search', { words: section.words });
-    
-    utils.set_value('search-input', section.words.join(" "));
 
-    await search.render_search_result(search_result, section.words, 'word-search-content', word_popup, side_popup_data, section.display_index, 
-        () => {
-            pages.update_nav_buttons_opacity();
-        }, 
-        (msg: string) => {
-            utils.set_value('search-input', msg);
-            document.getElementById('search-btn')?.click();
-        }
-    );
+    await search.render_search_result({
+            result: search_result, 
+            searched: section.words, 
+            results_id: 'word-search-content', 
+            word_popup, side_popup_data, 
+            display_index: section.display_index, 
+            editing_note_location: section.editing_note_location,
+            on_rendered: () => {
+                header_data.update_nav_active();;
+            }, 
+            on_search: header_data.on_search
+        });
 }

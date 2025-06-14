@@ -13,6 +13,32 @@
     left: 0;
     top: @header-height;
     display: flex;
+    z-index: 10000;
+
+    .recent {
+        width: @button-size;
+        height: @button-size;
+        margin: @button-margin;
+        border: 2px solid #ccc;
+        box-sizing: border-box;
+        border-radius: 5px * @ui-scale;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+        padding: none;
+
+        img {
+            margin: 10%;
+            width: 80%;
+            height: 80%;
+            border: none;
+            margin: none;
+            padding: none;
+        }
+    }
+
+    .recent:hover {
+        border: 2px solid #333;
+    }
 
     .drop-shadow-m();
     .border-black();

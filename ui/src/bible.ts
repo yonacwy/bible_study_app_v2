@@ -1,6 +1,6 @@
 import { invoke, debug_print, color_to_hex, trim_string, capitalize_first_char } from "./utils/index.js";
 import { push_section, get_current_view_state } from "./view_states.js";
-import { BibleSection, BookView, ChapterIndex, ChapterView, VerseRange } from "./bindings.js";
+import { BibleSection, BookView, ChapterIndex, ChapterView, Verse, VerseRange } from "./bindings.js";
 import { EventHandler, Listener } from "./utils/events.js";
 import * as utils from "./utils/index.js";
 
@@ -30,6 +30,18 @@ export async function get_chapter(): Promise<ChapterIndex | null>
     return view_state.chapter;
 }
 
+export async function get_verse_range(): Promise<VerseRange | null>
+{
+    let view_state = await get_current_view_state();
+    if(view_state.type !== 'chapter')
+    {
+        debug_print('tried to get non chapter view state');
+        return null;
+    }
+
+    return view_state.verse_range;
+}
+
 export async function get_chapter_words(chapter: ChapterIndex): Promise<string[]>
 {
     let chapter_text = JSON.parse(await invoke('get_chapter_text', { chapter: chapter }));
@@ -46,6 +58,11 @@ export async function get_chapter_words(chapter: ChapterIndex): Promise<string[]
     }
 
     return words;
+}
+
+export async function get_verse_data(chapter: ChapterIndex, verse: number): Promise<Verse>
+{
+    return await utils.invoke('get_verse', { book: chapter.book, chapter: chapter.number, verse: verse });
 }
 
 export async function to_next_chapter(): Promise<void>
@@ -176,6 +193,10 @@ export function shorten_book_name(name: string): string
     else if(name === 'john')
     {
         name = 'jn';
+    }
+    else if (name == 'mark')
+    {
+        name = 'mk';
     }
 
     name = name = name.length > SHORTENED_BOOK_NAME_LENGTH
@@ -308,6 +329,19 @@ export function expand_chapter_index(bible_view: BookView[], index: number): Cha
         book,
         number,
     }
+}
+
+export function increment_chapter(bible_view: BookView[], start: ChapterIndex, count: number): ChapterIndex
+{
+    let chapter_index = flatten_chapter_index(bible_view, start) + count;
+    let total = bible_view.map(v => v.chapter_count).reduce((a, b) => a + b);
+
+    if (chapter_index >= total)
+    {
+        chapter_index = chapter_index - total;
+    }
+
+    return expand_chapter_index(bible_view, chapter_index);
 }
 
 export function get_chapter_distance(bible_view: BookView[], start: ChapterIndex, end: ChapterIndex): number

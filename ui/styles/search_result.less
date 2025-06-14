@@ -16,7 +16,11 @@
     border-radius: 5px;
     text-wrap: wrap;
     
-    .drop-shadow-l();
+    .drop-shadow-s();
+    
+    &.searched {
+        background-color: rgb(193, 193, 193)
+    }
 }
 
 .results .verse p {
@@ -43,6 +47,10 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 5px;
+
+    button {
+        cursor: pointer;
+    }
 }
 
 .selected-button {

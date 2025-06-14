@@ -2,7 +2,8 @@ import { NoteData, NoteSourceType, ReferenceLocation } from "./bindings.js";
 import * as utils from "./utils/index.js";
 import * as bible from "./bible.js";
 
-const CREATED_NOTE_STORAGE: utils.storage.ValueStorage<ReferenceLocation> = new utils.storage.ValueStorage<ReferenceLocation>("created-note");
+const CREATED_NOTE_STORAGE = new utils.storage.ValueStorage<ReferenceLocation>("created-note");
+
 // Will return true ONCE when called after creating a note. 
 // All subsequent calls before creating another note will return null
 export function get_did_create_note(): ReferenceLocation | null
@@ -62,7 +63,7 @@ export async function get_note_references(note_data: NoteData): Promise<[string,
         let end = bible.flatten_verse_index(view, location.range.verse_end, location.range.word_end);
 
         let words = await bible.get_chapter_words(location.chapter);
-        let text = words.slice(start, end + 1).join(' ');
+        let text = words.slice(start, end + 1).join(' ').limit_length(30, '...');
         let name = bible.shorten_book_name(bible_view[location.chapter.book].name); 
 
         let title = `${name} ${location.chapter.number + 1}:${location.range.verse_start + 1}`;
@@ -71,7 +72,7 @@ export async function get_note_references(note_data: NoteData): Promise<[string,
             title += `-${location.range.verse_end + 1}`;
         }
 
-        references.push([title, text]);
+        references.push([title, text.valueOf()]);
     }
 
     return references;

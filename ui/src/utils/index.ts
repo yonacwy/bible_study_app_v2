@@ -43,9 +43,27 @@ export function debug_print(msg: string)
     invoke('debug_print', {message: msg});
 }
 
-export function debug_json(value: any)
+export function debug_json(value: any, pretty_print: boolean = false)
 {
-    debug_print(JSON.stringify(value));
+    if (pretty_print)
+    {
+        debug_print(format_json(JSON.stringify(value)));
+    }
+    else 
+    {
+        debug_print(JSON.stringify(value));
+    }
+}
+
+/**
+ * Should generate a uuid in the version v4, although is not tested
+ * @returns 
+ */
+export function gen_uuid_v4(): string 
+{
+    return '10000000-1000-4000-8000-100000000000'.replace(/018/g, c => 
+        (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+    );
 }
 
 // a la chatgpt
@@ -83,9 +101,74 @@ export function format_json(str: string, tab: string = '   '): string
     }
 }
 
+type Primitive = number | string | boolean | null | undefined;
+type Comparable = 
+    | Primitive
+    | Comparable[]
+    | { [key: string]: Comparable }
+
+
+export function is_equivalent<T extends Comparable>(a: T, b: T): boolean
+{
+    if (a === b) return true;
+
+    if (Array.isArray(a) && Array.isArray(b))
+    {
+        if (a.length !== b.length) return false;
+        for(let i = 0; i < a.length; i++)
+        {
+            if (!is_equivalent(a[i], b[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    if (is_plain_object(a) && is_plain_object(b))
+    {
+        let a_keys = Object.keys(a);
+        let b_keys = Object.keys(b);
+        if (a_keys.length !== b_keys.length) return false;
+
+        for(let i = 0; i < a_keys.length; i++)
+        {
+            let key = a_keys[i];
+            if (!is_equivalent(a[key], b[key]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    return false;
+}
+
+export function is_plain_object(value: any): value is Record<string, unknown> 
+{
+    if (typeof value !== 'object' || value === null) return false;
+
+    const proto = Object.getPrototypeOf(value);
+    return proto === Object.prototype || proto === null;
+}
+
 export function overlap<T>(a: T[], b: T[]): T[]
 {
     return a.filter(i => b.includes(i))
+}
+
+export function profile<R>(name: string, f: () => R): R
+{
+    let start = new Date().getTime();
+    let r = f();
+    let end = new Date().getTime();
+    let elapsed = end - start;
+    debug_print(`Task ${name} took ${elapsed}ms`);
+    return r;
 }
 
 export async function is_app_initialized(): Promise<boolean>
@@ -208,58 +291,20 @@ export function open_save_in_file_explorer()
     })
 }
 
-export function spawn_element<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (e: HTMLElementTagNameMap[K]) => void): HTMLElementTagNameMap[K]
+export function spawn_element<K extends keyof HTMLElementTagNameMap>(key: K, classes: string[], builder: (e: HTMLElementTagNameMap[K]) => void, parent?: HTMLElement): HTMLElementTagNameMap[K]
 {
     let element = document.createElement(key);
-    element.classList.add(...classes);
+    if (classes.length > 0)
+    {
+        element.classList.add(...classes);
+    }
+    
     builder(element);
+    if(parent !== undefined)
+    {
+        parent.appendChild(element)
+    }
     return element;
-}
-
-export type SliderArgs = {
-    min?: number,
-    max?: number,
-    step?: number,
-    default?: number,
-    on_input?: (v: number) => void, 
-    on_change?: (v: number) => void,
-    classes?: string[],
-}
-
-export function spawn_slider(args: SliderArgs): HTMLInputElement
-{
-    let min = (args.min ?? 0).toString();
-    let max = (args.max ?? 1).toString();
-    let value = (args.default ?? 0.5).toString();
-    let step = (args.step ?? 0.001).toString();
-
-    let input = spawn_element('input', args.classes ?? [], slider => {
-        slider.type = 'range';
-
-        slider.style.setProperty('--min', min);
-        slider.style.setProperty('--max', max);
-
-        slider.min = min;
-        slider.max = max;
-        slider.step = step;
-
-        if(args.on_input !== undefined)
-        {
-            slider.addEventListener('input', _ => {
-                (args.on_input as (v: number) => void)(+slider.value);
-            })
-        }
-
-        if(args.on_change !== undefined)
-        {
-            slider.addEventListener('change', _ => {
-                (args.on_change as (v: number) => void)(+slider.value);
-            })
-        }
-    });
-
-    input.value = value; // doesn't work if we put it in the `spawn_element` block for some reason.
-    return input;
 }
 
 

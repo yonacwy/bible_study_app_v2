@@ -45,7 +45,7 @@ pub fn parse_verse(text: &str) -> Verse {
 }
 
 pub fn parse_bible(text: &str) -> Result<Bible, String> {
-    let pattern = Regex::new(r"\s*([1-2]?\s*.*?)\s*([0-9]*):([0-9]*)\s*(.*)\n?").unwrap();
+    let pattern = Regex::new(r"\s*(?<book>[1-2]?\s*[a-zA-Z]+(?:\s+[a-zA-Z]+)*)\s+(?<chapter>\d+):(?<verse>\d+)(?:(?<text>[^\n]*))").unwrap();
 
     let mut lines = text.lines();
     let Some(version) = lines.next() else {
@@ -60,10 +60,12 @@ pub fn parse_bible(text: &str) -> Result<Bible, String> {
 
     let mut books: Vec<Book> = vec![];
     let mut last_chapter_number = 0;
-    for (_, [book_name, chapter_name, _verse_name, text]) in
-        pattern.captures_iter(&rest).map(|c| c.extract())
+    for cap in pattern.captures_iter(&rest)
     {
-        let chapter_number = chapter_name.parse().unwrap();
+        let book_name = cap.name("book").unwrap().as_str();
+        let chapter_str = cap.name("chapter").unwrap().as_str();
+        let text = cap.name("text").map(|m| m.as_str()).unwrap_or("");
+        let chapter_number = chapter_str.parse().unwrap();
 
         if books.is_empty() || books.last().unwrap().name != book_name {
             books.push(Book {

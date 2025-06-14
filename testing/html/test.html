@@ -1,132 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Custom Right-Click Context Menu</title>
-<style>
-  /* Base styling for the menu */
-  .context-menu {
-    position: absolute;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    padding: 8px 0;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    display: none;
-    z-index: 1000;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Highlight Panels Example</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      padding: 40px;
+    }
 
-  .context-menu-item {
-    padding: 8px 16px;
-    cursor: pointer;
-    white-space: nowrap;
-    position: relative;
-  }
+    .highlight-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
 
-  .context-menu-item:hover {
-    background-color: #ddd;
-  }
+    .highlight {
+      display: flex;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      overflow: hidden;
+      background-color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
 
-  /* Styling for submenu */
-  .context-menu-submenu {
-    position: absolute;
-    top: 0;
-    left: 100%;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    padding: 8px 0;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    display: none;
-  }
+    .highlight:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
 
-  .context-menu-item.has-submenu::after {
-    content: "▶";
-    float: right;
-  }
+    .color-bar {
+      width: 10px;
+    }
 
-  .context-menu-item.has-submenu:hover .context-menu-submenu {
-    display: block;
-  }
-</style>
+    .highlight-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .highlight-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .highlight-header h2 {
+      margin: 0;
+      font-size: 1.2em;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .highlight-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .image-btn {
+      background: transparent;
+      border: none;
+      padding: 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .image-btn:hover {
+      background-color: #f0f0f0;
+    }
+
+    .image-btn img {
+      width: 18px;
+      height: 18px;
+    }
+
+    .highlight-description {
+      font-size: 0.95em;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    .priority {
+      font-weight: bold;
+      color: #555;
+      font-size: 0.9em;
+    }
+  </style>
 </head>
 <body>
 
-<!-- Context menu structure -->
-<div id="contextMenu" class="context-menu">
-  <div class="context-menu-item" onclick="alert('Action 1')">Action 1</div>
-  <div class="context-menu-item has-submenu">
-    More Options
-    <div class="context-menu-submenu">
-      <div class="context-menu-item" onclick="alert('Sub Action 1')">Sub Action 1</div>
-      <div class="context-menu-item" onclick="alert('Sub Action 2')">Sub Action 2</div>
-      <div class="context-menu-item has-submenu">
-        Deep Options
-        <div class="context-menu-submenu">
-          <div class="context-menu-item" onclick="alert('Deep Action 1')">Deep Action 1</div>
-          <div class="context-menu-item" onclick="alert('Deep Action 2')">Deep Action 2</div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="context-menu-item" onclick="alert('Action 3')">Action 3</div>
-</div>
+  <h1 style="text-align:center;">Highlight Panel Example</h1>
+  <div id="highlight-grid" class="highlight-grid"></div>
 
-<script>
-  const contextMenu = document.getElementById('contextMenu');
-
-  // Utility function to show the menu at a given position
-  function showMenu(menu, x, y) {
-    menu.style.left = `${x}px`;
-    menu.style.top = `${y}px`;
-    menu.style.display = 'block';
-
-    const rect = menu.getBoundingClientRect();
-
-    // Adjust position if the menu goes outside the viewport
-    if (rect.right > window.innerWidth) {
-      menu.style.left = `${x - rect.width}px`;
-    }
-    if (rect.bottom > window.innerHeight) {
-      menu.style.top = `${y - rect.height}px`;
-    }
-  }
-
-  // Utility function to handle submenu positioning
-  function positionSubmenu(menu) {
-    const submenus = menu.querySelectorAll('.context-menu-submenu');
-    submenus.forEach(submenu => {
-      const parentRect = submenu.parentElement.getBoundingClientRect();
-      submenu.style.top = '0'; // Align submenu to parent item
-
-      const submenuRect = submenu.getBoundingClientRect();
-      if (parentRect.right + submenuRect.width > window.innerWidth) {
-        submenu.style.left = `-${submenuRect.width}px`; // Position submenu to the left
-      } else {
-        submenu.style.left = '100%'; // Default to right
+  <script>
+    const highlightsData = [
+      {
+        title: "Blue",
+        color: "rgb(0, 191, 255)",
+        description: "Here is a test description to see what it should look like. Please like and subscribe.",
+        priority: 5
+      },
+      {
+        title: "Tomato",
+        color: "rgb(255, 99, 71)",
+        description: "Another example of a simpler highlight panel using red.",
+        priority: 3
+      },
+      {
+        title: "Green",
+        color: "rgb(60, 179, 113)",
+        description: "A softer tone for more relaxed highlights.",
+        priority: 2
+      },
+      {
+        title: "Gold",
+        color: "rgb(255, 215, 0)",
+        description: "A bold, attention-grabbing highlight.",
+        priority: 1
       }
-      if (parentRect.top + submenuRect.height > window.innerHeight) {
-        submenu.style.top = `-${submenuRect.height - parentRect.height}px`; // Adjust if it goes off bottom
-      }
-    });
-  }
+    ];
 
-  // Event listener to show context menu
-  document.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    showMenu(contextMenu, e.clientX, e.clientY);
-    positionSubmenu(contextMenu); // Adjust position of submenus
-  });
+    function renderHighlights(data, containerId = "highlight-grid") {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
 
-  // Hide menu on clicking elsewhere
-  document.addEventListener('click', () => {
-    contextMenu.style.display = 'none';
-  });
+      data.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "highlight";
+        div.innerHTML = `
+          <div class="color-bar" style="background-color: ${item.color};"></div>
+          <div class="highlight-content">
+            <div class="highlight-header">
+              <h2>${item.title}</h2>
+              <div class="highlight-actions">
+                <button class="image-btn" title="Edit">
+                  <img src="../../ui/images/light-pencil.svg" alt="Edit">
+                </button>
+                <button class="image-btn" title="Delete">
+                  <img src="../../ui/images/light-trash-can.svg" alt="Delete">
+                </button>
+              </div>
+            </div>
+            <div class="highlight-description">${item.description}</div>
+            <div class="priority">Priority: ${item.priority}</div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
 
-  // Hide menu on window resize
-  window.addEventListener('resize', () => {
-    contextMenu.style.display = 'none';
-  });
-</script>
-
+    // Run on page load
+    renderHighlights(highlightsData);
+  </script>
 </body>
 </html>

@@ -1,15 +1,21 @@
 import * as utils from "./utils/index.js";
 import * as bible from "./bible.js";
 import * as notes from "./notes.js";
-import { ChapterIndex, Color } from "./bindings.js";
+import { ChapterIndex, Color, ReferenceLocation } from "./bindings.js";
 import * as view_states from "./view_states.js";
 import * as highlights from "./highlights.js";
+import { goto_highlight_editor_page } from "./page_scripts/highlight_editor.js";
 
 export async function init_selection()
 {
     let popup = await spawn_selection_popup();
     document.body.appendChild(popup);
-    document.addEventListener('mouseup', e => on_selection_stopped(e, popup));
+    document.addEventListener('mouseup', async e => {
+        // need to do this, so that when clicking on text that is already selected, it will wait for the selection to be cleared before firing.
+        // 10ms should be enough, and the user should not notice
+        await utils.sleep(10);
+        on_selection_stopped(e, popup);
+    });
 }
 
 export type SelectionEventType = 'edited-note' | 'highlighted' | 'erased';
@@ -68,8 +74,10 @@ let selected_ranges: SelectedWordRange[] = [];
 
 function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
 {
-    popup.style.left = e.clientX + 10 + 'px';
-    popup.style.top = e.clientY + 10 + 'px';
+    if (popup.contains(e.target as HTMLElement) || popup === e.target) // if we clicked on the popup, do nothing
+    {
+        return;
+    }
     
     let selection = window.getSelection();
 
@@ -82,19 +90,19 @@ function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
             .toArray();
 
         let ranges = utils.ranges.range(0, selection.rangeCount).map(r => selection.getRangeAt(r)).toArray();
-        
 
-        selected_words = all_words.filter(w => {
-            for(let i = 0; i < ranges.length; i++)
-            {
-                if(ranges[i].intersectsNode(w))
-                {
-                    return true;
-                }
-            }
+        selected_words = all_words.filter(wordEl => {
+            const word_range = document.createRange();
+            word_range.selectNodeContents(wordEl);
 
-            return false;
-        })
+            // Check if the selection overlaps with the word's range
+            return ranges.some(range => {
+                return (
+                    range.compareBoundaryPoints(Range.END_TO_START, word_range) < 0 &&
+                    range.compareBoundaryPoints(Range.START_TO_END, word_range) > 0
+                );
+            });
+        });
     }
     
     selected_ranges = [];
@@ -123,100 +131,197 @@ function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
             }
         });
 
-        popup.classList.remove('hidden');
+        show_popup(popup, e);
     }
     else 
     {
-        popup.classList.add('hidden');
+        hide_popup(popup);
+        selected_ranges = [];
+        return;
     }
+    
+    popup.replaceChildren();
+
+    Promise.all([
+        spawn_highlight_dropdown(popup),
+        spawn_erase_dropdown(popup),
+        spawn_new_note_button(),
+        spawn_editing_note_button(),
+    ]).then(c => c as (HTMLElement | null)[]).then(async children => {
+        let recents = await spawn_recent_highlights(popup);
+
+        recents.forEach(r => {
+            popup.appendChild(r);
+        })
+
+        for(let i = 0; i < children.length; i++)
+        {
+            let c = children[i];
+            if (!c) continue;
+            
+            popup.appendChild(c);
+            if(c.classList.contains('small-dropdown'))
+            {
+                let content = c.querySelector('.small-dropdown-content') as HTMLElement;
+
+                content.style.display = 'block';
+                let rect = content.getBoundingClientRect();
+                let window_height = document.documentElement.clientHeight;
+
+                if (rect.bottom > window_height + 10)
+                {
+                    c.classList.add('reverse');
+                    content.reverse_children();
+                }
+
+                content.style.display = '';
+            }
+        }
+    });
+}
+
+function show_popup(popup: HTMLElement, e: MouseEvent) 
+{
+    popup.classList.remove('hidden');
+    const SIZE_PADDING: number = 10;
+    let window_size = {
+        width: document.documentElement.clientWidth,
+        height: document.documentElement.clientHeight,
+    }
+
+    let popup_rect = popup.getBoundingClientRect();
+
+    if(e.clientX + popup_rect.width + SIZE_PADDING > window_size.width)
+    {
+        popup.style.left = (window_size.width - popup_rect.width - SIZE_PADDING) + 'px';
+    }
+    else 
+    {
+        popup.style.left = e.clientX + SIZE_PADDING + 'px';
+    }
+
+    if(e.clientY + popup_rect.height + SIZE_PADDING > window_size.height)
+    {
+        popup.style.top = (window_size.height - popup_rect.height - SIZE_PADDING) + 'px';
+    }
+    else 
+    {
+        popup.style.top = e.clientY + SIZE_PADDING + 'px';
+    }
+}
+
+function hide_popup(popup: HTMLElement)
+{
+    popup.classList.add('hidden');
 }
 
 async function spawn_selection_popup(): Promise<HTMLElement>
 {
     let popup = utils.spawn_element('div', ['selection-popup', 'hidden'], _ => {});
-
-    let create_button = spawn_new_note_button();
-    let edit_button = await spawn_editing_note_button();
-    let highlight_dropdown = await spawn_highlight_dropdown(popup);
-    let erase_dropdown = await spawn_erase_dropdown(popup);
-
-    
-    popup.appendChild(create_button);
-    popup.appendChild(edit_button);
-    popup.appendChild(highlight_dropdown);
-    popup.appendChild(erase_dropdown);
-
     return popup;
 }
 
-async function spawn_erase_dropdown(popup: HTMLElement): Promise<HTMLElement>
+async function spawn_erase_dropdown(popup: HTMLElement): Promise<HTMLElement | null>
 {
-    return spawn_highlight_selector(utils.images.ERASER, 'Erase a highlight', id => {
-        erase_highlight(id, popup);
+    let all_cats = await highlights.get_categories();
+    let categories = highlights.sort_highlights(await get_used_highlights().then(used => {
+        return used.map(u => all_cats[u]);
+    }));
+
+    if (categories.length === 0)
+    {
+        return null;
+    }
+
+    return spawn_highlight_selector({
+        image: utils.images.ERASER,
+        tooltip: 'Erase highlights',
+        color_options: categories,
+        on_select: id => {
+            popup.classList.add('hidden');
+            erase_highlight(id);
+        },
+        on_clear: () => {
+            popup.classList.add('hidden');
+            clear_all_highlights()
+        },
+        select_type: 'erase'
     })
+}
+
+async function get_used_highlights(): Promise<string[]>
+{
+    let ret: string[] = [];
+    
+    return selected_ranges.map(r => (async () => {
+        let annotations = await highlights.get_chapter_annotations(r.chapter);
+        for (let i = r.begin; i <= r.end; i++)
+        {
+            let wa = annotations[i];
+            if(wa)
+            {
+                for(let j = 0; j < wa.highlights.length; j++)
+                {
+                    if (!ret.includes(wa.highlights[j]))
+                    {
+                        ret.push(wa.highlights[j]);
+                    }
+                }
+            }
+        }
+
+        return;
+    })()).flatten_promise().then(_ => {
+        return ret;
+    });
 }
 
 async function spawn_highlight_dropdown(popup: HTMLElement): Promise<HTMLElement>
 {
-    return spawn_highlight_selector(utils.images.HIGHLIGHTER, 'Select a highlight', id => {
-        paint_highlight(id, popup);
-    });
+    return spawn_highlight_selector({
+        image: utils.images.HIGHLIGHTER,
+        tooltip: 'Highlight',
+        color_options: await highlights.get_sorted_categories(),
+        on_select: id => {
+            popup.classList.add('hidden');
+            paint_highlight(id);
+        },
+        on_new: () => {
+            popup.classList.add('hidden');
+            goto_highlight_editor_page(null);
+        },
+        select_type: 'highlight',
+    })
 }
 
-async function spawn_highlight_selector(image: string, tooltip: string, on_select: (id: string) => void): Promise<HTMLElement>
+async function spawn_recent_highlights(popup: HTMLElement): Promise<HTMLElement[]>
 {
     let categories = await highlights.get_categories();
-    let options = Object.entries(categories).map(v => {
-        return {
-            id: v[0],
-            name: v[1].name,
-            color: v[1].color,
+    let recents = await highlights.get_recent_highlights();
+
+    return recents.map(id => {
+        if (categories[id] === undefined)
+        {
+            return null;
         }
-    });
 
-    let option_nodes = options.map(o => utils.spawn_element('div', ['dropdown-option'], div => {
-        div.appendElement('span', s => s.innerHTML = o.name);
-        div.appendElementEx('div', ['color-square'], square => {
-            square.style.backgroundColor = utils.color_to_hex(o.color);
+        let color = categories[id].color;
+        let name = categories[id].name;
+
+        return utils.spawn_element('div', ['recent'], div => {
+            div.style.backgroundColor = utils.color_to_hex(color);
+            div.title = `Select highlight ${name}`;
+
+            div.addEventListener('click', e => {
+                popup.classList.add('hidden');
+                paint_highlight(id);
+            })
         });
-
-        div.addEventListener('click', _ => on_select(o.id));
-    }));
-
-    let dropdown = utils.spawn_element('div', ['dropdown'], dropdown => {
-        let btn = utils.spawn_image_button(image);
-        btn.button.title = tooltip;
-        dropdown.appendChild(btn.button);
-
-        let content = utils.spawn_element('div', ['dropdown-content'], content => {
-            if(option_nodes.length > 0)
-            {
-                content.append(...option_nodes);
-            }
-            else 
-            {
-                let no_select = utils.spawn_element('div', ['dropdown-option'], div => {
-                    div.innerHTML = 'No highlight created, click here to create a new highlight';
-                });
-
-                no_select.addEventListener('click', _ => {
-                    window.location.href = utils.encode_to_url('highlight_editor.html', { old_path: window.location.href });
-                })
-
-                content.appendChild(no_select);
-            }
-        });
-
-        dropdown.appendChild(content);
-    });
-
-    return dropdown;
+    }).filter(r => r !== null);
 }
 
-async function erase_highlight(id: string, popup: HTMLElement)
+async function erase_highlight(id: string)
 {
-    popup.classList.add('hidden');
-
     let vs = selected_ranges.map(r => {
         return utils.ranges.range_inclusive(r.begin, r.end).map(i => {
             return highlights.erase_chapter_highlight(r.chapter, i, id);
@@ -226,13 +331,20 @@ async function erase_highlight(id: string, popup: HTMLElement)
     Promise.all(vs).then(_ => {
         ON_SELECTION_EVENT.invoke('erased');
     });
-    
 }
 
-async function paint_highlight(id: string, popup: HTMLElement)
+async function clear_all_highlights(): Promise<void>
 {
-    popup.classList.add('hidden');
+    return (await Promise.all(await highlights.get_sorted_categories().then(cats => cats.map(c => c.id)))).map(id => {
+        return erase_highlight(id);
+    }).flatten_promise().then(() => {
 
+        ON_SELECTION_EVENT.invoke('erased');
+    });
+}
+
+async function paint_highlight(id: string)
+{
     let vs = selected_ranges.map(r => {
         return utils.ranges.range_inclusive(r.begin, r.end).map(i => {
             return highlights.highlight_chapter_word(r.chapter, i, id);
@@ -243,6 +355,7 @@ async function paint_highlight(id: string, popup: HTMLElement)
         ON_SELECTION_EVENT.invoke('highlighted');
     });
     
+    highlights.push_recent_highlight(id);
 }
 
 async function spawn_editing_note_button()
@@ -307,15 +420,91 @@ function spawn_new_note_button(): HTMLElement
             chapter: selected_range.chapter,
             range: verse_range,
         }).then(r => {
-            if (r !== null) // if created a new note, set it as the currently editing note
-            {
-                notes.set_editing_note(r).then(_ => {
-                    view_states.goto_current_view_state();
-                });
+            let loc: ReferenceLocation = {
+                chapter: selected_range.chapter,
+                range: verse_range
             }
+            view_states.goto_edit_note_page(r, loc);
         });
     });
 
     button.button.title = 'Create new note';
     return button.button;
+}
+
+function spawn_highlight_selector(args: {
+    tooltip: string,
+    image: string,
+    color_options: { color: Color, name: string, id: string }[],
+    on_new?: () => void,
+    on_clear?: () => void,
+    on_select: (id: string) => void,
+    select_type: 'highlight' | 'erase',
+}): HTMLElement
+{
+    let dropdown = utils.spawn_element('div', ['small-dropdown'], _ => {});
+    
+    let title_button = utils.spawn_image_button(args.image, (e, img) => {
+        img.button.classList.toggle('active');
+        dropdown.classList.toggle('active');
+    });
+
+    let option_nodes = args.color_options.map(o => utils.spawn_element('div', [], div => {
+        div.append_element('div', ['color-square'], square => {
+            square.style.backgroundColor = utils.color_to_hex(o.color);
+
+            if (args.select_type === 'erase')
+            {
+                square.append_element('img', [], i => i.src = utils.images.DO_NOT_ENTER);
+            }
+        });
+
+        if (args.select_type === 'highlight')
+        {
+            div.title = `Select highlight ${o.name}`;
+        }
+        
+        if (args.select_type === 'erase')
+        {
+            div.title = `Erase highlight ${o.name}`;
+        }
+
+        div.addEventListener('click', e => {
+            title_button.button.classList.remove('active');
+            dropdown.classList.remove('active');
+            args.on_select(o.id);
+        });
+    })) as HTMLElement[];
+
+    if (args.on_new)
+    {
+        let new_btn = utils.spawn_image_button(utils.images.PLUS, e => {
+            title_button.button.classList.remove('active');
+            dropdown.classList.remove('active');
+            if(args.on_new) args.on_new();
+        });
+        new_btn.button.title = 'Make new highlight';
+        option_nodes.push(new_btn.button);
+    }
+
+    if (args.on_clear)
+    {
+        let clear_btn = utils.spawn_image_button(utils.images.CLEAR, e => {
+            title_button.button.classList.remove('active');
+            dropdown.classList.remove('active');
+            if (args.on_clear) args.on_clear();
+        });
+        clear_btn.button.title = 'Clear all highlights';
+        option_nodes.push(clear_btn.button);
+    }
+
+    title_button.button.title = args.tooltip;
+
+    dropdown.appendChild(title_button.button);
+
+    dropdown.append_element('div', ['small-dropdown-content'], content => {
+        option_nodes.forEach(n => content.appendChild(n));
+    });
+    
+    return dropdown;
 }

@@ -21,3 +21,8 @@ export function capitalize_first_char(str: string): string
     if (!str) return str;
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export function is_empty_str(str: string): boolean
+{
+    return str.length === 0;
+}

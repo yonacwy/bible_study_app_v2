@@ -1,7 +1,11 @@
 import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
-import { TtsGenerationProgressEvent, TtsPlayingEvent } from "../utils/tts.js";
+import { TtsFrontendEvent, TtsGenerationProgressEvent, TtsPlayingEvent, TtsSettings } from "../utils/tts.js";
 import * as view_states from "../view_states.js";
+import { spawn_behavior_selector, TimerSliderData } from "./player_behavior.js";
+import { BibleReaderSection, PlayerBehaviorState } from "../bible_reader.js";
+import { ChapterIndex } from "../bindings.js";
+import { get_settings } from "../settings.js";
 
 // To implement on a page, need to call `init_player()` before anything, then whenever the passage chapter is rendered, `on_passage_rendered()` needs to be called
 
@@ -18,6 +22,7 @@ type PlayerData = {
     left: number | null,
     is_open: boolean,
     is_expanded: boolean,
+    should_play: boolean,
 };
 
 const PLAYER_DATA_STORAGE: utils.storage.ValueStorage<PlayerData> = new utils.storage.ValueStorage<PlayerData>('audio-player-visual-data');
@@ -34,28 +39,33 @@ type AudioPlayerData = {
     progress_text: HTMLElement,
 
     playing_verse_index: number | null,
+    playing_section: BibleReaderSection | null,
     verses_elements: HTMLLIElement[],
 
-    is_setting_time: boolean
+    is_setting_time: boolean,
+    behavior_state: PlayerBehaviorState,
+    stop_after_verse: boolean,
 }
 
 let AUDIO_PLAYER_DATA: AudioPlayerData | null = null;
 
-const PLAYER = new utils.tts.TtsPlayer(async e => {
+const TTS_PLAYER = new utils.tts.TtsPlayer(async e => {
     if(!AUDIO_PLAYER_DATA) return;
 
     if(e.type === 'ready')
     {
-        update_progress_visual(0.0, await PLAYER.get_duration());
+        update_progress_visual(0.0, await TTS_PLAYER.get_duration());
 
         AUDIO_PLAYER_DATA.play_button.button.classList.remove('hidden');
         AUDIO_PLAYER_DATA.generating_indicator.classList.add('hidden');
 
-        let settings = await PLAYER.get_settings();
-        if(settings.player_state === 'continuous')
+        if (PLAYER_DATA_STORAGE.get()?.should_play)
         {
-            await utils.sleep(100); // no idea why this works...
-            AUDIO_PLAYER_DATA.play_button.button.click();
+            PLAYER_DATA_STORAGE.update(d => {
+                d.should_play = false;
+                return d;
+            });
+            utils.sleep(100).then(_ => player_play()); // don't know why we need to sleep :shrug:
         }
     }
     if(e.type === 'generating')
@@ -82,6 +92,14 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
         if(AUDIO_PLAYER_DATA.playing_verse_index !== event_data.verse_index)
         {
             AUDIO_PLAYER_DATA.playing_verse_index = event_data.verse_index;
+
+            if(AUDIO_PLAYER_DATA.stop_after_verse)
+            {
+                AUDIO_PLAYER_DATA.stop_after_verse = false;
+                AUDIO_PLAYER_DATA.playing_verse_index = null;
+                await player_pause();
+            }
+            
             update_current_reading_verse_visual();
         }
     }
@@ -91,41 +109,65 @@ const PLAYER = new utils.tts.TtsPlayer(async e => {
         AUDIO_PLAYER_DATA.progress_bar.value = `${1.0}`;
         utils.update_sliders();
 
-        let settings = await PLAYER.get_settings();
-        if(settings.player_state === 'continuous')
+        AUDIO_PLAYER_DATA.behavior_state.reading_index += 1;
+        let next = await AUDIO_PLAYER_DATA.behavior_state.get_section();
+        if (next !== null) // if we have a next reader state, go to the next one
         {
-            bible.to_next_chapter().then(_ => {
-                view_states.goto_current_view_state();
+            PLAYER_DATA_STORAGE.update(d => {
+                d.should_play = true;
+                return d;
             });
+            
+            view_states.push_section({
+                book: next.chapter.book,
+                chapter: next.chapter.number,
+                verse_range: next.verses,
+            });
+            view_states.goto_current_view_state();
         }
-        else if(settings.player_state === 'repeat')
+        else // if we don't, reset
         {
-            await utils.sleep(100); // no idea why this works...
-            AUDIO_PLAYER_DATA.play_button.button.click();
+            AUDIO_PLAYER_DATA.behavior_state.reading_index = 0;
         }
     }
 
     update_playback_controls_opacity(e);
+    ON_PLAYER_EVENT.invoke(e);
 });
 
 export const ON_PLAYER_VISIBILITY_CHANGED = new utils.events.EventHandler<boolean>();
+export const ON_PLAYER_PLAY = new utils.events.EventHandler<void>();
+export const ON_PLAYER_EVENT = new utils.events.EventHandler<TtsFrontendEvent>();
 
 export async function show_player()
 {
     if(!AUDIO_PLAYER_DATA) return;
 
     AUDIO_PLAYER_DATA.popup.classList.remove('hidden');
-    let chapter = await bible.get_chapter() ?? { book: 0, number: 0 };
+    await request_section_tts();
+
+    ON_PLAYER_VISIBILITY_CHANGED.invoke(true);
+}
+
+async function request_section_tts() 
+{
+    if(!AUDIO_PLAYER_DATA) return;
+    let section = await AUDIO_PLAYER_DATA.behavior_state.get_section() ?? { chapter: { book: 0, number: 0 }, verses: null };
     let bible_name = await bible.get_current_bible_version();
+
+    if (await TTS_PLAYER.is_playing()) // if we are playing, need to make sure that we pause
+    {
+        player_pause();
+    }
 
     update_player_data_storage();
 
-    PLAYER.request({
+    TTS_PLAYER.request({
         bible_name,
-        chapter
+        chapter: section.chapter,
+        verse_range: section.verses,
     });
-
-    ON_PLAYER_VISIBILITY_CHANGED.invoke(true);
+    AUDIO_PLAYER_DATA.playing_section = section;
 }
 
 export function hide_player()
@@ -133,7 +175,7 @@ export function hide_player()
     if(!AUDIO_PLAYER_DATA) return;
     
     AUDIO_PLAYER_DATA.popup.classList.add('hidden');
-    PLAYER.stop();
+    TTS_PLAYER.stop();
     AUDIO_PLAYER_DATA.play_button.image.src = "../images/light-play.svg";
     clear_current_reading_verse();
     update_player_data_storage();
@@ -190,12 +232,12 @@ export function init_player()
 
         audio_range.addEventListener('change', e => {
             if(!AUDIO_PLAYER_DATA) return;
-            PLAYER.set_time(+audio_range.value);
+            TTS_PLAYER.set_time(+audio_range.value);
             AUDIO_PLAYER_DATA.is_setting_time = false;
         })
 
         audio_range.addEventListener('input', async e => {
-            update_progress_visual(+audio_range.value, await PLAYER.get_duration())
+            update_progress_visual(+audio_range.value, await TTS_PLAYER.get_duration())
         })
     });
 
@@ -203,12 +245,13 @@ export function init_player()
         text.innerHTML = '--:--';
     });
 
-    let popup = document.body.appendElementEx('div', ['audio-player', 'hidden'], player_div => {
+    let behavior_state = new PlayerBehaviorState();
+    let popup = document.body.append_element('div', ['audio-player', 'hidden'], player_div => {
         player_div.id = 'audio-player';
         player_div.classList.add('spawned');
         handle_dragging(player_div);
 
-        player_div.appendElementEx('div', ['main-content'], main_content => {
+        player_div.append_element('div', ['main-content'], main_content => {
             main_content.appendChild(rewind_button.button);
             main_content.appendChild(play_button.button);
             main_content.appendChild(generating_indicator);
@@ -219,8 +262,9 @@ export function init_player()
             main_content.appendChild(close_button.button);
         });
 
-        let hidden_content = player_div.appendElementEx('div', ['hidden-content'], content => {
-            content.appendElementEx('div', ['slider-settings'], sliders => { 
+        let timer_slider = spawn_timer_slider();
+        let hidden_content = player_div.append_element('div', ['hidden-content'], content => {
+            content.append_element('div', ['slider-settings'], sliders => { 
                 let volume_slider = spawn_volume_slider();
                 let playback_slider = spawn_playback_slider();
                 
@@ -228,76 +272,22 @@ export function init_player()
                 sliders.appendChild(playback_slider);
             });
 
-            // TODO: Hidden
-            content.appendElementEx('div', ['strategy-settings'], async strategy_settings => {
-                let continuous_toggle = utils.spawn_toggle_button({
-                    image: utils.images.HISTORY_HORIZONTAL,
-                    tooltip: 'Continuous playback',
-                    is_toggled: false,
-                });
-
-                let repeat_toggle = utils.spawn_toggle_button({
-                    image: utils.images.REPEAT,
-                    tooltip: 'Repeat Chapter',
-                    is_toggled: false,
-                });
-
-                strategy_settings.appendChild(continuous_toggle.button.button);
-                strategy_settings.appendChild(repeat_toggle.button.button);
-
-                continuous_toggle.on_click.add_listener(async v => {
-                    if(v)
-                    {
-                        repeat_toggle.set_value(false);
-                        let settings = await PLAYER.get_settings();
-                        settings.player_state = 'continuous'
-                        PLAYER.set_settings(settings);
-                    }
-                    else 
-                    {
-                        let settings = await PLAYER.get_settings();
-                        settings.player_state = 'none'
-                        PLAYER.set_settings(settings);
-                    }
-                });
-
-                repeat_toggle.on_click.add_listener(async v => {
-                    if(v)
-                    {
-                        continuous_toggle.set_value(false);
-                        let settings = await PLAYER.get_settings();
-                        settings.player_state = 'repeat'
-                        PLAYER.set_settings(settings);
-                    }
-                    else 
-                    {
-                        let settings = await PLAYER.get_settings();
-                        settings.player_state = 'none'
-                        PLAYER.set_settings(settings);
-                    }
-                });
-
-                let settings = await PLAYER.get_settings();
-                if(settings.player_state === 'continuous')
-                {
-                    continuous_toggle.set_value(true);
-                }
-                else if(settings.player_state === 'repeat')
-                {
-                    repeat_toggle.set_value(true);
-                }
-
-                // let selector = await spawn_behavior_selector();
-                // strategy_settings.appendChild(selector);
+            content.append_element('div', ['strategy-settings'], async strategy_settings => {
+                let selector = await spawn_behavior_selector(behavior_state, timer_slider);
+                strategy_settings.appendChild(selector);
             });
+
+            content.append_element('div', ['break'], _ => {});
+            content.appendChild(timer_slider.parent);
+            
         });
 
-        player_div.appendElementEx('div', ['dropdown-button'], button => {
+        player_div.append_element('div', ['dropdown-button'], button => {
             button.title = 'Show advanced options';
 
-            let container = button.appendElementEx('div', ['image-container'], _ => {});
+            let container = button.append_element('div', ['image-container'], _ => {});
 
-            let image = container.appendElement('img', img => {
+            let image = container.append_element('img', [], img => {
                 img.src = OPEN_DROPDOWN_IMAGE_SRC;
             });
 
@@ -334,9 +324,23 @@ export function init_player()
         progress_text,
         generating_indicator,
         is_setting_time: false,
+        playing_section: null,
         playing_verse_index: null,
-        verses_elements: []
+        verses_elements: [],
+        behavior_state,
+        stop_after_verse: false,
     }
+
+    behavior_state.on_behavior_changed.add_listener(_ => {
+        on_play_requested();
+    });
+
+    behavior_state.on_timer_event.add_listener(e => {
+        if (e.type === 'stopped' && AUDIO_PLAYER_DATA !== null)
+        {
+            AUDIO_PLAYER_DATA.stop_after_verse = true;
+        }
+    })
 
     let dropdown_button = popup.querySelector('.dropdown-button') as HTMLElement;
 
@@ -395,54 +399,86 @@ function update_player_data_storage()
         left,
         is_open: !AUDIO_PLAYER_DATA.popup.classList.contains('hidden'),
         is_expanded: hidden_content.classList.contains('active'),
+        should_play: PLAYER_DATA_STORAGE.get()?.should_play ?? false,
     }
 
     PLAYER_DATA_STORAGE.set(data);
 }
 
+function spawn_timer_slider(): TimerSliderData
+{
+    let button = utils.spawn_image_button(utils.images.ARROWS_ROTATE);
+
+    let input = utils.spawn_slider({
+        min: 0,
+        max: 1,
+        default: 0.0,
+        step: 1 / 100000,
+        classes: [],
+        intractable: false,
+    });
+    input.element.addEventListener('mousedown', e => e.stopPropagation()); // makes sure we don't drag while modifying slider
+    
+    let time_text = utils.spawn_element('div', ['time-text'], t => t.innerHTML = `--:--:--`);
+
+    let parent = utils.spawn_element('div', ['timer-progress'], t => {
+        t.appendChild(button.button);
+        t.appendChild(input.element);
+        t.appendChild(time_text);
+    });
+
+    return {
+        restart: button,
+        slider: input,
+        text: time_text,
+        parent: parent,
+    }
+}
+
 function spawn_volume_slider(): HTMLElement
 {
-    let slider = spawn_settings_slider(VOLUME_IMAGE_SRC, {
-        default: 1.0,
+    let [slider, element] = spawn_settings_slider(VOLUME_IMAGE_SRC, {
+        min: 0,
+        max: 1,
+        default: 1,
+        step: 0.0001,
+        classes: []
     }, 
-    (input, button) => {
-        if(+input.value === 0)
+    (input, _) => {
+        if(input.get_value() === 0)
         {
-            input.value = '1';
+            input.set_value(1);
         }
         else 
         {
-            input.value = '0';
+            input.set_value(0);
         }
-
-        update_volume_slider_image(+input.value, button.image);
-        utils.update_sliders();
-
-        PLAYER.get_settings().then(settings => {
-            settings.volume = +input.value;
-            PLAYER.set_settings(settings);
-        });
     },
     (input, button) => {
         update_volume_slider_image(+input.value, button.image);
 
-        PLAYER.get_settings().then(settings => {
+        TTS_PLAYER.get_settings().then(settings => {
             settings.volume = +input.value;
-            PLAYER.set_settings(settings);
+            TTS_PLAYER.set_settings(settings);
         });
     });
 
-    PLAYER.get_settings().then(settings => {
-        let e = slider.querySelector('input[type=range]') as HTMLInputElement;
-        let image = slider.querySelector('img') as HTMLImageElement;
-        
-        e.value = settings.volume.toString();
-        update_volume_slider_image(+e.value, image);
+    slider.on_input.add_listener(v => {
+        update_volume_slider_image(v, element.getElementsByTagName('img')[0]);
+
+        TTS_PLAYER.get_settings().then(settings => {
+            settings.volume = v;
+            TTS_PLAYER.set_settings(settings);
+        });
+    })
+
+    TTS_PLAYER.get_settings().then(settings => {
+        slider.set_value(settings.volume);
     });
 
-    slider.title = 'Change the volume';
+    element.title = 'Change the volume';
 
-    return slider;
+    return element;
 }
 
 function update_volume_slider_image(value: number, image: HTMLImageElement)
@@ -467,28 +503,32 @@ function update_volume_slider_image(value: number, image: HTMLImageElement)
 
 function spawn_playback_slider(): HTMLElement
 {
-    let slider = spawn_settings_slider(PLAYBACK_SPEED_SRC, {
+    let [slider, element] = spawn_settings_slider(PLAYBACK_SPEED_SRC, {
         default: 0.5,
-        on_input: v => {
-            v = Math.lerp(-1, 1, v);
-            v = v + Math.sign(v);
-
-            if (Math.abs(v) == 0) 
-                v = 1;
-
-            v = Math.abs(Math.pow(v, Math.sign(v)));
-
-            PLAYER.get_settings().then(settings => {
-                settings.playback_speed = v;
-                PLAYER.set_settings(settings);
-            });
-        }
+        max: 1,
+        min: 0,
+        step: 0.0001,
+        classes: []
     }, 
     (input, button) => {
-        input.value = '0.5';
-        update_playback_slider_image(+input.value, button.image)
-        utils.update_sliders();
+        input.set_value(0.5)
+        update_playback_slider_image(+input.element.value, button.image)
 
+        let v = +input.element.value;
+        v = Math.lerp(-1, 1, v);
+        v = v + Math.sign(v);
+
+        if (Math.abs(v) == 0) 
+            v = 1;
+
+        v = Math.abs(Math.pow(v, Math.sign(v)));
+
+        TTS_PLAYER.get_settings().then(settings => {
+            settings.playback_speed = v;
+            TTS_PLAYER.set_settings(settings);
+        });
+    },
+    (input, button) => {
         let v = +input.value;
         v = Math.lerp(-1, 1, v);
         v = v + Math.sign(v);
@@ -498,16 +538,15 @@ function spawn_playback_slider(): HTMLElement
 
         v = Math.abs(Math.pow(v, Math.sign(v)));
 
-        PLAYER.get_settings().then(settings => {
+        TTS_PLAYER.get_settings().then(settings => {
             settings.playback_speed = v;
-            PLAYER.set_settings(settings);
+            TTS_PLAYER.set_settings(settings);
         });
-    },
-    (input, button) => {
+
         update_playback_slider_image(+input.value, button.image);
     });
 
-    PLAYER.get_settings().then(settings => {
+    TTS_PLAYER.get_settings().then(settings => {
         let loaded = settings.playback_speed;
         let processed = 0.5;
         if(loaded <= 1 && loaded >= 0)
@@ -518,18 +557,15 @@ function spawn_playback_slider(): HTMLElement
         {
             processed = loaded / 2;
         }
-        let e = slider.querySelector('input[type=range]') as HTMLInputElement;
-        let image = slider.querySelector('img') as HTMLImageElement;
         
-        e.value = processed.toString();
-        update_playback_slider_image(+e.value, image);
+        slider.set_value(processed)
     });
 
     
 
-    slider.title = 'Change the playback rate';
+    element.title = 'Change the playback rate';
 
-    return slider;
+    return element;
 }
 
 function update_playback_slider_image(value: number, image: HTMLImageElement)
@@ -556,22 +592,25 @@ function update_playback_slider_image(value: number, image: HTMLImageElement)
     }
 }
 
-function spawn_settings_slider(image_src: string, args: utils.SliderArgs, on_click: (e: HTMLInputElement, image: utils.ImageButton) => void, on_input: (input: HTMLInputElement, button: utils.ImageButton) => void): HTMLElement
+function spawn_settings_slider(image_src: string, args: utils.SliderArgs, on_click: (e: utils.Slider, image: utils.ImageButton) => void, on_input: (input: HTMLInputElement, button: utils.ImageButton) => void): [utils.Slider, HTMLElement]
 {
-    return utils.spawn_element('div', ['setting-slider'], root => {        
-        let input = utils.spawn_slider(args);
+    let input = utils.spawn_slider(args);
+
+    let e = utils.spawn_element('div', ['setting-slider'], root => {        
         
-        input.addEventListener('mousedown', e => e.stopPropagation()); // makes sure we don't drag while modifying slider
+        input.element.addEventListener('mousedown', e => e.stopPropagation()); // makes sure we don't drag while modifying slider
 
         let button = utils.spawn_image_button(image_src, (_, button) => on_click(input, button));
 
-        input.addEventListener('input', e => {
-            on_input(input, button);
+        input.on_input.add_listener(_ => {
+            on_input(input.element, button)
         })
 
         root.appendChild(button.button);
-        root.appendChild(input);
+        root.appendChild(input.element);
     });
+
+    return [input, e];
 }
 
 function update_current_reading_verse_visual()
@@ -580,11 +619,12 @@ function update_current_reading_verse_visual()
     clear_current_reading_verse();
     if(AUDIO_PLAYER_DATA.playing_verse_index !== null && AUDIO_PLAYER_DATA.verses_elements.length > AUDIO_PLAYER_DATA.playing_verse_index)
     {
-        let verse_element = AUDIO_PLAYER_DATA.verses_elements[AUDIO_PLAYER_DATA.playing_verse_index];
+        let offset = AUDIO_PLAYER_DATA.playing_section?.verses?.start ?? 0;
+        let verse_element = AUDIO_PLAYER_DATA.verses_elements[AUDIO_PLAYER_DATA.playing_verse_index + offset];
         verse_element.classList.add('reading');
         verse_element.scrollIntoView({
             behavior: "smooth",
-            block: "center"
+            block: "center",
         });
     }
 }
@@ -600,7 +640,7 @@ function update_progress_visual(progress: number, duration: number)
     if(!AUDIO_PLAYER_DATA) return;
 
     let elapsed = progress * duration;
-    let remaining = duration - elapsed;
+    let remaining = duration - elapsed + 1;
 
     AUDIO_PLAYER_DATA.progress_bar.value = progress.toString();
 
@@ -648,28 +688,96 @@ function spawn_play_button(): utils.ImageButton
     play_button.button.title = 'Play'
 
     play_button.button.addEventListener('click', async e => {
-        if(await PLAYER.is_playing())
+        if(await TTS_PLAYER.is_playing())
         {
-            PLAYER.pause();
-            play_button.image.src = PLAY_IMAGE_SRC;
-            play_button.button.title = 'Play';
+            player_pause();
         }
         else 
         {
-            PLAYER.play();
-            play_button.image.src = PAUSE_IMAGE_SRC;
-            play_button.button.title = 'Pause';
+            player_play();
         }
     });
 
     return play_button;
 }
 
+async function player_play()
+{
+    if (!AUDIO_PLAYER_DATA) return;
+    
+    // `on_play_requested` checks to see if we are in the right chapter, 
+    // if we are not, stops requesting so that we don't get a weird ticking noise, then goes to the necessary chapter
+    if (!await on_play_requested() || await TTS_PLAYER.is_playing()) return;
+
+    TTS_PLAYER.play();
+    AUDIO_PLAYER_DATA.play_button.image.src = PAUSE_IMAGE_SRC;
+    AUDIO_PLAYER_DATA.play_button.button.title = 'Pause';
+    ON_PLAYER_PLAY.invoke();
+
+    let behavior = await AUDIO_PLAYER_DATA.behavior_state.get_behavior();
+    if (behavior.data.options.type === 'repeat_time')
+    {
+        AUDIO_PLAYER_DATA.behavior_state.resume_or_restart();
+    }
+}
+
+async function player_pause()
+{
+    if (!AUDIO_PLAYER_DATA) return;
+    if(!await TTS_PLAYER.is_playing()) return;
+
+    TTS_PLAYER.pause();
+    AUDIO_PLAYER_DATA.play_button.image.src = PLAY_IMAGE_SRC;
+    AUDIO_PLAYER_DATA.play_button.button.title = 'Play';
+
+    let behavior = await AUDIO_PLAYER_DATA.behavior_state.get_behavior();
+    if (behavior.data.options.type === 'repeat_time')
+    {
+        AUDIO_PLAYER_DATA.behavior_state.pause_timer();
+    }
+}
+
+async function on_play_requested(): Promise<boolean>
+{
+
+    if (AUDIO_PLAYER_DATA === null) return true;
+    let chapter = await bible.get_chapter();
+    let verses = await bible.get_verse_range();
+    let section = await AUDIO_PLAYER_DATA.behavior_state.get_section();
+
+    if (section === null || chapter === null) return true;
+
+    let current_section: BibleReaderSection = {
+        chapter,
+        verses,
+    };
+    
+    if (!utils.is_equivalent(section, current_section))
+    {
+        PLAYER_DATA_STORAGE.update(d => {
+            d.should_play = true;
+            return d;
+        });
+
+        view_states.push_section({
+            chapter: section.chapter.number,
+            book: section.chapter.book,
+            verse_range: section.verses,
+        }).then(_ => {
+            view_states.goto_current_view_state()
+        });
+
+        return false;
+    }
+
+    return true;
+}
+
 function update_playback_controls_opacity(event: utils.tts.TtsFrontendEvent)
 {
     if(!AUDIO_PLAYER_DATA) return;
 
-    if (PLAYER.is_ready())
+    if (TTS_PLAYER.is_ready())
     {
         AUDIO_PLAYER_DATA.fast_forward_button.button.classList.remove('inactive');
         AUDIO_PLAYER_DATA.rewind_button.button.classList.remove('inactive');
@@ -686,13 +794,13 @@ function update_playback_controls_opacity(event: utils.tts.TtsFrontendEvent)
 function spawn_rewind_button(): utils.ImageButton
 {
     let button = utils.spawn_image_button(utils.images.ANGLES_LEFT, async e => {
-        if(!AUDIO_PLAYER_DATA || !PLAYER.is_ready()) return;
+        if(!AUDIO_PLAYER_DATA || !TTS_PLAYER.is_ready()) return;
 
         let time = +AUDIO_PLAYER_DATA.progress_bar.value;
-        let duration = await PLAYER.get_duration();
+        let duration = await TTS_PLAYER.get_duration();
         let offset_percent = SKIP_TIME / duration;
         time = Math.clamp(0.0, 1.0, time - offset_percent);
-        await PLAYER.set_time(time);
+        await TTS_PLAYER.set_time(time);
         
         update_progress_visual(time, duration);
     });
@@ -704,13 +812,13 @@ function spawn_rewind_button(): utils.ImageButton
 function spawn_fast_forward_button(): utils.ImageButton
 {
     let button = utils.spawn_image_button(utils.images.ANGLES_RIGHT, async e => {
-        if(!AUDIO_PLAYER_DATA || !PLAYER.is_ready()) return;
+        if(!AUDIO_PLAYER_DATA || !TTS_PLAYER.is_ready()) return;
 
         let time = +AUDIO_PLAYER_DATA.progress_bar.value;
-        let duration = await PLAYER.get_duration();
+        let duration = await TTS_PLAYER.get_duration();
         let offset_percent = SKIP_TIME / duration;
         time = Math.clamp(0.0, 1.0, time + offset_percent);
-        await PLAYER.set_time(time);
+        await TTS_PLAYER.set_time(time);
 
         update_progress_visual(time, duration);
     });
@@ -722,16 +830,15 @@ function spawn_fast_forward_button(): utils.ImageButton
 function spawn_restart_button(): utils.ImageButton
 {
     let button = utils.spawn_image_button(utils.images.ARROWS_ROTATE, async _ => {
-        if(!AUDIO_PLAYER_DATA || !PLAYER.is_ready()) return;
+        if(!AUDIO_PLAYER_DATA || !TTS_PLAYER.is_ready()) return;
 
-        await PLAYER.set_time(0.0);
-        update_progress_visual(0.0, await PLAYER.get_duration());
+        await TTS_PLAYER.set_time(0.0);
+        update_progress_visual(0.0, await TTS_PLAYER.get_duration());
 
-        if(PLAYER.is_finished())
+        if(TTS_PLAYER.is_finished())
         {
-            // If we are finished, and need to restart, we just hit the play button
-            // Quick and dirty way to make this work
-            AUDIO_PLAYER_DATA.play_button.button.click();
+            // If we are finished playing the section, we restart
+            player_play();
         }
     });
 
@@ -739,31 +846,32 @@ function spawn_restart_button(): utils.ImageButton
     return button;
 }
 
-function handle_dragging(element: HTMLElement)
+function handle_dragging(player_element: HTMLElement)
 {
     let is_dragging = false;
     let offset = { x: 0, y: 0 };
-    element.addEventListener('mousedown', e => {
+    player_element.addEventListener('mousedown', e => {
         is_dragging = true;
 
-        let rect = element.getBoundingClientRect();
+        let rect = player_element.getBoundingClientRect();
 
         offset = {
             x: e.clientX - rect.left,
             y: e.clientY - rect.top,
         };
 
-        element.style.top = (e.clientY - offset.y) + 'px';
-        element.style.left = (e.clientX - offset.x) + 'px';
+        player_element.style.top = (e.clientY - offset.y) + 'px';
+        player_element.style.left = (e.clientX - offset.x) + 'px';
 
-        element.classList.remove('spawned');
+        player_element.classList.remove('spawned');
     });
 
     document.addEventListener('mousemove', e => {
         if(is_dragging)
         {
-            element.style.top = (e.clientY - offset.y) + 'px';
-            element.style.left = (e.clientX - offset.x) + 'px';
+            let x = (e.clientX - offset.x);
+            let y = (e.clientY - offset.y);
+            clamp_player(player_element, { x, y });
         }
     });
 
@@ -771,4 +879,43 @@ function handle_dragging(element: HTMLElement)
         is_dragging = false;
         update_player_data_storage();
     })
+}
+
+async function clamp_player(player: HTMLElement, desired: { x: number, y: number})
+{
+    if (player.classList.contains('spawned')) return;
+
+    let ui_scale = (await get_settings()).ui_scale;
+
+    player.style.left = desired.x + 'px';
+    player.style.top = desired.y + 'px';
+
+    const POS_BUFFER: number = 40 * ui_scale;
+
+    let window_size = {
+        width: document.documentElement.clientWidth,
+        height: document.documentElement.clientHeight,
+    };
+
+    let player_rect = player.getBoundingClientRect();
+
+    if (player_rect.right - POS_BUFFER < 0)
+    {
+        player.style.left = -(player_rect.width - POS_BUFFER) + 'px'
+    }
+
+    if (player_rect.left + POS_BUFFER > window_size.width)
+    {
+        player.style.left = (window_size.width - POS_BUFFER) + 'px';
+    }
+
+    if (player_rect.bottom - POS_BUFFER < 0)
+    {
+        player.style.top = -(player_rect.height - POS_BUFFER) + 'px';
+    }
+
+    if (player_rect.top + POS_BUFFER > window_size.height)
+    {
+        player.style.top = (window_size.height - POS_BUFFER) + 'px';
+    }
 }

@@ -17,6 +17,10 @@ export function set_display(id: string, display: string)
     {
         element.style.display = display;
     }
+    else 
+    {
+        debug_print(`Cannot find element ${id}`);
+    }
 }
 
 export function on_click(id: string, f:(e: Event) => void)
@@ -40,7 +44,8 @@ export function read_value(id: string): string | undefined
     }
     else 
     {
-        return undefined
+        debug_print(`Cannot find element ${id}`);
+        return undefined;
     }
 }
 
@@ -51,6 +56,10 @@ export function set_value(id: string, value: string)
     {
         element.value = value;
     }
+    else 
+    {
+        debug_print(`Cannot find element ${id}`);
+    }
 }
 
 export function set_html(id: string, html: string)
@@ -59,6 +68,10 @@ export function set_html(id: string, html: string)
     if (element instanceof Element)
     {
         element.innerHTML = html;
+    }
+    else 
+    {
+        debug_print(`Cannot find element ${id}`);
     }
 }
 
@@ -69,6 +82,10 @@ export function set_opacity(id: string, opacity: string)
     {
         element.style.opacity = opacity;
     }
+    else 
+    {
+        debug_print(`Cannot find element ${id}`);
+    }
 }
 
 export function add_class(id: string, c: string)
@@ -77,6 +94,10 @@ export function add_class(id: string, c: string)
     if(element instanceof HTMLElement)
     {
         element.classList.add(c);
+    }
+    else 
+    {
+        debug_print(`Cannot find element ${id}`);
     }
 }
 
@@ -87,6 +108,10 @@ export function remove_class(id: string, c: string)
     {
         element.classList.remove(c);
     }
+    else 
+    {
+        debug_print(`Cannot find element ${id}`);
+    }
 }
 
 export function contains_class(id: string, c: string): boolean
@@ -95,6 +120,10 @@ export function contains_class(id: string, c: string): boolean
     if(element instanceof HTMLElement)
     {
         return element.classList.contains(c);
+    }
+    else 
+    {
+        debug_print(`Cannot find element ${id}`);
     }
 
     return false;
@@ -106,5 +135,9 @@ export function set_disabled(id: string, disabled: boolean)
     if(element instanceof HTMLInputElement)
     {
         element.disabled = disabled;
+    }
+    else 
+    {
+        debug_print(`Cannot find element ${id}`);
     }
 }

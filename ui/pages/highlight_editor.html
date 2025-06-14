@@ -19,44 +19,14 @@
 </head>
 <body>
     <header>
-
+            <!-- Initialized by script -->
     </header>
     <main>
-        <div class="edit-highlight-popup" id="highlight-popup">
-            <div class="highlight-popup-content">
-                <div class="title-editor">
-                    <button class="image-btn" id="view-toggle-btn">
-                        <img src="../images/light-eye.svg" id="view-toggle-img" alt="">
-                    </button>
-
-                    <input type="color" id="color-in" value="#FFD700">
-    
-                    <div style="position: relative;"> <!--Needs to be relative for the error message-->
-                        <input type="text" id="name-in" placeholder="Enter name">
-                        <div class="error-popup" id="name-err-msg"></div>
-                    </div>
-
-                    <div class="priority-slider">
-                        <label for="priority-in" title="Priority for how highlights appear">Priority:</label>
-                        <input type="range" id="priority-in" min="1" max="10" value="1">
-                    </div>
-                </div>
-
-                <div class="description" style="position: relative;"> <!--Needs to be relative for the error message-->
-                    <textarea id="description-in" placeholder="Enter description"></textarea>
-                    <div class="error-popup" id="desc-err-msg"></div>
-                    <div id="description-view" class="description-view"></div>
-                </div>
-
-                <div class="confirm-buttons">
-                    <button class="yes" id="submit-btn" title="Submit new highlight">Submit</button>
-                    <button class="no" id="cancel-submit-btn" title="Cancel new highlight">Cancel</button>
-                </div>
-            </div>
+        <div id="highlights" class="highlight-container">
+            <!-- Initialized by script -->
         </div>
-        <div id="highlights" class="highlight-container"></div>
     </main>
-    <script type="module">
+    <script type="module"> 
         import { run } from "../dist/page_scripts/highlight_editor.js";
         run();
     </script>

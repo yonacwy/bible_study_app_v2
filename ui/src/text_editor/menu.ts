@@ -19,15 +19,23 @@ export function build_menu(args: {
     on_close?: EventHandler<void>,
     on_save?: EventHandler<EditorState>,
     on_delete?: EventHandler<void>,
+    has_misc_menu: boolean,
 }): MenuElement[][]
 {
     let basic = make_basic_menu();
     let type_menu = make_type_menu();
     let lists = make_list_menu();
     let history = make_history_menu();
-    let misc = make_misc_menu(args);
 
-    return [history, basic, type_menu, lists, misc];
+    let menus = [history, basic, type_menu, lists];
+
+    if (args.has_misc_menu)
+    {
+        let misc = make_misc_menu(args);
+        menus.push(misc);
+    }
+
+    return menus;
 }
 
 function make_misc_menu(args: {

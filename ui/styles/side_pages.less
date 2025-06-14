@@ -22,6 +22,10 @@
 #left-pane {
     background-color: #f4f4f4;
     width: 50%;
+
+    footer {
+        margin: -10px;
+    }
 }
 
 #right-pane {
@@ -48,7 +52,7 @@
     position: fixed;
     bottom: 10px;
     z-index: 1000;
-    padding: 0px;
+    padding: 3px * @ui-scale;
 }
 
 #close-editor-btn {
@@ -70,6 +74,7 @@
     width: 100%;
     box-sizing: border-box;
     .drop-shadow-m();
+    margin-bottom: calc(100vh - @header-height - 40px);
 }
 
 .chapter-title-container {

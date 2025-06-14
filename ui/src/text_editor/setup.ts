@@ -10,12 +10,14 @@ import { build_input_rules } from "./input_rules.js"
 import { build_keymap } from "./keymap.js"
 import { Node } from "../vendor/prosemirror/prosemirror-model/index.js"
 import { EventHandler } from "../utils/events.js"
+import * as utils from "../utils/index.js";
 
 export type PluginArgs = {
     node_created_listeners?: { name: string, on_event: (N: Node) => void}[],
     on_close?: EventHandler<void>,
     on_save?: EventHandler<EditorState>,
     on_delete?: EventHandler<void>,
+    has_misc_options: boolean,
 }
 
 export function build_plugins(args: PluginArgs): Plugin[]
@@ -35,7 +37,9 @@ export function build_plugins(args: PluginArgs): Plugin[]
             on_close: args.on_close,
             on_save: args.on_save,
             on_delete: args.on_delete,
+            has_misc_menu: args.has_misc_options,
         })}),
+        build_state_changed_plugin(args),
         new Plugin({
             props: {
                 attributes: {class: 'ProseMirror-example-setup-style'}
@@ -44,6 +48,16 @@ export function build_plugins(args: PluginArgs): Plugin[]
         
         ...listeners
     ]
+}
+
+function build_state_changed_plugin(args: PluginArgs): Plugin
+{
+    return new Plugin({
+        appendTransaction(_tr, _old_state, new_state) {
+            args?.on_save?.invoke(new_state);
+            return null;
+        }
+    })
 }
 
 function build_node_event_plugin(type_name: string, on_event: (n: Node) => void): Plugin

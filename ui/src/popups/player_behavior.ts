@@ -1,36 +1,47 @@
 import { ChapterIndex, ReferenceLocation, VerseRange } from "../bindings.js";
 import * as utils from "../utils/index.js";
-import * as reader from "../bible_reader.js";
+import { PlayerBehaviorState, RepeatOptionsType, SegmentReaderBehavior, DailyReaderBehavior, ReaderBehavior, RepeatOptions } from "../bible_reader.js";
 import { EventHandler } from "../utils/events.js";
 import * as bible from "../bible.js";
 import * as readings from "../page_scripts/daily_readings_page.js";
 import * as queue from "./queue_display.js";
+import * as player from "./audio_player.js";
+import * as view_states from "../view_states.js";
 
 type BehaviorType = 'single' | 'section' | 'reading' | 'continuous';
 
+type BehaviorData = {
+    is_queue_open: boolean,
+}
+
 const BEHAVIOR_SETTINGS_CHANGED: EventHandler<void> = new EventHandler();
+const BEHAVIOR_DATA_STORAGE = new utils.storage.ValueStorage<BehaviorData>('behavior-data-storage', {
+    is_queue_open: false,
+});
 
 type BehaviorSelectorData = {
-    type_selector: utils.TextDropdown<BehaviorType>,
-    repeat_selector: utils.TextDropdown<reader.RepeatOptionsType>,
-    continuous_repeat_selector: utils.TextDropdown<reader.RepeatOptionsType>,
+    type_selector: utils.ToggleTextDropdown<BehaviorType>,
+    repeat_selector: utils.ToggleTextDropdown<RepeatOptionsType>,
+    continuous_repeat_selector: utils.ToggleTextDropdown<RepeatOptionsType>,
 
     reading_selector: ReadingsSelectorData,
 
-    time_selector: utils.TextDropdown<number>,
-    count_selector: utils.TextDropdown<number>,
+    time_selector: utils.ToggleTextDropdown<number>,
+    count_selector: utils.ToggleTextDropdown<number>,
     
     section_selector: SectionSelectorData,
+
+    timer_slider: TimerSliderData,
 }
 
-reader.listen_bible_reader_event(e => {
-    if(e.payload.type === 'behavior_changed')
-    {
-        let behavior = e.payload.data as reader.BehaviorChangedEvent;
-    }
-})
+export type TimerSliderData = {
+    parent: HTMLElement,
+    slider: utils.Slider,
+    text: HTMLElement,
+    restart: utils.ImageButton,
+}
 
-export async function spawn_behavior_selector(): Promise<HTMLElement>
+export async function spawn_behavior_selector(reader: PlayerBehaviorState, timer_slider: TimerSliderData): Promise<HTMLElement>
 {
     let current = await reader.get_behavior();
     let bt: BehaviorType = 'single';
@@ -38,16 +49,16 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
     {
         bt = 'reading';
     }
+    else if (current.type === 'single')
+    {
+        bt = 'single';
+    }
     else 
     {
-        let data: reader.SegmentReaderBehavior = current.data as reader.SegmentReaderBehavior;
+        let data: SegmentReaderBehavior = current.data as SegmentReaderBehavior;
         if(data.length === null)
         {
             bt = 'continuous';
-        }
-        else if(data.length === 1)
-        {
-            bt = 'single';
         }
         else 
         {
@@ -62,7 +73,7 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
     let reading_selector_args = null;
     if(bt === 'reading')
     {
-        let reading_data = current.data as reader.DailyReaderBehavior;
+        let reading_data = current.data as DailyReaderBehavior;
         reading_selector_args = {
             day: reading_data.day,
             month: reading_data.month
@@ -89,7 +100,7 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
 
     if(bt === 'section')
     {
-        let section_data = current.data as reader.SegmentReaderBehavior;
+        let section_data = current.data as SegmentReaderBehavior;
         start_chapter = section_data.start;
         let length = section_data.length ?? 1;
         let view = await bible.get_bible_view();
@@ -106,26 +117,80 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
         time_selector,
         count_selector,
         section_selector,
+        timer_slider,
     };
-
-    BEHAVIOR_SETTINGS_CHANGED.add_listener(_ => {
-        on_behavior_changed(data);
-        update_backend_behavior(data);
+    
+    update_selector_visuals(data); // shows/hides all panels
+    update_timer_data(reader, current); // syncs the timer
+    
+    BEHAVIOR_SETTINGS_CHANGED.add_listener(async _ => {
+        update_selector_visuals(data); // shows/hides all panels
+        let behavior = await get_reader_behavior(data);
+        reader.set_behavior(behavior);
+        update_timer_data(reader, behavior); // syncs the timer
     });
-    BEHAVIOR_SETTINGS_CHANGED.invoke();
+
+    timer_slider.restart.button.addEventListener('click', e => {
+        reader.restart();
+    })
+
+    reader.on_timer_event.add_listener(async e => {
+        let behavior = await reader.get_behavior();
+        if (behavior.data.options.type !== 'repeat_time') return;
+
+        
+        let duration_seconds = behavior.data.options.data as number;
+        function format_time(seconds_total: number): string 
+        {
+            let hours = Math.floor(seconds_total / (60 * 60));
+            let minutes = Math.floor((seconds_total - hours * (60 * 60)) / 60);
+            let seconds = Math.floor((seconds_total - minutes * 60 - hours * 60 * 60));
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        if (e.type === 'tick')
+        {
+            let elapsed = Math.floor((1 - (e.value as number)) * duration_seconds + 1);
+            let str = format_time(elapsed);
+            timer_slider.text.innerHTML = str;
+            timer_slider.slider.set_value(e.value as number);
+        }
+
+        if (e.type === 'started')
+        {
+            let str = format_time(duration_seconds);
+            timer_slider.text.innerHTML = str;
+            timer_slider.slider.set_value(0);
+        }
+
+        if (e.type === 'stopped')
+        {
+            timer_slider.text.innerHTML = format_time(0);
+            timer_slider.slider.set_value(1);
+        }
+    })
 
     let open_queue_button = utils.spawn_image_button(utils.images.HISTORY_VERTICAL, e => {
-        queue.show_queue_display();
+        BEHAVIOR_DATA_STORAGE.update(b => {
+            b.is_queue_open = true;
+            return b;
+        });
+
+        spawn_queue_display();
     });
 
-    open_queue_button.button.classList.add('open-queue-button');
+    if (BEHAVIOR_DATA_STORAGE.get()!.is_queue_open)
+    {
+        spawn_queue_display();
+    }
 
+    open_queue_button.button.classList.add('open-queue-button');
     
     return utils.spawn_element('div', ['behavior-selector'], b => {
 
-        b.appendElementEx('div', ['main-strats'], m => {
+        b.append_element('div', ['main-strats'], m => {
             m.appendChild(type_selector.root);
-            m.appendElementEx('div', ['tag'], b => b.innerHTML = 'Repeat:&nbsp;');
+            m.append_element('div', ['tag'], b => b.innerHTML = 'Repeat:&nbsp;');
             m.appendChild(repeat_selector.root);
             m.appendChild(continuous_repeat_selector.root);
 
@@ -134,14 +199,37 @@ export async function spawn_behavior_selector(): Promise<HTMLElement>
             m.appendChild(open_queue_button.button);
         });
 
-        b.appendElementEx('div', ['second-strats'], s => {
+        b.append_element('div', ['second-strats'], s => {
             s.appendChild(reading_selector.root);
             s.appendChild(section_selector.root);
         });
     });
+
+    function spawn_queue_display() {
+        queue.show_queue_display(reader, () => {
+            BEHAVIOR_DATA_STORAGE.update(b => {
+                b.is_queue_open = false;
+                return b;
+            });
+        });
+    }
 }
 
-function on_behavior_changed(data: BehaviorSelectorData)
+async function update_timer_data(state: PlayerBehaviorState, behavior: ReaderBehavior): Promise<void>
+{
+    if (behavior.data.options.type === 'repeat_time')
+    {
+        return await state.start_timer().then(_ => {
+            state.pause_timer();
+        });
+    }
+    else 
+    {
+        return state.stop_timer();
+    }
+}
+
+function update_selector_visuals(data: BehaviorSelectorData)
 {
     let behavior_type = data.type_selector.get_value().value;
     if(behavior_type === 'continuous')
@@ -194,19 +282,15 @@ function on_behavior_changed(data: BehaviorSelectorData)
         data.time_selector.root.classList.add('hidden');
         data.count_selector.root.classList.add('hidden');
     }
+    
+    data.timer_slider.parent.hide(repeat_behavior !== 'repeat_time');
 }
 
-async function update_backend_behavior(data: BehaviorSelectorData)
-{
-    let behavior = get_reader_behavior(data);
-    return await reader.set_behavior(await behavior);
-}
-
-async function get_reader_behavior(data: BehaviorSelectorData): Promise<reader.ReaderBehavior>
+async function get_reader_behavior(data: BehaviorSelectorData): Promise<ReaderBehavior>
 {
     let bt = data.type_selector.get_value().value;
 
-    if(bt !== 'reading')
+    if(bt === 'section' || bt === 'continuous')
     {
         let segment = await get_section_behavior(data);
         return {
@@ -214,9 +298,18 @@ async function get_reader_behavior(data: BehaviorSelectorData): Promise<reader.R
             data: segment,
         }
     }
+    else if (bt === 'single')
+    {
+        return {
+            type: 'single',
+            data: {
+                options: get_repeat_options(data)
+            }
+        }
+    }
     else 
     {
-        let daily = get_reading_behavior(data);
+        let daily = get_daily_reading_behavior(data);
         return {
             type: 'daily',
             data: daily
@@ -224,7 +317,7 @@ async function get_reader_behavior(data: BehaviorSelectorData): Promise<reader.R
     }
 }
 
-async function get_section_behavior(data: BehaviorSelectorData): Promise<reader.SegmentReaderBehavior>
+async function get_section_behavior(data: BehaviorSelectorData): Promise<SegmentReaderBehavior>
 {
     let bt = data.type_selector.get_value().value;
     if(bt === 'section')
@@ -271,7 +364,7 @@ async function get_section_behavior(data: BehaviorSelectorData): Promise<reader.
     }
 }
 
-function get_reading_behavior(data: BehaviorSelectorData): reader.DailyReaderBehavior 
+function get_daily_reading_behavior(data: BehaviorSelectorData): DailyReaderBehavior 
 {
     let month = data.reading_selector.month_selector.get_value().value;
     let day = data.reading_selector.day_selector.get_value().value;
@@ -283,7 +376,7 @@ function get_reading_behavior(data: BehaviorSelectorData): reader.DailyReaderBeh
     }
 }
 
-function get_repeat_options(data: BehaviorSelectorData): reader.RepeatOptions
+function get_repeat_options(data: BehaviorSelectorData): RepeatOptions
 {
     let bt = data.type_selector.get_value().value;
     let rt = data.repeat_selector.get_value().value;
@@ -309,13 +402,13 @@ function get_repeat_options(data: BehaviorSelectorData): reader.RepeatOptions
     }
 }
 
-function spawn_continuous_repeat_selector(value: reader.RepeatOptionsType): utils.TextDropdown<reader.RepeatOptionsType>
+function spawn_continuous_repeat_selector(value: RepeatOptionsType): utils.ToggleTextDropdown<RepeatOptionsType>
 {
     let index = 1;
     if(value === 'infinite') index = 1;
     if(value === 'repeat_time') index = 1;
 
-    return utils.spawn_text_dropdown<reader.RepeatOptionsType>({
+    return utils.spawn_toggle_text_dropdown<RepeatOptionsType>({
         title_text: null,
         default_index: index,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
@@ -334,7 +427,7 @@ function spawn_continuous_repeat_selector(value: reader.RepeatOptionsType): util
     });
 }
 
-function spawn_repeat_selector(value: reader.RepeatOptionsType): utils.TextDropdown<reader.RepeatOptionsType>
+function spawn_repeat_selector(value: RepeatOptionsType): utils.ToggleTextDropdown<RepeatOptionsType>
 {
     let index = 0;
     if(value === 'no_repeat') index = 0;
@@ -342,7 +435,7 @@ function spawn_repeat_selector(value: reader.RepeatOptionsType): utils.TextDropd
     if(value === 'repeat_time') index = 2;
     if(value === 'infinite') index = 3;
 
-    return utils.spawn_text_dropdown<reader.RepeatOptionsType>({
+    return utils.spawn_toggle_text_dropdown<RepeatOptionsType>({
         title_text: null,
         tooltip: 'Repeat settings',
         default_index: index,
@@ -372,7 +465,7 @@ function spawn_repeat_selector(value: reader.RepeatOptionsType): utils.TextDropd
     });
 }
 
-function spawn_behavior_type_selector(value: BehaviorType): utils.TextDropdown<BehaviorType>
+function spawn_behavior_type_selector(value: BehaviorType): utils.ToggleTextDropdown<BehaviorType>
 {
     let index = 0;
     if(value === 'single') index = 0;
@@ -380,7 +473,7 @@ function spawn_behavior_type_selector(value: BehaviorType): utils.TextDropdown<B
     if(value === 'reading') index = 2;
     if(value === 'continuous') index = 3;
 
-    return utils.spawn_text_dropdown<BehaviorType>({
+    return utils.spawn_toggle_text_dropdown<BehaviorType>({
         title_text: null,
         tooltip: 'Behavior settings',
         default_index: index,
@@ -412,9 +505,9 @@ function spawn_behavior_type_selector(value: BehaviorType): utils.TextDropdown<B
 
 type ReadingsSelectorData = {
     root: HTMLElement,
-    readings_schedule_selector: utils.TextDropdown<number>,
-    month_selector: utils.TextDropdown<number>,
-    day_selector: utils.TextDropdown<number>,
+    readings_schedule_selector: utils.ToggleTextDropdown<number>,
+    month_selector: utils.ToggleTextDropdown<number>,
+    day_selector: utils.ToggleTextDropdown<number>,
 }
 
 type ReadingsSelectorArgs = {
@@ -451,9 +544,9 @@ async function spawn_readings_selector(args: ReadingsSelectorArgs | null): Promi
     return data;
 }
 
-async function spawn_readings_schedule_selector(): Promise<utils.TextDropdown<number>>
+async function spawn_readings_schedule_selector(): Promise<utils.ToggleTextDropdown<number>>
 {
-    return utils.spawn_text_dropdown_simple({
+    return utils.spawn_toggle_text_dropdown_simple({
         default: await readings.get_selected_reading(),
         tooltip: 'Select month',
         on_change: r => {
@@ -468,9 +561,9 @@ async function spawn_readings_schedule_selector(): Promise<utils.TextDropdown<nu
     });
 }
 
-function spawn_month_selector(value: number): utils.TextDropdown<number>
+function spawn_month_selector(value: number): utils.ToggleTextDropdown<number>
 {
-    return utils.spawn_text_dropdown_simple({
+    return utils.spawn_toggle_text_dropdown_simple({
         default: value,
         tooltip: 'Select month',
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
@@ -491,10 +584,10 @@ function spawn_month_selector(value: number): utils.TextDropdown<number>
     });
 }
 
-function spawn_day_selector(month: number, default_value: number): utils.TextDropdown<number>
+function spawn_day_selector(month: number, default_value: number): utils.ToggleTextDropdown<number>
 {
     let options = utils.ranges.range(0, utils.get_month_length(month, true)).map(v => (v + 1).toString()).toArray();
-    let dropdown = utils.spawn_text_dropdown_simple({
+    let dropdown = utils.spawn_toggle_text_dropdown_simple({
         default: default_value,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         tooltip: 'Select Day',
@@ -504,7 +597,10 @@ function spawn_day_selector(month: number, default_value: number): utils.TextDro
     return dropdown;
 }
 
-function spawn_time_selector(value: number | null): utils.TextDropdown<number>
+/**
+ * The dropdown value is in minutes
+ */
+function spawn_time_selector(value: number | null): utils.ToggleTextDropdown<number>
 {
     let options = utils.ranges.range(0, 12).map(h => {
         return utils.ranges.range(0, 4).map((m): [number, number] => [h, m]).toArray();
@@ -525,12 +621,14 @@ function spawn_time_selector(value: number | null): utils.TextDropdown<number>
         text: `12:00`,
         value: 12 * 60  
     });
-
+    
     let default_index = 0;
     if(value !== null) 
-        Math.round(value / 60 / 60 * 4);
+    {
+        default_index = Math.round(Math.max(0, value / 60 / 60 * 4 - 1)); // make sure isn't -1 with max(0, x)
+    }
 
-    return utils.spawn_text_dropdown({
+    return utils.spawn_toggle_text_dropdown({
         title_text: null,
         default_index,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
@@ -539,11 +637,11 @@ function spawn_time_selector(value: number | null): utils.TextDropdown<number>
     });
 }
 
-function spawn_repeat_count_selector(value: number): utils.TextDropdown<number>
+function spawn_repeat_count_selector(value: number): utils.ToggleTextDropdown<number>
 {
     let default_index = Math.round(Math.clamp(1, 10, value)) - 1;
     let options = utils.ranges.range_inclusive(1, 10).map(v => 'x' + v.toString()).toArray();
-    return utils.spawn_text_dropdown_simple({
+    return utils.spawn_toggle_text_dropdown_simple({
         default: default_index,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         tooltip: 'Select Count',
@@ -553,11 +651,11 @@ function spawn_repeat_count_selector(value: number): utils.TextDropdown<number>
 
 type SectionSelectorData = {
     root: HTMLElement,
-    begin_book_selector: utils.TextDropdown<string>,
-    begin_chapter_selector: utils.TextDropdown<number>,
+    begin_book_selector: utils.ToggleTextDropdown<string>,
+    begin_chapter_selector: utils.ToggleTextDropdown<number>,
 
-    end_book_selector: utils.TextDropdown<string>,
-    end_chapter_selector: utils.TextDropdown<number>,
+    end_book_selector: utils.ToggleTextDropdown<string>,
+    end_chapter_selector: utils.ToggleTextDropdown<number>,
 }
 
 async function spawn_section_selector(start: ChapterIndex, end: ChapterIndex): Promise<SectionSelectorData>
@@ -569,10 +667,10 @@ async function spawn_section_selector(start: ChapterIndex, end: ChapterIndex): P
     let end_chapter_selector = await spawn_chapter_selector(end);
 
     let root = utils.spawn_element('div', ['section-selector'], r => {
-        r.appendElementEx('div', ['tag'], t => t.innerHTML = 'Start:&nbsp;');
+        r.append_element('div', ['tag'], t => t.innerHTML = 'Start:&nbsp;');
         r.appendChild(begin_book_selector.root);
         r.appendChild(begin_chapter_selector.root);
-        r.appendElementEx('div', ['tag'], t => t.innerHTML = 'End:&nbsp;');
+        r.append_element('div', ['tag'], t => t.innerHTML = 'End:&nbsp;');
         r.appendChild(end_book_selector.root);
         r.appendChild(end_chapter_selector.root);
     })
@@ -606,7 +704,7 @@ async function spawn_section_selector(start: ChapterIndex, end: ChapterIndex): P
     return data;
 }
 
-async function spawn_book_selector(value: number): Promise<utils.TextDropdown<string>>
+async function spawn_book_selector(value: number): Promise<utils.ToggleTextDropdown<string>>
 {
     let options: utils.TextDropdownOption<string>[] = (await bible.get_bible_view()).map(v => {
         let display = bible.shorten_book_name(v.name);
@@ -616,7 +714,7 @@ async function spawn_book_selector(value: number): Promise<utils.TextDropdown<st
             value: v.name
         };
     });
-    return utils.spawn_text_dropdown<string>({
+    return utils.spawn_toggle_text_dropdown<string>({
         title_text: null,
         default_index: value,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
@@ -629,7 +727,7 @@ async function spawn_chapter_selector(chapter: ChapterIndex)
 {
     let chapter_count = (await bible.get_bible_view())[chapter.book].chapter_count;
     let options = utils.ranges.range(0, chapter_count).map(c => (c + 1).toString()).toArray();
-    return utils.spawn_text_dropdown_simple({
+    return utils.spawn_toggle_text_dropdown_simple({
         default: chapter.number,
         on_change: _ => BEHAVIOR_SETTINGS_CHANGED.invoke(),
         tooltip: 'Select Chapter',

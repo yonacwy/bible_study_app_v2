@@ -2,15 +2,13 @@ use std::sync::Mutex;
 use kira::{Decibels, Tween, Tweenable};
 use serde_json::Value;
 use tauri::State;
-use crate::{app_state::AppState, readings::{ReadingsDatabase, SelectedReading}};
+use crate::app_state::AppState;
 
 pub mod player;
 pub mod tts;
 
 pub use player::*;
 pub use tts::*;
-
-use self::bible_reader::{ReaderBehavior, ReaderState};
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, app_state: State<'_, AppState>, command: &str, args: Option<String>) -> Option<String>
@@ -25,7 +23,7 @@ pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, app_state: State<'_, 
             {
                 let bible = app_state.get_bible(&key.bible_name).unwrap_or(app_state.get_default_bible());
 
-                let request = state.lock().unwrap().request_tts(bible, key.chapter);
+                let request = state.lock().unwrap().request_tts(bible, key.chapter, key.verse_range);
                 let request_str = serde_json::to_string(&request).unwrap();
                 return Some(request_str);
             }
@@ -85,67 +83,6 @@ pub fn run_tts_command(state: State<'_, Mutex<TtsPlayer>>, app_state: State<'_, 
             }
         },
         _ => println!("Error: Unknown Command")
-    }
-
-    None
-}
-
-#[tauri::command(rename_all = "snake_case")]
-pub fn run_bible_reader_command(
-    reader_state: State<'_, Mutex<ReaderState>>, 
-    app_state: State<'_, AppState>, 
-    readings_database: State<'_, ReadingsDatabase>, 
-
-    command: &str, args: Option<&str>
-) -> Option<String>
-{
-    let args: Option<Value> = args.map(|a| serde_json::from_str(a).unwrap());
-    let app_state = app_state.get_ref();
-    let mut reader_state = reader_state.lock().unwrap();
-
-    match command 
-    {
-        "set_behavior" => {
-            if let Some(behavior) = args.map(|a| serde_json::from_value::<ReaderBehavior>(a).unwrap()) 
-            {
-                reader_state.set_behavior(behavior);
-            }
-            else 
-            {
-                println!("Expected a `ReaderBehavior` argument")    
-            }
-        },
-        "get_behavior" => {
-            let json = serde_json::to_string(reader_state.get_behavior()).unwrap();
-            return Some(json)
-        },
-        "get_next" => {
-
-            let selected_reading = app_state.read_selected_reading(|r| {
-                *r
-            });
-
-            // HACK + pain
-            let selected_reading: SelectedReading = serde_json::from_str(&selected_reading.to_string()).unwrap();
-
-            let next = reader_state.get_next(app_state.get_current_bible(), &readings_database, selected_reading);
-            let json = next.map(|n| serde_json::to_string(&n).unwrap());
-            return json;
-        }
-        "start_timer" => {
-            reader_state.start_timer();
-        },
-        "pause_timer" => {
-            reader_state.pause_timer();
-        },
-        "resume_timer" => {
-            reader_state.resume_timer();
-        },
-        "stop_timer" => {
-            reader_state.stop_timer();
-        },
-
-        c => println!("Unknown command: `{}`", c) 
     }
 
     None

@@ -21,9 +21,8 @@ export function show_confirm_popup(data: ConfirmPopupData)
         </div>
     `;
 
-    document.body.appendElement('div', popup => {
+    document.body.append_element('div', ['popup'], popup => {
         popup.id = CONFIRM_POPUP_ID;
-        popup.classList.add('popup');
         popup.innerHTML = html;
     });
 

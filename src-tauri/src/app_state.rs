@@ -1,11 +1,12 @@
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 use std::{cell::RefCell, collections::HashMap, io::Read, ops::Deref, path::PathBuf, sync::{Arc, Mutex, MutexGuard}, thread::spawn};
 use tauri::{
     path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Runtime
 };
 
 use crate::{
-    audio::TtsSettings, bible::*, bible_parsing, debug_release_val, migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION}, notes::*, settings::Settings
+    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, debug_release_val, migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION}, notes::*, settings::Settings
 };
 
 pub const SAVE_NAME: &str = "save.json";
@@ -100,6 +101,9 @@ pub struct AppData {
     settings: Mutex<RefCell<Settings>>,
 
     selected_reading: Mutex<RefCell<u32>>,
+    reader_behavior: Mutex<RefCell<ReaderBehavior>>,
+
+    recent_highlights: Mutex<RefCell<Vec<Uuid>>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -113,6 +117,8 @@ struct AppSave {
     settings: Settings,
     selected_reading: u32,
     tts_settings: TtsSettings,
+    reader_behavior: ReaderBehavior,
+    recent_highlights: Vec<Uuid>,
 }
 
 impl AppData {
@@ -144,8 +150,9 @@ impl AppData {
                 (save, migrated, false)
             },
             None => {
+                let chapter = ChapterIndex { book: 0, number: 0 };
                 let view_states = vec![ViewState::Chapter {
-                    chapter: ChapterIndex { book: 0, number: 0 },
+                    chapter,
                     verse_range: None,
                     scroll: 0.0,
                 }];
@@ -160,6 +167,8 @@ impl AppData {
                     settings: Settings::default(),
                     selected_reading: 0,
                     tts_settings: TtsSettings::default(),
+                    reader_behavior: ReaderBehavior::default(),
+                    recent_highlights: vec![],
                 }, false, true)
             }
         };
@@ -211,6 +220,8 @@ impl AppData {
             need_display_no_save: Mutex::new(RefCell::new(no_save)),
             settings: Mutex::new(RefCell::new(save.settings)),
             selected_reading: Mutex::new(RefCell::new(save.selected_reading)),
+            reader_behavior: Mutex::new(RefCell::new(save.reader_behavior)),
+            recent_highlights: Mutex::new(RefCell::new(save.recent_highlights)),
         }
     }
 
@@ -227,6 +238,8 @@ impl AppData {
         let settings = self.settings.lock().unwrap().borrow().clone();
         let save_version = self.save_version;
         let selected_reading = self.selected_reading.lock().unwrap().borrow().clone();
+        let reader_behavior = self.reader_behavior.lock().unwrap().borrow().clone();
+        let recent_highlights = self.recent_highlights.lock().unwrap().borrow().clone();
 
         let save = AppSave {
             notebooks,
@@ -238,6 +251,8 @@ impl AppData {
             settings,
             selected_reading,
             tts_settings,
+            reader_behavior,
+            recent_highlights
         };
 
         let save_json = serde_json::to_string_pretty(&save).unwrap();
@@ -390,6 +405,22 @@ impl AppData {
         old
     }
 
+    pub fn read_reader_behavior<F, R>(&self, mut f: F) -> R 
+        where F: FnMut(&mut ReaderBehavior) -> R
+    {
+        let binding = self.reader_behavior.lock().unwrap();
+        let mut selected_reading = binding.borrow_mut();
+        f(&mut *selected_reading)
+    }
+
+    pub fn read_recent_highlights<F, R>(&self, mut f: F) -> R 
+        where F : FnMut(&mut Vec<Uuid>) -> R
+    {
+        let binding = self.recent_highlights.lock().unwrap();
+        let mut recent_highlights = binding.borrow_mut();
+        f(&mut *recent_highlights)
+    }
+
     fn get_bible_paths<R>(path_resolver: &PathResolver<R>) -> Vec<PathBuf>
         where R : Runtime
     {
@@ -413,7 +444,7 @@ impl AppData {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", tag = "type")]
+#[serde(rename_all = "snake_case", tag = "type")]
 pub enum ViewState {
     Chapter {
         chapter: ChapterIndex,
@@ -424,5 +455,6 @@ pub enum ViewState {
         words: Vec<String>,
         display_index: u32,
         scroll: f32,
+        note_editing_location: Option<ReferenceLocation>,
     },
 }

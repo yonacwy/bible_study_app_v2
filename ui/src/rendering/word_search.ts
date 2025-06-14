@@ -1,7 +1,7 @@
 import * as utils from "../utils/index.js";
 import * as bible from "../bible.js";
-import { push_search } from "../view_states.js";
-import { VersePosition } from "../bindings.js";
+import { push_word_search } from "../view_states.js";
+import { ReferenceLocation, VersePosition } from "../bindings.js";
 import * as verse_renderer from "./verse_rendering.js";
 import { PanelData } from "../popups/side_popup.js";
 import * as selection from "../selection.js";
@@ -9,18 +9,35 @@ import * as selection from "../selection.js";
 const MAX_DISPLAY = 50;
 let was_initialized = false;
 
+export type WordSearchResult = {
+    book: number,
+    chapter: number,
+    verse: number,
+}
+
 /**
  * Initializes the rendering of a search result. 
  * When display index is set, will automatically rerender the page
  * @param on_rendered -- Will be called when the display index changes
  * @param on_search -- Called when a search for a verse is called
  */
-export async function render_search_result(result: any[], searched: string[], results_id: string, word_popup: HTMLElement, side_popup_data: PanelData | null, display_index: number, on_rendered: () => void, on_search: (msg: string) => void): Promise<void>
+export async function render_search_result(args: { 
+    result: WordSearchResult[]; 
+    searched: string[]; 
+    results_id: string; 
+    word_popup: HTMLElement; 
+    side_popup_data: PanelData | null; 
+    display_index: number; 
+    on_rendered: () => void; 
+    on_search: (msg: string) => void; 
+    editing_note_location: ReferenceLocation | null,
+}): Promise<void>
 {
+    let { result, searched, results_id, word_popup, side_popup_data, display_index, on_rendered, on_search } = args;
     if(!was_initialized)
     {
         was_initialized = true;
-        let on_require_rerender = () => render_search_result(result, searched, results_id, word_popup, side_popup_data, display_index, on_rendered, on_search);
+        let on_require_rerender = () => render_search_result(args);
         
         selection.init_selection();
         selection.ON_SELECTION_EVENT.add_listener(e => {
@@ -41,6 +58,8 @@ export async function render_search_result(result: any[], searched: string[], re
     let start = display_index * MAX_DISPLAY;
     let end = Math.min(result_count, MAX_DISPLAY + start);
 
+    let note_verses: HTMLElement[] = [];
+
     for(let i = start; i < end; i++)
     {
         let result_data = result[i] as VersePosition;
@@ -58,9 +77,40 @@ export async function render_search_result(result: any[], searched: string[], re
         result_node.appendChild(verse_node);
         result_node.appendChild(reference_node);
         new_children.push(result_node);
+
+        if (args.editing_note_location !== null)
+        {
+            // utils.debug_json(args.editing_note_location);
+
+            let is_same_book = args.editing_note_location.chapter.book === result_data.book;
+            let is_same_chapter = args.editing_note_location.chapter.number === result_data.chapter;
+            let is_in_verse_range = args.editing_note_location.range.verse_start <= result_data.verse &&
+                                    args.editing_note_location.range.verse_end >= result_data.verse;
+
+            if (is_same_book && is_same_chapter && is_in_verse_range)
+            {
+                note_verses.push(result_node);
+            }
+        }
     }
 
-    let render_section = (i: number) => render_search_result(result, searched, results_id, word_popup, side_popup_data, i, on_rendered, on_search);
+    function on_element_clicked()
+    {
+        note_verses.forEach(e => {
+            e.removeEventListener('click', on_element_clicked);
+            e.classList.remove('searched');
+        });
+    }
+
+    note_verses.forEach(e => {
+        e.addEventListener('click', on_element_clicked);
+        e.classList.add('searched');
+    })
+
+    let render_section = (i: number) => {
+        args.display_index = i;
+        render_search_result(args);
+    };
     let buttons = await generate_section_buttons(result, render_section, display_index, searched);
     if(buttons !== null)
     {
@@ -70,6 +120,14 @@ export async function render_search_result(result: any[], searched: string[], re
     results_node.replaceChildren(...new_children);
     results_node.style.pointerEvents = 'auto';
     on_rendered();
+
+    if (note_verses.length > 0)
+    {
+        note_verses[0].scrollIntoView({
+            block: 'center',
+            behavior: 'smooth',
+        });
+    }
 }
 
 function append_search_header(result_count: number, new_children: HTMLElement[], searched: string[]) 
@@ -122,7 +180,7 @@ async function generate_section_buttons(search_results: any[], render_section: (
         let button = document.createElement('button');
         button.innerHTML = name;
         button.addEventListener('click', e => {
-            push_search(searched, i);
+            push_word_search(searched, i);
             render_section(i);
         });
 

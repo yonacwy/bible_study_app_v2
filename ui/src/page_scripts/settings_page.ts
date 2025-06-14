@@ -12,9 +12,14 @@ export type SettingsPageData = {
 export async function run()
 {
     let data = utils.decode_from_url(window.location.href) as SettingsPageData;
-    init_settings_page_header(() => '');
-    pages.init_back_button(data.old_path);
-    pages.init_settings_buttons(data.old_path);
+    init_settings_page_header({
+        middle: [],
+        old_path: data.old_path,
+        on_back_clicked: () => {
+            window.location.href = data.old_path;
+        }
+    });
+
     settings.init_less_sync();
     
     await sync_display_settings();
@@ -206,8 +211,7 @@ async function init_font_dropdown()
     
         for(let i = 0; i < FONT_OPTIONS.length; i++)
         {
-            content.appendElement('div', option => {
-                option.classList.add('dropdown-option');
+            content.append_element('div', ['dropdown-option'], option => {
     
                 if(i === current_index) 
                     option.classList.add('selected-option');
