@@ -3,6 +3,13 @@
 
 ### Version 0.8.0
 - [ ] Notebook Support
+  - [ ] Seperates different notes into notebooks
+  - [ ] Enable/Disable for viewing
+  - [ ] See notes from different bible versions
+- [ ] Note viewer
+  - [ ] Can see all notes without having to find them
+  - [ ] Searching based on keywords?
+  - [ ] View multiple notebooks
 
 ### Version 0.7.0: Multi-Platform Support
 - [ ] Android
@@ -67,6 +74,7 @@
   - [x] Added tooltip for chapter links on the daily readings page
   - [x] Changed ul/ol margins for notes and highlight descriptions
   - [x] Side info panel's min and max size is now dependent on the window min and max size
+
 
 ### Version 0.5.2: Note QoL Changes
 - [x] Selecting Notes and Highlights
