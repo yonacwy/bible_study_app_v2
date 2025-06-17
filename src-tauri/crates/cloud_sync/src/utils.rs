@@ -11,6 +11,7 @@ pub struct ClientInfo
     pub secret: String,
 }
 
+#[derive(Debug, Clone)]
 pub struct AppInfo
 {
     pub app_id: String,

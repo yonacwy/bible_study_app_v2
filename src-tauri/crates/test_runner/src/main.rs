@@ -1,9 +1,5 @@
 use std::time::SystemTime;
-
-use cloud_sync::auth::{request_auth_code, AuthCodeArgs};
-use cloud_sync::drive::DriveSyncApi;
-use cloud_sync::exchange::{exchange_auth_code, CachedAccessToken, ExchangeAuthCodeArgs};
-use cloud_sync::utils::{AppInfo, ClientInfo, PkcePair, DEFAULT_REDIRECT_URL};
+use cloud_sync::utils::{AppInfo, ClientInfo};
 use cloud_sync::{DriveSyncClient, SyncData, Syncable};
 use serde::{Deserialize, Serialize};
 
@@ -44,7 +40,9 @@ fn main() -> Result<(), String>
     };
 
     let timeout_ms = 10 * 60 * 1000;
-    let drive_client = DriveSyncClient::<TestData>::signin_user(client, app, page_src, timeout_ms, redirect_uri).unwrap();
+    let drive_client = DriveSyncClient::<TestData>::signin_user(client.clone(), app.clone(), page_src, timeout_ms, redirect_uri).unwrap();
+
+    let drive_client = DriveSyncClient::<TestData>::from_refresh_token(client, app, drive_client.refresh_token().into()).unwrap();
 
     let local = SyncData::new(TestData {
         value: 128,
