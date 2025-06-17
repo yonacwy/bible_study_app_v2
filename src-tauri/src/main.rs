@@ -15,6 +15,7 @@ pub mod utils;
 pub mod settings;
 pub mod audio;
 pub mod readings;
+pub mod save_data;
 
 use audio::{init_espeak, AudioPlayer, TtsPlayer};
 use commands::*;

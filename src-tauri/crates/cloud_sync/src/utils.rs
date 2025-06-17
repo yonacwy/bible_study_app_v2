@@ -44,3 +44,21 @@ impl PkcePair
         }
     }
 }
+
+pub trait ResultEx<T, E> : Sized
+{
+    fn strfy_err(self) -> Result<T, String>;
+
+    fn fmt_strfy_err(self, prefix: &str) -> Result<T, String>
+    {
+        self.strfy_err().map_err(|e| format!("{}: {}", prefix, e))
+    }
+}
+
+impl<T, E> ResultEx<T, E> for Result<T, E> where E : ToString
+{
+    fn strfy_err(self) -> Result<T, String> 
+    {
+        self.map_err(|e| e.to_string())
+    }
+}

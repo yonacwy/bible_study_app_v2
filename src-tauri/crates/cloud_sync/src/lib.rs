@@ -1,17 +1,17 @@
 use std::{marker::PhantomData, time::SystemTime};
 
-use serde::{Deserialize, Serialize};
-
-use crate::{auth::{request_auth_code, AuthCodeArgs}, drive::DriveSyncApi, exchange::{exchange_auth_code, CachedAccessToken, ExchangeAuthCodeArgs}, utils::{AppInfo, ClientInfo, PkcePair}};
+use crate::{auth::{request_auth_code, AuthCodeArgs, AuthResult}, drive::DriveSyncApi, exchange::{exchange_auth_code, CachedAccessToken, ExchangeAuthCodeArgs}, utils::{AppInfo, ClientInfo, PkcePair, ResultEx}};
 
 pub mod auth;
 pub mod exchange;
 pub mod drive;
 pub mod utils;
 
-pub trait Syncable : Serialize + for<'a> Deserialize<'a>
+pub trait Syncable : Sized
 {
-    fn merge(&mut self, self_time: SystemTime, other: &Self, other_time: SystemTime);
+    fn serialize(&self) -> Result<String, String>;
+    fn deserialize(str: &str) -> Result<Self, String>;
+    fn merge(remote: &Self, local: &Self) -> Self;
 }
 
 pub struct DriveSyncClient<T> where T : Syncable
@@ -21,35 +21,49 @@ pub struct DriveSyncClient<T> where T : Syncable
     _phantom: PhantomData<T>
 }
 
+pub enum SigninResult<T> where T : Syncable
+{
+    Success(DriveSyncClient<T>),
+    Denied,
+    Error(String),
+}
+
 impl<T> DriveSyncClient<T> where T : Syncable
 {
     pub fn refresh_token(&self) -> &str { &self.refresh_token }
 
     // Clean sign in. It will redirect the user to sign in to google drive using their credentials
-    pub fn signin_user(client: ClientInfo, app_info: AppInfo, page_src: &str, timeout_ms: u128, redirect_uri: &str) -> Result<Self, String>
+    pub fn signin_user(client: ClientInfo, app_info: AppInfo, page_src: &str, timeout_ms: u128, redirect_uri: &str) -> SigninResult<T>
     {
         let pkce = PkcePair::new();
         
-        let auth_code = request_auth_code(AuthCodeArgs {
+        let auth_code = match request_auth_code(AuthCodeArgs {
             client: &client,
             pkce: &pkce,
             redirect_uri,
             timeout_ms,
             page_src,
-        })?;
+        }) {
+            AuthResult::Success(auth_code) => auth_code,
+            AuthResult::Timeout | AuthResult::UserCancelled => return SigninResult::Denied,
+            AuthResult::Error(e) => return SigninResult::Error(e),
+        };
 
-        let response = exchange_auth_code(ExchangeAuthCodeArgs {
+        let response = match exchange_auth_code(ExchangeAuthCodeArgs {
             code: &auth_code,
             client: &client,
             redirect_uri,
             pkce: &pkce
-        })?;
+        }) {
+            Ok(ok) => ok,
+            Err(err) => return SigninResult::Error(err),
+        };
 
         let refresh_token = response.refresh_token.clone();
         let access_token = CachedAccessToken::new(client, response, SystemTime::now());
         let api = DriveSyncApi::new(access_token, app_info.app_id.clone(), app_info.sync_file_name.clone());
 
-        Ok(Self 
+        SigninResult::Success(Self 
         {
             api,
             refresh_token,
@@ -71,7 +85,7 @@ impl<T> DriveSyncClient<T> where T : Syncable
         })
     }
 
-    pub fn sync_data(&self, local: SyncData<T>) -> Result<SyncData<T>, String>
+    pub fn sync_data(&self, local: T) -> Result<T, String>
     {
         let remote = match self.api.read() {
             Ok(ok) => ok,
@@ -81,53 +95,16 @@ impl<T> DriveSyncClient<T> where T : Syncable
         let synced = match remote
         {
             Some(remote) => {
-                let mut remote: SyncData<T> = serde_json::from_str(&remote)
-                    .map_err(|e| e.to_string())?;
-
-                remote.merge(&local);
+                let mut remote = T::deserialize(&remote)?;
+                remote = T::merge(&remote, &local);
                 remote
             },
             None => local,
         };
 
-        let synced_json = serde_json::to_string(&synced).map_err(|e| e.to_string())?;
-        self.api.write(&synced_json).map_err(|e| e.to_string())?;
+        let synced_json = synced.serialize()?;
+        self.api.write(&synced_json).strfy_err()?;
 
         Ok(synced)
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(bound = "T: Syncable")]
-pub struct SyncData<T>
-where
-    T: Syncable + Serialize
-{
-    pub update_time: SystemTime,
-    pub data: T,
-}
-
-impl<T> SyncData<T> where T : Syncable
-{
-    pub fn new(data: T) -> Self
-        where T : Serialize
-    {
-        Self 
-        {
-            update_time: SystemTime::now(),
-            data,
-        }
-    }
-
-    pub fn merge<'a>(&mut self, other: &Self)
-    {
-        // if this is of the same update, we don't have to do anything
-        if self.update_time == other.update_time
-        {
-            return;
-        }
-
-        self.data.merge(self.update_time, &other.data, other.update_time);
-        self.update_time = SystemTime::now();
     }
 }

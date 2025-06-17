@@ -1,21 +1,34 @@
 use std::time::SystemTime;
 use cloud_sync::utils::{AppInfo, ClientInfo};
-use cloud_sync::{DriveSyncClient, SyncData, Syncable};
+use cloud_sync::{DriveSyncClient, SigninResult, Syncable};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TestData
 {
     pub value: u32,
+    pub time: SystemTime,
 }
 
 impl Syncable for TestData 
 {
-    fn merge(&mut self, self_time: SystemTime, other: &Self, other_time: SystemTime) 
+    fn serialize(&self) -> Result<String, String> {
+        serde_json::to_string(self).map_err(|e| e.to_string())
+    }
+
+    fn deserialize(str: &str) -> Result<Self, String> {
+        serde_json::from_str(str).map_err(|e| e.to_string())
+    }
+
+    fn merge(remote: &Self, local: &Self) -> Self 
     {
-        if other_time > self_time
+        if remote.time > local.time
         {
-            self.value = other.value
+            remote.clone()
+        }
+        else 
+        {
+            local.clone()
         }
     }
 }
@@ -39,17 +52,24 @@ fn main() -> Result<(), String>
         sync_file_name: "test_save.json".into(),
     };
 
-    let timeout_ms = 10 * 60 * 1000;
-    let drive_client = DriveSyncClient::<TestData>::signin_user(client.clone(), app.clone(), page_src, timeout_ms, redirect_uri).unwrap();
+    let timeout_ms =  15 * 1000;
+    let drive_client = match DriveSyncClient::<TestData>::signin_user(client.clone(), app.clone(), page_src, timeout_ms, redirect_uri) {
+        SigninResult::Success(drive_sync_client) => drive_sync_client,
+        SigninResult::Denied => {
+            return Err(format!("Failed to sign in"));
+        },
+        SigninResult::Error(e) => return Err(e),
+    };
 
     let drive_client = DriveSyncClient::<TestData>::from_refresh_token(client, app, drive_client.refresh_token().into()).unwrap();
 
-    let local = SyncData::new(TestData {
-        value: 128,
-    });
+    let local = TestData {
+        value: 24,
+        time: SystemTime::now(),
+    };
 
     let synced = drive_client.sync_data(local).unwrap();
-    println!("value = {}", synced.data.value);
+    println!("value = {:#?}", synced);
     
     Ok(())
 }

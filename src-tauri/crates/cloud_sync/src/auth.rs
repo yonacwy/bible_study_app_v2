@@ -4,6 +4,7 @@ use urlencoding::encode;
 
 use crate::{ClientInfo, PkcePair};
 
+#[derive(Debug)]
 pub struct AuthCode(pub String);
 
 pub struct AuthCodeArgs<'a>
@@ -15,7 +16,15 @@ pub struct AuthCodeArgs<'a>
     pub page_src: &'a str,
 }
 
-pub fn request_auth_code(args: AuthCodeArgs) -> Result<AuthCode, String>
+#[derive(Debug)]
+pub enum AuthResult {
+    Success(AuthCode),
+    Timeout,
+    UserCancelled,
+    Error(String),
+}
+
+pub fn request_auth_code(args: AuthCodeArgs) -> AuthResult
 {
     let AuthCodeArgs { client, pkce, redirect_uri, timeout_ms, page_src } = args;
 
@@ -23,33 +32,40 @@ pub fn request_auth_code(args: AuthCodeArgs) -> Result<AuthCode, String>
 
     if let Some(e) = webbrowser::open(&auth_url).err()
     {
-        return Err(e.to_string())
+        return AuthResult::Error(e.to_string())
     }
 
-    let listener = TcpListener::bind("127.0.0.1:8080").unwrap();
-    listener.set_nonblocking(true).unwrap();
-    let current = SystemTime::now();
-    let code = loop 
+    let listener = match TcpListener::bind("127.0.0.1:8080") {
+        Ok(ok) => ok,
+        Err(e) => return AuthResult::Error(format!("TcpListener::bind error: {}", e.to_string()))
+    };
+
+    if let Err(e) = listener.set_nonblocking(true)
     {
+        return AuthResult::Error(format!("TcpListener::set_nonblocking error: {}", e.to_string()));
+    }
+
+    let current = SystemTime::now();
+    loop 
+    {
+        println!("ms = {}", current.elapsed().unwrap().as_millis());
         if current.elapsed().unwrap().as_millis() > timeout_ms
         {
-            break None;
+            return AuthResult::Timeout;
         }
 
         match listener.accept() 
         {
             Ok((mut stream, _addr)) => 
             {
-                let request = read_request(&mut stream)?;
-
-                if let Some(line) = request.lines().next() 
+                match handle_connection(&mut stream, page_src) 
                 {
-                    let code = get_code_from_request(line)?;
-
-                    let response = format_response(page_src);
-                    stream.write_all(response.as_bytes()).unwrap();
-                    stream.flush().unwrap();
-                    break Some(code);
+                    ConnectionResult::AuthCode(code) => return AuthResult::Success(AuthCode(code)),
+                    ConnectionResult::Cancelled => return AuthResult::UserCancelled,
+                    ConnectionResult::Error(e) => return AuthResult::Error(e),
+                    ConnectionResult::InvalidRequest => {
+                        continue;
+                    }
                 }
             }
             Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => 
@@ -58,14 +74,86 @@ pub fn request_auth_code(args: AuthCodeArgs) -> Result<AuthCode, String>
                 std::thread::sleep(std::time::Duration::from_millis(100));
                 continue;
             }
-            Err(e) => return Err(format!("Unexpected error: {}", e)),
+            Err(e) => return AuthResult::Error(format!("Unexpected error: {}", e)),
+        }
+    }
+}
+
+enum ConnectionResult {
+    AuthCode(String),
+    Cancelled,
+    Error(String),
+    InvalidRequest,
+}
+
+fn handle_connection(stream: &mut TcpStream, page_src: &str) -> ConnectionResult {
+    // Set a read timeout to detect stalled connections
+    if let Err(e) = stream.set_read_timeout(Some(std::time::Duration::from_secs(5))) 
+    {
+        return ConnectionResult::Error(format!("Failed to set read timeout: {}", e));
+    }
+    
+    let request = match read_request(stream) 
+    {
+        Ok(req) => req,
+        Err(e) => 
+        {
+            if e.contains("Connection closed") {
+                return ConnectionResult::Cancelled;
+            }
+            return ConnectionResult::Error(e);
         }
     };
 
-    match code {
-        Some(code) => Ok(AuthCode(code)),
-        None => Err("Timeout".into())
+    // Check if this is a valid HTTP request
+    if request.is_empty() 
+    {
+        return ConnectionResult::Cancelled;
     }
+
+    let first_line = match request.lines().next() 
+    {
+        Some(line) => line,
+        None => return ConnectionResult::InvalidRequest,
+    };
+
+    // Check for favicon requests or other non-auth requests
+    if first_line.contains("favicon.ico") || first_line.contains("robots.txt") 
+    {
+        send_404_response(stream);
+        return ConnectionResult::InvalidRequest;
+    }
+
+    match get_code_from_request(first_line) 
+    {
+        Ok(code) => {
+            let response = format_response(page_src);
+            if let Err(e) = stream.write_all(response.as_bytes()) 
+            {
+                return ConnectionResult::Error(format!("Write error: {}", e));
+            }
+            let _ = stream.flush();
+            ConnectionResult::AuthCode(code)
+        }
+        Err(_) => {
+            // Check if this is an error callback (user denied access)
+            if first_line.contains("error=access_denied") 
+            {
+                let error_response = format_response("Authentication cancelled by user.");
+                let _ = stream.write_all(error_response.as_bytes());
+                let _ = stream.flush();
+                return ConnectionResult::Cancelled;
+            }
+            ConnectionResult::InvalidRequest
+        }
+    }
+}
+
+fn send_404_response(stream: &mut TcpStream) 
+{
+    let response = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n";
+    let _ = stream.write_all(response.as_bytes());
+    let _ = stream.flush();
 }
 
 fn format_response(page_src: &str) -> String 
@@ -81,7 +169,13 @@ fn read_request(stream: &mut TcpStream) -> Result<String, String>
     {
         match stream.read(&mut temp_buf) 
         {
-            Ok(0) => break, // EOF
+            Ok(0) => {
+                if buffer.is_empty() {
+                    return Err("Connection closed before any data received".into())
+                }
+
+                break;
+            }, // EOF
             Ok(n) => {
                 buffer.extend_from_slice(&temp_buf[..n]);
                 if buffer.windows(4).any(|w| w == b"\r\n\r\n") 
@@ -93,6 +187,12 @@ fn read_request(stream: &mut TcpStream) -> Result<String, String>
             {
                 std::thread::sleep(std::time::Duration::from_millis(50));
                 continue;
+            }
+            Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => {
+                return Err("Connection timed out - likely cancelled".into());
+            }
+            Err(ref e) if e.kind() == std::io::ErrorKind::ConnectionReset => {
+                return Err("Connection closed by browser".into());
             }
             Err(e) => return Err(format!("Read error: {}", e)),
         }
