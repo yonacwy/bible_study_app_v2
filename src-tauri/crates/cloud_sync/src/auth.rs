@@ -1,6 +1,4 @@
-use std::{borrow::Cow, io::{Read, Write}, net::{TcpListener, TcpStream}, time::SystemTime};
-
-use itertools::Itertools;
+use std::{io::{Read, Write}, net::{TcpListener, TcpStream}, time::SystemTime};
 use url::Url;
 use urlencoding::encode;
 
