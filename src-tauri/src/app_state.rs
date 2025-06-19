@@ -6,7 +6,7 @@ use tauri::{
 };
 
 use crate::{
-    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, debug_release_val, migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION}, notes::*, settings::Settings
+    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, debug_release_val, migration::{SaveVersion, CURRENT_SAVE_VERSION}, notes::*, save_data::AppSave, settings::Settings
 };
 
 pub const SAVE_NAME: &str = "save.json";
@@ -106,21 +106,6 @@ pub struct AppData {
     recent_highlights: Mutex<RefCell<Vec<Uuid>>>,
 }
 
-#[derive(Serialize, Deserialize)]
-struct AppSave {
-    current_bible_version: String,
-    notebooks: HashMap<String, Notebook>,
-    save_version: SaveVersion,
-    view_state_index: usize,
-    view_states: Vec<ViewState>,
-    editing_note: Option<String>,
-    settings: Settings,
-    selected_reading: u32,
-    tts_settings: TtsSettings,
-    reader_behavior: ReaderBehavior,
-    recent_highlights: Vec<Uuid>,
-}
-
 impl AppData {
     pub fn get_builder<R>(resolver: &PathResolver<R>, app_handle: AppHandle) -> Box<dyn FnOnce() -> Self + Send + Sync + 'static>
     where
@@ -145,31 +130,12 @@ impl AppData {
 
         let (mut save, was_migrated, no_save) = match file {
             Some(file) => {
-                let (save, migrated) = Self::load(&file);
+                let (save, migrated) = AppSave::load(&file);
                 app_handle.emit("loaded-tts-save", save.tts_settings).unwrap();
                 (save, migrated, false)
             },
             None => {
-                let chapter = ChapterIndex { book: 0, number: 0 };
-                let view_states = vec![ViewState::Chapter {
-                    chapter,
-                    verse_range: None,
-                    scroll: 0.0,
-                }];
-
-                (AppSave {
-                    notebooks: HashMap::new(),
-                    current_bible_version: DEFAULT_BIBLE.to_owned(),
-                    save_version: CURRENT_SAVE_VERSION,
-                    view_state_index: 0,
-                    view_states,
-                    editing_note: None,
-                    settings: Settings::default(),
-                    selected_reading: 0,
-                    tts_settings: TtsSettings::default(),
-                    reader_behavior: ReaderBehavior::default(),
-                    recent_highlights: vec![],
-                }, false, true)
+                (AppSave::default(), false, true)
             }
         };
 
@@ -260,22 +226,6 @@ impl AppData {
             .resolve(SAVE_NAME, BaseDirectory::Resource)
             .expect("Error getting save path");
         std::fs::write(path, save_json).expect("Failed to write to save path");
-    }
-
-    fn load(json: &str) -> (AppSave, bool) {
-        let (migrated_json, was_migrated) = match migration::migrate_save_latest(json) {
-            MigrationResult::Same(str) => (str, false),
-            MigrationResult::Different {
-                start,
-                end,
-                migrated,
-            } => {
-                println!("Migrated from {:?} to {:?}", start, end);
-                (migrated, true)
-            }
-            MigrationResult::Error(err) => panic!("Error on save | {}", err),
-        };
-        (serde_json::from_str(&migrated_json).unwrap(), was_migrated)
     }
 
     pub fn get_view_state_index(&self) -> usize {

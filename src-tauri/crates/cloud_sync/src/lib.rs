@@ -7,33 +7,25 @@ pub mod exchange;
 pub mod drive;
 pub mod utils;
 
-pub trait Syncable : Sized
-{
-    fn serialize(&self) -> Result<String, String>;
-    fn deserialize(str: &str) -> Result<Self, String>;
-    fn merge(remote: &Self, local: &Self) -> Self;
-}
-
-pub struct DriveSyncClient<T> where T : Syncable
+pub struct DriveSyncClient
 {
     api: DriveSyncApi,
     refresh_token: String,
-    _phantom: PhantomData<T>
 }
 
-pub enum SigninResult<T> where T : Syncable
+pub enum SigninResult
 {
-    Success(DriveSyncClient<T>),
+    Success(DriveSyncClient),
     Denied,
     Error(String),
 }
 
-impl<T> DriveSyncClient<T> where T : Syncable
+impl DriveSyncClient
 {
     pub fn refresh_token(&self) -> &str { &self.refresh_token }
 
     // Clean sign in. It will redirect the user to sign in to google drive using their credentials
-    pub fn signin_user(client: ClientInfo, app_info: AppInfo, page_src: &str, timeout_ms: u128, redirect_uri: &str) -> SigninResult<T>
+    pub fn signin_user(client: ClientInfo, app_info: AppInfo, page_src: &str, timeout_ms: u128, redirect_uri: &str) -> SigninResult
     {
         let pkce = PkcePair::new();
         
@@ -67,7 +59,6 @@ impl<T> DriveSyncClient<T> where T : Syncable
         {
             api,
             refresh_token,
-            _phantom: PhantomData,
         })
     }
 
@@ -81,30 +72,16 @@ impl<T> DriveSyncClient<T> where T : Syncable
         {
             api,
             refresh_token,
-            _phantom: PhantomData,
         })
     }
 
-    pub fn sync_data(&self, local: T) -> Result<T, String>
+    pub fn read(&self) -> Result<Option<String>, String>
     {
-        let remote = match self.api.read() {
-            Ok(ok) => ok,
-            Err(e) => return Err(e.to_string())
-        };
+        self.api.read().map_err(|e| e.to_string())
+    }
 
-        let synced = match remote
-        {
-            Some(remote) => {
-                let mut remote = T::deserialize(&remote)?;
-                remote = T::merge(&remote, &local);
-                remote
-            },
-            None => local,
-        };
-
-        let synced_json = synced.serialize()?;
-        self.api.write(&synced_json).strfy_err()?;
-
-        Ok(synced)
+    pub fn write(&self, content: &str) -> Result<(), String>
+    {
+        self.api.write(content).map_err(|e| e.to_string())
     }
 }

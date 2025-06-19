@@ -1,6 +1,6 @@
 use std::time::SystemTime;
 use cloud_sync::utils::{AppInfo, ClientInfo};
-use cloud_sync::{DriveSyncClient, SigninResult, Syncable};
+use cloud_sync::{DriveSyncClient, SigninResult};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -8,29 +8,6 @@ pub struct TestData
 {
     pub value: u32,
     pub time: SystemTime,
-}
-
-impl Syncable for TestData 
-{
-    fn serialize(&self) -> Result<String, String> {
-        serde_json::to_string(self).map_err(|e| e.to_string())
-    }
-
-    fn deserialize(str: &str) -> Result<Self, String> {
-        serde_json::from_str(str).map_err(|e| e.to_string())
-    }
-
-    fn merge(remote: &Self, local: &Self) -> Self 
-    {
-        if remote.time > local.time
-        {
-            remote.clone()
-        }
-        else 
-        {
-            local.clone()
-        }
-    }
 }
 
 fn main() -> Result<(), String> 
@@ -53,7 +30,7 @@ fn main() -> Result<(), String>
     };
 
     let timeout_ms =  15 * 1000;
-    let drive_client = match DriveSyncClient::<TestData>::signin_user(client.clone(), app.clone(), page_src, timeout_ms, redirect_uri) {
+    let drive_client = match DriveSyncClient::signin_user(client.clone(), app.clone(), page_src, timeout_ms, redirect_uri) {
         SigninResult::Success(drive_sync_client) => drive_sync_client,
         SigninResult::Denied => {
             return Err(format!("Failed to sign in"));
@@ -61,14 +38,15 @@ fn main() -> Result<(), String>
         SigninResult::Error(e) => return Err(e),
     };
 
-    let drive_client = DriveSyncClient::<TestData>::from_refresh_token(client, app, drive_client.refresh_token().into()).unwrap();
+    let drive_client = DriveSyncClient::from_refresh_token(client, app, drive_client.refresh_token().into()).unwrap();
 
     let local = TestData {
         value: 24,
         time: SystemTime::now(),
     };
 
-    let synced = drive_client.sync_data(local).unwrap();
+    drive_client.write(&serde_json::to_string(&local).unwrap()).unwrap();
+    let synced = drive_client.read().unwrap();
     println!("value = {:#?}", synced);
     
     Ok(())

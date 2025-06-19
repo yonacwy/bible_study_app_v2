@@ -5,7 +5,7 @@ use tauri::{path::BaseDirectory, Manager, Runtime, State};
 use uuid::Uuid;
 
 use crate::{
-    app_state::{self, AppState, ViewState}, audio::reader_behavior::ReaderBehavior, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, NoteSourceType, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
+    app_state::{self, AppState, ViewState}, audio::reader_behavior::ReaderBehavior, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, NoteData, NoteSourceType, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
 };
 
 #[tauri::command(rename_all = "snake_case")]
@@ -275,11 +275,13 @@ pub fn add_note(app_state: State<'_, AppState>, text: String, locations: Vec<Ref
     app_state.read_notes(move |notebook| {
         let id = uuid::Uuid::new_v4().to_string();
         notebook.add_note(
+            NoteData {
+                id: id.clone(),
+                text: text.clone(),
+                locations: locations.clone(),
+                source_type,
+            },
             current_bible,
-            id.clone(),
-            text.to_owned(),
-            locations.to_owned(),
-            source_type,
         );
         id
     })
@@ -318,11 +320,13 @@ pub fn update_note(app_state: State<'_, AppState>, id: String, locations: Vec<Re
     app_state.read_notes(move |notebook| {
         notebook.remove_note(&id);
         notebook.add_note(
+            NoteData {
+                id: id.clone(),
+                text: text.clone(),
+                locations: locations.clone(),
+                source_type,
+            },
             current_bible,
-            id.clone(),
-            text.clone(),
-            locations.clone(),
-            source_type,
         );
     })
 }

@@ -115,3 +115,16 @@ impl<T> Clone for Shared<T>
         Self(self.0.clone())
     }
 }
+
+pub fn dedup_by_predicate<T, F>(items: Vec<T>, mut predicate: F) -> Vec<T>
+    where T: Clone,
+          F: FnMut(&T, &T) -> bool,
+{
+    let mut result = Vec::new();
+    for item in items {
+        if !result.iter().any(|x| predicate(x, &item)) {
+            result.push(item);
+        }
+    }
+    result
+}
