@@ -1,6 +1,6 @@
-use std::{marker::PhantomData, time::SystemTime};
+use std::time::SystemTime;
 
-use crate::{auth::{request_auth_code, AuthCodeArgs, AuthResult}, drive::DriveSyncApi, exchange::{exchange_auth_code, CachedAccessToken, ExchangeAuthCodeArgs}, utils::{AppInfo, ClientInfo, PkcePair, ResultEx}};
+use crate::{auth::{request_auth_code, AuthCodeArgs, AuthResult}, drive::DriveSyncApi, exchange::{exchange_auth_code, CachedAccessToken, ExchangeAuthCodeArgs}, utils::{AppInfo, ClientInfo, PkcePair}};
 
 pub mod auth;
 pub mod exchange;

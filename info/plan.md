@@ -19,6 +19,9 @@
 
 ### Version 0.6.0: Cloud Saving
 - [ ] Cloud saving via Google Drive
+- [ ] Auto saving (at intervals)
+  - [ ] Auto syncing?
+- [ ] Bugfix: Crashes on June 19th Robert Roberts reading, problem parsing 2 John-3 John
 
 ### Version 0.5.3: Bug Fixes and Improvements
 - [x] Lots o Bugs fixes

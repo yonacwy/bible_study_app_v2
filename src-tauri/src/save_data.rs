@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{app_state::{ViewState, DEFAULT_BIBLE}, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::ChapterIndex, migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION}, notes::{action::ActionHistory, Notebook}, settings::Settings};
+use crate::{app_state::{ViewState, DEFAULT_BIBLE}, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::ChapterIndex, notes::action::ActionHistory, settings::Settings};
 
 
 #[derive(Serialize, Deserialize)]
@@ -15,19 +15,20 @@ impl AppSave
 {
     pub fn load(json: &str) -> (AppSave, bool) 
     {
-        let (migrated_json, was_migrated) = match migration::migrate_save_latest(json) {
-            MigrationResult::Same(str) => (str, false),
-            MigrationResult::Different {
-                start,
-                end,
-                migrated,
-            } => {
-                println!("Migrated from {:?} to {:?}", start, end);
-                (migrated, true)
-            }
-            MigrationResult::Error(err) => panic!("Error on save | {}", err),
-        };
-        (serde_json::from_str(&migrated_json).unwrap(), was_migrated)
+        // let (migrated_json, was_migrated) = match migration::migrate_save_latest(json) {
+        //     MigrationResult::Same(str) => (str, false),
+        //     MigrationResult::Different {
+        //         start,
+        //         end,
+        //         migrated,
+        //     } => {
+        //         println!("Migrated from {:?} to {:?}", start, end);
+        //         (migrated, true)
+        //     }
+        //     MigrationResult::Error(err) => panic!("Error on save | {}", err),
+        // };
+        println!("TODO: Implement migration");
+        (serde_json::from_str(&json).unwrap(), false)
     }
 }
 
@@ -69,6 +70,7 @@ pub struct LocalDeviceSave
     pub tts_settings: TtsSettings,
     pub reader_behavior: ReaderBehavior,
     pub recent_highlights: Vec<Uuid>,
+    pub google_refresh_token: Option<String>, // if None, we have not enabled google syncing
 }
 
 impl Default for LocalDeviceSave
@@ -93,6 +95,7 @@ impl Default for LocalDeviceSave
             tts_settings: TtsSettings::default(),
             reader_behavior: ReaderBehavior::default(),
             recent_highlights: vec![],
+            google_refresh_token: None,
         }
     }
 }

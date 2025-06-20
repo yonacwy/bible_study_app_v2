@@ -2,11 +2,11 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::{cell::RefCell, collections::HashMap, io::Read, ops::Deref, path::PathBuf, sync::{Arc, Mutex, MutexGuard}, thread::spawn};
 use tauri::{
-    path::{BaseDirectory, PathResolver}, AppHandle, Runtime
+    path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Runtime
 };
 
 use crate::{
-    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, debug_release_val, migration::{SaveVersion, CURRENT_SAVE_VERSION}, notes::{action::{Action, ActionType, NotebookActionHandler}, *}, save_data::{AppSave, NotebookRecordSave}, settings::Settings
+    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, debug_release_val, migration::{SaveVersion, CURRENT_SAVE_VERSION}, notes::{action::{Action, ActionType, NotebookActionHandler}, *}, save_data::{AppSave, LocalDeviceSave, LocalDeviceSaveVersion, NotebookRecordSave, NotebookRecordSaveVersion}, settings::Settings
 };
 
 pub const SAVE_NAME: &str = "save.json";
@@ -104,6 +104,8 @@ pub struct AppData {
     reader_behavior: Mutex<RefCell<ReaderBehavior>>,
 
     recent_highlights: Mutex<RefCell<Vec<Uuid>>>,
+
+    google_refresh_token: Mutex<RefCell<Option<String>>>,
 }
 
 impl AppData {
@@ -131,7 +133,7 @@ impl AppData {
         let (mut save, was_migrated, no_save) = match file {
             Some(file) => {
                 let (save, migrated) = AppSave::load(&file);
-                app_handle.emit("loaded-tts-save", save.tts_settings).unwrap();
+                app_handle.emit("loaded-tts-save", save.local_device_save.tts_settings).unwrap();
                 (save, migrated, false)
             },
             None => {
@@ -139,13 +141,13 @@ impl AppData {
             }
         };
 
-        if save.view_state_index >= save.view_states.len() {
-            save.view_state_index = save.view_states.len() - 1;
+        if save.local_device_save.view_state_index >= save.local_device_save.view_states.len() {
+            save.local_device_save.view_state_index = save.local_device_save.view_states.len() - 1;
         }
 
-        let current_bible_version = if bibles.contains_key(&save.current_bible_version)
+        save.local_device_save.current_bible_version = if bibles.contains_key(&save.local_device_save.current_bible_version)
         {
-            save.current_bible_version.clone()
+            save.local_device_save.current_bible_version.clone()
         }
         else 
         {
@@ -156,9 +158,9 @@ impl AppData {
             chapter,
             scroll: _,
             verse_range,
-        } = &mut save.view_states[save.view_state_index]
+        } = &mut save.local_device_save.view_states[save.local_device_save.view_state_index]
         {
-            let bible = &bibles.get(&save.current_bible_version).map_or(bibles.get(DEFAULT_BIBLE).unwrap(), |b| b);
+            let bible = &bibles.get(&save.local_device_save.current_bible_version).map_or(bibles.get(DEFAULT_BIBLE).unwrap(), |b| b);
 
             if chapter.book >= bible.books.len() as u32
                 || chapter.number >= bible.books[chapter.book as usize].chapters.len() as u32
@@ -174,11 +176,13 @@ impl AppData {
             }
         }
 
+        let handler = NotebookActionHandler::new(save.note_record_save.history, &bibles);
+
         Self {
             bibles,
             current_bible_version: Mutex::new(RefCell::new(save.local_device_save.current_bible_version)),
             save_version: CURRENT_SAVE_VERSION,
-            notebook_handler: Mutex::new(RefCell::new(notebooks)),
+            notebook_handler: Mutex::new(RefCell::new(handler)),
             view_state_index: Mutex::new(RefCell::new(save.local_device_save.view_state_index)),
             view_states: Mutex::new(RefCell::new(save.local_device_save.view_states)),
             editing_note: Mutex::new(RefCell::new(save.local_device_save.editing_note)),
@@ -188,6 +192,7 @@ impl AppData {
             selected_reading: Mutex::new(RefCell::new(save.local_device_save.selected_reading)),
             reader_behavior: Mutex::new(RefCell::new(save.local_device_save.reader_behavior)),
             recent_highlights: Mutex::new(RefCell::new(save.local_device_save.recent_highlights)),
+            google_refresh_token: Mutex::new(RefCell::new(save.local_device_save.google_refresh_token))
         }
     }
 
@@ -198,22 +203,40 @@ impl AppData {
         let view_state_index = self.get_view_state_index();
 
         let view_states = self.view_states.lock().unwrap().borrow().clone();
-        let handler = self.notebook_handler.lock().unwrap().borrow_mut();
+        let handler_binding = self.notebook_handler.lock().unwrap();
+        let mut handler = handler_binding.borrow_mut();
         let current_bible_version = self.current_bible_version.lock().unwrap().borrow().clone();
         let editing_note = self.editing_note.lock().unwrap().borrow().clone();
         let settings = self.settings.lock().unwrap().borrow().clone();
-        let save_version = self.save_version;
         let selected_reading = self.selected_reading.lock().unwrap().borrow().clone();
         let reader_behavior = self.reader_behavior.lock().unwrap().borrow().clone();
         let recent_highlights = self.recent_highlights.lock().unwrap().borrow().clone();
+        let google_refresh_token = self.google_refresh_token.lock().unwrap().borrow().clone();
+
+        handler.commit_group(); // make sure we have all actions committed
 
         let note_record_save = NotebookRecordSave {
-            history: 
-            save_version: CURRENT_SAVE_VERSION,
-        }
+            history: handler.get_history().clone(),
+            save_version: NotebookRecordSaveVersion::CURRENT_SAVE_VERSION,
+        };
+
+        let local_device_save = LocalDeviceSave {
+            save_version: LocalDeviceSaveVersion::CURRENT_SAVE_VERSION,
+            current_bible_version,
+            view_state_index,
+            view_states,
+            editing_note,
+            settings,
+            selected_reading,
+            tts_settings,
+            reader_behavior,
+            recent_highlights,
+            google_refresh_token,
+        };
 
         let save = AppSave {
-            
+            note_record_save,
+            local_device_save,
         };
 
         let save_json = serde_json::to_string_pretty(&save).unwrap();

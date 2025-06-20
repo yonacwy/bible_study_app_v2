@@ -7,6 +7,7 @@ import * as view_states from "../view_states.js";
 import * as side_popup from "../popups/side_popup.js";
 import { range_inclusive } from "../utils/ranges.js";
 import * as audio_player from "../popups/audio_player.js";
+import { AlertPopupOption, spawn_alert_popup } from "../popups/alert_select_popup.js";
 
 const CONTENT_ID: string = "chapter-text-content";
 const CHAPTER_NAME_ID: string = "chapter-name"
@@ -35,6 +36,28 @@ export async function run()
     ]).then(_ => {
         document.body.style.visibility = 'visible';
         utils.scrolling.load_scroll();
+
+        // TEST:
+
+        let options: AlertPopupOption[] = [
+            {
+                color: 'blue',
+                text: 'Enable',
+                callback: (_, p) => p.remove(),
+            },
+            {
+                color: 'red',
+                text: `Don't ask again`,
+                callback: (_, p) => p.remove(),
+            },
+            {
+                color: 'normal',
+                text: 'Cancel',
+                callback: (_, p) => p.remove(),
+            },
+        ]
+
+        spawn_alert_popup('Cloud sync with Google Drive is not enabled; would you like to enable it?', options);
     });
 }
 
