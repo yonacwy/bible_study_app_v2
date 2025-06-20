@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;
+    use std::sync::Arc;
     use std::time::{SystemTime, Duration};
     use uuid::Uuid;
     use crate::bible::{Bible, Book, Chapter, Verse, Word, ChapterIndex, ReferenceLocation, WordRange};
@@ -37,9 +38,9 @@ mod tests {
         }
     }
 
-    fn create_test_bibles_map() -> HashMap<String, Bible> {
+    fn create_test_bibles_map() -> HashMap<String, Arc<Bible>> {
         let mut bibles = HashMap::new();
-        bibles.insert("Test Bible".to_string(), create_test_bible());
+        bibles.insert("Test Bible".to_string(), Arc::new(create_test_bible()));
         bibles
     }
 

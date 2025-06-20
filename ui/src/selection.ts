@@ -322,10 +322,22 @@ async function spawn_recent_highlights(popup: HTMLElement): Promise<HTMLElement[
 
 async function erase_highlight(id: string)
 {
-    let vs = selected_ranges.map(r => {
-        return utils.ranges.range_inclusive(r.begin, r.end).map(i => {
-            return highlights.erase_chapter_highlight(r.chapter, i, id);
-        }).toArray();
+    let vs = selected_ranges.map(async r => {
+        let view = await bible.get_chapter_view(r.chapter);
+        let [verse_start, word_start] = bible.expand_word_index(view, r.begin);
+        let [verse_end, word_end] = bible.expand_word_index(view, r.end);
+
+        let loc = {
+            chapter: r.chapter,
+            range: {
+                verse_start,
+                verse_end,
+                word_start,
+                word_end,
+            }
+        }
+
+        return highlights.erase_location_highlight(loc, id);
     }).flat();
 
     Promise.all(vs).then(_ => {
@@ -345,11 +357,23 @@ async function clear_all_highlights(): Promise<void>
 
 async function paint_highlight(id: string)
 {
-    let vs = selected_ranges.map(r => {
-        return utils.ranges.range_inclusive(r.begin, r.end).map(i => {
-            return highlights.highlight_chapter_word(r.chapter, i, id);
-        }).toArray();
-    }).flat();
+    let vs = selected_ranges.map(async r => {
+        let view = await bible.get_chapter_view(r.chapter);
+        let [verse_start, word_start] = bible.expand_word_index(view, r.begin);
+        let [verse_end, word_end] = bible.expand_word_index(view, r.end);
+
+        let loc = {
+            chapter: r.chapter,
+            range: {
+                verse_start,
+                verse_end,
+                word_start,
+                word_end,
+            }
+        }
+
+        return highlights.highlight_location(loc, id);
+    });
 
     Promise.all(vs).then(_ => {
         ON_SELECTION_EVENT.invoke('highlighted');

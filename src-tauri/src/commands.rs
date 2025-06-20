@@ -5,7 +5,7 @@ use tauri::{path::BaseDirectory, Manager, Runtime, State};
 use uuid::Uuid;
 
 use crate::{
-    app_state::{self, AppState, ViewState}, audio::reader_behavior::ReaderBehavior, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{HighlightCategory, NoteData, NoteSourceType, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
+    app_state::{self, AppState, ViewState}, audio::reader_behavior::ReaderBehavior, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{action::{Action, ActionType}, HighlightCategory, NoteData, NoteSourceType, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
 };
 
 #[tauri::command(rename_all = "snake_case")]
@@ -206,49 +206,33 @@ pub fn get_chapter_annotations(app_state: State<'_, AppState>, chapter: ChapterI
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn highlight_word(app_state: State<'_, AppState>, chapter: ChapterIndex, word_position: u32, highlight_id: &str) {
-    app_state.get_ref().read_notes(|notebook| {
-        let chapter_annotations = match notebook.annotations.get_mut(&chapter) {
-            Some(highlights) => highlights,
-            None => {
-                notebook.annotations.insert(chapter.clone(), HashMap::new());
-                notebook.annotations.get_mut(&chapter).unwrap()
-            }
+pub fn highlight_location(app_state: State<'_, AppState>, location: ReferenceLocation, highlight_id: &str) {
+
+    let app_ref = app_state.get_ref();
+    let bible = app_ref.get_current_bible();
+
+    app_ref.read_notes(|notebook| {
+        let action = ActionType::Highlight { 
+            highlight_id: highlight_id.into(), 
+            location: location.clone() 
         };
 
-        let word_notes = match chapter_annotations.get_mut(&word_position) {
-            Some(word_highlights) => word_highlights,
-            None => {
-                chapter_annotations.insert(
-                    word_position,
-                    WordAnnotations {
-                        highlights: vec![],
-                        notes: vec![],
-                    },
-                );
-                chapter_annotations.get_mut(&word_position).unwrap()
-            }
-        };
-
-        let highlight_id = highlight_id.to_string();
-        if !word_notes.highlights.contains(&highlight_id) {
-            word_notes.highlights.push(highlight_id);
-        }
+        action.perform(notebook, bible);
     });
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub fn erase_highlight(app_state: State<'_, AppState>, chapter: ChapterIndex, word_position: u32, highlight_id: &str) {
-    app_state.get_ref().read_notes(|notebook| {
-        let Some(chapter_highlights) = notebook.annotations.get_mut(&chapter) else {
-            return;
+pub fn erase_location_highlight(app_state: State<'_, AppState>, location: ReferenceLocation, highlight_id: &str) {
+    let app_ref = app_state.get_ref();
+    let bible = app_ref.get_current_bible();
+
+    app_ref.read_notes(|notebook| {
+        let action = ActionType::Erase { 
+            highlight_id: highlight_id.into(), 
+            location: location.clone() 
         };
 
-        let Some(word_notes) = chapter_highlights.get_mut(&word_position) else {
-            return;
-        };
-
-        word_notes.highlights.retain(|h| h != highlight_id);
+        action.perform(notebook, bible);
     });
 }
 

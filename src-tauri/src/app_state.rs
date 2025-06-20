@@ -128,66 +128,72 @@ impl AppData {
 
         let bibles = Self::load_bibles(&bible_paths);
 
-        let (mut save, was_migrated, no_save) = match file {
-            Some(file) => {
-                let (save, migrated) = AppSave::load(&file);
-                app_handle.emit("loaded-tts-save", save.tts_settings).unwrap();
-                (save, migrated, false)
-            },
-            None => {
-                (AppSave::default(), false, true)
-            }
-        };
+        // let (mut save, was_migrated, no_save) = match file {
+        //     Some(file) => {
+        //         let (save, migrated) = AppSave::load(&file);
+        //         app_handle.emit("loaded-tts-save", save.tts_settings).unwrap();
+        //         (save, migrated, false)
+        //     },
+        //     None => {
+        //         (AppSave::default(), false, true)
+        //     }
+        // };
 
-        if save.view_state_index >= save.view_states.len() {
-            save.view_state_index = save.view_states.len() - 1;
-        }
+        // if save.view_state_index >= save.view_states.len() {
+        //     save.view_state_index = save.view_states.len() - 1;
+        // }
 
-        let current_bible_version = if bibles.contains_key(&save.current_bible_version)
-        {
-            save.current_bible_version.clone()
-        }
-        else 
-        {
-            DEFAULT_BIBLE.to_owned()
-        };
+        // let current_bible_version = if bibles.contains_key(&save.current_bible_version)
+        // {
+        //     save.current_bible_version.clone()
+        // }
+        // else 
+        // {
+        //     DEFAULT_BIBLE.to_owned()
+        // };
 
-        if let ViewState::Chapter {
-            chapter,
-            scroll: _,
-            verse_range,
-        } = &mut save.view_states[save.view_state_index]
-        {
-            let bible = &bibles.get(&save.current_bible_version).map_or(bibles.get(DEFAULT_BIBLE).unwrap(), |b| b);
+        // if let ViewState::Chapter {
+        //     chapter,
+        //     scroll: _,
+        //     verse_range,
+        // } = &mut save.view_states[save.view_state_index]
+        // {
+        //     let bible = &bibles.get(&save.current_bible_version).map_or(bibles.get(DEFAULT_BIBLE).unwrap(), |b| b);
 
-            if chapter.book >= bible.books.len() as u32
-                || chapter.number >= bible.books[chapter.book as usize].chapters.len() as u32
-                || verse_range.map_or(false, |r| {
-                    r.end
-                        >= bible.books[chapter.book as usize].chapters[chapter.number as usize]
-                            .verses
-                            .len() as u32
-                })
-            {
-                chapter.book = 0;
-                chapter.number = 0;
-            }
-        }
+        //     if chapter.book >= bible.books.len() as u32
+        //         || chapter.number >= bible.books[chapter.book as usize].chapters.len() as u32
+        //         || verse_range.map_or(false, |r| {
+        //             r.end
+        //                 >= bible.books[chapter.book as usize].chapters[chapter.number as usize]
+        //                     .verses
+        //                     .len() as u32
+        //         })
+        //     {
+        //         chapter.book = 0;
+        //         chapter.number = 0;
+        //     }
+        // }
+
+        let save = AppSave::default();
+        let was_migrated = false;
+        let no_save = false;
+
+        let notebooks = save.note_record_save.history.to_save(&bibles).notebooks;
 
         Self {
             bibles,
-            current_bible_version: Mutex::new(RefCell::new(current_bible_version)),
+            current_bible_version: Mutex::new(RefCell::new(save.local_device_save.current_bible_version)),
             save_version: CURRENT_SAVE_VERSION,
-            notebooks: Mutex::new(RefCell::new(save.notebooks)),
-            view_state_index: Mutex::new(RefCell::new(save.view_state_index)),
-            view_states: Mutex::new(RefCell::new(save.view_states)),
-            editing_note: Mutex::new(RefCell::new(save.editing_note)),
+            notebooks: Mutex::new(RefCell::new(notebooks)),
+            view_state_index: Mutex::new(RefCell::new(save.local_device_save.view_state_index)),
+            view_states: Mutex::new(RefCell::new(save.local_device_save.view_states)),
+            editing_note: Mutex::new(RefCell::new(save.local_device_save.editing_note)),
             need_display_migration: Mutex::new(RefCell::new(was_migrated)),
             need_display_no_save: Mutex::new(RefCell::new(no_save)),
-            settings: Mutex::new(RefCell::new(save.settings)),
-            selected_reading: Mutex::new(RefCell::new(save.selected_reading)),
-            reader_behavior: Mutex::new(RefCell::new(save.reader_behavior)),
-            recent_highlights: Mutex::new(RefCell::new(save.recent_highlights)),
+            settings: Mutex::new(RefCell::new(save.local_device_save.settings)),
+            selected_reading: Mutex::new(RefCell::new(save.local_device_save.selected_reading)),
+            reader_behavior: Mutex::new(RefCell::new(save.local_device_save.reader_behavior)),
+            recent_highlights: Mutex::new(RefCell::new(save.local_device_save.recent_highlights)),
         }
     }
 
@@ -195,37 +201,39 @@ impl AppData {
     where
         R: Runtime,
     {
-        let view_state_index = self.get_view_state_index();
+        // let view_state_index = self.get_view_state_index();
 
-        let view_states = self.view_states.lock().unwrap().borrow().clone();
-        let notebooks = self.notebooks.lock().unwrap().borrow().clone();
-        let current_bible_version = self.current_bible_version.lock().unwrap().borrow().clone();
-        let editing_note = self.editing_note.lock().unwrap().borrow().clone();
-        let settings = self.settings.lock().unwrap().borrow().clone();
-        let save_version = self.save_version;
-        let selected_reading = self.selected_reading.lock().unwrap().borrow().clone();
-        let reader_behavior = self.reader_behavior.lock().unwrap().borrow().clone();
-        let recent_highlights = self.recent_highlights.lock().unwrap().borrow().clone();
+        // let view_states = self.view_states.lock().unwrap().borrow().clone();
+        // let notebooks = self.notebooks.lock().unwrap().borrow().clone();
+        // let current_bible_version = self.current_bible_version.lock().unwrap().borrow().clone();
+        // let editing_note = self.editing_note.lock().unwrap().borrow().clone();
+        // let settings = self.settings.lock().unwrap().borrow().clone();
+        // let save_version = self.save_version;
+        // let selected_reading = self.selected_reading.lock().unwrap().borrow().clone();
+        // let reader_behavior = self.reader_behavior.lock().unwrap().borrow().clone();
+        // let recent_highlights = self.recent_highlights.lock().unwrap().borrow().clone();
 
-        let save = AppSave {
-            notebooks,
-            current_bible_version,
-            save_version,
-            view_state_index,
-            editing_note,
-            view_states,
-            settings,
-            selected_reading,
-            tts_settings,
-            reader_behavior,
-            recent_highlights
-        };
+        // let save = AppSave {
+        //     notebooks,
+        //     current_bible_version,
+        //     save_version,
+        //     view_state_index,
+        //     editing_note,
+        //     view_states,
+        //     settings,
+        //     selected_reading,
+        //     tts_settings,
+        //     reader_behavior,
+        //     recent_highlights
+        // };
 
-        let save_json = serde_json::to_string_pretty(&save).unwrap();
-        let path = resolver
-            .resolve(SAVE_NAME, BaseDirectory::Resource)
-            .expect("Error getting save path");
-        std::fs::write(path, save_json).expect("Failed to write to save path");
+        // let save_json = serde_json::to_string_pretty(&save).unwrap();
+        // let path = resolver
+        //     .resolve(SAVE_NAME, BaseDirectory::Resource)
+        //     .expect("Error getting save path");
+        // std::fs::write(path, save_json).expect("Failed to write to save path");
+
+        println!("TODO: Implement saving")
     }
 
     pub fn get_view_state_index(&self) -> usize {

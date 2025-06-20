@@ -1,10 +1,12 @@
 use std::{collections::HashMap, time::SystemTime};
 
 use itertools::Itertools;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::{bible::{Bible, ChapterIndex, ReferenceLocation}, notes::{HighlightCategory, NoteData, Notebook, NotebookSave, WordAnnotations}};
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ActionHistory
 {
     pub groups: Vec<ActionGroup>,
@@ -26,7 +28,7 @@ impl ActionHistory
         self.groups.sort_by(|a, b| a.time.cmp(&b.time));
     }
 
-    pub fn to_save(&self, bibles: &HashMap<String, Bible>) -> NotebookSave
+    pub fn to_save(&self, bibles: &HashMap<String, impl AsRef<Bible>>) -> NotebookSave
     {
         let mut save = NotebookSave::new();
         for group in self.groups.iter()
@@ -51,6 +53,7 @@ impl ActionHistory
 }
 
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ActionGroup
 {
     pub id: Uuid,
@@ -60,7 +63,7 @@ pub struct ActionGroup
 
 impl ActionGroup
 {
-    pub fn perform(&self, save: &mut NotebookSave, bibles: &HashMap<String, Bible>)
+    pub fn perform(&self, save: &mut NotebookSave, bibles: &HashMap<String, impl AsRef<Bible>>)
     {
         for action in self.actions.iter()
         {
@@ -75,6 +78,7 @@ impl ActionGroup
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Action
 {
     pub notebook: String,
@@ -84,14 +88,15 @@ pub struct Action
 
 impl Action
 {
-    pub fn perform(&self, save: &mut NotebookSave, bibles: &HashMap<String, Bible>)
+    pub fn perform(&self, save: &mut NotebookSave, bibles: &HashMap<String, impl AsRef<Bible>>)
     {
         let notebook = save.notebooks.entry(self.notebook.clone()).or_default();
-        let bible = bibles.get(&self.bible_name).unwrap();
+        let bible = bibles.get(&self.bible_name).unwrap().as_ref();
         self.action.perform(notebook, bible);
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum ActionType 
 {
     CreateNote(NoteData),

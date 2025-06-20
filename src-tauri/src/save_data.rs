@@ -3,22 +3,14 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{app_state::{ViewState, DEFAULT_BIBLE}, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::ChapterIndex, migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION}, notes::Notebook, settings::Settings};
+use crate::{app_state::{ViewState, DEFAULT_BIBLE}, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::ChapterIndex, migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION}, notes::{action::ActionHistory, Notebook}, settings::Settings};
 
 
 #[derive(Serialize, Deserialize)]
-pub struct AppSave {
-    pub current_bible_version: String,
-    pub notebooks: HashMap<String, Notebook>,
-    pub save_version: SaveVersion,
-    pub view_state_index: usize,
-    pub view_states: Vec<ViewState>,
-    pub editing_note: Option<String>,
-    pub settings: Settings,
-    pub selected_reading: u32,
-    pub tts_settings: TtsSettings,
-    pub reader_behavior: ReaderBehavior,
-    pub recent_highlights: Vec<Uuid>,
+pub struct AppSave 
+{
+    pub note_record_save: NotebookRecordSave,
+    pub local_device_save: LocalDeviceSave,
 }
 
 impl AppSave
@@ -39,17 +31,49 @@ impl AppSave
         };
         (serde_json::from_str(&migrated_json).unwrap(), was_migrated)
     }
-    
-    pub fn get_sync_data(&self) -> CloudSyncData
-    {
-        CloudSyncData { 
-            notebooks: self.notebooks.clone(), 
-            save_version: self.save_version.clone() 
+}
+
+impl Default for AppSave
+{
+    fn default() -> Self 
+    {   
+        Self 
+        {
+            local_device_save: LocalDeviceSave::default(),
+            note_record_save: NotebookRecordSave::default(),
         }
     }
 }
 
-impl Default for AppSave
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum LocalDeviceSaveVersion
+{
+    #[serde(rename = "0")]
+    SV0,
+}
+
+impl LocalDeviceSaveVersion
+{
+    pub const CURRENT_SAVE_VERSION: Self = LocalDeviceSaveVersion::SV0;
+}
+
+
+#[derive(Serialize, Deserialize)]
+pub struct LocalDeviceSave
+{
+    pub save_version: LocalDeviceSaveVersion,
+    pub current_bible_version: String,
+    pub view_state_index: usize,
+    pub view_states: Vec<ViewState>,
+    pub editing_note: Option<String>,
+    pub settings: Settings,
+    pub selected_reading: u32,
+    pub tts_settings: TtsSettings,
+    pub reader_behavior: ReaderBehavior,
+    pub recent_highlights: Vec<Uuid>,
+}
+
+impl Default for LocalDeviceSave
 {
     fn default() -> Self 
     {
@@ -61,9 +85,8 @@ impl Default for AppSave
         }];
         
         Self {
-            notebooks: HashMap::new(),
             current_bible_version: DEFAULT_BIBLE.to_owned(),
-            save_version: CURRENT_SAVE_VERSION,
+            save_version: LocalDeviceSaveVersion::CURRENT_SAVE_VERSION,
             view_state_index: 0,
             view_states,
             editing_note: None,
@@ -76,10 +99,33 @@ impl Default for AppSave
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum NotebookRecordSaveVersion
+{
+    #[serde(rename = "0")]
+    SV0,
+}
+
+impl NotebookRecordSaveVersion
+{
+    pub const CURRENT_SAVE_VERSION: Self = NotebookRecordSaveVersion::SV0;
+}
+
 // Synced data stored in the cloud
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct CloudSyncData
+pub struct NotebookRecordSave
 {
-    pub notebooks: HashMap<String, Notebook>,
-    pub save_version: SaveVersion,
+    pub history: ActionHistory,
+    pub save_version: NotebookRecordSaveVersion,
+}
+
+impl Default for NotebookRecordSave
+{
+    fn default() -> Self {
+        Self 
+        { 
+            history: ActionHistory::new(), 
+            save_version: NotebookRecordSaveVersion::CURRENT_SAVE_VERSION 
+        }
+    }
 }
