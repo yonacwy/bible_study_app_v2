@@ -5,7 +5,7 @@ mod tests {
     use std::time::{SystemTime, Duration};
     use uuid::Uuid;
     use crate::bible::{Bible, Book, Chapter, Verse, Word, ChapterIndex, ReferenceLocation, WordRange};
-    use crate::notes::action::{Action, ActionGroup, ActionHistory, ActionType};
+    use crate::notes::action::{Action, ActionGroup, ActionHistory, ActionType, NotebookActionHandler};
     use crate::notes::{HighlightCategory, NoteData, NoteSourceType};
     use crate::utils::Color;
 
@@ -81,6 +81,13 @@ mod tests {
                 verse_end: 0,
                 word_end,
             },
+        }
+    }
+
+    // Helper function to add actions to a group
+    impl ActionGroup {
+        fn push(&mut self, action: Action) {
+            self.actions.push(action);
         }
     }
 
@@ -287,11 +294,11 @@ mod tests {
             assert!(history.groups[i-1].time <= history.groups[i].time);
         }
         
-        // Test conversion to save
-        let save = history.to_save(&bibles);
-        assert!(save.notebooks.contains_key("client-a-notebook"));
+        // Test conversion to notebook map
+        let notebook_map = history.to_notebook_map(&bibles);
+        assert!(notebook_map.contains_key("client-a-notebook"));
         
-        let notebook = &save.notebooks["client-a-notebook"];
+        let notebook = &notebook_map["client-a-notebook"];
         assert_eq!(notebook.notes.len(), 1);
         assert_eq!(notebook.highlight_categories.len(), 1);
         
@@ -333,14 +340,14 @@ mod tests {
         
         // Test the merged result
         let bibles = create_test_bibles_map();
-        let save = merged_history.to_save(&bibles);
+        let notebook_map = merged_history.to_notebook_map(&bibles);
         
         // Verify both notebooks exist
-        assert!(save.notebooks.contains_key("client-a-notebook"));
-        assert!(save.notebooks.contains_key("client-b-notebook"));
+        assert!(notebook_map.contains_key("client-a-notebook"));
+        assert!(notebook_map.contains_key("client-b-notebook"));
         
-        let notebook_a = &save.notebooks["client-a-notebook"];
-        let notebook_b = &save.notebooks["client-b-notebook"];
+        let notebook_a = &notebook_map["client-a-notebook"];
+        let notebook_b = &notebook_map["client-b-notebook"];
         
         // Verify Client A's final state
         assert_eq!(notebook_a.notes.len(), 1);
@@ -446,9 +453,9 @@ mod tests {
         // Merge and test
         let merged = ActionHistory::merge(client1_history, client2_history);
         let bibles = create_test_bibles_map();
-        let save = merged.to_save(&bibles);
+        let notebook_map = merged.to_notebook_map(&bibles);
         
-        let notebook = &save.notebooks["shared-notebook"];
+        let notebook = &notebook_map["shared-notebook"];
         
         // The later edit should win
         assert_eq!(notebook.highlight_categories.len(), 1);
@@ -456,5 +463,44 @@ mod tests {
         assert_eq!(notebook.highlight_categories["shared-highlight"].color.g, 100);
         
         println!("✓ Concurrent editing scenario test passed");
+    }
+
+    #[test]
+    fn test_notebook_action_handler() {
+        let base_time = SystemTime::now();
+        let bibles = create_test_bibles_map();
+        let history = simulate_client_a_actions(base_time);
+        
+        // Test the NotebookActionHandler
+        let mut handler = NotebookActionHandler::new(history, &bibles);
+        
+        // Verify initial state
+        let notebooks = handler.get_notebooks();
+        assert!(notebooks.contains_key("client-a-notebook"));
+        
+        let notebook = &notebooks["client-a-notebook"];
+        assert_eq!(notebook.notes.len(), 1);
+        assert_eq!(notebook.highlight_categories.len(), 1);
+        
+        // Add a new action
+        let new_note = create_note("test-note", "A test note", 1, 2);
+        let action = Action {
+            notebook: "client-a-notebook".to_string(),
+            bible_name: "Test Bible".to_string(),
+            action: ActionType::CreateNote(new_note),
+        };
+        
+        handler.push_action(action, &bibles);
+        
+        // Verify the action was applied
+        let notebooks = handler.get_notebooks();
+        let notebook = &notebooks["client-a-notebook"];
+        assert_eq!(notebook.notes.len(), 2);
+        
+        // Get history (this should commit the current group)
+        let history = handler.get_history();
+        assert_eq!(history.groups.len(), 4); // 3 original + 1 new
+        
+        println!("✓ NotebookActionHandler test passed");
     }
 }

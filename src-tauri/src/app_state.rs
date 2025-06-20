@@ -90,7 +90,7 @@ pub struct AppData {
     
     pub save_version: SaveVersion,
     
-    notebooks: Mutex<RefCell<HashMap<String, Notebook>>>,
+    notebook_handler: Mutex<RefCell<HashMap<String, Notebook>>>,
 
     view_state_index: Mutex<RefCell<usize>>,
     view_states: Mutex<RefCell<Vec<ViewState>>>,
@@ -178,13 +178,13 @@ impl AppData {
         let was_migrated = false;
         let no_save = false;
 
-        let notebooks = save.note_record_save.history.to_save(&bibles).notebooks;
+        let notebooks = save.note_record_save.history.to_notebook_map(&bibles);
 
         Self {
             bibles,
             current_bible_version: Mutex::new(RefCell::new(save.local_device_save.current_bible_version)),
             save_version: CURRENT_SAVE_VERSION,
-            notebooks: Mutex::new(RefCell::new(notebooks)),
+            notebook_handler: Mutex::new(RefCell::new(notebooks)),
             view_state_index: Mutex::new(RefCell::new(save.local_device_save.view_state_index)),
             view_states: Mutex::new(RefCell::new(save.local_device_save.view_states)),
             editing_note: Mutex::new(RefCell::new(save.local_device_save.editing_note)),
@@ -306,7 +306,7 @@ impl AppData {
     where
         F: FnMut(&mut Notebook) -> R,
     {
-        let binding = self.notebooks.lock().unwrap();
+        let binding = self.notebook_handler.lock().unwrap();
         let mut notebooks = binding.borrow_mut();
 
         let current_bible_version = self.get_current_bible_version();

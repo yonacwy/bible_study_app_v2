@@ -12,21 +12,7 @@ use crate::{
     utils::Color,
 };
 
-pub struct NotebookSave
-{
-    pub notebooks: HashMap<String, Notebook>
-}
-
-impl NotebookSave
-{
-    pub fn new() -> Self 
-    {
-        Self 
-        {
-            notebooks: HashMap::new()
-        }
-    }
-}
+pub type NotebookMap = HashMap<String, Notebook>;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HighlightCategory {
