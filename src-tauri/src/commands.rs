@@ -130,37 +130,36 @@ pub fn get_chapter_view(app_state: State<'_, AppState>, chapter: ChapterIndex) -
 #[tauri::command(rename_all = "snake_case")]
 pub fn get_highlight_categories(app_state: State<'_, AppState>) -> String {
     app_state.get_ref()
-        .read_notes(|notebook| serde_json::to_string(&notebook.highlight_categories).unwrap())
+        .read_current_notebook(|notebook| serde_json::to_string(&notebook.highlight_categories).unwrap())
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn add_highlight_category(app_state: State<'_, AppState>, color: &str, name: &str, description: &str, source_type: NoteSourceType, priority: &str) {
-    app_state.get_ref().read_notes(|notebook| {
-        let color = Color::from_hex(color).unwrap();
-        let name = name.to_string();
-        let description = description.to_string();
-        let priority: u32 = priority.parse().unwrap();
-        let id = uuid::Uuid::new_v4().to_string();
 
-        let category = HighlightCategory {
-            color,
-            name,
-            source_type,
-            description,
-            priority,
-            id: id.clone(),
-        };
+    let color = Color::from_hex(color).unwrap();
+    let name = name.to_string();
+    let description = description.to_string();
+    let priority: u32 = priority.parse().unwrap();
+    let id = uuid::Uuid::new_v4().to_string();
 
-        notebook.highlight_categories.insert(id, category);
-    })
+    let category = HighlightCategory {
+        color,
+        name,
+        source_type,
+        description,
+        priority,
+        id,
+    };
+
+    let action = ActionType::CreateHighlight(category);
+
+    app_state.get_ref().run_action_on_current_notebook(action);
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn remove_highlight_category(app_state: State<'_, AppState>, id: &str) {
-    app_state.get_ref().read_notes(|notebook| {
-        notebook.highlight_categories.remove(&id.to_string());
-        notebook.refresh_highlights();
-    })
+    let action = ActionType::DeleteHighlight(id.to_string());
+    app_state.get_ref().run_action_on_current_notebook(action);
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -173,30 +172,28 @@ pub fn set_highlight_category(
     source_type: NoteSourceType,
     priority: &str,
 ) {
-    app_state.get_ref().read_notes(|notebook| {
-        let color = Color::from_hex(color).unwrap();
-        let name = name.to_string();
-        let description = description.to_string();
-        let priority: u32 = priority.parse().unwrap();
+    let color = Color::from_hex(color).unwrap();
+    let name = name.to_string();
+    let description = description.to_string();
+    let priority: u32 = priority.parse().unwrap();
 
-        let category = HighlightCategory {
-            color,
-            name,
-            description,
-            priority,
-            source_type,
-            id: id.to_string(),
-        };
+    let category = HighlightCategory {
+        color,
+        name,
+        description,
+        priority,
+        source_type,
+        id: id.to_string(),
+    };
 
-        notebook
-            .highlight_categories
-            .insert(id.to_string(), category);
-    })
+    let action = ActionType::EditHighlight(category);
+    
+    app_state.get_ref().run_action_on_current_notebook(action);
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn get_chapter_annotations(app_state: State<'_, AppState>, chapter: ChapterIndex) -> String {
-    app_state.get_ref().read_notes(|notebook| {
+    app_state.get_ref().read_current_notebook(|notebook| {
         if let Some(highlights) = notebook.annotations.get(&chapter) {
             serde_json::to_string(highlights).unwrap()
         } else {
@@ -208,32 +205,22 @@ pub fn get_chapter_annotations(app_state: State<'_, AppState>, chapter: ChapterI
 #[tauri::command(rename_all = "snake_case")]
 pub fn highlight_location(app_state: State<'_, AppState>, location: ReferenceLocation, highlight_id: &str) {
 
-    let app_ref = app_state.get_ref();
-    let bible = app_ref.get_current_bible();
-
-    app_ref.read_notes(|notebook| {
-        let action = ActionType::Highlight { 
-            highlight_id: highlight_id.into(), 
-            location: location.clone() 
-        };
-
-        action.perform(notebook, bible);
-    });
+    let action = ActionType::Highlight { 
+        highlight_id: highlight_id.into(), 
+        location,
+    };
+    
+    app_state.get_ref().run_action_on_current_notebook(action);
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn erase_location_highlight(app_state: State<'_, AppState>, location: ReferenceLocation, highlight_id: &str) {
-    let app_ref = app_state.get_ref();
-    let bible = app_ref.get_current_bible();
-
-    app_ref.read_notes(|notebook| {
-        let action = ActionType::Erase { 
-            highlight_id: highlight_id.into(), 
-            location: location.clone() 
-        };
-
-        action.perform(notebook, bible);
-    });
+    let action = ActionType::Erase { 
+        highlight_id: highlight_id.into(), 
+        location,
+    };
+    
+    app_state.get_ref().run_action_on_current_notebook(action);
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -253,34 +240,29 @@ pub fn run_word_search(app_state: State<'_, AppState>, words: Vec<String>) -> Ve
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn add_note(app_state: State<'_, AppState>, text: String, locations: Vec<ReferenceLocation>, source_type: NoteSourceType) -> String {
-    let app_state = app_state.get_ref();
-    let current_bible = app_state.get_current_bible();
+    let id = uuid::Uuid::new_v4().to_string();
 
-    app_state.read_notes(move |notebook| {
-        let id = uuid::Uuid::new_v4().to_string();
-        notebook.add_note(
-            NoteData {
-                id: id.clone(),
-                text: text.clone(),
-                locations: locations.clone(),
-                source_type,
-            },
-            current_bible,
-        );
-        id
-    })
+    let note = NoteData {
+        id: id.clone(),
+        text: text.clone(),
+        locations: locations.clone(),
+        source_type,
+    };
+
+    let action = ActionType::CreateNote(note);
+    app_state.get_ref().run_action_on_current_notebook(action);
+    id
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn remove_note(app_state: State<'_, AppState>, id: &str) {
-    app_state.get_ref().read_notes(|notebook| {
-        notebook.remove_note(id);
-    });
+    let action = ActionType::DeleteNote(id.to_string());
+    app_state.get_ref().run_action_on_current_notebook(action);
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn get_note(app_state: State<'_, AppState>, id: &str) -> String {
-    app_state.get_ref().read_notes(|notebook| {
+    app_state.get_ref().read_current_notebook(|notebook| {
         let note = notebook.get_note(id);
         serde_json::to_string(note).unwrap()
     })
@@ -298,21 +280,35 @@ pub fn set_editing_note(app_state: State<'_, AppState>, note: Option<String>) {
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn update_note(app_state: State<'_, AppState>, id: String, locations: Vec<ReferenceLocation>, text: String, source_type: NoteSourceType) {
-    let app_state = app_state.get_ref();
-    let current_bible = app_state.get_current_bible();
+    let current_note = app_state.get_ref().read_current_notebook(|notebook| {
+        notebook.get_note(&id).clone()
+    });
 
-    app_state.read_notes(move |notebook| {
-        notebook.remove_note(&id);
-        notebook.add_note(
-            NoteData {
-                id: id.clone(),
-                text: text.clone(),
-                locations: locations.clone(),
-                source_type,
-            },
-            current_bible,
-        );
-    })
+    let note = NoteData {
+        id: id.clone(),
+        text: text.clone(),
+        locations: locations.clone(),
+        source_type,
+    };
+
+    if current_note == note
+    {
+        return;
+    }
+    else if current_note.source_type == note.source_type && current_note.text == note.text && current_note.locations != note.locations // the only thing that has changed is the locations
+    {
+        let action = ActionType::EditNoteLocations { 
+            note_id: id, 
+            locations: locations 
+        };
+
+        app_state.get_ref().run_action_on_current_notebook(action);
+    }
+    else 
+    {
+        let action = ActionType::EditNote(note);
+        app_state.get_ref().run_action_on_current_notebook(action);
+    }
 }
 
 #[tauri::command(rename_all = "snake_case")]

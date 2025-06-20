@@ -31,6 +31,11 @@ impl NotebookActionHandler
         &self.notebook_map
     }
 
+    pub fn get_or_insert_notebook(&mut self, name: String) -> &Notebook
+    {
+        self.notebook_map.entry(name).or_default()
+    }
+
     pub fn push_action(&mut self, action: Action, bibles: &HashMap<String, impl AsRef<Bible>>)
     {
         action.perform(&mut self.notebook_map, bibles);
@@ -160,6 +165,11 @@ pub enum ActionType
     Erase {
         highlight_id: String,
         location: ReferenceLocation,
+    },
+
+    EditNoteLocations {
+        note_id: String,
+        locations: Vec<ReferenceLocation>,
     }
 }
 
@@ -208,6 +218,13 @@ impl ActionType
                 location.range.get_chapter_word_indices(&chapter_view).iter().for_each(|idx| {
                     Self::erase_word_highlight(notebook, &location.chapter, *idx, highlight_id);
                 });
+            },
+            ActionType::EditNoteLocations { note_id, locations } => {
+                if let Some(mut note) = notebook.notes.get(note_id).cloned()
+                {
+                    note.locations = locations.clone();
+                    notebook.update_note(note, bible);
+                }
             },
         }
     }

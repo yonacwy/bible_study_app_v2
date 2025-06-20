@@ -24,7 +24,7 @@ pub struct HighlightCategory {
     pub id: String, // this is slow as heck, but should suffice for now
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum NoteSourceType
 {
@@ -33,7 +33,7 @@ pub enum NoteSourceType
     Markdown,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct NoteData {
     pub id: String,
     pub text: String,
