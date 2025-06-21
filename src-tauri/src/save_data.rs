@@ -70,6 +70,12 @@ pub struct LocalDeviceSave
     pub tts_settings: TtsSettings,
     pub reader_behavior: ReaderBehavior,
     pub recent_highlights: Vec<Uuid>,
+    pub cloud_sync_settings: CloudSyncSettings
+}
+
+#[derive(Serialize, Deserialize, Default, Clone)]
+pub struct CloudSyncSettings
+{
     pub google_refresh_token: Option<String>, // if None, we have not enabled google syncing
 }
 
@@ -95,7 +101,7 @@ impl Default for LocalDeviceSave
             tts_settings: TtsSettings::default(),
             reader_behavior: ReaderBehavior::default(),
             recent_highlights: vec![],
-            google_refresh_token: None,
+            cloud_sync_settings: CloudSyncSettings::default(),
         }
     }
 }

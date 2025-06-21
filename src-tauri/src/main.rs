@@ -16,6 +16,7 @@ pub mod settings;
 pub mod audio;
 pub mod readings;
 pub mod save_data;
+pub mod cloud_sync;
 
 use audio::{init_espeak, AudioPlayer, TtsPlayer};
 use commands::*;

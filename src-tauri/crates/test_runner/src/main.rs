@@ -45,8 +45,8 @@ fn main() -> Result<(), String>
         time: SystemTime::now(),
     };
 
-    drive_client.write(&serde_json::to_string(&local).unwrap()).unwrap();
-    let synced = drive_client.read().unwrap();
+    drive_client.write_file(&serde_json::to_string(&local).unwrap()).unwrap();
+    let synced = drive_client.read_file().unwrap();
     println!("value = {:#?}", synced);
     
     Ok(())

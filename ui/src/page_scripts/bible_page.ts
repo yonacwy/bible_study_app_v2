@@ -57,7 +57,7 @@ export async function run()
             },
         ]
 
-        spawn_alert_popup('Cloud sync with Google Drive is not enabled; would you like to enable it?', options);
+        spawn_alert_popup('Enable Cloud Sync', 'Cloud sync with Google Drive is not enabled; would you like to enable it?', options);
     });
 }
 

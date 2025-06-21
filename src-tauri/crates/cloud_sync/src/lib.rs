@@ -75,12 +75,12 @@ impl DriveSyncClient
         })
     }
 
-    pub fn read(&self) -> Result<Option<String>, String>
+    pub fn read_file(&self) -> Result<Option<String>, String>
     {
         self.api.read().map_err(|e| e.to_string())
     }
 
-    pub fn write(&self, content: &str) -> Result<(), String>
+    pub fn write_file(&self, content: &str) -> Result<(), String>
     {
         self.api.write(content).map_err(|e| e.to_string())
     }

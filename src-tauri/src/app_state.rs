@@ -6,7 +6,7 @@ use tauri::{
 };
 
 use crate::{
-    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, debug_release_val, migration::{SaveVersion, CURRENT_SAVE_VERSION}, notes::{action::{Action, ActionType, NotebookActionHandler}, *}, save_data::{AppSave, LocalDeviceSave, LocalDeviceSaveVersion, NotebookRecordSave, NotebookRecordSaveVersion}, settings::Settings
+    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, debug_release_val, migration::{SaveVersion, CURRENT_SAVE_VERSION}, notes::{action::{Action, ActionType, NotebookActionHandler}, *}, save_data::{AppSave, CloudSyncSettings, LocalDeviceSave, LocalDeviceSaveVersion, NotebookRecordSave, NotebookRecordSaveVersion}, settings::Settings
 };
 
 pub const SAVE_NAME: &str = "save.json";
@@ -105,7 +105,7 @@ pub struct AppData {
 
     recent_highlights: Mutex<RefCell<Vec<Uuid>>>,
 
-    google_refresh_token: Mutex<RefCell<Option<String>>>,
+    cloud_sync_settings: Mutex<RefCell<CloudSyncSettings>>,
 }
 
 impl AppData {
@@ -192,7 +192,7 @@ impl AppData {
             selected_reading: Mutex::new(RefCell::new(save.local_device_save.selected_reading)),
             reader_behavior: Mutex::new(RefCell::new(save.local_device_save.reader_behavior)),
             recent_highlights: Mutex::new(RefCell::new(save.local_device_save.recent_highlights)),
-            google_refresh_token: Mutex::new(RefCell::new(save.local_device_save.google_refresh_token))
+            cloud_sync_settings: Mutex::new(RefCell::new(save.local_device_save.cloud_sync_settings))
         }
     }
 
@@ -211,7 +211,7 @@ impl AppData {
         let selected_reading = self.selected_reading.lock().unwrap().borrow().clone();
         let reader_behavior = self.reader_behavior.lock().unwrap().borrow().clone();
         let recent_highlights = self.recent_highlights.lock().unwrap().borrow().clone();
-        let google_refresh_token = self.google_refresh_token.lock().unwrap().borrow().clone();
+        let cloud_sync_settings = self.cloud_sync_settings.lock().unwrap().borrow().clone();
 
         handler.commit_group(); // make sure we have all actions committed
 
@@ -231,7 +231,7 @@ impl AppData {
             tts_settings,
             reader_behavior,
             recent_highlights,
-            google_refresh_token,
+            cloud_sync_settings,
         };
 
         let save = AppSave {
