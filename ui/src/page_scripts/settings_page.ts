@@ -229,6 +229,17 @@ async function init_font_dropdown()
     callbacks.push(() => on_value_changed(d_font));
 }
 
+function init_cloud_sync_settings()
+{
+    const CLOUD_SETTINGS_CONTENT = 'cloud-settings-content';
+    let content = document.getElementById(CLOUD_SETTINGS_CONTENT);
+    if (content === null)
+    {
+        utils.debug_print(`Cannot find element ${CLOUD_SETTINGS_CONTENT}`);
+        return;
+    }
+}
+
 function init_clear_history_button()
 {
     document.getElementById('clear-history')?.addEventListener('click', e => {
@@ -237,8 +248,8 @@ function init_clear_history_button()
             on_confirm: () => {
                 view_states.clear_view_states();
             }
-        })
-    })
+        });
+    });
 }
 
 function init_open_save_path()

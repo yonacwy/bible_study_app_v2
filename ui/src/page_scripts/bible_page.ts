@@ -39,25 +39,25 @@ export async function run()
 
         // TEST:
 
-        let options: AlertPopupOption[] = [
-            {
-                color: 'blue',
-                text: 'Enable',
-                callback: (_, p) => p.remove(),
-            },
-            {
-                color: 'red',
-                text: `Don't ask again`,
-                callback: (_, p) => p.remove(),
-            },
-            {
-                color: 'normal',
-                text: 'Cancel',
-                callback: (_, p) => p.remove(),
-            },
-        ]
+        // let options: AlertPopupOption[] = [
+        //     {
+        //         color: 'blue',
+        //         text: 'Enable',
+        //         callback: (_, p) => p.remove(),
+        //     },
+        //     {
+        //         color: 'red',
+        //         text: `Don't ask again`,
+        //         callback: (_, p) => p.remove(),
+        //     },
+        //     {
+        //         color: 'normal',
+        //         text: 'Cancel',
+        //         callback: (_, p) => p.remove(),
+        //     },
+        // ]
 
-        spawn_alert_popup('Enable Cloud Sync', 'Cloud sync with Google Drive is not enabled; would you like to enable it?', options);
+        // spawn_alert_popup('Enable Cloud Sync', 'Cloud sync with Google Drive is not enabled; would you like to enable it?', options);
     });
 }
 
