@@ -1,5 +1,7 @@
 use std::time::SystemTime;
 
+use serde::{Deserialize, Serialize};
+
 use crate::{auth::{request_auth_code, AuthCodeArgs, AuthResult}, drive::DriveSyncApi, exchange::{exchange_auth_code, CachedAccessToken, ExchangeAuthCodeArgs}, utils::{AppInfo, ClientInfo, PkcePair}};
 
 pub mod auth;
@@ -7,6 +9,7 @@ pub mod exchange;
 pub mod drive;
 pub mod utils;
 
+#[derive(Debug)]
 pub struct DriveSyncClient
 {
     api: DriveSyncApi,
@@ -18,6 +21,18 @@ pub enum SigninResult
     Success(DriveSyncClient),
     Denied,
     Error(String),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GoogleUserInfo {
+    pub sub: String,
+    pub name: Option<String>,
+    pub given_name: Option<String>,
+    pub family_name: Option<String>,
+    pub picture: Option<String>,
+    pub email: Option<String>,
+    pub email_verified: Option<bool>,
+    pub locale: Option<String>,
 }
 
 impl DriveSyncClient
@@ -83,5 +98,10 @@ impl DriveSyncClient
     pub fn write_file(&self, content: &str) -> Result<(), String>
     {
         self.api.write(content).map_err(|e| e.to_string())
+    }
+
+    pub fn get_user_info(&self) -> Result<GoogleUserInfo, String>
+    {
+        self.api.get_user_info()
     }
 }

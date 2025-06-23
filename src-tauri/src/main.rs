@@ -109,6 +109,7 @@ fn main() -> Result<(), tts::Error>
             set_reader_behavior,
             get_recent_highlights,
             set_recent_highlights,
+            cloud_sync::run_cloud_command,
         ])
         .run(tauri::generate_context!()) 
         .expect("error while running tauri application");

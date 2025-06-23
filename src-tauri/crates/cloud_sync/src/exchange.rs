@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{auth::AuthCode, utils::{ClientInfo, PkcePair}};
 
+#[derive(Debug)]
 pub struct CachedAccessToken
 {
     client: ClientInfo,
@@ -170,6 +171,30 @@ pub fn refresh_access_token(args: RefreshTokenArgs) -> Result<RefreshTokenRespon
         Err(ureq::Error::Transport(transport)) => {
             let text = transport.to_string();
             Err(format!("Transport error: {}", text))
+        }
+    }
+}
+
+pub fn revoke_token(token: &str) -> Result<(), String> 
+{
+    let params = [("token", token)];
+    let body = serde_urlencoded::to_string(&params).unwrap();
+    
+    let client = ureq::post("https://oauth2.googleapis.com/revoke")
+        .set("Content-Type", "application/x-www-form-urlencoded");
+
+    let response = client.send_string(&body);
+    match response 
+    {
+        Ok(_) => Ok(()),
+        Err(ureq::Error::Status(status, response)) => 
+        {
+            let text = response.into_string().unwrap_or_else(|_| "No response body".to_string());
+            Err(format!("Failed to revoke token. Status {}: {}", status, text))
+        },
+        Err(ureq::Error::Transport(transport)) => 
+        {
+            Err(format!("Transport error during token revocation: {}", transport))
         }
     }
 }

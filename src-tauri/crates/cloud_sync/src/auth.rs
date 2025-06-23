@@ -233,7 +233,7 @@ fn get_auth_url(client: &ClientInfo, pkce: &PkcePair, redirect_uri: &str) -> Str
         "https://accounts.google.com/o/oauth2/v2/auth?response_type=code\
         &client_id={client_id}\
         &redirect_uri={redirect_uri}\
-        &scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.file\
+        &scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.file%20openid%20profile%20email\
         &code_challenge={code_challenge}\
         &code_challenge_method=S256\
         &access_type=offline",

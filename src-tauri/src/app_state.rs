@@ -1,3 +1,4 @@
+use cloud_sync::DriveSyncClient;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::{cell::RefCell, collections::HashMap, io::Read, ops::Deref, path::PathBuf, sync::{Arc, Mutex, MutexGuard}, thread::spawn};
@@ -6,7 +7,7 @@ use tauri::{
 };
 
 use crate::{
-    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, debug_release_val, migration::{SaveVersion, CURRENT_SAVE_VERSION}, notes::{action::{Action, ActionType, NotebookActionHandler}, *}, save_data::{AppSave, CloudSyncSettings, LocalDeviceSave, LocalDeviceSaveVersion, NotebookRecordSave, NotebookRecordSaveVersion}, settings::Settings
+    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, cloud_sync::DriveSyncState, debug_release_val, migration::{SaveVersion, CURRENT_SAVE_VERSION}, notes::{action::{Action, ActionType, NotebookActionHandler}, *}, save_data::{AppSave, CloudSyncSettings, LocalDeviceSave, LocalDeviceSaveVersion, NotebookRecordSave, NotebookRecordSaveVersion}, settings::Settings
 };
 
 pub const SAVE_NAME: &str = "save.json";
@@ -106,6 +107,7 @@ pub struct AppData {
     recent_highlights: Mutex<RefCell<Vec<Uuid>>>,
 
     cloud_sync_settings: Mutex<RefCell<CloudSyncSettings>>,
+    pub sync_state: Mutex<DriveSyncState>,
 }
 
 impl AppData {
@@ -192,7 +194,8 @@ impl AppData {
             selected_reading: Mutex::new(RefCell::new(save.local_device_save.selected_reading)),
             reader_behavior: Mutex::new(RefCell::new(save.local_device_save.reader_behavior)),
             recent_highlights: Mutex::new(RefCell::new(save.local_device_save.recent_highlights)),
-            cloud_sync_settings: Mutex::new(RefCell::new(save.local_device_save.cloud_sync_settings))
+            cloud_sync_settings: Mutex::new(RefCell::new(save.local_device_save.cloud_sync_settings)),
+            sync_state: Mutex::new(DriveSyncState { drive_client: None }), 
         }
     }
 

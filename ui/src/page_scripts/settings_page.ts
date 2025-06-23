@@ -4,6 +4,7 @@ import * as pages from "./pages.js";
 import * as settings from "../settings.js";
 import * as popup from "../popups/confirm_popup.js";
 import * as view_states from "../view_states.js";
+import * as cloud_sync from "../cloud_sync.js";
 
 export type SettingsPageData = {
     old_path: string,
@@ -11,6 +12,8 @@ export type SettingsPageData = {
 
 export async function run()
 {
+    cloud_sync.init_cloud_sync_for_page();
+    
     let data = utils.decode_from_url(window.location.href) as SettingsPageData;
     init_settings_page_header({
         middle: [],
@@ -36,6 +39,7 @@ export async function run()
     });
 
     init_apply_buttons();
+    init_cloud_sync_settings();
     
 
     document.body.style.visibility = 'visible';
@@ -231,13 +235,36 @@ async function init_font_dropdown()
 
 function init_cloud_sync_settings()
 {
-    const CLOUD_SETTINGS_CONTENT = 'cloud-settings-content';
-    let content = document.getElementById(CLOUD_SETTINGS_CONTENT);
-    if (content === null)
-    {
-        utils.debug_print(`Cannot find element ${CLOUD_SETTINGS_CONTENT}`);
-        return;
-    }
+    let sign_in_btn = document.getElementById('sign-in-btn')!;
+    sign_in_btn.addEventListener('click', e => {
+        cloud_sync.signin_user();
+    });
+
+    update_cloud_sync_settings();
+    cloud_sync.listen_cloud_event(e => {
+        update_cloud_sync_settings();
+    });
+}
+
+function update_cloud_sync_settings()
+{
+    cloud_sync.is_signed_in().then(is_signed_in => {
+        if (is_signed_in)
+        {
+            document.getElementById('signed-in-settings')!.hide(false);
+            document.getElementById('not-signed-in-settings')!.hide(true);
+            
+            cloud_sync.get_user_info().then(user_info => {
+                let account_name = user_info!.email ?? user_info!.id;
+                document.getElementById('sync-account-name')!.innerHTML = account_name;
+            })
+        }
+        else 
+        {
+            document.getElementById('signed-in-settings')!.hide(true);
+            document.getElementById('not-signed-in-settings')!.hide(false);
+        }
+    })
 }
 
 function init_clear_history_button()
