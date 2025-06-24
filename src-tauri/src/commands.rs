@@ -1,11 +1,11 @@
-use std::{collections::HashMap, str::FromStr};
+use std::str::FromStr;
 
 use itertools::Itertools;
 use tauri::{path::BaseDirectory, Manager, Runtime, State};
 use uuid::Uuid;
 
 use crate::{
-    app_state::{self, AppState, ViewState}, audio::reader_behavior::ReaderBehavior, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{action::{Action, ActionType}, HighlightCategory, NoteData, NoteSourceType, WordAnnotations}, searching::{self, *}, settings::Settings, utils::{self, Color}
+    app_state::{self, AppState, ViewState}, audio::reader_behavior::ReaderBehavior, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{action::ActionType, HighlightCategory, NoteData, NoteSourceType}, searching::{self, *}, settings::Settings, utils::{self, Color}
 };
 
 #[tauri::command(rename_all = "snake_case")]

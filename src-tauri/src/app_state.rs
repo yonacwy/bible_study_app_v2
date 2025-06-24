@@ -1,4 +1,3 @@
-use cloud_sync::DriveSyncClient;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::{cell::RefCell, collections::HashMap, io::Read, ops::Deref, path::PathBuf, sync::{Arc, Mutex, MutexGuard}, thread::spawn};
@@ -7,7 +6,7 @@ use tauri::{
 };
 
 use crate::{
-    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, cloud_sync::DriveSyncState, debug_release_val, migration::{SaveVersion, CURRENT_SAVE_VERSION}, notes::{action::{Action, ActionType, NotebookActionHandler}, *}, save_data::{AppSave, CloudSyncSettings, LocalDeviceSave, LocalDeviceSaveVersion, NotebookRecordSave, NotebookRecordSaveVersion}, settings::Settings
+    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, cloud_sync::CloudSyncState, debug_release_val, migration::{SaveVersion, CURRENT_SAVE_VERSION}, notes::{action::{Action, ActionType, NotebookActionHandler}, *}, save_data::{AppSave, LocalDeviceSave, LocalDeviceSaveVersion, NotebookRecordSave, NotebookRecordSaveVersion}, settings::Settings
 };
 
 pub const SAVE_NAME: &str = "save.json";
@@ -106,8 +105,7 @@ pub struct AppData {
 
     recent_highlights: Mutex<RefCell<Vec<Uuid>>>,
 
-    cloud_sync_settings: Mutex<RefCell<CloudSyncSettings>>,
-    pub sync_state: Mutex<DriveSyncState>,
+    pub sync_state: Mutex<CloudSyncState>,
 }
 
 impl AppData {
@@ -194,8 +192,7 @@ impl AppData {
             selected_reading: Mutex::new(RefCell::new(save.local_device_save.selected_reading)),
             reader_behavior: Mutex::new(RefCell::new(save.local_device_save.reader_behavior)),
             recent_highlights: Mutex::new(RefCell::new(save.local_device_save.recent_highlights)),
-            cloud_sync_settings: Mutex::new(RefCell::new(save.local_device_save.cloud_sync_settings)),
-            sync_state: Mutex::new(DriveSyncState { drive_client: None }), 
+            sync_state: Mutex::new(CloudSyncState::from_save(save.local_device_save.cloud_sync_save)), 
         }
     }
 
@@ -214,7 +211,7 @@ impl AppData {
         let selected_reading = self.selected_reading.lock().unwrap().borrow().clone();
         let reader_behavior = self.reader_behavior.lock().unwrap().borrow().clone();
         let recent_highlights = self.recent_highlights.lock().unwrap().borrow().clone();
-        let cloud_sync_settings = self.cloud_sync_settings.lock().unwrap().borrow().clone();
+        let cloud_sync_save = self.sync_state.lock().unwrap().get_save();
 
         handler.commit_group(); // make sure we have all actions committed
 
@@ -234,7 +231,7 @@ impl AppData {
             tts_settings,
             reader_behavior,
             recent_highlights,
-            cloud_sync_settings,
+            cloud_sync_save,
         };
 
         let save = AppSave {

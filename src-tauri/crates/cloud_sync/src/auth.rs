@@ -13,7 +13,8 @@ pub struct AuthCodeArgs<'a>
     pub pkce: &'a PkcePair,
     pub redirect_uri: &'a str,
     pub timeout_ms: u128,
-    pub page_src: &'a str,
+    pub success_page_src: &'a str,
+    pub cancel_page_src: &'a str,
 }
 
 #[derive(Debug)]
@@ -26,7 +27,7 @@ pub enum AuthResult {
 
 pub fn request_auth_code(args: AuthCodeArgs) -> AuthResult
 {
-    let AuthCodeArgs { client, pkce, redirect_uri, timeout_ms, page_src } = args;
+    let AuthCodeArgs { client, pkce, redirect_uri, timeout_ms, success_page_src, cancel_page_src } = args;
 
     let auth_url = get_auth_url(client, pkce, redirect_uri);
 
@@ -58,7 +59,7 @@ pub fn request_auth_code(args: AuthCodeArgs) -> AuthResult
         {
             Ok((mut stream, _addr)) => 
             {
-                match handle_connection(&mut stream, page_src) 
+                match handle_connection(&mut stream, success_page_src, cancel_page_src) 
                 {
                     ConnectionResult::AuthCode(code) => return AuthResult::Success(AuthCode(code)),
                     ConnectionResult::Cancelled => return AuthResult::UserCancelled,
@@ -86,7 +87,7 @@ enum ConnectionResult {
     InvalidRequest,
 }
 
-fn handle_connection(stream: &mut TcpStream, page_src: &str) -> ConnectionResult {
+fn handle_connection(stream: &mut TcpStream, success_page_src: &str, cancel_page_src: &str) -> ConnectionResult {
     // Set a read timeout to detect stalled connections
     if let Err(e) = stream.set_read_timeout(Some(std::time::Duration::from_secs(5))) 
     {
@@ -127,7 +128,7 @@ fn handle_connection(stream: &mut TcpStream, page_src: &str) -> ConnectionResult
     match get_code_from_request(first_line) 
     {
         Ok(code) => {
-            let response = format_response(page_src);
+            let response = format_response(success_page_src);
             if let Err(e) = stream.write_all(response.as_bytes()) 
             {
                 return ConnectionResult::Error(format!("Write error: {}", e));
@@ -139,7 +140,7 @@ fn handle_connection(stream: &mut TcpStream, page_src: &str) -> ConnectionResult
             // Check if this is an error callback (user denied access)
             if first_line.contains("error=access_denied") 
             {
-                let error_response = format_response("Authentication cancelled by user.");
+                let error_response = format_response(cancel_page_src);
                 let _ = stream.write_all(error_response.as_bytes());
                 let _ = stream.flush();
                 return ConnectionResult::Cancelled;
@@ -236,7 +237,9 @@ fn get_auth_url(client: &ClientInfo, pkce: &PkcePair, redirect_uri: &str) -> Str
         &scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.file%20openid%20profile%20email\
         &code_challenge={code_challenge}\
         &code_challenge_method=S256\
-        &access_type=offline",
+        &access_type=offline\
+        &prompt=consent\
+        &include_granted_scopes=false",
         client_id = encode(&client.id),
         redirect_uri = encode(redirect_uri),
         code_challenge = encode(&pkce.challenge),

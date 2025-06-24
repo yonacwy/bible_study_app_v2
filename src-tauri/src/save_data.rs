@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{app_state::{ViewState, DEFAULT_BIBLE}, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::ChapterIndex, notes::action::ActionHistory, settings::Settings};
+use crate::{app_state::{ViewState, DEFAULT_BIBLE}, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::ChapterIndex, cloud_sync::CloudSyncSave, notes::action::ActionHistory, settings::Settings};
 
 
 #[derive(Serialize, Deserialize)]
@@ -70,13 +70,7 @@ pub struct LocalDeviceSave
     pub tts_settings: TtsSettings,
     pub reader_behavior: ReaderBehavior,
     pub recent_highlights: Vec<Uuid>,
-    pub cloud_sync_settings: CloudSyncSettings
-}
-
-#[derive(Serialize, Deserialize, Default, Clone)]
-pub struct CloudSyncSettings
-{
-    pub google_refresh_token: Option<String>, // if None, we have not enabled google syncing
+    pub cloud_sync_save: CloudSyncSave
 }
 
 impl Default for LocalDeviceSave
@@ -101,7 +95,7 @@ impl Default for LocalDeviceSave
             tts_settings: TtsSettings::default(),
             reader_behavior: ReaderBehavior::default(),
             recent_highlights: vec![],
-            cloud_sync_settings: CloudSyncSettings::default(),
+            cloud_sync_save: CloudSyncSave::default(),
         }
     }
 }

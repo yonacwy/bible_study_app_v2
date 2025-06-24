@@ -240,6 +240,19 @@ function init_cloud_sync_settings()
         cloud_sync.signin_user();
     });
 
+    let sign_out_btn = document.getElementById('sign-out-btn')!;
+    sign_out_btn.addEventListener('click', e => {
+        popup.show_confirm_popup({
+            message: 'Are you sure you want to sign out?',
+            on_confirm: () => cloud_sync.signout_user()
+        })
+    });
+
+    let test_sync_btn = document.getElementById('test-sync-btn')!;
+    test_sync_btn.addEventListener('click', e => {
+        cloud_sync.test_sync();
+    })
+
     update_cloud_sync_settings();
     cloud_sync.listen_cloud_event(e => {
         update_cloud_sync_settings();

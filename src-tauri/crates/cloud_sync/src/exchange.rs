@@ -36,6 +36,8 @@ impl CachedAccessToken
             refresh_token: &refresh_token 
         })?;
 
+        validate_required_scopes(&refreshed.scope)?;
+
         Ok(Self 
         {
             client,
@@ -56,6 +58,19 @@ impl CachedAccessToken
         }
 
         Ok(&self.access_token)
+    }
+
+    pub fn revoke(self) -> Result<(), String>
+    {
+        if let Err(refresh_err) = revoke_token(&self.refresh_token)
+        {
+            if let Err(access_err) = revoke_token(&self.access_token)
+            {
+                return Err(format!("Failed to revoke tokens. Refresh token error: {}; Access token error: {}", refresh_err, access_err))
+            }
+        }
+
+        Ok(())
     }
 
     fn needs_refresh(&self) -> bool 
@@ -107,8 +122,11 @@ pub fn exchange_auth_code(args: ExchangeAuthCodeArgs) -> Result<TokenResponse, S
     match response {
         Ok(resp) => {
             let json = resp.into_string().unwrap_or_else(|e| format!("Error reading response: {}", e));
-            match serde_json::from_str(&json) {
-                Ok(ok) => Ok(ok),
+            match serde_json::from_str::<TokenResponse>(&json) {
+                Ok(token_response) => {
+                    validate_required_scopes(&token_response.scope)?;
+                    Ok(token_response)
+                },
                 Err(err) => Err(err.to_string())
             }
         },
@@ -122,6 +140,22 @@ pub fn exchange_auth_code(args: ExchangeAuthCodeArgs) -> Result<TokenResponse, S
             Err(format!("Error transport: {}", text))
         }
     }
+}
+
+fn validate_required_scopes(granted_scopes: &str) -> Result<(), String> {
+    let scopes: Vec<&str> = granted_scopes.split(' ').collect();
+    
+    let required_drive_scope = "https://www.googleapis.com/auth/drive.file";
+    
+    if !scopes.contains(&required_drive_scope) {
+        return Err(format!(
+            "Google Drive permissions are required for this application to function. \
+            Granted scopes: {}. Please re-authorize and accept all requested permissions.",
+            granted_scopes
+        ));
+    }
+    
+    Ok(())
 }
 
 pub struct RefreshTokenArgs<'a> {
@@ -175,7 +209,7 @@ pub fn refresh_access_token(args: RefreshTokenArgs) -> Result<RefreshTokenRespon
     }
 }
 
-pub fn revoke_token(token: &str) -> Result<(), String> 
+fn revoke_token(token: &str) -> Result<(), String> 
 {
     let params = [("token", token)];
     let body = serde_urlencoded::to_string(&params).unwrap();

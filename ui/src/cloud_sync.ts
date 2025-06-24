@@ -1,10 +1,18 @@
 import { spawn_alert_popup } from "./popups/alert_select_popup.js";
+import { despawn_loading_screen, spawn_loading_screen } from "./popups/loading_popup.js";
 import * as utils from "./utils/index.js";
 
-export function signin_user()
+export function signin_user(): void
 {
-    return invoke_cloud_command('signin')
+    invoke_cloud_command('signin');
 }
+
+export function signout_user(): void 
+{
+    invoke_cloud_command('signout');
+}
+
+const REFRESH_ERROR_STORAGE = new utils.storage.ValueStorage<boolean>('refresh-error-storage', false);
 
 export function init_cloud_sync_for_page()
 {
@@ -21,6 +29,30 @@ export function init_cloud_sync_for_page()
         else if (event_data.type === 'signin_error')
         {
             spawn_sync_error_popup(event_data.message);
+        }
+        else if (event_data.type === 'signed_out')
+        {
+            spawn_sync_disabled_popup();
+        }
+        else if (event_data.type === 'signout_error')
+        {
+            spawn_sync_disabled_error_popup(event_data.message);
+        }
+        else if (event_data.type === 'sync_start')
+        {
+            spawn_loading_screen();
+        }
+        else if (event_data.type === 'sync_end')
+        {
+            despawn_loading_screen();
+        }
+    });
+
+    get_refresh_sync_error().then(refresh_error => {
+        if (refresh_error !== null && !REFRESH_ERROR_STORAGE.get())
+        {
+            REFRESH_ERROR_STORAGE.set(true);
+            spawn_refresh_sync_error_popup();
         }
     })
 }
@@ -59,12 +91,35 @@ export type CloudEvent =
     |{
         type: 'signin_error',
         message: string,
+    }
+    |{
+        type: 'signed_out'
+    }
+    |{
+        type: 'signout_error',
+        message: string,
+    }
+    |{
+        type: 'sync_start',
+    }
+    |{
+        type: 'sync_end',
     };
 
 export async function listen_cloud_event(callback: (e: utils.AppEvent<CloudEvent>) => void): Promise<utils.UnlistenFn>
 {
     const CLOUD_EVENT_NAME: string = 'cloud_sync_event';
     return await utils.listen_event(CLOUD_EVENT_NAME, callback);
+}
+
+export function test_sync()
+{
+    invoke_cloud_command('test_sync');
+}
+
+export async function get_refresh_sync_error(): Promise<string | null>
+{
+    return await invoke_cloud_command('get_refresh_sync_error');
 }
 
 async function invoke_cloud_command(cmd: string, args?: any): Promise<string | null>
@@ -90,7 +145,7 @@ function spawn_sync_enabled_popup()
 
 function spawn_sync_denied_popup()
 {
-    spawn_alert_popup(`Cloud Sync Denied`, `Permission for using your Google account for cloud sync as be denied`, [
+    spawn_alert_popup(`Cloud Sync Denied`, `Permission for using your Google account for cloud sync has been denied`, [
         {
             text: `Close`,
             callback: (_, p) => p.remove(),
@@ -109,7 +164,17 @@ function spawn_sync_denied_popup()
 
 function spawn_sync_error_popup(error: string)
 {
-    spawn_alert_popup(`Cloud Sync Error`, `Error when syncing to cloud: ${error}.\n If you do not understand this error, please contact the developer as that is not good.`, [
+
+    if (error.includes('Google Drive permissions'))
+    {
+        error = `You have not enabled all the permissions required for cloud sync to function. Please re-login and enable all the permissions`
+    }
+    else 
+    {
+        error = `Error when signing out from Google: ${error}`;
+    }
+
+    spawn_alert_popup(`Cloud Sync Error`, error, [
         {
             text: `Close`,
             callback: (_, p) => p.remove(),
@@ -117,6 +182,55 @@ function spawn_sync_error_popup(error: string)
         },
         {
             text: 'Try again',
+            color: 'blue',
+            callback: (_, p) => {
+                p.remove();
+                signin_user();
+            }
+        }
+    ]);
+}
+
+function spawn_sync_disabled_popup()
+{
+    spawn_alert_popup(`Cloud Sync Disabled`, `Cloud sync is now disabled for Ascribe, changes made will now NOT BE synced to your Google account`, [
+        {
+            text: `Close`,
+            callback: (_, p) => p.remove(),
+            color: 'normal'
+        }
+    ])
+}
+
+function spawn_sync_disabled_error_popup(error: string)
+{
+    spawn_alert_popup(`Cloud Sync Error`, `Error when signing out from Google: ${error}`, [
+        {
+            text: `Close`,
+            callback: (_, p) => p.remove(),
+            color: 'normal'
+        },
+        {
+            text: 'Try again',
+            color: 'blue',
+            callback: (_, p) => {
+                p.remove();
+                signout_user();
+            }
+        }
+    ]);
+}
+
+function spawn_refresh_sync_error_popup()
+{
+    spawn_alert_popup(`Cloud Sync Error`, `Error when trying to refresh your Google cloud session. To reenable it, please check your internet connection and restart, log back in again.`, [
+        {
+            text: `Close`,
+            callback: (_, p) => p.remove(),
+            color: 'normal'
+        },
+        {
+            text: 'Login',
             color: 'blue',
             callback: (_, p) => {
                 p.remove();
