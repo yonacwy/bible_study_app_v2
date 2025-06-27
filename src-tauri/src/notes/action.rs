@@ -1,4 +1,4 @@
-use std::{collections::HashMap, time::SystemTime};
+use std::{collections::{HashMap, HashSet}, time::SystemTime};
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
@@ -51,7 +51,7 @@ impl NotebookActionHandler
                 id: Uuid::new_v4(), 
                 actions, 
                 time: SystemTime::now() 
-            });
+            }.minify());
         }
     }
 
@@ -126,6 +126,47 @@ impl ActionGroup
         {
             action.perform(notebooks, bibles);
         }
+    }
+
+    pub fn minify(mut self) -> Self
+    {
+        let mut actions = Vec::new();
+        let mut edit_note_actions = HashMap::new();
+        let mut edit_highlight_actions = HashMap::new();
+
+        for action in self.actions.into_iter()
+        {
+            let Action { notebook, bible_name, action: action_type } = action;
+            match action_type
+            {
+                ActionType::EditNote(note) => {
+                    edit_note_actions.insert(note.id.clone(), Action { 
+                        notebook, 
+                        bible_name, 
+                        action: ActionType::EditNote(note) 
+                    });
+                },
+                ActionType::EditHighlight(highlight) => {
+                    edit_highlight_actions.insert(highlight.id.clone(), Action { 
+                        notebook, 
+                        bible_name, 
+                        action: ActionType::EditHighlight(highlight) 
+                    });
+                },
+                action => actions.push(Action { notebook, bible_name, action }),
+            }
+        }
+
+        edit_highlight_actions.into_values().for_each(|action| {
+            actions.push(action);
+        });
+
+        edit_note_actions.into_values().for_each(|action| {
+            actions.push(action);
+        });
+
+        self.actions = actions;
+        self
     }
 }
 

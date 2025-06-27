@@ -138,4 +138,9 @@ impl Notebook {
     {
         self.notes.get(id).unwrap()
     }
+
+    pub fn has_note(&self, id: &str) -> bool
+    {
+        self.notes.get(id).is_some()
+    }
 }

@@ -16,6 +16,7 @@ pub struct DriveSyncClient
 {
     api: DriveSyncApi,
     refresh_token: String,
+    user_info: GoogleUserInfo,
 }
 
 pub enum SigninResult
@@ -40,6 +41,7 @@ pub struct GoogleUserInfo {
 impl DriveSyncClient
 {
     pub fn refresh_token(&self) -> &str { &self.refresh_token }
+    pub fn user_info(&self) -> &GoogleUserInfo { &self.user_info }
 
     // Clean sign in. It will redirect the user to sign in to google drive using their credentials
     pub fn signin_user(client: ClientInfo, app_info: AppInfo, success_page_src: &str, cancel_page_src: &str, timeout_ms: u128, redirect_uri: &str) -> SigninResult
@@ -73,10 +75,17 @@ impl DriveSyncClient
         let access_token = CachedAccessToken::new(client, response, SystemTime::now());
         let api = DriveSyncApi::new(access_token, app_info.app_id.clone(), app_info.sync_file_name.clone());
 
+        let user_info = match api.get_user_info()
+        {
+            Ok(ok) => ok,
+            Err(e) => return SigninResult::Error(e),
+        };
+
         SigninResult::Success(Self 
         {
             api,
             refresh_token,
+            user_info,
         })
     }
 
@@ -85,11 +94,13 @@ impl DriveSyncClient
     {
         let access_token = CachedAccessToken::from_refresh(client, refresh_token.clone())?;
         let api = DriveSyncApi::new(access_token, app_info.app_id.clone(), app_info.sync_file_name.clone());
+        let user_info = api.get_user_info()?;
 
         Ok(Self 
         {
             api,
             refresh_token,
+            user_info,
         })
     }
 
@@ -101,11 +112,6 @@ impl DriveSyncClient
     pub fn write_file(&self, content: &str) -> Result<(), String>
     {
         self.api.write(content).map_err(|e| e.to_string())
-    }
-
-    pub fn get_user_info(&self) -> Result<GoogleUserInfo, String>
-    {
-        self.api.get_user_info()
     }
 
     pub fn signout(self) -> Result<(), String>

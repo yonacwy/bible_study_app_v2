@@ -50,7 +50,7 @@ fn main() -> Result<(), String>
     // let synced = drive_client.read_file().unwrap();
     // println!("value = {:#?}", synced);
 
-    let info = drive_client.get_user_info();
+    let info = drive_client.user_info();
     println!("value = {:#?}", info);
     
     Ok(())

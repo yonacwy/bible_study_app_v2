@@ -5,6 +5,7 @@ import * as settings from "../settings.js";
 import * as popup from "../popups/confirm_popup.js";
 import * as view_states from "../view_states.js";
 import * as cloud_sync from "../cloud_sync.js";
+import { setup_prompt_listener } from "../utils/prompt.js";
 
 export type SettingsPageData = {
     old_path: string,
@@ -13,6 +14,7 @@ export type SettingsPageData = {
 export async function run()
 {
     cloud_sync.init_cloud_sync_for_page();
+    setup_prompt_listener();
     
     let data = utils.decode_from_url(window.location.href) as SettingsPageData;
     init_settings_page_header({
@@ -248,9 +250,14 @@ function init_cloud_sync_settings()
         })
     });
 
-    let test_sync_btn = document.getElementById('test-sync-btn')!;
-    test_sync_btn.addEventListener('click', e => {
-        cloud_sync.test_sync();
+    let test_write_btn = document.getElementById('test-write-btn')!;
+    test_write_btn.addEventListener('click', e => {
+        cloud_sync.test_write_sync();
+    })
+
+    let test_read_btn = document.getElementById('test-read-btn')!;
+    test_read_btn.addEventListener('click', e => {
+        cloud_sync.test_read_sync();
     })
 
     update_cloud_sync_settings();

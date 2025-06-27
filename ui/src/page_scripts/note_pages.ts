@@ -113,8 +113,10 @@ async function render_note_references(on_text_require_rerender: () => void, on_s
             if(references.length === 1) return;
 
             let delete_button = utils.spawn_image_button(utils.images.TRASH_CAN, e => {
+                e.stopPropagation();
                 delete_reference(index, on_text_require_rerender, on_search);
             });
+
             link.appendChild(delete_button.button);
         });
 

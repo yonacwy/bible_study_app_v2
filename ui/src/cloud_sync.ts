@@ -13,8 +13,9 @@ export function signout_user(): void
 }
 
 const REFRESH_ERROR_STORAGE = new utils.storage.ValueStorage<boolean>('refresh-error-storage', false);
+const HAS_ASKED_SIGN_IN_SYNC_STORAGE = new utils.storage.ValueStorage<boolean>('ask-sign-in-sync-storage', false);
 
-export function init_cloud_sync_for_page()
+export async function init_cloud_sync_for_page()
 {
     listen_cloud_event(e => {
         let event_data = e.payload;
@@ -54,7 +55,19 @@ export function init_cloud_sync_for_page()
             REFRESH_ERROR_STORAGE.set(true);
             spawn_refresh_sync_error_popup();
         }
-    })
+    });
+
+    let signed_in = await is_signed_in();
+
+    // if we are signed in, set it so that we dont ask to sign in again later if when we sign out in the same session
+    HAS_ASKED_SIGN_IN_SYNC_STORAGE.set(signed_in || HAS_ASKED_SIGN_IN_SYNC_STORAGE.get()); 
+
+    let can_ask = await get_can_ask_sync();
+    if (!signed_in && can_ask && !HAS_ASKED_SIGN_IN_SYNC_STORAGE.get())
+    {
+        HAS_ASKED_SIGN_IN_SYNC_STORAGE.set(true);
+        spawn_ask_enable_sync_popup();
+    }
 }
 
 export type GoogleUserInfo = {
@@ -117,9 +130,30 @@ export function test_sync()
     invoke_cloud_command('test_sync');
 }
 
+export function test_write_sync()
+{
+    invoke_cloud_command('test_send');
+}
+
+export function test_read_sync()
+{
+    invoke_cloud_command('test_receive');
+}
+
 export async function get_refresh_sync_error(): Promise<string | null>
 {
     return await invoke_cloud_command('get_refresh_sync_error');
+}
+
+export async function set_can_ask_sync(value: boolean): Promise<void>
+{
+    return await invoke_cloud_command('set_can_ask_sync', value).then(_ => {})
+}
+
+export async function get_can_ask_sync(): Promise<boolean>
+{
+    let json = await invoke_cloud_command('get_can_ask_sync');
+    return JSON.parse(json!);
 }
 
 async function invoke_cloud_command(cmd: string, args?: any): Promise<string | null>
@@ -238,5 +272,32 @@ function spawn_refresh_sync_error_popup()
             }
         }
     ]);
+}
+
+function spawn_ask_enable_sync_popup()
+{
+    spawn_alert_popup('Enable Sync', 'Do you want to enable cloud sync for Ascribe using Google Drive?', [
+        {
+            text: 'Yes',
+            color: 'blue',
+            callback: (_, p) => {
+                p.remove();
+                signin_user();
+            }
+        },
+        {
+            text: 'No',
+            color: 'normal',
+            callback: (_, p) => p.remove(),
+        },
+        {
+            text: `Don't ask Again`,
+            color: 'red',
+            callback: (_, p) => {
+                p.remove();
+                set_can_ask_sync(false);
+            }
+        }
+    ])
 }
 

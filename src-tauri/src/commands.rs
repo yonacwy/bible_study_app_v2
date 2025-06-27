@@ -5,7 +5,7 @@ use tauri::{path::BaseDirectory, Manager, Runtime, State};
 use uuid::Uuid;
 
 use crate::{
-    app_state::{self, AppState, ViewState}, audio::reader_behavior::ReaderBehavior, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{action::ActionType, HighlightCategory, NoteData, NoteSourceType}, searching::{self, *}, settings::Settings, utils::{self, Color}
+    app_state::{self, AppState, ViewState}, audio::reader_behavior::ReaderBehavior, bible::{ChapterIndex, ReferenceLocation, Verse}, notes::{action::ActionType, HighlightCategory, NoteData, NoteSourceType}, searching::{self, *}, settings::Settings, utils::Color
 };
 
 #[tauri::command(rename_all = "snake_case")]
@@ -369,7 +369,7 @@ pub fn set_selected_reading(app_state: State<'_, AppState>, selected_reading: u3
 #[tauri::command(rename_all = "snake_case")]
 pub fn open(path: &str)
 {
-    match utils::open(path)
+    match open::that(path)
     {
         Ok(_) => {},
         Err(err) => println!("ERROR: {}", err),
@@ -388,7 +388,7 @@ pub fn open_save_in_file_explorer<R>(app: tauri::AppHandle<R>) -> Option<String>
 
     let path = app.path().resolve("", BaseDirectory::Resource).unwrap();
     let path_str = path.to_str().unwrap();
-    utils::open(path_str).err().map(|e| e.to_string())
+    open::that(path_str).err().map(|e| e.to_string())
 }
 
 #[tauri::command(rename_all = "snake_case")]

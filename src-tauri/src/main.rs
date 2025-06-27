@@ -17,6 +17,7 @@ pub mod audio;
 pub mod readings;
 pub mod save_data;
 pub mod cloud_sync;
+pub mod prompt;
 
 use audio::{init_espeak, AudioPlayer, TtsPlayer};
 use commands::*;
@@ -110,6 +111,7 @@ fn main() -> Result<(), tts::Error>
             get_recent_highlights,
             set_recent_highlights,
             cloud_sync::run_cloud_command,
+            prompt::receive_prompt_response,
         ])
         .run(tauri::generate_context!()) 
         .expect("error while running tauri application");

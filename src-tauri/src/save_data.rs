@@ -1,13 +1,29 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use uuid::Uuid;
 
-use crate::{app_state::{ViewState, DEFAULT_BIBLE}, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::ChapterIndex, cloud_sync::CloudSyncSave, notes::action::ActionHistory, settings::Settings};
+use crate::{app_state::{ViewState, DEFAULT_BIBLE}, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::ChapterIndex, cloud_sync::CloudSyncStateSave, notes::action::ActionHistory, settings::Settings};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppSaveVersion
+{
+    #[serde(rename = "0")]
+    SV0,
+}
+
+impl AppSaveVersion
+{
+    pub const CURRENT_SAVE_VERSION: Self = AppSaveVersion::SV0;
+}
 
 
+#[serde_as]
 #[derive(Serialize, Deserialize)]
 pub struct AppSave 
 {
-    pub note_record_save: NotebookRecordSave,
+    pub note_record_saves: Vec<NotebookRecordSave>,
     pub local_device_save: LocalDeviceSave,
 }
 
@@ -39,7 +55,7 @@ impl Default for AppSave
         Self 
         {
             local_device_save: LocalDeviceSave::default(),
-            note_record_save: NotebookRecordSave::default(),
+            note_record_saves: Vec::new(),
         }
     }
 }
@@ -70,7 +86,7 @@ pub struct LocalDeviceSave
     pub tts_settings: TtsSettings,
     pub reader_behavior: ReaderBehavior,
     pub recent_highlights: Vec<Uuid>,
-    pub cloud_sync_save: CloudSyncSave
+    pub cloud_sync_save: CloudSyncStateSave
 }
 
 impl Default for LocalDeviceSave
@@ -95,7 +111,7 @@ impl Default for LocalDeviceSave
             tts_settings: TtsSettings::default(),
             reader_behavior: ReaderBehavior::default(),
             recent_highlights: vec![],
-            cloud_sync_save: CloudSyncSave::default(),
+            cloud_sync_save: CloudSyncStateSave::default(),
         }
     }
 }
@@ -118,6 +134,7 @@ pub struct NotebookRecordSave
 {
     pub history: ActionHistory,
     pub save_version: NotebookRecordSaveVersion,
+    pub owner_id: Option<String>,
 }
 
 impl Default for NotebookRecordSave
@@ -126,7 +143,8 @@ impl Default for NotebookRecordSave
         Self 
         { 
             history: ActionHistory::new(), 
-            save_version: NotebookRecordSaveVersion::CURRENT_SAVE_VERSION 
+            save_version: NotebookRecordSaveVersion::CURRENT_SAVE_VERSION,
+            owner_id: None,
         }
     }
 }

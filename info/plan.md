@@ -35,6 +35,7 @@
   - [ ] Auto syncing?
 - [ ] Bugfix: Crashes on June 19th Robert Roberts reading, problem parsing 2 John-3 John
 - [ ] Bugfix: Highlight/Note menu not clamped horizontally, and possibly vertically
+- [x] Bugfix: Deleting reference button does not function
 
 ### Version 0.5.3: Bug Fixes and Improvements
 - [x] Lots o Bugs fixes
