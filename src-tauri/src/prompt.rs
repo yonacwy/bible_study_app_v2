@@ -87,10 +87,10 @@ pub fn notify_user(app: tauri::AppHandle<impl Runtime>, title: String, message: 
         message, 
         options: vec![
             PromptOption {
-                name: "Close".into(),
+                name: "Ok".into(),
                 tooltip: None,
                 value: (),
-                color: OptionColor::Normal,
+                color: OptionColor::Blue,
             }
         ] 
     };
