@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::{AppHandle, Emitter, State};
 
-use crate::{app_state::{AppState, AppStateHandle}, debug_release_val, notes::action::ActionHistory, prompt::{self, PromptData}, save_data::NotebookRecordSave};
+use crate::{app_state::{AppState, AppStateHandle}, debug_release_val, notes::action::ActionHistory, prompt::{self, OptionColor, PromptArgs, PromptOption}, save_data::NotebookRecordSave};
 
 const CLIENT_ID: &str = "752728507993-tandjiid9gvavab6g8pa0k1kpirghho6.apps.googleusercontent.com";
 const CLIENT_SECRET: &str = "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";
@@ -231,9 +231,26 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
         "test_send" => {
             let app_state_handle = app_state.get_handle();
 
-            let data = PromptData { title: "Test Prompt".into(), message: "Here is a test prompt to see if the thing worky".into() };
+            let data = PromptArgs { 
+                title: "Test Prompt".into(), 
+                message: "Here is a test prompt to see if the thing worky".into(),
+                options: vec![
+                    PromptOption {
+                        name: "Allow".into(),
+                        tooltip: None,
+                        value: true,
+                        color: OptionColor::Blue,
+                    },
+                    PromptOption {
+                        name: "Deny".into(),
+                        tooltip: None,
+                        value: false,
+                        color: OptionColor::Normal,
+                    },
+                ]
+            };
             prompt::prompt_user(app_handle.clone(), data, move |value| {
-                if value
+                if value.is_some_and(|v| v)
                 {
                     let app_state_ref = app_state_handle.get_ref();
                     let sync_state = app_state_ref.sync_state.read().unwrap();
@@ -243,6 +260,10 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
                     let result = sync_state.write_remote_save(&remote_save);
                     app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd).unwrap();
                     println!("Wrote to cloud! = {:?}", result);
+                }
+                else 
+                {
+                    prompt::notify_user(app_handle.clone(), "Cloud Alert".into(), "You did not write to the server".into());
                 }
             });
         },
