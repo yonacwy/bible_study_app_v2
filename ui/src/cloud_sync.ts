@@ -12,6 +12,11 @@ export function signout_user(): void
     invoke_cloud_command('signout');
 }
 
+export function switch_user_account(): void 
+{
+    invoke_cloud_command('switch_account');
+}
+
 const REFRESH_ERROR_STORAGE = new utils.storage.ValueStorage<boolean>('refresh-error-storage', false);
 const HAS_ASKED_SIGN_IN_SYNC_STORAGE = new utils.storage.ValueStorage<boolean>('ask-sign-in-sync-storage', false);
 

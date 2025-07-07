@@ -250,6 +250,14 @@ function init_cloud_sync_settings()
         })
     });
 
+    let switch_account_btn = document.getElementById('switch-account-btn')!;
+    switch_account_btn.addEventListener('click', e => {
+        popup.show_confirm_popup({
+            message: 'Are you sure you want to switch accounts?',
+            on_confirm: () => cloud_sync.switch_user_account()
+        })
+    })
+
     let test_write_btn = document.getElementById('test-write-btn')!;
     test_write_btn.addEventListener('click', e => {
         cloud_sync.test_write_sync();

@@ -112,6 +112,8 @@ fn main() -> Result<(), tts::Error>
             set_recent_highlights,
             cloud_sync::run_cloud_command,
             prompt::receive_prompt_response,
+            prompt::frontend_ready,
+            prompt::frontend_unloading,
         ])
         .run(tauri::generate_context!()) 
         .expect("error while running tauri application");

@@ -15,9 +15,9 @@ export type PromptData = {
     options: OptionData[]
 }
 
-export async function setup_prompt_listener()
+export async function setup_prompt_listener(): Promise<void>
 {
-    await utils.listen_event<PromptData>('prompt-user', async e => {
+    return utils.listen_event<PromptData>('prompt-user', async e => {
         let data = e.payload;
 
         let options: AlertPopupOption[] = data.options.map((o, i) => {
@@ -33,7 +33,15 @@ export async function setup_prompt_listener()
         })
 
         spawn_alert_popup(data.title, data.message, options)
+    }).then(_ => {
+
+        window.addEventListener('beforeunload', () => {
+            utils.invoke('frontend_unloading', {});
+        });
+
+        return utils.invoke('frontend_ready', {});
     })
+
 }
 
 function invoke_response(value: number)

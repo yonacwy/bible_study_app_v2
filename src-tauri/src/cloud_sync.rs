@@ -206,7 +206,20 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
             }
         },
         "switch_account" => {
-            todo!()
+            let mut sync_state = app_state_ref.sync_state.try_write().unwrap();
+            if let Some(drive_client) = sync_state.drive_client.take()
+            {
+                match drive_client.signout()
+                {
+                    Ok(()) => {
+                        drop(sync_state);
+                        spawn_signin_thread(app_handle, app_state.get_handle());
+                    },
+                    Err(e) => app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SignoutError { 
+                        message: e
+                    }).unwrap()
+                }
+            }
         },
         "is_signed_in" => {
             let sync_state = app_state_ref.sync_state.try_read().unwrap();
@@ -249,7 +262,10 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
                     },
                 ]
             };
+
+            println!("Test Send called");
             prompt::prompt_user(app_handle.clone(), data, move |value| {
+                println!("Prompt value received: {:#?}", value);
                 if value.is_some_and(|v| v)
                 {
                     let app_state_ref = app_state_handle.get_ref();
@@ -304,6 +320,26 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
         "get_can_ask_sync" => {
             let sync_state = app_state_ref.sync_state.try_read().unwrap();
             return Some(serde_json::to_string(&sync_state.can_ask_enable_sync).unwrap());
+        },
+        "sync_with_cloud" => {
+            let mut sync_state = app_state_ref.sync_state.try_write().unwrap();
+            app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncStart).unwrap();
+            let result = sync_state.read_remote_save();
+
+            let remote = match result
+            {
+                Ok(Some(save)) => {
+                    app_state_ref.test_set_notebooks_from_history(save.note_record_save.history);
+                },
+                Ok(None) => {
+                    app_state_ref.test_set_notebooks_from_history(ActionHistory::new());
+                },
+                Err(e) => println!("Error when receiving from cloud: {}", e),
+            };
+            
+            app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd).unwrap();
+
+            todo!()
         }
         _ => println!("Error: Unknown Command")
     }
