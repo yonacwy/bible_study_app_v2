@@ -122,6 +122,7 @@ export type CloudEvent =
     }
     |{
         type: 'sync_end',
+        error: string | null,
     };
 
 export async function listen_cloud_event(callback: (e: utils.AppEvent<CloudEvent>) => void): Promise<utils.UnlistenFn>
@@ -130,19 +131,9 @@ export async function listen_cloud_event(callback: (e: utils.AppEvent<CloudEvent
     return await utils.listen_event(CLOUD_EVENT_NAME, callback);
 }
 
-export function test_sync()
+export function sync_with_cloud(): void 
 {
-    invoke_cloud_command('test_sync');
-}
-
-export function test_write_sync()
-{
-    invoke_cloud_command('test_send');
-}
-
-export function test_read_sync()
-{
-    invoke_cloud_command('test_receive');
+    invoke_cloud_command('sync_with_cloud')
 }
 
 export async function get_refresh_sync_error(): Promise<string | null>

@@ -26,7 +26,7 @@ pub enum SigninResult
     Error(String),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct GoogleUserInfo {
     pub sub: String,
     pub name: Option<String>,

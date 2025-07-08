@@ -17,7 +17,7 @@ const SYNC_FILE_NAME: &str = debug_release_val! {
     release: "ascribe_data.json"
 };
 
-const TIMEOUT_MS: u32 = 60 * 1000; // 60 seconds
+const TIMEOUT_MS: u32 = 2 * 60 * 1000; // 2 minutes
 
 const SUCCESS_PAGE_SRC: &str = include_str!("../../ui/pages/auth/auth.html");
 const CANCELLED_PAGE_SRC: &str = include_str!("../../ui/pages/auth/cancelled.html");
@@ -174,7 +174,9 @@ pub enum CloudEvent
         message: String,
     },
     SyncStart,
-    SyncEnd,
+    SyncEnd {
+        error: Option<String>,
+    },
 }
 
 #[tauri::command(rename_all = "snake_case")]
@@ -182,18 +184,18 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
 {
     let args: Option<Value> = args.map(|a| serde_json::from_str(&a).unwrap());
 
-    let app_state_ref = app_state.get_ref();
-
     match command
     {
         "signin" => {
-            let sync_state = app_state_ref.sync_state.try_read().unwrap();
+            let app_ref = app_state.get_ref();
+            let sync_state = app_ref.sync_state.try_read().unwrap();
             if sync_state.drive_client.is_some() { return None; } // already signed in
             spawn_signin_thread(app_handle, app_state.get_handle());
             return None;
         },
         "signout" => {
-            let mut sync_state = app_state_ref.sync_state.try_write().unwrap();
+            let app_ref = app_state.get_ref();
+            let mut sync_state = app_ref.sync_state.try_write().unwrap();
             if let Some(drive_client) = sync_state.drive_client.take()
             {
                 match drive_client.signout()
@@ -206,7 +208,8 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
             }
         },
         "switch_account" => {
-            let mut sync_state = app_state_ref.sync_state.try_write().unwrap();
+            let app_ref = app_state.get_ref();
+            let mut sync_state = app_ref.sync_state.try_write().unwrap();
             if let Some(drive_client) = sync_state.drive_client.take()
             {
                 match drive_client.signout()
@@ -222,92 +225,27 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
             }
         },
         "is_signed_in" => {
-            let sync_state = app_state_ref.sync_state.try_read().unwrap();
+            let app_ref = app_state.get_ref();
+            let sync_state = app_ref.sync_state.try_read().unwrap();
             return Some(serde_json::to_string(&sync_state.drive_client.is_some()).unwrap())
         },
         "account_info" => {
-            let sync_state = app_state_ref.sync_state.try_read().unwrap();
+            let app_ref = app_state.get_ref();
+            let sync_state = app_ref.sync_state.try_read().unwrap();
             let account = sync_state.drive_client.as_ref()
                 .map(|c| c.user_info());
 
             return Some(serde_json::to_string(&account).unwrap())
         },
-        "test_sync" => {
-            let sync_state = app_state_ref.sync_state.try_read().unwrap();
-
-            app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncStart).unwrap();
-            let result = sync_state.write_remote_save(&app_state_ref.get_remote_save());
-            app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd).unwrap();
-
-            println!("{:#?}", result);
-        },
-        "test_send" => {
-            let app_state_handle = app_state.get_handle();
-
-            let data = PromptArgs { 
-                title: "Test Prompt".into(), 
-                message: "Here is a test prompt to see if the thing worky".into(),
-                options: vec![
-                    PromptOption {
-                        name: "Allow".into(),
-                        tooltip: None,
-                        value: true,
-                        color: OptionColor::Blue,
-                    },
-                    PromptOption {
-                        name: "Deny".into(),
-                        tooltip: None,
-                        value: false,
-                        color: OptionColor::Normal,
-                    },
-                ]
-            };
-
-            println!("Test Send called");
-            prompt::prompt_user(app_handle.clone(), data, move |value| {
-                println!("Prompt value received: {:#?}", value);
-                if value.is_some_and(|v| v)
-                {
-                    let app_state_ref = app_state_handle.get_ref();
-                    let sync_state = app_state_ref.sync_state.read().unwrap();
-
-                    app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncStart).unwrap();
-                    let remote_save = app_state_ref.get_remote_save();
-                    let result = sync_state.write_remote_save(&remote_save);
-                    app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd).unwrap();
-                    println!("Wrote to cloud! = {:?}", result);
-                }
-                else 
-                {
-                    prompt::notify_user(app_handle.clone(), "Cloud Alert".into(), "You did not write to the server".into());
-                }
-            });
-        },
-        "test_receive" => {
-            let sync_state = app_state_ref.sync_state.try_read().unwrap();
-
-            app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncStart).unwrap();
-            let result = sync_state.read_remote_save();
-
-            match result
-            {
-                Ok(Some(save)) => {
-                    app_state_ref.test_set_notebooks_from_history(save.note_record_save.history);
-                },
-                Ok(None) => {
-                    app_state_ref.test_set_notebooks_from_history(ActionHistory::new());
-                },
-                Err(e) => println!("Error when receiving from cloud: {}", e),
-            }
-            
-            app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd).unwrap();
-        }
         "get_refresh_sync_error" => {
-            let sync_state = app_state_ref.sync_state.try_read().unwrap();
+            let app_ref = app_state.get_ref();
+            let sync_state = app_ref.sync_state.try_read().unwrap();
             return sync_state.loading_error.clone();
         },
         "set_can_ask_sync" => {
-            let mut sync_state = app_state_ref.sync_state.try_write().unwrap();
+            let app_ref = app_state.get_ref();
+            let mut sync_state = app_ref.sync_state.try_write().unwrap();
+
             if let Some(value) = args.and_then(|arg| serde_json::from_value::<bool>(arg).ok())
             {
                 sync_state.can_ask_enable_sync = value;
@@ -318,28 +256,18 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
             }
         },
         "get_can_ask_sync" => {
-            let sync_state = app_state_ref.sync_state.try_read().unwrap();
+            let app_ref = app_state.get_ref();
+            let sync_state = app_ref.sync_state.try_read().unwrap();
             return Some(serde_json::to_string(&sync_state.can_ask_enable_sync).unwrap());
         },
         "sync_with_cloud" => {
-            let mut sync_state = app_state_ref.sync_state.try_write().unwrap();
             app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncStart).unwrap();
-            let result = sync_state.read_remote_save();
-
-            let remote = match result
-            {
-                Ok(Some(save)) => {
-                    app_state_ref.test_set_notebooks_from_history(save.note_record_save.history);
-                },
-                Ok(None) => {
-                    app_state_ref.test_set_notebooks_from_history(ActionHistory::new());
-                },
-                Err(e) => println!("Error when receiving from cloud: {}", e),
-            };
             
-            app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd).unwrap();
-
-            todo!()
+            match app_state.get_ref().sync_with_cloud()
+            {
+                Ok(()) => app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd { error: None }),
+                Err(e) => app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd { error: Some(e) })
+            }.unwrap()
         }
         _ => println!("Error: Unknown Command")
     }

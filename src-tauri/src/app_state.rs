@@ -1,3 +1,4 @@
+use cloud_sync::GoogleUserInfo;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -450,19 +451,45 @@ impl AppData {
         RemoteSave { note_record_save }
     }
 
-    pub fn test_set_notebooks_from_history(&self, history: ActionHistory)
+    pub fn is_signed_in(&self) -> bool
     {
-        let mut handlers = self.notebook_handlers.try_write().unwrap();
-        let owner_id = self.sync_state.try_read().unwrap().get_owner_id();
-        let handler = handlers.entry(owner_id).or_insert(NotebookActionHandler::new(ActionHistory::new(), &self.bibles));
-        
-        let new_handler = NotebookActionHandler::new(history, &self.bibles);
-        *handler = new_handler;
+        let sync_state = self.sync_state.try_read().unwrap();
+        sync_state.drive_client.is_some()
     }
 
-    pub fn sync_with_remote(&self)
+    pub fn get_user_info(&self) -> Option<GoogleUserInfo>
     {
+        let sync_state = self.sync_state.try_read().unwrap();
+        sync_state.drive_client.as_ref().map(|c| c.user_info().clone())
+    }
+
+    pub fn sync_with_cloud(&self) -> Result<(), String>
+    {
+        let user_id = self.get_user_info().map(|i| i.sub);
+
+        let remote = self.sync_state.try_read().unwrap().read_remote_save()?;
+
+        let mut handlers = self.notebook_handlers.try_write().unwrap();
+        let handler = handlers.entry(user_id.clone()).or_insert(NotebookActionHandler::new(ActionHistory::new(), &self.bibles));
+        let local = handler.get_history().clone();
+        drop(handlers);
+
+        let merged = match remote
+        {
+            Some(remote) => ActionHistory::merge(remote.note_record_save.history, local),
+            None => local
+        };
+
+        let sync_state = self.sync_state.try_read().unwrap();
+        let remote_save = RemoteSave { note_record_save: NotebookRecordSave { 
+            history: merged, 
+            save_version: NotebookRecordSaveVersion::CURRENT_SAVE_VERSION, 
+            owner_id: user_id, 
+        }};
         
+        sync_state.write_remote_save(&remote_save).unwrap();
+
+        Ok(())
     }
 
     fn get_bible_paths<R>(path_resolver: &PathResolver<R>) -> Vec<PathBuf>

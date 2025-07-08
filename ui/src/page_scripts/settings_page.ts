@@ -258,14 +258,9 @@ function init_cloud_sync_settings()
         })
     })
 
-    let test_write_btn = document.getElementById('test-write-btn')!;
+    let test_write_btn = document.getElementById('test-sync-btn')!;
     test_write_btn.addEventListener('click', e => {
-        cloud_sync.test_write_sync();
-    })
-
-    let test_read_btn = document.getElementById('test-read-btn')!;
-    test_read_btn.addEventListener('click', e => {
-        cloud_sync.test_read_sync();
+        cloud_sync.sync_with_cloud();
     })
 
     update_cloud_sync_settings();
