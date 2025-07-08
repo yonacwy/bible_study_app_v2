@@ -1,4 +1,6 @@
+import { options } from "less";
 import * as utils from "../utils/index.js";
+import { color } from "../rendering/bible_rendering.js";
 
 export type AlertPopupOption =
 {
@@ -33,4 +35,15 @@ export function spawn_alert_popup(title_text: string, message: string, options: 
 
         }, background);
     }, document.body)
+}
+
+export function spawn_alert_popup_basic(title_text: string, message: string)
+{
+    spawn_alert_popup(title_text, message, [
+        {
+            color: 'blue',
+            text: 'Ok',
+            callback: (_, p) => p.remove(),
+        }
+    ])
 }

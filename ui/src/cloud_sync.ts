@@ -1,4 +1,4 @@
-import { spawn_alert_popup } from "./popups/alert_select_popup.js";
+import { spawn_alert_popup, spawn_alert_popup_basic } from "./popups/alert_select_popup.js";
 import { despawn_loading_screen, spawn_loading_screen } from "./popups/loading_popup.js";
 import * as utils from "./utils/index.js";
 
@@ -51,6 +51,14 @@ export async function init_cloud_sync_for_page()
         else if (event_data.type === 'sync_end')
         {
             despawn_loading_screen();
+            if (event_data.error !== null)
+            {
+                spawn_sync_error_popup(event_data.error);
+            }
+            else 
+            {
+                spawn_alert_popup_basic('Sync Successful', 'This client has successfully synced with the cloud.');
+            }
         }
     });
 

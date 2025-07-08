@@ -469,10 +469,11 @@ impl AppData {
 
         let remote = self.sync_state.try_read().unwrap().read_remote_save()?;
 
+        println!("remote = \n{:#?}", remote);
+
         let mut handlers = self.notebook_handlers.try_write().unwrap();
         let handler = handlers.entry(user_id.clone()).or_insert(NotebookActionHandler::new(ActionHistory::new(), &self.bibles));
         let local = handler.get_history().clone();
-        drop(handlers);
 
         let merged = match remote
         {
@@ -482,12 +483,14 @@ impl AppData {
 
         let sync_state = self.sync_state.try_read().unwrap();
         let remote_save = RemoteSave { note_record_save: NotebookRecordSave { 
-            history: merged, 
+            history: merged.clone(), 
             save_version: NotebookRecordSaveVersion::CURRENT_SAVE_VERSION, 
             owner_id: user_id, 
         }};
         
-        sync_state.write_remote_save(&remote_save).unwrap();
+        sync_state.write_remote_save(&remote_save)?;
+
+        *handler = NotebookActionHandler::new(merged, &self.bibles);
 
         Ok(())
     }
