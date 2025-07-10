@@ -36,6 +36,11 @@ impl NotebookActionHandler
         self.notebook_map.entry(name).or_default()
     }
 
+    pub fn is_empty(&self) -> bool
+    {
+        self.notebook_map.values().all(|n| n.is_empty())
+    }
+
     pub fn push_action(&mut self, action: Action, bibles: &HashMap<String, impl AsRef<Bible>>)
     {
         action.perform(&mut self.notebook_map, bibles);

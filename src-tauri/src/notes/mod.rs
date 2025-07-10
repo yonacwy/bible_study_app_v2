@@ -64,6 +64,16 @@ pub struct Notebook {
 }
 
 impl Notebook {
+
+    pub fn is_empty(&self) -> bool
+    {
+        self.highlight_categories.len() == 0 && 
+        self.notes.len()                == 0 && 
+        self.favorite_verses.len()      == 0 && 
+        self.section_headings.len()     == 0 && 
+        self.annotations.len()          == 0
+    }
+
     pub fn refresh_highlights(&mut self) 
     {
         let highlight_ids = self.highlight_categories

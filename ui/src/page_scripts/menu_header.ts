@@ -52,7 +52,7 @@ export async function init_main_page_header(args: {
     return {
         on_search: searchbar.on_search,
         update_nav_active: nav.update_active,
-    }
+    };
 }
 
 export function init_settings_page_header(args: {
@@ -64,7 +64,7 @@ export function init_settings_page_header(args: {
     let header = get_header();
     utils.create_image_button(header, utils.images.BACKWARD, args.on_back_clicked);
     header.append(...args.middle);
-    header.appendChild(spawn_settings_dropdown(args.old_path))
+    header.appendChild(spawn_settings_dropdown(args.old_path));
 }
 
 export type SearchBarData = {

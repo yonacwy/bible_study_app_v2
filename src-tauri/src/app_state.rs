@@ -126,7 +126,7 @@ pub struct AppData {
 
     recent_highlights: Mutex<RefCell<Vec<Uuid>>>,
 
-    pub sync_state: RwLock<CloudSyncState>,
+    sync_state: RwLock<CloudSyncState>,
 }
 
 impl AppData {
@@ -462,6 +462,25 @@ impl AppData {
         let sync_state = self.sync_state.try_read().unwrap();
         sync_state.drive_client.as_ref().map(|c| c.user_info().clone())
     }
+
+    pub fn signin(&self) -> Result<(), String>
+    {
+        let mut client = self.sync_state.try_write().unwrap();
+        client.signin()
+    }
+
+    pub fn signout(&self) -> Result<(), String>
+    {
+        let mut client = self.sync_state.try_write().unwrap();
+        client.signout()
+    }
+
+    pub fn read_ask_enable_sync<F, R>(&self, mut f: F) -> R 
+        where F : FnMut(&mut bool) -> R
+    {
+        let mut client = self.sync_state.try_write().unwrap();
+
+    } 
 
     pub fn sync_with_cloud(&self) -> Result<(), String>
     {
