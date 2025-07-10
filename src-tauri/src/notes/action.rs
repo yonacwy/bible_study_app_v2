@@ -254,16 +254,22 @@ impl ActionType
                 }
             },
             ActionType::Highlight { highlight_id, location } => {
-                let chapter_view = bible.get_chapter(location.chapter).get_view();
-                location.range.get_chapter_word_indices(&chapter_view).iter().for_each(|idx| {
-                    Self::highlight_word(notebook, &location.chapter, *idx, highlight_id);
-                });
+                if notebook.highlight_categories.contains_key(highlight_id)
+                {
+                    let chapter_view = bible.get_chapter(location.chapter).get_view();
+                    location.range.get_chapter_word_indices(&chapter_view).iter().for_each(|idx| {
+                        Self::highlight_word(notebook, &location.chapter, *idx, highlight_id);
+                    });
+                }
             },
             ActionType::Erase { highlight_id, location } => {
-                let chapter_view = bible.get_chapter(location.chapter).get_view();
-                location.range.get_chapter_word_indices(&chapter_view).iter().for_each(|idx| {
-                    Self::erase_word_highlight(notebook, &location.chapter, *idx, highlight_id);
-                });
+                if notebook.highlight_categories.contains_key(highlight_id)
+                {
+                    let chapter_view = bible.get_chapter(location.chapter).get_view();
+                    location.range.get_chapter_word_indices(&chapter_view).iter().for_each(|idx| {
+                        Self::erase_word_highlight(notebook, &location.chapter, *idx, highlight_id);
+                    });
+                }
             },
             ActionType::EditNoteLocations { note_id, locations } => {
                 if let Some(mut note) = notebook.notes.get(note_id).cloned()
