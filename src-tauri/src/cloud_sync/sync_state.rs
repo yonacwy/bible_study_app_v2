@@ -46,6 +46,11 @@ impl CloudSyncState
         self.drive_client.get().as_ref().map(|c| c.user_info().clone())
     }
 
+    pub fn get_refresh_sync_error(&self) -> &Option<String>
+    {
+        &self.loading_error
+    }
+
     pub fn get_save(&self) -> CloudSyncStateSave
     {
         let refresh_token = self.drive_client.get().as_ref().map(|d| d.refresh_token().to_owned());
@@ -118,18 +123,16 @@ impl CloudSyncState
             return Err("Cannot write to remote when no client is signed in".into());
         };
 
-        println!("TODO: check owner id");
+        let user_info = client.user_info();
 
-        // let user_info = client.get_user_info()?;
+        let Some(save_owner_id) = &save.note_record_save.owner_id else {
+            return Err("Save must have a owner id to sync".into());
+        };
 
-        // let Some(save_owner_id) = &save.note_record_save.owner_id else {
-        //     return Err("Save must have a owner id to sync".into());
-        // };
-
-        // if *save_owner_id != user_info.sub
-        // {
-        //     return Err(format!("Save id {} is not the same as the user id {}", save.note_record_save.owner_id.as_ref().unwrap(), user_info.sub));
-        // }
+        if *save_owner_id != user_info.sub
+        {
+            return Err(format!("Save id {} is not the same as the user id {}", save.note_record_save.owner_id.as_ref().unwrap(), user_info.sub));
+        }
 
         let json = if cfg!(debug_assertions)
         {

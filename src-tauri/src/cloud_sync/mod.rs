@@ -1,13 +1,9 @@
 pub mod sync_state;
-
-use std::thread;
-
-use cloud_sync::{utils::{AppInfo, ClientInfo}, DriveSyncClient, GoogleUserInfo};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::{AppHandle, Emitter, State};
 
-use crate::{app_state::{AppState, AppStateHandle}, debug_release_val, notes::action::ActionHistory, prompt::{self, OptionColor, PromptArgs, PromptOption}, save_data::NotebookRecordSave, utils::Shared};
+use crate::{app_state::AppState, debug_release_val, save_data::NotebookRecordSave};
 
 const CLIENT_ID: &str = "752728507993-tandjiid9gvavab6g8pa0k1kpirghho6.apps.googleusercontent.com";
 const CLIENT_SECRET: &str = "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";
@@ -60,10 +56,16 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
     {
         "signin" => {
             let app_ref = app_state.get_ref();
-            let sync_state = app_ref.sync_state.try_read().unwrap();
-            if sync_state.drive_client.is_some() { return None; } // already signed in
-            spawn_signin_thread(app_handle, app_state.get_handle());
-            return None;
+            let app_handle_inner = app_handle.clone();
+            let result = app_ref.signin(move |e| {
+                app_handle_inner.emit(CLOUD_EVENT_NAME, e).unwrap()
+            });
+
+            if let Err(e) = result
+            {
+                app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SigninError { message: e }).unwrap();
+                return None;
+            }
         },
         "signout" => {
             let app_ref = app_state.get_ref();
@@ -77,46 +79,44 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
         },
         "switch_account" => {
             let app_ref = app_state.get_ref();
-            let mut sync_state = app_ref.sync_state.try_write().unwrap();
-            if let Some(drive_client) = sync_state.drive_client.take()
+            if app_ref.is_signed_in()
             {
-                match drive_client.signout()
+                if let Err(e) = app_ref.signout()
                 {
-                    Ok(()) => {
-                        drop(sync_state);
-                        spawn_signin_thread(app_handle, app_state.get_handle());
-                    },
-                    Err(e) => app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SignoutError { 
-                        message: e
-                    }).unwrap()
+                    app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SignoutError { message: e }).unwrap();
+                    return None;
                 }
+            }
+
+            let app_handle_inner = app_handle.clone();
+            let result = app_ref.signin(move |e| {
+                app_handle_inner.emit(CLOUD_EVENT_NAME, e).unwrap()
+            });
+
+            if let Err(e) = result
+            {
+                app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SigninError { message: e }).unwrap();
+                return None;
             }
         },
         "is_signed_in" => {
-            let app_ref = app_state.get_ref();
-            let sync_state = app_ref.sync_state.try_read().unwrap();
-            return Some(serde_json::to_string(&sync_state.drive_client.is_some()).unwrap())
+            let is_signed_in = app_state.get_ref().is_signed_in();
+            return Some(serde_json::to_string(&is_signed_in).unwrap())
         },
         "account_info" => {
-            let app_ref = app_state.get_ref();
-            let sync_state = app_ref.sync_state.try_read().unwrap();
-            let account = sync_state.drive_client.as_ref()
-                .map(|c| c.user_info());
-
+            let account = app_state.get_ref().get_user_info();
             return Some(serde_json::to_string(&account).unwrap())
         },
         "get_refresh_sync_error" => {
-            let app_ref = app_state.get_ref();
-            let sync_state = app_ref.sync_state.try_read().unwrap();
-            return sync_state.loading_error.clone();
+            return app_state.get_ref().get_refresh_sync_error();
         },
         "set_can_ask_sync" => {
-            let app_ref = app_state.get_ref();
-            let mut sync_state = app_ref.sync_state.try_write().unwrap();
-
             if let Some(value) = args.and_then(|arg| serde_json::from_value::<bool>(arg).ok())
             {
-                sync_state.can_ask_enable_sync = value;
+                let app_ref = app_state.get_ref();
+                app_ref.read_ask_enable_sync(|v| {
+                    *v = value
+                })
             }
             else 
             {
@@ -124,9 +124,8 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
             }
         },
         "get_can_ask_sync" => {
-            let app_ref = app_state.get_ref();
-            let sync_state = app_ref.sync_state.try_read().unwrap();
-            return Some(serde_json::to_string(&sync_state.can_ask_enable_sync).unwrap());
+            let can_ask_enable_sync = app_state.get_ref().read_ask_enable_sync(|v| *v);
+            return Some(serde_json::to_string(&can_ask_enable_sync).unwrap());
         },
         "sync_with_cloud" => {
             app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncStart).unwrap();

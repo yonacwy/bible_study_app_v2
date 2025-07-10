@@ -8,7 +8,7 @@ use tauri::{
 };
 
 use crate::{
-    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, cloud_sync::{CloudSyncState, RemoteSave}, debug_release_val, migration::{SaveVersion, CURRENT_SAVE_VERSION}, notes::{action::{Action, ActionHistory, ActionType, NotebookActionHandler}, *}, save_data::{AppSave, LocalDeviceSave, LocalDeviceSaveVersion, NotebookRecordSave, NotebookRecordSaveVersion}, settings::Settings
+    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, cloud_sync::{sync_state::CloudSyncState, CloudEvent, RemoteSave}, debug_release_val, migration::{SaveVersion, CURRENT_SAVE_VERSION}, notes::{action::{Action, ActionHistory, ActionType, NotebookActionHandler}, *}, save_data::{AppSave, LocalDeviceSave, LocalDeviceSaveVersion, NotebookRecordSave, NotebookRecordSaveVersion}, settings::Settings
 };
 
 pub const SAVE_NAME: &str = "save.json";
@@ -453,20 +453,18 @@ impl AppData {
 
     pub fn is_signed_in(&self) -> bool
     {
-        let sync_state = self.sync_state.try_read().unwrap();
-        sync_state.drive_client.is_some()
+        self.sync_state.try_read().unwrap().is_signed_in()
     }
 
     pub fn get_user_info(&self) -> Option<GoogleUserInfo>
     {
-        let sync_state = self.sync_state.try_read().unwrap();
-        sync_state.drive_client.as_ref().map(|c| c.user_info().clone())
+        self.sync_state.try_read().unwrap().get_user_info()
     }
 
-    pub fn signin(&self) -> Result<(), String>
+    pub fn signin(&self, on_event: impl Fn(CloudEvent) + Sync + Send + 'static) -> Result<(), String>
     {
         let mut client = self.sync_state.try_write().unwrap();
-        client.signin()
+        client.signin(on_event)
     }
 
     pub fn signout(&self) -> Result<(), String>
@@ -479,8 +477,13 @@ impl AppData {
         where F : FnMut(&mut bool) -> R
     {
         let mut client = self.sync_state.try_write().unwrap();
+        f(&mut client.can_ask_enable_sync)
+    }
 
-    } 
+    pub fn get_refresh_sync_error(&self) -> Option<String>
+    {
+        self.sync_state.try_read().unwrap().get_refresh_sync_error().clone()
+    }
 
     pub fn sync_with_cloud(&self) -> Result<(), String>
     {
