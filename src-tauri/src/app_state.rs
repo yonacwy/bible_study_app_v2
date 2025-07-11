@@ -491,8 +491,6 @@ impl AppData {
 
         let remote = self.sync_state.try_read().unwrap().read_remote_save()?;
 
-        println!("remote = \n{:#?}", remote);
-
         let mut handlers = self.notebook_handlers.try_write().unwrap();
         let handler = handlers.entry(user_id.clone()).or_insert(NotebookActionHandler::new(ActionHistory::new(), &self.bibles));
         let local = handler.get_history().clone();
@@ -515,6 +513,34 @@ impl AppData {
         *handler = NotebookActionHandler::new(merged, &self.bibles);
 
         Ok(())
+    }
+
+    pub fn is_unowned_save_empty(&self) -> bool
+    {
+        match self.notebook_handlers.try_read().unwrap().get(&None)
+        {
+            Some(handler) => handler.is_empty(),
+            None => true,
+        }
+    }
+
+    pub fn take_and_merge_unowned_save(&self)
+    {
+        let Some(user_id) = self.get_user_info().map(|u| u.sub) else {
+            return;
+        };
+
+        let mut handlers = self.notebook_handlers.try_write().unwrap();
+
+        let Some(mut unowned_handler) = handlers.remove(&None) else {
+            return;
+        };
+
+        let user_handler = handlers.entry(Some(user_id))
+            .or_insert(NotebookActionHandler::new(ActionHistory::new(), &self.bibles));
+
+        let merged = ActionHistory::merge(user_handler.get_history().clone(), unowned_handler.get_history().clone());
+        *user_handler = NotebookActionHandler::new(merged, &self.bibles);
     }
 
     fn get_bible_paths<R>(path_resolver: &PathResolver<R>) -> Vec<PathBuf>

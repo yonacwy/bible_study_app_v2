@@ -49,7 +49,6 @@ pub fn request_auth_code(args: AuthCodeArgs) -> AuthResult
     let current = SystemTime::now();
     loop 
     {
-        println!("ms = {}", current.elapsed().unwrap().as_millis());
         if current.elapsed().unwrap().as_millis() > timeout_ms
         {
             return AuthResult::Timeout;

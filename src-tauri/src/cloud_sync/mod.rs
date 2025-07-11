@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::{AppHandle, Emitter, State};
 
-use crate::{app_state::AppState, debug_release_val, save_data::NotebookRecordSave};
+use crate::{app_state::{AppState, AppStateHandle}, debug_release_val, prompt::{self, OptionColor, PromptArgs, PromptOption}, save_data::NotebookRecordSave};
 
 const CLIENT_ID: &str = "752728507993-tandjiid9gvavab6g8pa0k1kpirghho6.apps.googleusercontent.com";
 const CLIENT_SECRET: &str = "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";
@@ -44,6 +44,7 @@ pub enum CloudEvent
     SyncStart,
     SyncEnd {
         error: Option<String>,
+        display_popup: Option<bool>,
     },
 }
 
@@ -55,10 +56,22 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
     match command
     {
         "signin" => {
+            let app_state_handle = app_state.get_handle();
             let app_ref = app_state.get_ref();
             let app_handle_inner = app_handle.clone();
+            
             let result = app_ref.signin(move |e| {
-                app_handle_inner.emit(CLOUD_EVENT_NAME, e).unwrap()
+                app_handle_inner.emit(CLOUD_EVENT_NAME, e.clone()).unwrap();
+
+                if let CloudEvent::SignedIn = e
+                {
+                    sync_with_cloud(&app_handle_inner, &app_state_handle, true);
+                    let is_empty = app_state_handle.get_ref().is_unowned_save_empty();
+                    if !is_empty
+                    {
+                        ask_user_if_merge_unowned_save(app_state_handle.clone(), app_handle_inner.clone());
+                    }
+                }
             });
 
             if let Err(e) = result
@@ -128,13 +141,7 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
             return Some(serde_json::to_string(&can_ask_enable_sync).unwrap());
         },
         "sync_with_cloud" => {
-            app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncStart).unwrap();
-            
-            match app_state.get_ref().sync_with_cloud()
-            {
-                Ok(()) => app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd { error: None }),
-                Err(e) => app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd { error: Some(e) })
-            }.unwrap()
+            sync_with_cloud(&app_handle, &app_state.get_handle(), true)
         }
         _ => println!("Error: Unknown Command")
     }
@@ -142,25 +149,54 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
     None
 }
 
+fn sync_with_cloud(app_handle: &AppHandle, app_state_handle: &AppStateHandle, display_sync_popup: bool)
+{
+    app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncStart).unwrap();
+            
+    match app_state_handle.get_ref().sync_with_cloud()
+    {
+        Ok(()) => app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd { error: None, display_popup: Some(display_sync_popup) }),
+        Err(e) => app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd { error: Some(e), display_popup: Some(display_sync_popup) })
+    }.unwrap()
+}
 
+fn ask_user_if_merge_unowned_save(app_state_handle: AppStateHandle, app_handle: AppHandle)
+{
+    let app_ref = app_state_handle.get_ref();
+    let user_info = app_ref.get_user_info().expect("This should not be `None` here");
+    let user_name = user_info.email.clone().unwrap_or(user_info.sub.clone());
+    drop(app_ref); // need to drop the ref so that it does not block
 
-            // let user_name = client.user_info().email.clone().unwrap_or(client.user_info().sub.clone());
-            // let merge_with_remote = prompt::prompt_user(app_handle.clone(), PromptArgs 
-            // { 
-            //     title: "Merge with Remote".into(), 
-            //     message: format!("<span>You have some notes that are currently not linked with an account; Do you want to link them to your account <i>{}</i>?</span>", user_name), 
-            //     options: vec![
-            //         PromptOption {
-            //             name: "Yes".into(),
-            //             tooltip: None,
-            //             value: true,
-            //             color: OptionColor::Blue,
-            //         },
-            //         PromptOption {
-            //             name: "No".into(),
-            //             tooltip: None,
-            //             value: false,
-            //             color: OptionColor::Normal,
-            //         }
-            //     ] 
-            // }, |v| v).join();
+    prompt::prompt_user(app_handle.clone(), PromptArgs 
+    { 
+        title: "Merge with Remote".into(), 
+        message: format!("<span>You have some notes that are currently not linked with an account; Do you want to link them to your account <i>{}</i>?</span>", user_name), 
+        options: vec![
+            PromptOption {
+                name: "Yes".into(),
+                tooltip: None,
+                value: true,
+                color: OptionColor::Blue,
+            },
+            PromptOption {
+                name: "No".into(),
+                tooltip: None,
+                value: false,
+                color: OptionColor::Normal,
+            }
+        ] 
+    }, move |v| match v {
+        Some(true) => {
+            app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncStart).unwrap();
+            app_state_handle.get_ref().take_and_merge_unowned_save();
+            app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd { error: None, display_popup: None }).unwrap();
+            prompt::notify_user(app_handle, "Save Merged".into(), "You chose to merge your unlinked data. It is now moved into your account save.".into());
+        },
+        Some(false) => {
+            prompt::notify_user(app_handle, "Did not Merge".into(), "You chose to not merge your unlinked data. It will still be there when you sign out".into());
+        },
+        None => {
+            prompt::notify_user(app_handle, "Error".into(), "There was an error when receiving the merge with remote response".into());
+        }
+    });
+}

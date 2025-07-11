@@ -57,7 +57,10 @@ export async function init_cloud_sync_for_page()
             }
             else 
             {
-                spawn_alert_popup_basic('Sync Successful', 'This client has successfully synced with the cloud.');
+                if (event_data.display_popup ?? false)
+                {
+                    spawn_alert_popup_basic('Sync Successful', 'This client has successfully synced with the cloud.');
+                }
             }
         }
     });
@@ -103,7 +106,6 @@ export async function get_user_info(): Promise<GoogleUserInfo | null>
 export async function is_signed_in(): Promise<boolean>
 {
     let json = await invoke_cloud_command('is_signed_in');
-    utils.debug_print(json!);
     return JSON.parse(json!);
 }
 
@@ -131,6 +133,7 @@ export type CloudEvent =
     |{
         type: 'sync_end',
         error: string | null,
+        display_popup: boolean | null,
     };
 
 export async function listen_cloud_event(callback: (e: utils.AppEvent<CloudEvent>) => void): Promise<utils.UnlistenFn>
