@@ -11,6 +11,7 @@ import { init_main_page_header, MainPageHeaderData } from "./menu_header.js";
 import * as settings from '../settings.js';
 import * as bible from '../bible.js';
 import { get_editing_note } from "../notes.js";
+import * as sync from "../cloud_sync.js";
 
 export const POPUP_PANEL_ID: string = "popup-panel";
 export const POPUP_PANEL_CONTENT_ID: string = "popup-panel-content";
@@ -43,4 +44,11 @@ export async function init_header(extra?: (e: HTMLElement) => void): Promise<Mai
     ]).then(_ => {
         return main_page_data;
     });
+}
+
+export async function invoke_shared_main_page_initializers(): Promise<void>
+{
+    return await Promise.all([
+        sync.init_cloud_sync_for_page()
+    ]).then(_ => {});
 }

@@ -33,31 +33,10 @@ export async function run()
     Promise.all([
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range, header_data.on_search),
+        pages.invoke_shared_main_page_initializers(),
     ]).then(_ => {
         document.body.style.visibility = 'visible';
         utils.scrolling.load_scroll();
-
-        // TEST:
-
-        // let options: AlertPopupOption[] = [
-        //     {
-        //         color: 'blue',
-        //         text: 'Enable',
-        //         callback: (_, p) => p.remove(),
-        //     },
-        //     {
-        //         color: 'red',
-        //         text: `Don't ask again`,
-        //         callback: (_, p) => p.remove(),
-        //     },
-        //     {
-        //         color: 'normal',
-        //         text: 'Cancel',
-        //         callback: (_, p) => p.remove(),
-        //     },
-        // ]
-
-        // spawn_alert_popup('Enable Cloud Sync', 'Cloud sync with Google Drive is not enabled; would you like to enable it?', options);
     });
 }
 

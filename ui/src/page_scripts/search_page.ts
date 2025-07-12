@@ -18,6 +18,7 @@ export async function run()
     const header_data = await pages.init_header();
     Promise.all([
         display_search(section, header_data),
+        pages.invoke_shared_main_page_initializers(),
     ]).then(() => {
         document.body.style.visibility = 'visible';
         utils.scrolling.load_scroll();

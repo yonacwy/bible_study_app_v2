@@ -33,6 +33,7 @@ export async function run()
         }, header_data.on_search),
         bible_page.display_chapter(chapter, data.section.verse_range, header_data.on_search),
         bible_page.init_chapter_buttons(),
+        pages.invoke_shared_main_page_initializers()
     ]).then(_ => {
         document.body.style.visibility = 'visible';
     });

@@ -14,12 +14,12 @@ export async function init_note_page(note_id: string, on_text_require_rerender: 
         }
     });
 
-    Promise.all([
+    return Promise.all([
         init_resizer(),
         init_text_editor(note_id, on_search).then(_ => {
             init_note_references(on_text_require_rerender, on_search);
         }),
-    ]);
+    ]).then(_ => {});
 }
 
 async function init_text_editor(note_id: string, on_search: (msg: string) => void)

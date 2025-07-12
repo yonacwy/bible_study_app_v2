@@ -4,6 +4,7 @@ import { spawn_chapter_selection_dropdown } from "../chapter_selector.js";
 import * as view_states from "../view_states.js";
 import { show_error_popup } from "../popups/error_popup.js";
 import { ChapterIndex } from "../bindings.js";
+import * as sync from "../cloud_sync.js";
 
 export function get_header(): HTMLElement
 {
@@ -45,6 +46,12 @@ export async function init_main_page_header(args: {
     if (args.extra)
     {
         args.extra(header);
+    }
+
+    let sync_button = await spawn_sync_button();
+    if (sync_button)
+    {
+        header.appendChild(sync_button);
     }
 
     header.appendChild(spawn_settings_dropdown(args.old_path));
@@ -308,4 +315,17 @@ function spawn_settings_dropdown(old_path: string): HTMLElement
     });
 
     return dropdown.root;
+}
+
+export async function spawn_sync_button(): Promise<HTMLElement | null>
+{
+    if (!await sync.is_signed_in()) 
+        return null;
+
+    let button = utils.spawn_image_button(utils.images.CLOUD_UPLOAD, _ => {
+        sync.sync_with_cloud();
+    }).button;
+
+    button.classList.add('shift-left');
+    return button;
 }

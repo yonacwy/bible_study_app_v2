@@ -19,9 +19,16 @@ export function switch_user_account(): void
 
 const REFRESH_ERROR_STORAGE = new utils.storage.ValueStorage<boolean>('refresh-error-storage', false);
 const HAS_ASKED_SIGN_IN_SYNC_STORAGE = new utils.storage.ValueStorage<boolean>('ask-sign-in-sync-storage', false);
+let IS_CLOUD_SYNC_INITIALIZED_FOR_PAGE = false;
 
 export async function init_cloud_sync_for_page()
 {
+    if (IS_CLOUD_SYNC_INITIALIZED_FOR_PAGE) 
+    {
+        utils.debug_print('Cloud sync already initialized for this page');
+        return;
+    }
+    
     listen_cloud_event(e => {
         let event_data = e.payload;
         if (event_data.type === 'signed_in')
@@ -84,6 +91,8 @@ export async function init_cloud_sync_for_page()
         HAS_ASKED_SIGN_IN_SYNC_STORAGE.set(true);
         spawn_ask_enable_sync_popup();
     }
+
+    IS_CLOUD_SYNC_INITIALIZED_FOR_PAGE = true;
 }
 
 export type GoogleUserInfo = {
@@ -165,6 +174,11 @@ export async function get_can_ask_sync(): Promise<boolean>
 
 async function invoke_cloud_command(cmd: string, args?: any): Promise<string | null>
 {
+    if (!IS_CLOUD_SYNC_INITIALIZED_FOR_PAGE)
+    {
+        utils.debug_print('WARNING: Invoking a cloud command without initializing')
+    }
+
     let a: string | null = null;
     if(args !== undefined)
     {

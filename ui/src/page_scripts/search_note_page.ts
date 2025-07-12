@@ -20,6 +20,7 @@ export async function run()
                 return search_page.display_search(data.section, header_data);
             }, 'left-pane')
         }, header_data.on_search),
+        pages.invoke_shared_main_page_initializers(),
     ]).then(() => {
         document.body.style.visibility = 'visible';
     });
