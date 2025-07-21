@@ -26,6 +26,8 @@ export async function run()
 
     audio_player.init_player();
 
+    await pages.invoke_shared_main_page_initializers(() => view_states.goto_current_view_state());
+
     let header_data = await pages.init_header(e => {
         e.appendChild(spawn_audio_player_button());
     });
@@ -33,7 +35,6 @@ export async function run()
     Promise.all([
         init_chapter_buttons(),
         display_chapter({book: data.book, number: data.chapter}, data.verse_range, header_data.on_search),
-        pages.invoke_shared_main_page_initializers(),
     ]).then(_ => {
         document.body.style.visibility = 'visible';
         utils.scrolling.load_scroll();

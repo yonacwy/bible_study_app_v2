@@ -34,16 +34,29 @@ export function spawn_alert_popup(title_text: string, message: string, options: 
             }, content)
 
         }, background);
-    }, document.body)
+    }, document.body);
+
+    let alerts = Array.from(document.getElementsByClassName('alert-popup')).map(e => e as HTMLElement);
+    alerts.forEach(element => {
+        element.style.display = 'none';
+    });
+
+    if (alerts.length > 0) 
+    {
+        alerts[alerts.length - 1].style.display = 'block';
+    }
 }
 
-export function spawn_alert_popup_basic(title_text: string, message: string)
+export function spawn_alert_popup_basic(title_text: string, message: string, on_ok?: () => void)
 {
     spawn_alert_popup(title_text, message, [
         {
             color: 'blue',
             text: 'Ok',
-            callback: (_, p) => p.remove(),
+            callback: (_, p) => {
+                if (on_ok) { on_ok() }
+                p.remove()
+            },
         }
     ])
 }

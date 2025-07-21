@@ -55,7 +55,7 @@ const css = `
 }
 `;
 
-export function spawn_loading_screen(): void 
+export function spawn_loading_screen(message: string = 'Loading'): void 
 {
     if (splashElement) return;
 
@@ -70,7 +70,7 @@ export function spawn_loading_screen(): void
     splashElement.innerHTML = `
         <div class="splash-screen">
             <img src="../../../images/Square310x310Logo.png" alt="App logo">
-            <div class="text">Loading...</div>
+            <div class="text">${message}...</div>
             <div class="spinner"></div>
         </div>
     `;

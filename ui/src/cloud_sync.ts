@@ -28,8 +28,12 @@ export async function init_cloud_sync_for_page()
         utils.debug_print('Cloud sync already initialized for this page');
         return;
     }
+    else 
+    {
+        IS_CLOUD_SYNC_INITIALIZED_FOR_PAGE = true; // stops some warning messages
+    }
     
-    listen_cloud_event(e => {
+    await listen_cloud_event(e => {
         let event_data = e.payload;
         if (event_data.type === 'signed_in')
         {
@@ -53,7 +57,7 @@ export async function init_cloud_sync_for_page()
         }
         else if (event_data.type === 'sync_start')
         {
-            spawn_loading_screen();
+            spawn_loading_screen('Syncing');
         }
         else if (event_data.type === 'sync_end')
         {
@@ -66,13 +70,15 @@ export async function init_cloud_sync_for_page()
             {
                 if (event_data.display_popup ?? false)
                 {
-                    spawn_alert_popup_basic('Sync Successful', 'This client has successfully synced with the cloud.');
+                    spawn_alert_popup_basic('Sync Successful', 'This client has successfully synced with the cloud.', () => {
+                        ON_SYNC_FINISHED_HANDLER.invoke();
+                    });
                 }
             }
         }
     });
 
-    get_refresh_sync_error().then(refresh_error => {
+    await get_refresh_sync_error().then(refresh_error => {
         if (refresh_error !== null && !REFRESH_ERROR_STORAGE.get())
         {
             REFRESH_ERROR_STORAGE.set(true);
@@ -88,11 +94,11 @@ export async function init_cloud_sync_for_page()
     let can_ask = await get_can_ask_sync();
     if (!signed_in && can_ask && !HAS_ASKED_SIGN_IN_SYNC_STORAGE.get())
     {
-        HAS_ASKED_SIGN_IN_SYNC_STORAGE.set(true);
         spawn_ask_enable_sync_popup();
+        utils.sleep(1000).then(_ => { // hack for a very strange bug that when in debug mode, it may reload right after launch, causing the flag to be set but nothing displayed, as the page refreshed
+            HAS_ASKED_SIGN_IN_SYNC_STORAGE.set(true);
+        });
     }
-
-    IS_CLOUD_SYNC_INITIALIZED_FOR_PAGE = true;
 }
 
 export type GoogleUserInfo = {
@@ -154,6 +160,12 @@ export async function listen_cloud_event(callback: (e: utils.AppEvent<CloudEvent
 export function sync_with_cloud(): void 
 {
     invoke_cloud_command('sync_with_cloud')
+}
+
+const ON_SYNC_FINISHED_HANDLER = new utils.events.EventHandler<void>();
+export async function add_on_sync_finished_listener(listener: utils.events.Listener<void>)
+{
+    ON_SYNC_FINISHED_HANDLER.add_listener(listener);
 }
 
 export async function get_refresh_sync_error(): Promise<string | null>
@@ -319,6 +331,6 @@ function spawn_ask_enable_sync_popup()
                 set_can_ask_sync(false);
             }
         }
-    ])
+    ]);
 }
 

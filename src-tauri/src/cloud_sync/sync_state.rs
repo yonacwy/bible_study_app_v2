@@ -82,7 +82,9 @@ impl CloudSyncState
                     println!("Failed to refreshed session because: {}", e);
                     Self {
                         drive_client: Shared::new(None),
-                        loading_error: Some(e),
+                        loading_error: if e.contains("invalid_grant") {
+                            None
+                        } else { Some(e) },
                         can_ask_enable_sync: save.can_ask_enable_sync,
                     }
                 }

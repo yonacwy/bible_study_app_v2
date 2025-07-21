@@ -54,7 +54,7 @@ export async function init_main_page_header(args: {
         header.appendChild(sync_button);
     }
 
-    header.appendChild(spawn_settings_dropdown(args.old_path));
+    header.appendChild(spawn_settings_dropdown(args.old_path, sync_button === null));
 
     return {
         on_search: searchbar.on_search,
@@ -71,7 +71,7 @@ export function init_settings_page_header(args: {
     let header = get_header();
     utils.create_image_button(header, utils.images.BACKWARD, args.on_back_clicked);
     header.append(...args.middle);
-    header.appendChild(spawn_settings_dropdown(args.old_path));
+    header.appendChild(spawn_settings_dropdown(args.old_path, true));
 }
 
 export type SearchBarData = {
@@ -251,7 +251,7 @@ export async function spawn_version_dropdown(): Promise<HTMLElement>
 }
 
 type SettingsDropdownType = 'settings' | 'readings' | 'help' | 'highlights';
-function spawn_settings_dropdown(old_path: string): HTMLElement
+function spawn_settings_dropdown(old_path: string, shift: boolean): HTMLElement
 {
     function goto_option_page(path: string)
     {
@@ -289,7 +289,14 @@ function spawn_settings_dropdown(old_path: string): HTMLElement
         is_content_small: true,
     });
 
-    dropdown.root.classList.add('shift-right');
+    if (shift)
+    {
+        dropdown.root.classList.add('shift-right');
+    }
+    else 
+    {
+        dropdown.root.style.marginRight = '10px'
+    }
 
     dropdown.on_select.add_listener(t => {
         if (t.value === 'help')
@@ -326,6 +333,7 @@ export async function spawn_sync_button(): Promise<HTMLElement | null>
         sync.sync_with_cloud();
     }).button;
 
-    button.classList.add('shift-left');
+    button.style.marginLeft = 'auto';
+    button.title = 'Sync with the cloud';
     return button;
 }

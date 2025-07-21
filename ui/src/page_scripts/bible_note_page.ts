@@ -5,6 +5,7 @@ import * as bible_page from "./bible_page.js";
 import { init_note_page } from "./note_pages.js";
 import * as audio_player from "../popups/audio_player.js";
 import { TextEditor } from "../text_editor/index.js";
+import * as view_states from "../view_states.js";
 
 export type BibleNotePageData = { note: string, section: BibleSection };
 
@@ -18,6 +19,8 @@ export async function run()
         number: data.section.chapter
     };
 
+    
+    await pages.invoke_shared_main_page_initializers(() => view_states.goto_current_view_state()); // need to init this before the header data
     let header_data = await pages.init_header(e => {
         let player = bible_page.spawn_audio_player_button();
         e.appendChild(player);
@@ -33,7 +36,6 @@ export async function run()
         }, header_data.on_search),
         bible_page.display_chapter(chapter, data.section.verse_range, header_data.on_search),
         bible_page.init_chapter_buttons(),
-        pages.invoke_shared_main_page_initializers()
     ]).then(_ => {
         document.body.style.visibility = 'visible';
     });

@@ -46,9 +46,11 @@ export async function init_header(extra?: (e: HTMLElement) => void): Promise<Mai
     });
 }
 
-export async function invoke_shared_main_page_initializers(): Promise<void>
+export async function invoke_shared_main_page_initializers(on_reload_requested: () => void): Promise<void>
 {
-    return await Promise.all([
-        sync.init_cloud_sync_for_page()
-    ]).then(_ => {});
+    return Promise.all([
+        await sync.init_cloud_sync_for_page(),
+    ]).then(_ => {
+        sync.add_on_sync_finished_listener(on_reload_requested);
+    });
 }
