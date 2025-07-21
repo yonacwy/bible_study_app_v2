@@ -5,6 +5,7 @@ import * as search from "../rendering/word_search.js";
 import { PanelData } from "../popups/side_popup.js";
 import * as bible from "../bible.js";
 import { MainPageHeaderData } from "./menu_header.js";
+import * as view_states from "../view_states.js";
 
 export async function run()
 {
@@ -15,7 +16,9 @@ export async function run()
         utils.scrolling.save_scroll(null);
     });
 
-    const header_data = await pages.init_header();
+    await pages.invoke_shared_main_page_initializers(() => view_states.goto_current_view_state()); // need to init this before the header data
+    let header_data = await pages.init_header();
+    
     Promise.all([
         display_search(section, header_data),
     ]).then(() => {

@@ -17,8 +17,25 @@
 - [ ] IOS
 - [ ] Linux?
 
-### Version 0.6.0: Cloud Saving
+### Version 0.6.0: Lexicon Support
+- [ ] Strong's
+- [ ] Brown's Driver's Brig's
+- [ ] Treasury of Scriptural Knowledge
+- [ ] Lexicon inspector
+  - [ ] Collapsible
+  - [ ] On side menu
+  - [ ] Looks nice
+- [ ] Collapse long notes/highlights
+- [ ] Strong's number parsing/searching
+- [ ] Support relegated to versions of the Bible where compatible
+
+### Version 0.5.4: Cloud Saving
 - [ ] Cloud saving via Google Drive
+- [ ] Auto saving (at intervals)
+  - [ ] Auto syncing?
+- [ ] Bugfix: Crashes on June 19th Robert Roberts reading, problem parsing 2 John-3 John
+- [ ] Bugfix: Highlight/Note menu not clamped horizontally, and possibly vertically
+- [x] Bugfix: Deleting reference button does not function
 
 ### Version 0.5.3: Bug Fixes and Improvements
 - [x] Lots o Bugs fixes

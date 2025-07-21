@@ -12,21 +12,7 @@ use crate::{
     utils::Color,
 };
 
-pub struct NotebookSave
-{
-    pub notebooks: HashMap<String, Notebook>
-}
-
-impl NotebookSave
-{
-    pub fn new() -> Self 
-    {
-        Self 
-        {
-            notebooks: HashMap::new()
-        }
-    }
-}
+pub type NotebookMap = HashMap<String, Notebook>;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HighlightCategory {
@@ -38,7 +24,7 @@ pub struct HighlightCategory {
     pub id: String, // this is slow as heck, but should suffice for now
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum NoteSourceType
 {
@@ -47,7 +33,7 @@ pub enum NoteSourceType
     Markdown,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct NoteData {
     pub id: String,
     pub text: String,
@@ -78,6 +64,16 @@ pub struct Notebook {
 }
 
 impl Notebook {
+
+    pub fn is_empty(&self) -> bool
+    {
+        self.highlight_categories.len() == 0 && 
+        self.notes.len()                == 0 && 
+        self.favorite_verses.len()      == 0 && 
+        self.section_headings.len()     == 0 && 
+        self.annotations.len()          == 0
+    }
+
     pub fn refresh_highlights(&mut self) 
     {
         let highlight_ids = self.highlight_categories
@@ -151,5 +147,10 @@ impl Notebook {
     pub fn get_note(&self, id: &str) -> &NoteData 
     {
         self.notes.get(id).unwrap()
+    }
+
+    pub fn has_note(&self, id: &str) -> bool
+    {
+        self.notes.get(id).is_some()
     }
 }

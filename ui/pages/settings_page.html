@@ -7,6 +7,7 @@
     <link rel="stylesheet/less" type="text/css" href="../styles/dropdown.less">
     <link rel="stylesheet/less" type="text/css" href="../styles/settings.less">
     <link rel="stylesheet/less" type="text/css" href="../styles/confirm_popup.less">
+    <link rel="stylesheet/less" type="text/css" href="../styles/alert_select_popup.less">
     
     <script src="../src/vendor/less/less.js"></script>
 </head>
@@ -60,6 +61,24 @@
             <button class="reset-btn" id="reset-btn" title="Reset to defaults">
                 Reset
             </button>
+        </div>
+        <div class="cloud-settings" id="cloud-settings">
+            <h3>Cloud Sync</h3>
+            <img src="../images/brands-google-drive.svg">
+            <div class="cloud-settings-content" id="signed-in-settings">
+                <div class="cloud-settings-text"><strong>Account: </strong><span id="sync-account-name"> <!-- Filled by Script --> </span></div>
+                <div class="button-container">
+                    <button class="red" id="sign-out-btn" title="Sign out from Google">Sign Out</button>
+                    <button class="gray" id="switch-account-btn" title="Switch your Google account">Switch Account</button>
+                </div>
+                <button id="test-sync-btn">Test Sync</button>
+            </div>
+            <div class="cloud-settings-content" id="not-signed-in-settings">
+                <div class="cloud-settings-text">You have not connected a Google account to enable cloud syncing</div>
+                <div class="button-container">
+                    <button class="blue" id="sign-in-btn" title="Sign in to a Google account">Sign In</button>
+                </div>
+            </div>
         </div>
         <div class="advanced-settings">
             <h3>Advanced</h3>

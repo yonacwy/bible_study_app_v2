@@ -1,3 +1,4 @@
+import { AlertPopupOption, spawn_alert_popup } from "../popups/alert_select_popup.js";
 import { Marked } from "../vendor/markdown/marked.js";
 export * from "./extensions.js";
 export * from "./string_utils.js";
@@ -14,6 +15,8 @@ export * as tts from "./tts.js";
 export * as events from "./events.js";
 export * as images from "./images.js";
 export * from "./dropdown.js";
+export * as prompt from "./prompt.js";
+export * from "./queue.js";
 
 export const invoke: (fn_name: string, args: any) => Promise<any> = (window as any).__TAURI__.core.invoke;
 
@@ -239,9 +242,20 @@ export function render_markdown(markdown: string): string
 export async function display_migration_popup()
 {
     let should_display = await invoke('should_display_migration', {});
+
     if (should_display)
     {
-        alert('Your save has been migrated to the latest version.');
+        let title = 'Save Migrated'
+        let message = 'Your save has been migrated to the latest version.';
+        let options: AlertPopupOption[] = [
+            {
+                text: 'Ok',
+                color: 'blue',
+                callback: (_, p) => p.remove(),
+            }
+        ]
+
+        spawn_alert_popup(title, message, options);
     }
 }
 
@@ -250,7 +264,17 @@ export async function display_no_save_popup()
     let should_display = await invoke('should_display_no_save', {});
     if (should_display)
     {
-        alert('No save found, creating a new save');
+        let title = 'No Save File'
+        let message = 'No save found, creating a new save.';
+        let options: AlertPopupOption[] = [
+            {
+                text: 'Ok',
+                color: 'blue',
+                callback: (_, p) => p.remove(),
+            }
+        ]
+
+        spawn_alert_popup(title, message, options);
     }
 }
 

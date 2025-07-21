@@ -16,6 +16,8 @@ pub mod settings;
 pub mod audio;
 pub mod readings;
 pub mod save_data;
+pub mod cloud_sync;
+pub mod prompt;
 
 use audio::{init_espeak, AudioPlayer, TtsPlayer};
 use commands::*;
@@ -78,8 +80,8 @@ fn main() -> Result<(), tts::Error>
             remove_highlight_category,
             set_highlight_category,
             get_chapter_annotations,
-            highlight_word,
-            erase_highlight,
+            highlight_location,
+            erase_location_highlight,
             parse_bible_search,
             run_word_search,
             add_note,
@@ -108,6 +110,10 @@ fn main() -> Result<(), tts::Error>
             set_reader_behavior,
             get_recent_highlights,
             set_recent_highlights,
+            cloud_sync::run_cloud_command,
+            prompt::receive_prompt_response,
+            prompt::frontend_ready,
+            prompt::frontend_unloading,
         ])
         .run(tauri::generate_context!()) 
         .expect("error while running tauri application");

@@ -139,5 +139,14 @@
             max-width: calc(100% - 10px - @button-size);
             overflow: hidden;
         }
+
+        .image-btn {
+            pointer-events: auto;
+        }
+
+        &:has(.image-btn:hover) 
+        {
+            background-color: white;
+        }
     }
 }

@@ -4,6 +4,7 @@ import { spawn_chapter_selection_dropdown } from "../chapter_selector.js";
 import * as view_states from "../view_states.js";
 import { show_error_popup } from "../popups/error_popup.js";
 import { ChapterIndex } from "../bindings.js";
+import * as sync from "../cloud_sync.js";
 
 export function get_header(): HTMLElement
 {
@@ -47,12 +48,18 @@ export async function init_main_page_header(args: {
         args.extra(header);
     }
 
-    header.appendChild(spawn_settings_dropdown(args.old_path));
+    let sync_button = await spawn_sync_button();
+    if (sync_button)
+    {
+        header.appendChild(sync_button);
+    }
+
+    header.appendChild(spawn_settings_dropdown(args.old_path, sync_button === null));
 
     return {
         on_search: searchbar.on_search,
         update_nav_active: nav.update_active,
-    }
+    };
 }
 
 export function init_settings_page_header(args: {
@@ -64,7 +71,7 @@ export function init_settings_page_header(args: {
     let header = get_header();
     utils.create_image_button(header, utils.images.BACKWARD, args.on_back_clicked);
     header.append(...args.middle);
-    header.appendChild(spawn_settings_dropdown(args.old_path))
+    header.appendChild(spawn_settings_dropdown(args.old_path, true));
 }
 
 export type SearchBarData = {
@@ -244,7 +251,7 @@ export async function spawn_version_dropdown(): Promise<HTMLElement>
 }
 
 type SettingsDropdownType = 'settings' | 'readings' | 'help' | 'highlights';
-function spawn_settings_dropdown(old_path: string): HTMLElement
+function spawn_settings_dropdown(old_path: string, shift: boolean): HTMLElement
 {
     function goto_option_page(path: string)
     {
@@ -282,7 +289,14 @@ function spawn_settings_dropdown(old_path: string): HTMLElement
         is_content_small: true,
     });
 
-    dropdown.root.classList.add('shift-right');
+    if (shift)
+    {
+        dropdown.root.classList.add('shift-right');
+    }
+    else 
+    {
+        dropdown.root.style.marginRight = '10px'
+    }
 
     dropdown.on_select.add_listener(t => {
         if (t.value === 'help')
@@ -308,4 +322,18 @@ function spawn_settings_dropdown(old_path: string): HTMLElement
     });
 
     return dropdown.root;
+}
+
+export async function spawn_sync_button(): Promise<HTMLElement | null>
+{
+    if (!await sync.is_signed_in()) 
+        return null;
+
+    let button = utils.spawn_image_button(utils.images.CLOUD_UPLOAD, _ => {
+        sync.sync_with_cloud();
+    }).button;
+
+    button.style.marginLeft = 'auto';
+    button.title = 'Sync with the cloud';
+    return button;
 }

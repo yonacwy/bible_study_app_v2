@@ -7,6 +7,7 @@ import * as view_states from "../view_states.js";
 import * as side_popup from "../popups/side_popup.js";
 import { range_inclusive } from "../utils/ranges.js";
 import * as audio_player from "../popups/audio_player.js";
+import { AlertPopupOption, spawn_alert_popup } from "../popups/alert_select_popup.js";
 
 const CONTENT_ID: string = "chapter-text-content";
 const CHAPTER_NAME_ID: string = "chapter-name"
@@ -24,6 +25,8 @@ export async function run()
     });
 
     audio_player.init_player();
+
+    await pages.invoke_shared_main_page_initializers(() => view_states.goto_current_view_state());
 
     let header_data = await pages.init_header(e => {
         e.appendChild(spawn_audio_player_button());

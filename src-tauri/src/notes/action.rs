@@ -1,10 +1,74 @@
 use std::{collections::HashMap, time::SystemTime};
 
 use itertools::Itertools;
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{bible::{Bible, ChapterIndex, ReferenceLocation}, notes::{HighlightCategory, NoteData, Notebook, NotebookSave, WordAnnotations}};
+use crate::{bible::{Bible, ChapterIndex, ReferenceLocation}, notes::{HighlightCategory, NoteData, Notebook, NotebookMap, WordAnnotations}};
 
+pub struct NotebookActionHandler
+{
+    notebook_map: NotebookMap,
+    action_history: ActionHistory,
+    current_action_group: Vec<Action>,
+}
+
+impl NotebookActionHandler
+{
+    pub fn new(action_history: ActionHistory, bibles: &HashMap<String, impl AsRef<Bible>>) -> Self
+    {
+        let notebook_map = action_history.to_notebook_map(bibles);
+        Self 
+        {
+            notebook_map,
+            action_history,
+            current_action_group: vec![],
+        }
+    }
+
+    pub fn get_notebooks(&self) -> &NotebookMap
+    {
+        &self.notebook_map
+    }
+
+    pub fn get_or_insert_notebook(&mut self, name: String) -> &Notebook
+    {
+        self.notebook_map.entry(name).or_default()
+    }
+
+    pub fn is_empty(&self) -> bool
+    {
+        self.notebook_map.values().all(|n| n.is_empty())
+    }
+
+    pub fn push_action(&mut self, action: Action, bibles: &HashMap<String, impl AsRef<Bible>>)
+    {
+        action.perform(&mut self.notebook_map, bibles);
+        self.current_action_group.push(action);
+    }
+
+    pub fn commit_group(&mut self)
+    {
+        if self.current_action_group.len() > 0
+        {
+            let actions = std::mem::replace(&mut self.current_action_group, vec![]);
+            self.action_history.push(ActionGroup { 
+                id: Uuid::new_v4(), 
+                actions, 
+                time: SystemTime::now() 
+            }.minify());
+        }
+    }
+
+    // When called, will commit the current action group so that the history is properly updated
+    pub fn get_history(&mut self) -> &ActionHistory
+    {
+        self.commit_group();
+        &self.action_history
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ActionHistory
 {
     pub groups: Vec<ActionGroup>,
@@ -26,15 +90,15 @@ impl ActionHistory
         self.groups.sort_by(|a, b| a.time.cmp(&b.time));
     }
 
-    pub fn to_save(&self, bibles: &HashMap<String, Bible>) -> NotebookSave
+    pub fn to_notebook_map(&self, bibles: &HashMap<String, impl AsRef<Bible>>) -> NotebookMap
     {
-        let mut save = NotebookSave::new();
+        let mut map = NotebookMap::new();
         for group in self.groups.iter()
         {
-            group.perform(&mut save, bibles);
+            group.perform(&mut map, bibles);
         }
 
-        save
+        map
     }
 
     pub fn merge(left: Self, right: Self) -> Self
@@ -51,6 +115,7 @@ impl ActionHistory
 }
 
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ActionGroup
 {
     pub id: Uuid,
@@ -60,21 +125,57 @@ pub struct ActionGroup
 
 impl ActionGroup
 {
-    pub fn perform(&self, save: &mut NotebookSave, bibles: &HashMap<String, Bible>)
+    pub fn perform(&self, notebooks: &mut NotebookMap, bibles: &HashMap<String, impl AsRef<Bible>>)
     {
         for action in self.actions.iter()
         {
-            action.perform(save, bibles);
+            action.perform(notebooks, bibles);
         }
     }
 
-    pub fn push(&mut self, action: Action)
+    pub fn minify(mut self) -> Self
     {
-        self.actions.push(action);
-        self.time = SystemTime::now();
+        let mut actions = Vec::new();
+        let mut edit_note_actions = HashMap::new();
+        let mut edit_highlight_actions = HashMap::new();
+
+        for action in self.actions.into_iter()
+        {
+            let Action { notebook, bible_name, action: action_type } = action;
+            match action_type
+            {
+                ActionType::EditNote(note) => {
+                    edit_note_actions.insert(note.id.clone(), Action { 
+                        notebook, 
+                        bible_name, 
+                        action: ActionType::EditNote(note) 
+                    });
+                },
+                ActionType::EditHighlight(highlight) => {
+                    edit_highlight_actions.insert(highlight.id.clone(), Action { 
+                        notebook, 
+                        bible_name, 
+                        action: ActionType::EditHighlight(highlight) 
+                    });
+                },
+                action => actions.push(Action { notebook, bible_name, action }),
+            }
+        }
+
+        edit_highlight_actions.into_values().for_each(|action| {
+            actions.push(action);
+        });
+
+        edit_note_actions.into_values().for_each(|action| {
+            actions.push(action);
+        });
+
+        self.actions = actions;
+        self
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Action
 {
     pub notebook: String,
@@ -84,14 +185,15 @@ pub struct Action
 
 impl Action
 {
-    pub fn perform(&self, save: &mut NotebookSave, bibles: &HashMap<String, Bible>)
+    pub fn perform(&self, notebooks: &mut NotebookMap, bibles: &HashMap<String, impl AsRef<Bible>>)
     {
-        let notebook = save.notebooks.entry(self.notebook.clone()).or_default();
-        let bible = bibles.get(&self.bible_name).unwrap();
+        let notebook = notebooks.entry(self.notebook.clone()).or_default();
+        let bible = bibles.get(&self.bible_name).unwrap().as_ref();
         self.action.perform(notebook, bible);
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum ActionType 
 {
     CreateNote(NoteData),
@@ -109,6 +211,11 @@ pub enum ActionType
     Erase {
         highlight_id: String,
         location: ReferenceLocation,
+    },
+
+    EditNoteLocations {
+        note_id: String,
+        locations: Vec<ReferenceLocation>,
     }
 }
 
@@ -147,16 +254,29 @@ impl ActionType
                 }
             },
             ActionType::Highlight { highlight_id, location } => {
-                let chapter_view = bible.get_chapter(location.chapter).get_view();
-                location.range.get_chapter_word_indices(&chapter_view).iter().for_each(|idx| {
-                    Self::highlight_word(notebook, &location.chapter, *idx, highlight_id);
-                });
+                if notebook.highlight_categories.contains_key(highlight_id)
+                {
+                    let chapter_view = bible.get_chapter(location.chapter).get_view();
+                    location.range.get_chapter_word_indices(&chapter_view).iter().for_each(|idx| {
+                        Self::highlight_word(notebook, &location.chapter, *idx, highlight_id);
+                    });
+                }
             },
             ActionType::Erase { highlight_id, location } => {
-                let chapter_view = bible.get_chapter(location.chapter).get_view();
-                location.range.get_chapter_word_indices(&chapter_view).iter().for_each(|idx| {
-                    Self::erase_word_highlight(notebook, &location.chapter, *idx, highlight_id);
-                });
+                if notebook.highlight_categories.contains_key(highlight_id)
+                {
+                    let chapter_view = bible.get_chapter(location.chapter).get_view();
+                    location.range.get_chapter_word_indices(&chapter_view).iter().for_each(|idx| {
+                        Self::erase_word_highlight(notebook, &location.chapter, *idx, highlight_id);
+                    });
+                }
+            },
+            ActionType::EditNoteLocations { note_id, locations } => {
+                if let Some(mut note) = notebook.notes.get(note_id).cloned()
+                {
+                    note.locations = locations.clone();
+                    notebook.update_note(note, bible);
+                }
             },
         }
     }

@@ -18,6 +18,7 @@ fn main() -> Result<(), String>
 
     let redirect_uri = "http://localhost:8080";
     let page_src = include_str!("../res/auth.html");
+    let cancel_page_src = include_str!("../res/cancelled.html");
 
     let client = ClientInfo {
         id: client_id.into(),
@@ -29,8 +30,8 @@ fn main() -> Result<(), String>
         sync_file_name: "test_save.json".into(),
     };
 
-    let timeout_ms =  15 * 1000;
-    let drive_client = match DriveSyncClient::signin_user(client.clone(), app.clone(), page_src, timeout_ms, redirect_uri) {
+    let timeout_ms =  30 * 1000;
+    let drive_client = match DriveSyncClient::signin_user(client.clone(), app.clone(), page_src, cancel_page_src, timeout_ms, redirect_uri) {
         SigninResult::Success(drive_sync_client) => drive_sync_client,
         SigninResult::Denied => {
             return Err(format!("Failed to sign in"));
@@ -40,14 +41,17 @@ fn main() -> Result<(), String>
 
     let drive_client = DriveSyncClient::from_refresh_token(client, app, drive_client.refresh_token().into()).unwrap();
 
-    let local = TestData {
-        value: 24,
-        time: SystemTime::now(),
-    };
+    // let local = TestData {
+    //     value: 24,
+    //     time: SystemTime::now(),
+    // };
 
-    drive_client.write(&serde_json::to_string(&local).unwrap()).unwrap();
-    let synced = drive_client.read().unwrap();
-    println!("value = {:#?}", synced);
+    // drive_client.write_file(&serde_json::to_string(&local).unwrap()).unwrap();
+    // let synced = drive_client.read_file().unwrap();
+    // println!("value = {:#?}", synced);
+
+    let info = drive_client.user_info();
+    println!("value = {:#?}", info);
     
     Ok(())
 }
