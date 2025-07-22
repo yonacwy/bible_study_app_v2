@@ -3,7 +3,7 @@
 
 ### Version 0.8.0
 - [ ] Notebook Support
-  - [ ] Seperates different notes into notebooks
+  - [ ] Separates different notes into notebooks
   - [ ] Enable/Disable for viewing
   - [ ] See notes from different bible versions
 - [ ] Note viewer
@@ -31,9 +31,9 @@
 
 ### Version 0.5.4: Cloud Saving
 - [x] Cloud saving via Google Drive
-- [ ] Auto saving (at intervals)
-  - [ ] Auto syncing?
-- [ ] Bugfix: Crashes on June 19th Robert Roberts reading, problem parsing 2 John-3 John
+- [ ] ~~Auto saving (at intervals)~~
+  - [ ] ~~Auto syncing?~~
+- [x] Bugfix: Crashes on June 19th Robert Roberts reading, problem parsing 2 John-3 John
 - [ ] Bugfix: Highlight/Note menu not clamped horizontally, and possibly vertically
 - [x] Bugfix: Deleting reference button does not work properly
 - [x] Added footer to all pages
