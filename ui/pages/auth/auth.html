@@ -7,29 +7,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Authorization Complete</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
             font-family: Arial, sans-serif;
             background: #f4f4f9;
             display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
         }
-        .container {
+
+        .message-box {
             background: white;
             padding: 2rem 3rem;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
+
         h1 {
             color: #333;
         }
+
         p {
             color: #666;
             margin-bottom: 2rem;
         }
+
         button {
             background-color: #4CAF50;
             color: white;
@@ -40,15 +55,28 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
+
         button:hover {
             background-color: #45a049;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            background-color: #333;
+            font-style: italic;
+            font-size: 10px;
+            padding: 5px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Authorization Complete</h1>
-        <p>You may now close this window and return to the application.</p>
+        <div class="message-box">
+            <h1>Authorization Complete</h1>
+            <p>You may now close this window and return to the application.</p>
+        </div>
     </div>
+    <footer>Ascribe &copy; 2025</footer>
 </body>
 </html>

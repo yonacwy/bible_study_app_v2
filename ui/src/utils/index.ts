@@ -58,6 +58,8 @@ export function debug_json(value: any, pretty_print: boolean = false)
     }
 }
 
+export type Interval = ReturnType<typeof setInterval>;
+
 /**
  * Should generate a uuid in the version v4, although is not tested
  * @returns 

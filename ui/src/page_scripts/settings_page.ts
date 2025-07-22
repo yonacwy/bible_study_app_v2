@@ -256,12 +256,7 @@ function init_cloud_sync_settings()
             message: 'Are you sure you want to switch accounts?',
             on_confirm: () => cloud_sync.switch_user_account()
         })
-    })
-
-    let test_write_btn = document.getElementById('test-sync-btn')!;
-    test_write_btn.addEventListener('click', e => {
-        cloud_sync.sync_with_cloud();
-    })
+    });
 
     update_cloud_sync_settings();
     cloud_sync.listen_cloud_event(e => {

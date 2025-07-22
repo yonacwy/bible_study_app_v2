@@ -1,5 +1,8 @@
+import * as utils from "../utils/index.js";
+
 let splashElement: HTMLElement | null = null;
 let styleElement: HTMLStyleElement | null = null;
+let text_update_interval: utils.Interval | null = null;
 
 const css = `
 .splash-overlay {
@@ -57,7 +60,10 @@ const css = `
 
 export function spawn_loading_screen(message: string = 'Loading'): void 
 {
-    if (splashElement) return;
+    if (splashElement)
+    {
+        despawn_loading_screen();
+    }
 
     // Inject style
     styleElement = document.createElement("style");
@@ -70,12 +76,28 @@ export function spawn_loading_screen(message: string = 'Loading'): void
     splashElement.innerHTML = `
         <div class="splash-screen">
             <img src="../../../images/Square310x310Logo.png" alt="App logo">
-            <div class="text">${message}...</div>
+            <div class="text" id="loading-screen-text"></div>
             <div class="spinner"></div>
         </div>
     `;
 
     document.body.appendChild(splashElement);
+
+    let interval_index = 0;
+    text_update_interval = setInterval(() => {
+        let text = message + '.'.repeat(interval_index)
+        interval_index += 1;
+        if (interval_index > 3)
+        {
+            interval_index = 0
+        }
+
+        let e = document.getElementById('loading-screen-text');
+        if (e !== null)
+        {
+            e.innerHTML = text;
+        }
+    }, 1000 / 4)
 }
 
 export function despawn_loading_screen(): void 
@@ -90,5 +112,11 @@ export function despawn_loading_screen(): void
     {
         styleElement.remove();
         styleElement = null;
+    }
+
+    if (text_update_interval)
+    {
+        clearInterval(text_update_interval);
+        text_update_interval = null;
     }
 }

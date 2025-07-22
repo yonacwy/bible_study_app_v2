@@ -30,12 +30,13 @@
 - [ ] Support relegated to versions of the Bible where compatible
 
 ### Version 0.5.4: Cloud Saving
-- [ ] Cloud saving via Google Drive
+- [x] Cloud saving via Google Drive
 - [ ] Auto saving (at intervals)
   - [ ] Auto syncing?
 - [ ] Bugfix: Crashes on June 19th Robert Roberts reading, problem parsing 2 John-3 John
 - [ ] Bugfix: Highlight/Note menu not clamped horizontally, and possibly vertically
-- [x] Bugfix: Deleting reference button does not function
+- [x] Bugfix: Deleting reference button does not work properly
+- [x] Added footer to all pages
 
 ### Version 0.5.3: Bug Fixes and Improvements
 - [x] Lots o Bugs fixes
