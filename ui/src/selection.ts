@@ -5,6 +5,7 @@ import { ChapterIndex, Color, ReferenceLocation } from "./bindings.js";
 import * as view_states from "./view_states.js";
 import * as highlights from "./highlights.js";
 import { goto_highlight_editor_page } from "./page_scripts/highlight_editor.js";
+import { show_confirm_popup } from "./popups/confirm_popup.js";
 
 export async function init_selection()
 {
@@ -135,8 +136,8 @@ function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
     }
     else 
     {
-        hide_popup(popup);
         selected_ranges = [];
+        hide_popup(popup);
         return;
     }
     
@@ -176,6 +177,11 @@ function on_selection_stopped(e: MouseEvent, popup: HTMLElement)
 
                 content.style.display = '';
             }
+        }
+    }).then(_ => {
+        if (selected_ranges.length > 0)
+        {
+            show_popup(popup, e); // need to do this later so that the size of the popup is calculated properly
         }
     });
 }
@@ -221,6 +227,7 @@ async function spawn_selection_popup(): Promise<HTMLElement>
     return popup;
 }
 
+const ERASE_PROTECTION_COUNT: number = 20;
 async function spawn_erase_dropdown(popup: HTMLElement): Promise<HTMLElement | null>
 {
     let all_cats = await highlights.get_categories();
@@ -239,11 +246,29 @@ async function spawn_erase_dropdown(popup: HTMLElement): Promise<HTMLElement | n
         color_options: categories,
         on_select: id => {
             popup.classList.add('hidden');
-            erase_highlight(id);
+            erase_highlight(id, selected_ranges);
         },
         on_clear: () => {
             popup.classList.add('hidden');
-            clear_all_highlights()
+
+            let word_count = get_selected_word_count();
+            if (word_count >= ERASE_PROTECTION_COUNT)
+            {
+                // need to make a copy, so that when you deselect words, it doesn't change what you are highlighting
+                let copy: SelectedWordRange[] = [];
+                selected_ranges.forEach(r => copy.push(r));
+
+                show_confirm_popup({
+                    message: `Are you sure you want to erase ALL the highlights for the ${word_count} selected words?`,
+                    on_confirm: _ => {
+                        clear_all_highlights(copy);
+                    }
+                })
+            }
+            else
+            {
+                clear_all_highlights(selected_ranges);
+            }
         },
         select_type: 'erase'
     })
@@ -320,9 +345,16 @@ async function spawn_recent_highlights(popup: HTMLElement): Promise<HTMLElement[
     }).filter(r => r !== null);
 }
 
-async function erase_highlight(id: string)
+function get_selected_word_count(): number
 {
-    let vs = selected_ranges.map(async r => {
+    return selected_ranges.map(r => {
+        return r.end - r.begin + 1;
+    }).reduce((a, v) => a + v, 0);
+}
+
+async function erase_highlight(id: string, ranges: SelectedWordRange[])
+{
+    let vs = ranges.map(async r => {
         let view = await bible.get_chapter_view(r.chapter);
         let [verse_start, word_start] = bible.expand_word_index(view, r.begin);
         let [verse_end, word_end] = bible.expand_word_index(view, r.end);
@@ -345,10 +377,10 @@ async function erase_highlight(id: string)
     });
 }
 
-async function clear_all_highlights(): Promise<void>
+async function clear_all_highlights(ranges: SelectedWordRange[]): Promise<void>
 {
     return (await Promise.all(await highlights.get_sorted_categories().then(cats => cats.map(c => c.id)))).map(id => {
-        return erase_highlight(id);
+        return erase_highlight(id, ranges);
     }).flatten_promise().then(() => {
 
         ON_SELECTION_EVENT.invoke('erased');
