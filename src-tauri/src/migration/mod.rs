@@ -1,10 +1,12 @@
+mod remote_update_migration;
+
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::{app_state::DEFAULT_BIBLE, audio::{reader_behavior::ReaderBehavior, TtsSettings}, settings::Settings};
+use crate::{app_state::DEFAULT_BIBLE, audio::{reader_behavior::ReaderBehavior, TtsSettings}, migration::remote_update_migration::RemoteJsonConverter, settings::Settings};
 
 const SAVE_FIELD_NAME: &str = "save_version";
 pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV7;
@@ -62,13 +64,17 @@ pub fn migrate_save_latest(data: &str) -> MigrationResult {
         Err(err) => return MigrationResult::Error(err),
     };
 
-    migrate_sv0(version, &mut json);
-    migrate_sv1(&mut json);
-    migrate_sv2(&mut json);
-    migrate_sv3(&mut json);
-    migrate_sv4(&mut json);
-    migrate_sv5(&mut json);
-    migrate_sv6(&mut json);
+    if !json.as_object().unwrap().contains_key("note_record_saves")
+    {
+        migrate_sv0(version, &mut json);
+        migrate_sv1(&mut json);
+        migrate_sv2(&mut json);
+        migrate_sv3(&mut json);
+        migrate_sv4(&mut json);
+        migrate_sv5(&mut json);
+        migrate_sv6(&mut json);
+        migrate_sv7(&mut json); // last save version of this type, before remote/local saves
+    }
 
     if CURRENT_SAVE_VERSION != version {
         MigrationResult::Different {
@@ -241,6 +247,13 @@ fn migrate_sv6(json: &mut Value)
     }
 
     json.insert(SAVE_FIELD_NAME.to_owned(), serde_json::to_value(SaveVersion::SV7).unwrap());
+}
+
+fn migrate_sv7(json: &mut Value)
+{
+    if !check_save_field(json, SaveVersion::SV7) { return; }
+
+    *json = RemoteJsonConverter::convert_to_new_format(&json).unwrap();
 }
 
 fn check_save_field(json: &mut Value, expected: SaveVersion) -> bool

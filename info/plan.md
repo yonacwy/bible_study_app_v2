@@ -38,6 +38,7 @@
   - [x] Crashes on June 19th Robert Roberts reading, problem parsing 2 John-3 John
   - [x] Highlight/Note menu not clamped horizontally, and possibly vertically
   - [x] Deleting reference button does not work properly
+  - [x] Audio player auto plays whenever the user changes the behavior
 - [x] Added footer to all pages
 - [x] When erasing all highlights, a confirm popup will be displayed if selecting over 20 words
 

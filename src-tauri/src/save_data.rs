@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use serde_with::serde_as;
 use uuid::Uuid;
 
-use crate::{app_state::{ViewState, DEFAULT_BIBLE}, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::ChapterIndex, cloud_sync::sync_state::CloudSyncStateSave, notes::action::ActionHistory, settings::Settings};
+use crate::{app_state::{ViewState, DEFAULT_BIBLE}, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::ChapterIndex, cloud_sync::sync_state::CloudSyncStateSave, migration::{self, MigrationResult}, notes::action::ActionHistory, settings::Settings};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AppSaveVersion
@@ -29,20 +30,23 @@ impl AppSave
 {
     pub fn load(json: &str) -> (AppSave, bool) 
     {
-        // let (migrated_json, was_migrated) = match migration::migrate_save_latest(json) {
-        //     MigrationResult::Same(str) => (str, false),
-        //     MigrationResult::Different {
-        //         start,
-        //         end,
-        //         migrated,
-        //     } => {
-        //         println!("Migrated from {:?} to {:?}", start, end);
-        //         (migrated, true)
-        //     }
-        //     MigrationResult::Error(err) => panic!("Error on save | {}", err),
-        // };
-        println!("TODO: Implement migration");
-        (serde_json::from_str(&json).unwrap(), false)
+        let (migrated_json, was_migrated) = match migration::migrate_save_latest(json) {
+            MigrationResult::Same(str) => (str, false),
+            MigrationResult::Different {
+                start,
+                end,
+                migrated,
+            } => {
+                println!("Migrated from {:?} to {:?}", start, end);
+                (migrated, true)
+            }
+            MigrationResult::Error(err) => panic!("Error on save | {}", err),
+        };
+
+        let pretty = serde_json::to_string_pretty(&serde_json::from_str::<Value>(&migrated_json).unwrap()).unwrap();
+        println!("{}", pretty);
+
+        (serde_json::from_str(&migrated_json).unwrap(), was_migrated)
     }
 }
 
