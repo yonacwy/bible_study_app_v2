@@ -153,7 +153,7 @@ impl AppData {
 
         let (mut save, was_migrated, no_save) = match file {
             Some(file) => {
-                let (save, migrated) = AppSave::load(&file);
+                let (save, migrated) = AppSave::load(&file, &bibles);
                 app_handle.emit("loaded-tts-save", save.local_device_save.tts_settings).unwrap();
                 (save, migrated, false)
             },

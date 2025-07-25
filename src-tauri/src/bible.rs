@@ -124,6 +124,20 @@ impl ChapterView {
         offset += verse_word_index;
         offset
     }
+
+    pub fn expand_word_index(&self, word_index: u32) -> (u32, u32)
+    {
+        let mut verse = 0;
+        let mut word = word_index as i32;
+
+        while word - self.verses[verse] as i32 >= 0
+        {
+            word -= self.verses[verse] as i32;
+            verse += 1;
+        }
+
+        return (verse as u32, word as u32);
+    }
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]

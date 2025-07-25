@@ -1,7 +1,9 @@
 use std::{collections::HashMap, time::SystemTime};
 use serde::{Deserialize, Serialize};
-use serde_json::{Value, Map};
+use serde_json::Value;
 use uuid::Uuid;
+
+use crate::bible::{Bible, ChapterIndex};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct OldFormat {
@@ -194,14 +196,14 @@ pub struct RemoteJsonConverter;
 impl RemoteJsonConverter 
 {
     /// Convert from the old format to the new format
-    pub fn convert_to_new_format(old_data: &Value) -> Result<Value, Box<dyn std::error::Error>> 
+    pub fn convert_to_new_format(old_data: &Value, bibles: &HashMap<String, impl AsRef<Bible>>) -> Result<Value, Box<dyn std::error::Error>> 
     {
-        let new_format = Self::build_new_format(&old_data)?;
+        let new_format = Self::build_new_format(&old_data, bibles)?;
         let json = serde_json::to_value(&new_format)?;
         Ok(json)
     }
     
-    fn build_new_format(old_format: &Value) -> Result<NewFormat, Box<dyn std::error::Error>> 
+    fn build_new_format(old_format: &Value, bibles: &HashMap<String, impl AsRef<Bible>>) -> Result<NewFormat, Box<dyn std::error::Error>> 
     {
         let current_bible_version = old_format
             .get("current_bible_version")
@@ -210,7 +212,7 @@ impl RemoteJsonConverter
             .to_string();
         
         // Create note record saves based on existing data
-        let note_record_saves = Self::create_note_record_saves(old_format)?;
+        let note_record_saves = Self::create_note_record_saves(old_format, bibles)?;
         
         // Create local device save
         let local_device_save = Self::create_local_device_save(old_format, &current_bible_version)?;
@@ -221,7 +223,7 @@ impl RemoteJsonConverter
         })
     }
     
-    fn create_note_record_saves(old_format: &Value) -> Result<Vec<NoteRecordSave>, Box<dyn std::error::Error>> 
+    fn create_note_record_saves(old_format: &Value, bibles: &HashMap<String, impl AsRef<Bible>>) -> Result<Vec<NoteRecordSave>, Box<dyn std::error::Error>> 
     {
         let mut saves = vec![
             // Empty initial save
@@ -239,6 +241,9 @@ impl RemoteJsonConverter
         if let Some(notebooks) = old_format.get("notebooks").and_then(|n| n.as_object()) {
             for (bible_name, notebook) in notebooks {
                 // Convert existing highlight categories to CreateHighlight actions
+
+                let bible = bibles.get(bible_name).unwrap();
+
                 if let Some(highlight_categories) = notebook.get("highlight_categories").and_then(|h| h.as_object()) {
                     for (category_id, category_data) in highlight_categories {
                         if let Ok(category_obj) = category_data.as_object().ok_or("Invalid category object") {
@@ -259,23 +264,20 @@ impl RemoteJsonConverter
                                     color,
                                     name: category_obj.get("name")
                                         .and_then(|v| v.as_str())
-                                        .unwrap_or("Unnamed")
+                                        .unwrap()
                                         .to_string(),
                                     description: category_obj.get("description")
                                         .and_then(|v| v.as_str())
-                                        .unwrap_or("")
+                                        .unwrap()
                                         .to_string(),
                                     source_type: category_obj.get("source_type")
                                         .and_then(|v| v.as_str())
-                                        .unwrap_or("markdown")
+                                        .unwrap()
                                         .to_string(),
                                     priority: category_obj.get("priority")
                                         .and_then(|v| v.as_u64())
                                         .unwrap_or(5) as u32,
-                                    id: category_obj.get("id")
-                                        .and_then(|v| v.as_str())
-                                        .unwrap_or(category_id)
-                                        .to_string(),
+                                    id: category_id.clone()
                                 }),
                             });
                         }
@@ -283,9 +285,11 @@ impl RemoteJsonConverter
                 }
                 
                 // Convert existing notes to actions
-                if let Some(notes) = notebook.get("notes").and_then(|n| n.as_object()) {
+                if let Some(notes) = notebook.get("notes").and_then(|n| n.as_object()) 
+                {
                     for (_, note_data) in notes {
-                        if let Ok(note) = serde_json::from_value::<Note>(note_data.clone()) {
+                        if let Ok(note) = serde_json::from_value::<Note>(note_data.clone()) 
+                        {
                             // Create note action
                             actions.push(Action {
                                 notebook: bible_name.clone(),
@@ -302,26 +306,42 @@ impl RemoteJsonConverter
                 }
                 
                 // Convert existing highlights (actual highlighted text) to Highlight actions
-                if let Some(annotations) = notebook.get("annotations").and_then(|a| a.as_array()) {
-                    for annotation in annotations {
-                        if let Some(annotation_array) = annotation.as_array() {
-                            if annotation_array.len() >= 2 {
+                if let Some(annotations) = notebook.get("annotations").and_then(|a| a.as_array()) 
+                {
+                    for annotation in annotations 
+                    {
+                        if let Some(annotation_array) = annotation.as_array() 
+                        {
+                            if annotation_array.len() >= 2 
+                            {
                                 let chapter_data = &annotation_array[0];
                                 let highlights_data = &annotation_array[1];
                                 
                                 if let (Some(chapter_obj), Some(highlights_obj)) = 
-                                    (chapter_data.as_object(), highlights_data.as_object()) {
+                                    (chapter_data.as_object(), highlights_data.as_object()) 
+                                {
                                     
                                     let chapter = Chapter {
                                         book: chapter_obj.get("book").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
                                         number: chapter_obj.get("number").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
                                     };
+
+                                    let view = bible.as_ref().get_chapter(ChapterIndex {
+                                        book: chapter.book,
+                                        number: chapter.number
+                                    }).get_view();
                                     
-                                    for (word_id, word_data) in highlights_obj {
-                                        if let Some(word_obj) = word_data.as_object() {
-                                            if let Some(highlights_array) = word_obj.get("highlights").and_then(|h| h.as_array()) {
-                                                for highlight_id in highlights_array {
-                                                    if let Some(highlight_id_str) = highlight_id.as_str() {
+                                    for (word_id, word_data) in highlights_obj 
+                                    {
+                                        if let Some(word_obj) = word_data.as_object() 
+                                        {
+                                            if let Some(highlights_array) = word_obj.get("highlights").and_then(|h| h.as_array()) 
+                                            {
+                                                for highlight_id in highlights_array 
+                                                {
+                                                    if let Some(highlight_id_str) = highlight_id.as_str() 
+                                                    {
+                                                        let (word_index, verse_index) = view.expand_word_index(word_id.parse().unwrap_or(0));
                                                         actions.push(Action {
                                                             notebook: bible_name.clone(),
                                                             bible_name: bible_name.clone(),
@@ -330,10 +350,10 @@ impl RemoteJsonConverter
                                                                 location: Location {
                                                                     chapter: chapter.clone(),
                                                                     range: Range {
-                                                                        verse_start: word_id.parse().unwrap_or(0),
-                                                                        word_start: 0,
-                                                                        verse_end: word_id.parse().unwrap_or(0),
-                                                                        word_end: 0,
+                                                                        verse_start: verse_index,
+                                                                        word_start: word_index,
+                                                                        verse_end: verse_index,
+                                                                        word_end: word_index,
                                                                     },
                                                                 },
                                                             }),
@@ -351,7 +371,8 @@ impl RemoteJsonConverter
             }
         }
         
-        if !actions.is_empty() {
+        if !actions.is_empty() 
+        {
             saves.push(NoteRecordSave {
                 history: History {
                     groups: vec![ActionGroup {
@@ -368,7 +389,8 @@ impl RemoteJsonConverter
         Ok(saves)
     }
     
-    fn create_local_device_save(old_format: &Value, current_bible: &str) -> Result<LocalDeviceSave, Box<dyn std::error::Error>> {
+    fn create_local_device_save(old_format: &Value, current_bible: &str) -> Result<LocalDeviceSave, Box<dyn std::error::Error>> 
+    {
         Ok(LocalDeviceSave {
             save_version: "0".to_string(),
             current_bible_version: current_bible.to_string(),

@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::serde_as;
 use uuid::Uuid;
 
-use crate::{app_state::{ViewState, DEFAULT_BIBLE}, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::ChapterIndex, cloud_sync::sync_state::CloudSyncStateSave, migration::{self, MigrationResult}, notes::action::ActionHistory, settings::Settings};
+use crate::{app_state::{ViewState, DEFAULT_BIBLE}, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::{Bible, ChapterIndex}, cloud_sync::sync_state::CloudSyncStateSave, migration::{self, MigrationResult}, notes::action::ActionHistory, settings::Settings};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AppSaveVersion
@@ -28,9 +30,9 @@ pub struct AppSave
 
 impl AppSave
 {
-    pub fn load(json: &str) -> (AppSave, bool) 
+    pub fn load(json: &str, bibles: &HashMap<String, impl AsRef<Bible>>) -> (AppSave, bool) 
     {
-        let (migrated_json, was_migrated) = match migration::migrate_save_latest(json) {
+        let (migrated_json, was_migrated) = match migration::migrate_save_latest(json, bibles) {
             MigrationResult::Same(str) => (str, false),
             MigrationResult::Different {
                 start,

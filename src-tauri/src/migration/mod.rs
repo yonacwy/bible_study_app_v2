@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::{app_state::DEFAULT_BIBLE, audio::{reader_behavior::ReaderBehavior, TtsSettings}, migration::remote_update_migration::RemoteJsonConverter, settings::Settings};
+use crate::{app_state::DEFAULT_BIBLE, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::Bible, migration::remote_update_migration::RemoteJsonConverter, settings::Settings};
 
 const SAVE_FIELD_NAME: &str = "save_version";
 pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV7;
@@ -53,7 +53,7 @@ pub enum MigrationResult {
     Error(String),
 }
 
-pub fn migrate_save_latest(data: &str) -> MigrationResult {
+pub fn migrate_save_latest(data: &str, bibles: &HashMap<String, impl AsRef<Bible>>) -> MigrationResult {
     let mut json: Value = match serde_json::from_str(data) {
         Ok(ok) => ok,
         Err(err) => return MigrationResult::Error(err.to_string()),
@@ -73,7 +73,7 @@ pub fn migrate_save_latest(data: &str) -> MigrationResult {
         migrate_sv4(&mut json);
         migrate_sv5(&mut json);
         migrate_sv6(&mut json);
-        migrate_sv7(&mut json); // last save version of this type, before remote/local saves
+        migrate_sv7(&mut json, bibles); // last save version of this type, before remote/local saves
     }
 
     if CURRENT_SAVE_VERSION != version {
@@ -249,11 +249,11 @@ fn migrate_sv6(json: &mut Value)
     json.insert(SAVE_FIELD_NAME.to_owned(), serde_json::to_value(SaveVersion::SV7).unwrap());
 }
 
-fn migrate_sv7(json: &mut Value)
+fn migrate_sv7(json: &mut Value, bibles: &HashMap<String, impl AsRef<Bible>>)
 {
     if !check_save_field(json, SaveVersion::SV7) { return; }
 
-    *json = RemoteJsonConverter::convert_to_new_format(&json).unwrap();
+    *json = RemoteJsonConverter::convert_to_new_format(&json, bibles).unwrap();
 }
 
 fn check_save_field(json: &mut Value, expected: SaveVersion) -> bool
