@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::{app_state::DEFAULT_BIBLE, audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::Bible, migration::remote_update_migration::RemoteJsonConverter, settings::Settings};
 
 const SAVE_FIELD_NAME: &str = "save_version";
-pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV7;
+pub const CURRENT_SAVE_VERSION: SaveVersion = SaveVersion::SV8;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SaveVersion {
@@ -29,6 +29,8 @@ pub enum SaveVersion {
     SV6,
     #[serde(rename = "7")]
     SV7,
+    #[serde(rename = "8")]
+    SV8,
 }
 
 impl SaveVersion {
@@ -59,22 +61,24 @@ pub fn migrate_save_latest(data: &str, bibles: &HashMap<String, impl AsRef<Bible
         Err(err) => return MigrationResult::Error(err.to_string()),
     };
 
+    if json.as_object().unwrap().contains_key("note_record_saves") // last save version of this type, before remote/local saves
+    {
+        return MigrationResult::Same(serde_json::to_string(&json).unwrap());
+    }
+
     let version = match SaveVersion::check_save(&json) {
         Ok(ok) => ok,
         Err(err) => return MigrationResult::Error(err),
     };
 
-    if !json.as_object().unwrap().contains_key("note_record_saves")
-    {
-        migrate_sv0(version, &mut json);
-        migrate_sv1(&mut json);
-        migrate_sv2(&mut json);
-        migrate_sv3(&mut json);
-        migrate_sv4(&mut json);
-        migrate_sv5(&mut json);
-        migrate_sv6(&mut json);
-        migrate_sv7(&mut json, bibles); // last save version of this type, before remote/local saves
-    }
+    migrate_sv0(version, &mut json);
+    migrate_sv1(&mut json);
+    migrate_sv2(&mut json);
+    migrate_sv3(&mut json);
+    migrate_sv4(&mut json);
+    migrate_sv5(&mut json);
+    migrate_sv6(&mut json);
+    migrate_sv7(&mut json, bibles);
 
     if CURRENT_SAVE_VERSION != version {
         MigrationResult::Different {

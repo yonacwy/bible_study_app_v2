@@ -45,9 +45,6 @@ impl AppSave
             MigrationResult::Error(err) => panic!("Error on save | {}", err),
         };
 
-        let pretty = serde_json::to_string_pretty(&serde_json::from_str::<Value>(&migrated_json).unwrap()).unwrap();
-        println!("{}", pretty);
-
         (serde_json::from_str(&migrated_json).unwrap(), was_migrated)
     }
 }

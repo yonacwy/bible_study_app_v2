@@ -61,8 +61,6 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
             let app_handle_inner = app_handle.clone();
             
             let result = app_ref.signin(move |e| {
-                app_handle_inner.emit(CLOUD_EVENT_NAME, e.clone()).unwrap();
-
                 if let CloudEvent::SignedIn = e
                 {
                     sync_with_cloud(&app_handle_inner, &app_state_handle, true);
@@ -72,6 +70,8 @@ pub fn run_cloud_command(app_handle: AppHandle, app_state: State<'_, AppState>, 
                         ask_user_if_merge_unowned_save(app_state_handle.clone(), app_handle_inner.clone());
                     }
                 }
+                
+                app_handle_inner.emit(CLOUD_EVENT_NAME, e.clone()).unwrap();
             });
 
             if let Err(e) = result
@@ -166,6 +166,8 @@ fn ask_user_if_merge_unowned_save(app_state_handle: AppStateHandle, app_handle: 
     let user_info = app_ref.get_user_info().expect("This should not be `None` here");
     let user_name = user_info.email.clone().unwrap_or(user_info.sub.clone());
     drop(app_ref); // need to drop the ref so that it does not block
+
+    println!("Asking to merge");
 
     prompt::prompt_user(app_handle.clone(), PromptArgs 
     { 

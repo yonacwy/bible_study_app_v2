@@ -13,7 +13,7 @@ export type SettingsPageData = {
 
 export async function run()
 {
-    cloud_sync.init_cloud_sync_for_page();
+    await cloud_sync.init_cloud_sync_for_page();
     setup_prompt_listener();
     
     let data = utils.decode_from_url(window.location.href) as SettingsPageData;

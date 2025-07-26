@@ -23,6 +23,8 @@ let IS_CLOUD_SYNC_INITIALIZED_FOR_PAGE = false;
 
 export async function init_cloud_sync_for_page()
 {
+    await utils.sleep(100); // fix for a weird debug thing
+
     if (IS_CLOUD_SYNC_INITIALIZED_FOR_PAGE) 
     {
         utils.debug_print('Cloud sync already initialized for this page');
@@ -53,7 +55,7 @@ export async function init_cloud_sync_for_page()
         }
         else if (event_data.type === 'signout_error')
         {
-            spawn_sync_disabled_error_popup(event_data.message);
+            spawn_signout_error_popup(event_data.message);
         }
         else if (event_data.type === 'sync_start')
         {
@@ -87,17 +89,14 @@ export async function init_cloud_sync_for_page()
     });
 
     let signed_in = await is_signed_in();
-
-    // if we are signed in, set it so that we dont ask to sign in again later if when we sign out in the same session
+    
     HAS_ASKED_SIGN_IN_SYNC_STORAGE.set(signed_in || HAS_ASKED_SIGN_IN_SYNC_STORAGE.get()); 
 
     let can_ask = await get_can_ask_sync();
     if (!signed_in && can_ask && !HAS_ASKED_SIGN_IN_SYNC_STORAGE.get())
     {
         spawn_ask_enable_sync_popup();
-        utils.sleep(1000).then(_ => { // hack for a very strange bug that when in debug mode, it may reload right after launch, causing the flag to be set but nothing displayed, as the page refreshed
-            HAS_ASKED_SIGN_IN_SYNC_STORAGE.set(true);
-        });
+        HAS_ASKED_SIGN_IN_SYNC_STORAGE.set(true);
     }
 }
 
@@ -188,7 +187,7 @@ async function invoke_cloud_command(cmd: string, args?: any): Promise<string | n
 {
     if (!IS_CLOUD_SYNC_INITIALIZED_FOR_PAGE)
     {
-        utils.debug_print('WARNING: Invoking a cloud command without initializing')
+        utils.debug_print('WARNING: Invoking a cloud command without initializing: ' + cmd);
     }
 
     let a: string | null = null;
@@ -204,7 +203,7 @@ function spawn_sync_enabled_popup()
     spawn_alert_popup(`Cloud Sync Enabled`, `Cloud sync is now enabled for Ascribe, changes made will now be synced to your Google account`, [
         {
             text: `Close`,
-            callback: (_, p) => p.remove(),
+            callback: null,
             color: 'normal'
         }
     ])
@@ -215,16 +214,13 @@ function spawn_sync_denied_popup()
     spawn_alert_popup(`Cloud Sync Denied`, `Permission for using your Google account for cloud sync has been denied`, [
         {
             text: `Close`,
-            callback: (_, p) => p.remove(),
+            callback: null,
             color: 'normal'
         },
         {
             text: 'Try again',
             color: 'blue',
-            callback: (_, p) => {
-                p.remove();
-                signin_user();
-            }
+            callback: (_) => signin_user()
         }
     ]);
 }
@@ -244,16 +240,13 @@ function spawn_sync_error_popup(error: string)
     spawn_alert_popup(`Cloud Sync Error`, error, [
         {
             text: `Close`,
-            callback: (_, p) => p.remove(),
+            callback: null,
             color: 'normal'
         },
         {
             text: 'Try again',
             color: 'blue',
-            callback: (_, p) => {
-                p.remove();
-                signin_user();
-            }
+            callback: (_) => signin_user()
         }
     ]);
 }
@@ -263,27 +256,24 @@ function spawn_sync_disabled_popup()
     spawn_alert_popup(`Cloud Sync Disabled`, `Cloud sync is now disabled for Ascribe, changes made will now NOT BE synced to your Google account`, [
         {
             text: `Close`,
-            callback: (_, p) => p.remove(),
+            callback: null,
             color: 'normal'
         }
     ])
 }
 
-function spawn_sync_disabled_error_popup(error: string)
+function spawn_signout_error_popup(error: string)
 {
     spawn_alert_popup(`Cloud Sync Error`, `Error when signing out from Google: ${error}`, [
         {
             text: `Close`,
-            callback: (_, p) => p.remove(),
+            callback: null,
             color: 'normal'
         },
         {
             text: 'Try again',
             color: 'blue',
-            callback: (_, p) => {
-                p.remove();
-                signout_user();
-            }
+            callback: _ => signout_user()
         }
     ]);
 }
@@ -293,16 +283,13 @@ function spawn_refresh_sync_error_popup()
     spawn_alert_popup(`Cloud Sync Error`, `Error when trying to refresh your Google cloud session. To reenable it, please check your internet connection and restart, log back in again.`, [
         {
             text: `Close`,
-            callback: (_, p) => p.remove(),
+            callback: null,
             color: 'normal'
         },
         {
             text: 'Login',
             color: 'blue',
-            callback: (_, p) => {
-                p.remove();
-                signin_user();
-            }
+            callback: _ => signin_user(),
         }
     ]);
 }
@@ -313,23 +300,17 @@ function spawn_ask_enable_sync_popup()
         {
             text: 'Yes',
             color: 'blue',
-            callback: (_, p) => {
-                p.remove();
-                signin_user();
-            }
+            callback: _ => signin_user(),
         },
         {
             text: 'No',
             color: 'normal',
-            callback: (_, p) => p.remove(),
+            callback: null,
         },
         {
             text: `Don't ask Again`,
             color: 'red',
-            callback: (_, p) => {
-                p.remove();
-                set_can_ask_sync(false);
-            }
+            callback: _ => set_can_ask_sync(false)
         }
     ]);
 }

@@ -25,12 +25,11 @@ export async function setup_prompt_listener(): Promise<void>
                 text: o.name,
                 tooltip: o.tooltip ?? undefined,
                 color: o.color,
-                callback: (_, p) => {
-                    p.remove();
-                    invoke_response(i);
-                }
+                callback: _ => invoke_response(i)
             }
         })
+
+        utils.debug_print(`prompting = ${data.title}`);
 
         spawn_alert_popup(data.title, data.message, options)
     }).then(_ => {

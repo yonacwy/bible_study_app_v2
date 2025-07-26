@@ -7,7 +7,7 @@ export type AlertPopupOption =
     color: 'normal' | 'red' | 'blue',
     text: string,
     tooltip?: string,
-    callback: (e: MouseEvent, p: HTMLElement) => void,
+    callback: ((e: MouseEvent) => void) | null,
 }
 
 export function spawn_alert_popup(title_text: string, message: string, options: AlertPopupOption[])
@@ -27,7 +27,14 @@ export function spawn_alert_popup(title_text: string, message: string, options: 
                 options.forEach(o => {
                     utils.spawn_element('button', ['button', o.color], button => {
                         button.innerHTML = o.text;
-                        button.addEventListener('click', e => o.callback(e, background));
+                        button.addEventListener('click', e => {
+                            if(o.callback)
+                            {
+                                o.callback(e);
+                            }
+                            background.remove();
+                            display_only_top_alert();
+                        });
                         button.title = o.tooltip ?? '';
                     }, container);
                 })
@@ -36,15 +43,7 @@ export function spawn_alert_popup(title_text: string, message: string, options: 
         }, background);
     }, document.body);
 
-    let alerts = Array.from(document.getElementsByClassName('alert-popup')).map(e => e as HTMLElement);
-    alerts.forEach(element => {
-        element.style.display = 'none';
-    });
-
-    if (alerts.length > 0) 
-    {
-        alerts[alerts.length - 1].style.display = 'block';
-    }
+    display_only_top_alert();
 }
 
 export function spawn_alert_popup_basic(title_text: string, message: string, on_ok?: () => void)
@@ -53,10 +52,22 @@ export function spawn_alert_popup_basic(title_text: string, message: string, on_
         {
             color: 'blue',
             text: 'Ok',
-            callback: (_, p) => {
+            callback: (_) => {
                 if (on_ok) { on_ok() }
-                p.remove()
             },
         }
-    ])
+    ]);
+}
+
+function display_only_top_alert() 
+{
+    let alerts = Array.from(document.getElementsByClassName('alert-popup')).map(e => e as HTMLElement);
+    alerts.forEach(element => {
+        element.style.display = 'none';
+    });
+
+    if (alerts.length > 0) 
+        {
+        alerts[alerts.length - 1].style.display = 'block';
+    }
 }

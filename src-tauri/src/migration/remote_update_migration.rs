@@ -341,7 +341,7 @@ impl RemoteJsonConverter
                                                 {
                                                     if let Some(highlight_id_str) = highlight_id.as_str() 
                                                     {
-                                                        let (word_index, verse_index) = view.expand_word_index(word_id.parse().unwrap_or(0));
+                                                        let (verse_index, word_index) = view.expand_word_index(word_id.parse().unwrap_or(0));
                                                         actions.push(Action {
                                                             notebook: bible_name.clone(),
                                                             bible_name: bible_name.clone(),

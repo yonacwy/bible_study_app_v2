@@ -253,7 +253,7 @@ export async function display_migration_popup()
             {
                 text: 'Ok',
                 color: 'blue',
-                callback: (_, p) => p.remove(),
+                callback: null,
             }
         ]
 
@@ -272,7 +272,7 @@ export async function display_no_save_popup()
             {
                 text: 'Ok',
                 color: 'blue',
-                callback: (_, p) => p.remove(),
+                callback: null,
             }
         ]
 
