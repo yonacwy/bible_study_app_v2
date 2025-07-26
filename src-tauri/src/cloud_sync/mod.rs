@@ -191,6 +191,12 @@ fn ask_user_if_merge_unowned_save(app_state_handle: AppStateHandle, app_handle: 
         Some(true) => {
             app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncStart).unwrap();
             app_state_handle.get_ref().take_and_merge_unowned_save();
+            if let Err(e) = app_state_handle.get_ref().sync_with_cloud()
+            {
+                let message = format!("There was an error when syncing with your data. It was merged successfully, but it has not been pushed to the cloud. To push it to the cloud, go out of settings, and press the sync button. Error: {}", e);
+                app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd { error: Some(message), display_popup: None }).unwrap();
+                return;
+            }
             app_handle.emit(CLOUD_EVENT_NAME, CloudEvent::SyncEnd { error: None, display_popup: None }).unwrap();
             prompt::notify_user(app_handle, "Save Merged".into(), "You chose to merge your unlinked data. It is now moved into your account save.".into());
         },

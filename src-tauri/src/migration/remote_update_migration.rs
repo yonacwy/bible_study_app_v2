@@ -157,14 +157,20 @@ struct Range {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct ViewState {
-    #[serde(rename = "type")]
-    pub view_type: String,
-    pub chapter: Chapter,
-    pub verse_range: Option<VerseRange>,
-    pub scroll: f64,
+#[serde(rename_all = "snake_case", tag = "type")]
+enum ViewState {
+    Chapter {
+        chapter: ChapterIndex,
+        verse_range: Option<VerseRange>,
+        scroll: f32,
+    },
+    Search {
+        words: Vec<String>,
+        display_index: u32,
+        scroll: f32,
+        note_editing_location: Option<Location>,
+    },
 }
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct VerseRange {
     pub start: u32,
