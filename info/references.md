@@ -7,3 +7,4 @@
   - [ASV](https://github.com/scrollmapper/bible_databases/tree/master/sources/en/ASV)
   - [BBE](https://github.com/scrollmapper/bible_databases/tree/master/sources/en/BBE)
   - [YLT](https://github.com/scrollmapper/bible_databases/tree/master/sources/en/YLT)
+- [Google OAuth](https://developers.google.com/identity/protocols/oauth2): SHOULD NOT NEED TO HIDE SECRET??

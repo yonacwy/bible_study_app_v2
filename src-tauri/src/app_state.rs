@@ -1,12 +1,14 @@
+use cloud_sync::GoogleUserInfo;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use std::{cell::RefCell, collections::HashMap, io::Read, ops::Deref, path::PathBuf, sync::{Arc, Mutex, MutexGuard}, thread::spawn};
+use std::{cell::RefCell, collections::HashMap, io::Read, ops::Deref, path::PathBuf, sync::{Arc, Mutex, MutexGuard, RwLock}, thread::spawn};
 use tauri::{
     path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Runtime
 };
 
 use crate::{
-    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, debug_release_val, migration::{self, MigrationResult, SaveVersion, CURRENT_SAVE_VERSION}, notes::*, settings::Settings
+    audio::{reader_behavior::ReaderBehavior, TtsSettings}, bible::*, bible_parsing, cloud_sync::{sync_state::CloudSyncState, CloudEvent, RemoteSave}, debug_release_val, migration::{SaveVersion, CURRENT_SAVE_VERSION}, notes::{action::{Action, ActionHistory, ActionType, NotebookActionHandler}, *}, save_data::{AppSave, LocalDeviceSave, LocalDeviceSaveVersion, NotebookRecordSave, NotebookRecordSaveVersion}, settings::Settings
 };
 
 pub const SAVE_NAME: &str = "save.json";
@@ -36,6 +38,7 @@ pub const BIBLE_PATHS: &[&str] = &[
     },
 ];
 
+/// Is a locking reference to the internal `AppData` of the `AppState`
 pub struct AppStateRef<'a>(MutexGuard<'a, Option<AppData>>);
 
 impl<'a> Deref for AppStateRef<'a>
@@ -45,6 +48,18 @@ impl<'a> Deref for AppStateRef<'a>
     fn deref(&self) -> &Self::Target 
     {
         self.0.as_ref().unwrap()
+    }
+}
+
+/// A struct used to send the `AppState` across threads, without locking it. 
+#[derive(Clone)]
+pub struct AppStateHandle(Arc<Mutex<Option<AppData>>>);
+
+impl AppStateHandle
+{
+    pub fn get_ref(&self) -> AppStateRef
+    {
+        AppStateRef(self.0.lock().unwrap())
     }
 }
 
@@ -78,6 +93,11 @@ impl AppState
         self.0.lock().unwrap()
     }
 
+    pub fn get_handle(&self) -> AppStateHandle
+    {
+        AppStateHandle(self.0.clone())
+    }
+
     pub fn is_initialized(&self) -> bool
     {
         self.0.lock().unwrap().is_some()
@@ -90,7 +110,8 @@ pub struct AppData {
     
     pub save_version: SaveVersion,
     
-    notebooks: Mutex<RefCell<HashMap<String, Notebook>>>,
+    // The key is the owner id of the user, basically their drive account
+    notebook_handlers: RwLock<HashMap<Option<String>, NotebookActionHandler>>,
 
     view_state_index: Mutex<RefCell<usize>>,
     view_states: Mutex<RefCell<Vec<ViewState>>>,
@@ -104,21 +125,8 @@ pub struct AppData {
     reader_behavior: Mutex<RefCell<ReaderBehavior>>,
 
     recent_highlights: Mutex<RefCell<Vec<Uuid>>>,
-}
 
-#[derive(Serialize, Deserialize)]
-struct AppSave {
-    current_bible_version: String,
-    notebooks: HashMap<String, Notebook>,
-    save_version: SaveVersion,
-    view_state_index: usize,
-    view_states: Vec<ViewState>,
-    editing_note: Option<String>,
-    settings: Settings,
-    selected_reading: u32,
-    tts_settings: TtsSettings,
-    reader_behavior: ReaderBehavior,
-    recent_highlights: Vec<Uuid>,
+    sync_state: RwLock<CloudSyncState>,
 }
 
 impl AppData {
@@ -145,41 +153,22 @@ impl AppData {
 
         let (mut save, was_migrated, no_save) = match file {
             Some(file) => {
-                let (save, migrated) = Self::load(&file);
-                app_handle.emit("loaded-tts-save", save.tts_settings).unwrap();
+                let (save, migrated) = AppSave::load(&file, &bibles);
+                app_handle.emit("loaded-tts-save", save.local_device_save.tts_settings).unwrap();
                 (save, migrated, false)
             },
             None => {
-                let chapter = ChapterIndex { book: 0, number: 0 };
-                let view_states = vec![ViewState::Chapter {
-                    chapter,
-                    verse_range: None,
-                    scroll: 0.0,
-                }];
-
-                (AppSave {
-                    notebooks: HashMap::new(),
-                    current_bible_version: DEFAULT_BIBLE.to_owned(),
-                    save_version: CURRENT_SAVE_VERSION,
-                    view_state_index: 0,
-                    view_states,
-                    editing_note: None,
-                    settings: Settings::default(),
-                    selected_reading: 0,
-                    tts_settings: TtsSettings::default(),
-                    reader_behavior: ReaderBehavior::default(),
-                    recent_highlights: vec![],
-                }, false, true)
+                (AppSave::default(), false, true)
             }
         };
 
-        if save.view_state_index >= save.view_states.len() {
-            save.view_state_index = save.view_states.len() - 1;
+        if save.local_device_save.view_state_index >= save.local_device_save.view_states.len() {
+            save.local_device_save.view_state_index = save.local_device_save.view_states.len() - 1;
         }
 
-        let current_bible_version = if bibles.contains_key(&save.current_bible_version)
+        save.local_device_save.current_bible_version = if bibles.contains_key(&save.local_device_save.current_bible_version)
         {
-            save.current_bible_version.clone()
+            save.local_device_save.current_bible_version.clone()
         }
         else 
         {
@@ -190,9 +179,9 @@ impl AppData {
             chapter,
             scroll: _,
             verse_range,
-        } = &mut save.view_states[save.view_state_index]
+        } = &mut save.local_device_save.view_states[save.local_device_save.view_state_index]
         {
-            let bible = &bibles.get(&save.current_bible_version).map_or(bibles.get(DEFAULT_BIBLE).unwrap(), |b| b);
+            let bible = &bibles.get(&save.local_device_save.current_bible_version).map_or(bibles.get(DEFAULT_BIBLE).unwrap(), |b| b);
 
             if chapter.book >= bible.books.len() as u32
                 || chapter.number >= bible.books[chapter.book as usize].chapters.len() as u32
@@ -208,20 +197,26 @@ impl AppData {
             }
         }
 
+        let handlers = save.note_record_saves.into_iter().map(|notebook| {
+            let action_handler = NotebookActionHandler::new(notebook.history, &bibles);
+            (notebook.owner_id, action_handler)
+        }).collect::<HashMap<_, _>>();
+
         Self {
             bibles,
-            current_bible_version: Mutex::new(RefCell::new(current_bible_version)),
+            current_bible_version: Mutex::new(RefCell::new(save.local_device_save.current_bible_version)),
             save_version: CURRENT_SAVE_VERSION,
-            notebooks: Mutex::new(RefCell::new(save.notebooks)),
-            view_state_index: Mutex::new(RefCell::new(save.view_state_index)),
-            view_states: Mutex::new(RefCell::new(save.view_states)),
-            editing_note: Mutex::new(RefCell::new(save.editing_note)),
+            notebook_handlers: RwLock::new(handlers),
+            view_state_index: Mutex::new(RefCell::new(save.local_device_save.view_state_index)),
+            view_states: Mutex::new(RefCell::new(save.local_device_save.view_states)),
+            editing_note: Mutex::new(RefCell::new(save.local_device_save.editing_note)),
             need_display_migration: Mutex::new(RefCell::new(was_migrated)),
             need_display_no_save: Mutex::new(RefCell::new(no_save)),
-            settings: Mutex::new(RefCell::new(save.settings)),
-            selected_reading: Mutex::new(RefCell::new(save.selected_reading)),
-            reader_behavior: Mutex::new(RefCell::new(save.reader_behavior)),
-            recent_highlights: Mutex::new(RefCell::new(save.recent_highlights)),
+            settings: Mutex::new(RefCell::new(save.local_device_save.settings)),
+            selected_reading: Mutex::new(RefCell::new(save.local_device_save.selected_reading)),
+            reader_behavior: Mutex::new(RefCell::new(save.local_device_save.reader_behavior)),
+            recent_highlights: Mutex::new(RefCell::new(save.local_device_save.recent_highlights)),
+            sync_state: RwLock::new(CloudSyncState::from_save(save.local_device_save.cloud_sync_save)), 
         }
     }
 
@@ -232,27 +227,41 @@ impl AppData {
         let view_state_index = self.get_view_state_index();
 
         let view_states = self.view_states.lock().unwrap().borrow().clone();
-        let notebooks = self.notebooks.lock().unwrap().borrow().clone();
+        let mut handlers = self.notebook_handlers.try_write().unwrap();
         let current_bible_version = self.current_bible_version.lock().unwrap().borrow().clone();
         let editing_note = self.editing_note.lock().unwrap().borrow().clone();
         let settings = self.settings.lock().unwrap().borrow().clone();
-        let save_version = self.save_version;
         let selected_reading = self.selected_reading.lock().unwrap().borrow().clone();
         let reader_behavior = self.reader_behavior.lock().unwrap().borrow().clone();
         let recent_highlights = self.recent_highlights.lock().unwrap().borrow().clone();
+        let cloud_sync_save = self.sync_state.try_read().unwrap().get_save();
 
-        let save = AppSave {
-            notebooks,
+        let note_record_saves = handlers.iter_mut().map(|(owner, handler)| {
+            handler.commit_group();  // make sure we have all actions committed
+            NotebookRecordSave {
+                history: handler.get_history().clone(),
+                save_version: NotebookRecordSaveVersion::CURRENT_SAVE_VERSION,
+                owner_id: owner.clone(),
+            }
+        }).collect_vec();
+
+        let local_device_save = LocalDeviceSave {
+            save_version: LocalDeviceSaveVersion::CURRENT_SAVE_VERSION,
             current_bible_version,
-            save_version,
             view_state_index,
-            editing_note,
             view_states,
+            editing_note,
             settings,
             selected_reading,
             tts_settings,
             reader_behavior,
-            recent_highlights
+            recent_highlights,
+            cloud_sync_save,
+        };
+
+        let save = AppSave {
+            note_record_saves,
+            local_device_save,
         };
 
         let save_json = serde_json::to_string_pretty(&save).unwrap();
@@ -260,22 +269,6 @@ impl AppData {
             .resolve(SAVE_NAME, BaseDirectory::Resource)
             .expect("Error getting save path");
         std::fs::write(path, save_json).expect("Failed to write to save path");
-    }
-
-    fn load(json: &str) -> (AppSave, bool) {
-        let (migrated_json, was_migrated) = match migration::migrate_save_latest(json) {
-            MigrationResult::Same(str) => (str, false),
-            MigrationResult::Different {
-                start,
-                end,
-                migrated,
-            } => {
-                println!("Migrated from {:?} to {:?}", start, end);
-                (migrated, true)
-            }
-            MigrationResult::Error(err) => panic!("Error on save | {}", err),
-        };
-        (serde_json::from_str(&migrated_json).unwrap(), was_migrated)
     }
 
     pub fn get_view_state_index(&self) -> usize {
@@ -344,17 +337,32 @@ impl AppData {
         self.bibles.keys().into_iter()
     }
 
-    pub fn read_notes<F, R>(&self, mut f: F) -> R
-    where
-        F: FnMut(&mut Notebook) -> R,
+    pub fn read_current_notebook<F, R>(&self, mut f: F) -> R
+        where F : FnMut(&Notebook) -> R
     {
-        let binding = self.notebooks.lock().unwrap();
-        let mut notebooks = binding.borrow_mut();
+        let mut handlers = self.notebook_handlers.try_write().unwrap();
+        let owner_id = self.sync_state.try_read().unwrap().get_owner_id();
+        let handler = handlers.entry(owner_id).or_insert(NotebookActionHandler::new(ActionHistory::new(), &self.bibles));
 
         let current_bible_version = self.get_current_bible_version();
 
-        let notebook = notebooks.entry(current_bible_version).or_default();
+        let notebook = handler.get_or_insert_notebook(current_bible_version);
         f(notebook)
+    }
+
+    pub fn run_action_on_current_notebook(&self, action_type: ActionType)
+    {
+        let mut handlers = self.notebook_handlers.try_write().unwrap();
+        let owner_id = self.sync_state.try_read().unwrap().get_owner_id();
+        let handler = handlers.entry(owner_id).or_insert(NotebookActionHandler::new(ActionHistory::new(), &self.bibles));
+
+        let action = Action {
+            notebook: self.get_current_bible_version(),
+            bible_name: self.get_current_bible_version(),
+            action: action_type,
+        };
+
+        handler.push_action(action, &self.bibles);
     }
 
     pub fn read_editing_note<F, R>(&self, mut f: F) -> R
@@ -363,6 +371,13 @@ impl AppData {
     {
         let binding = self.editing_note.lock().unwrap();
         let mut editing_note = binding.borrow_mut();
+
+        // check to see if the editing note exists in this context. It may not exist if the current notebook is changed
+        if editing_note.as_ref().is_some_and(|id| !self.read_current_notebook(|notebook| notebook.has_note(&id)))
+        {
+            *editing_note = None;
+        }
+
         f(&mut editing_note)
     }
 
@@ -419,6 +434,113 @@ impl AppData {
         let binding = self.recent_highlights.lock().unwrap();
         let mut recent_highlights = binding.borrow_mut();
         f(&mut *recent_highlights)
+    }
+
+    pub fn get_remote_save(&self) -> RemoteSave
+    {
+        let mut handlers = self.notebook_handlers.try_write().unwrap();
+        let owner_id = self.sync_state.try_read().unwrap().get_owner_id();
+        let handler = handlers.entry(owner_id).or_insert(NotebookActionHandler::new(ActionHistory::new(), &self.bibles));
+
+        let note_record_save = NotebookRecordSave {
+            history: handler.get_history().clone(),
+            save_version: NotebookRecordSaveVersion::CURRENT_SAVE_VERSION,
+            owner_id: None,
+        };
+
+        RemoteSave { note_record_save }
+    }
+
+    pub fn is_signed_in(&self) -> bool
+    {
+        self.sync_state.try_read().unwrap().is_signed_in()
+    }
+
+    pub fn get_user_info(&self) -> Option<GoogleUserInfo>
+    {
+        self.sync_state.try_read().unwrap().get_user_info()
+    }
+
+    pub fn signin(&self, on_event: impl Fn(CloudEvent) + Sync + Send + 'static) -> Result<(), String>
+    {
+        let mut client = self.sync_state.try_write().unwrap();
+        client.signin(on_event)
+    }
+
+    pub fn signout(&self) -> Result<(), String>
+    {
+        let mut client = self.sync_state.try_write().unwrap();
+        client.signout()
+    }
+
+    pub fn read_ask_enable_sync<F, R>(&self, mut f: F) -> R 
+        where F : FnMut(&mut bool) -> R
+    {
+        let mut client = self.sync_state.try_write().unwrap();
+        f(&mut client.can_ask_enable_sync)
+    }
+
+    pub fn get_refresh_sync_error(&self) -> Option<String>
+    {
+        self.sync_state.try_read().unwrap().get_refresh_sync_error().clone()
+    }
+
+    pub fn sync_with_cloud(&self) -> Result<(), String>
+    {
+        let user_id = self.get_user_info().map(|i| i.sub);
+
+        let remote = self.sync_state.try_read().unwrap().read_remote_save()?;
+
+        let mut handlers = self.notebook_handlers.try_write().unwrap();
+        let handler = handlers.entry(user_id.clone()).or_insert(NotebookActionHandler::new(ActionHistory::new(), &self.bibles));
+        let local = handler.get_history().clone();
+
+        let merged = match remote
+        {
+            Some(remote) => ActionHistory::merge(remote.note_record_save.history, local),
+            None => local
+        };
+
+        let sync_state = self.sync_state.try_read().unwrap();
+        let remote_save = RemoteSave { note_record_save: NotebookRecordSave { 
+            history: merged.clone(), 
+            save_version: NotebookRecordSaveVersion::CURRENT_SAVE_VERSION, 
+            owner_id: user_id, 
+        }};
+        
+        sync_state.write_remote_save(&remote_save)?;
+
+        *handler = NotebookActionHandler::new(merged, &self.bibles);
+
+        Ok(())
+    }
+
+    pub fn is_unowned_save_empty(&self) -> bool
+    {
+        match self.notebook_handlers.try_read().unwrap().get(&None)
+        {
+            Some(handler) => handler.is_empty(),
+            None => true,
+        }
+    }
+
+    pub fn take_and_merge_unowned_save(&self)
+    {
+        let Some(user_id) = self.get_user_info().map(|u| u.sub) else {
+            return;
+        };
+
+        let mut handlers = self.notebook_handlers.try_write().unwrap();
+
+        let Some(mut unowned_handler) = handlers.remove(&None) else {
+            return;
+        };
+
+        let user_handler = handlers.entry(Some(user_id))
+            .or_insert(NotebookActionHandler::new(ActionHistory::new(), &self.bibles));
+
+        let merged = ActionHistory::merge(user_handler.get_history().clone(), unowned_handler.get_history().clone());
+        *user_handler = NotebookActionHandler::new(merged, &self.bibles);
     }
 
     fn get_bible_paths<R>(path_resolver: &PathResolver<R>) -> Vec<PathBuf>

@@ -82,3 +82,5 @@ export const JOIN: string = '../images/text_editor/light-arrows-to-dot.svg';
 export const SAVE: string = '../images/text_editor/light-floppy-disk.svg';
 export const CLEAR: string = '../images/light-circle-xmark.svg';
 export const DO_NOT_ENTER: string = '../images/light-do-not-enter.svg';
+export const GOOGLE_DRIVE: string = '../images/brands-google-drive.svg';
+export const CLOUD_UPLOAD: string = '../images/light-cloud-arrow-up.svg';

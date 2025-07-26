@@ -6,3 +6,4 @@
 - Error formatting json content when editing a note (possibly if note is empty???)
 - Edit note button needs left margin
 - If open side popup, then shrink page to smallest it can go, horizontal scroll will appear and will persist even if the popup is closed
+- Audio player auto plays when behavior changed

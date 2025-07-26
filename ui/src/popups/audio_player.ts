@@ -332,7 +332,7 @@ export function init_player()
     }
 
     behavior_state.on_behavior_changed.add_listener(_ => {
-        on_play_requested();
+        player_pause();
     });
 
     behavior_state.on_timer_event.add_listener(e => {
@@ -739,7 +739,6 @@ async function player_pause()
 
 async function on_play_requested(): Promise<boolean>
 {
-
     if (AUDIO_PLAYER_DATA === null) return true;
     let chapter = await bible.get_chapter();
     let verses = await bible.get_verse_range();
@@ -752,6 +751,7 @@ async function on_play_requested(): Promise<boolean>
         verses,
     };
     
+    // If the section we are currently on is different then what is requested, we go to that location, and play
     if (!utils.is_equivalent(section, current_section))
     {
         PLAYER_DATA_STORAGE.update(d => {

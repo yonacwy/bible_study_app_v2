@@ -4,6 +4,8 @@ import * as pages from "./pages.js";
 import * as settings from "../settings.js";
 import * as popup from "../popups/confirm_popup.js";
 import * as view_states from "../view_states.js";
+import * as cloud_sync from "../cloud_sync.js";
+import { setup_prompt_listener } from "../utils/prompt.js";
 
 export type SettingsPageData = {
     old_path: string,
@@ -11,6 +13,9 @@ export type SettingsPageData = {
 
 export async function run()
 {
+    await cloud_sync.init_cloud_sync_for_page();
+    setup_prompt_listener();
+    
     let data = utils.decode_from_url(window.location.href) as SettingsPageData;
     init_settings_page_header({
         middle: [],
@@ -36,6 +41,7 @@ export async function run()
     });
 
     init_apply_buttons();
+    init_cloud_sync_settings();
     
 
     document.body.style.visibility = 'visible';
@@ -229,6 +235,56 @@ async function init_font_dropdown()
     callbacks.push(() => on_value_changed(d_font));
 }
 
+function init_cloud_sync_settings()
+{
+    let sign_in_btn = document.getElementById('sign-in-btn')!;
+    sign_in_btn.addEventListener('click', e => {
+        cloud_sync.signin_user();
+    });
+
+    let sign_out_btn = document.getElementById('sign-out-btn')!;
+    sign_out_btn.addEventListener('click', e => {
+        popup.show_confirm_popup({
+            message: 'Are you sure you want to sign out?',
+            on_confirm: () => cloud_sync.signout_user()
+        })
+    });
+
+    let switch_account_btn = document.getElementById('switch-account-btn')!;
+    switch_account_btn.addEventListener('click', e => {
+        popup.show_confirm_popup({
+            message: 'Are you sure you want to switch accounts?',
+            on_confirm: () => cloud_sync.switch_user_account()
+        })
+    });
+
+    update_cloud_sync_settings();
+    cloud_sync.listen_cloud_event(e => {
+        update_cloud_sync_settings();
+    });
+}
+
+function update_cloud_sync_settings()
+{
+    cloud_sync.is_signed_in().then(is_signed_in => {
+        if (is_signed_in)
+        {
+            document.getElementById('signed-in-settings')!.hide(false);
+            document.getElementById('not-signed-in-settings')!.hide(true);
+            
+            cloud_sync.get_user_info().then(user_info => {
+                let account_name = user_info!.email ?? user_info!.id;
+                document.getElementById('sync-account-name')!.innerHTML = account_name;
+            })
+        }
+        else 
+        {
+            document.getElementById('signed-in-settings')!.hide(true);
+            document.getElementById('not-signed-in-settings')!.hide(false);
+        }
+    })
+}
+
 function init_clear_history_button()
 {
     document.getElementById('clear-history')?.addEventListener('click', e => {
@@ -237,8 +293,8 @@ function init_clear_history_button()
             on_confirm: () => {
                 view_states.clear_view_states();
             }
-        })
-    })
+        });
+    });
 }
 
 function init_open_save_path()

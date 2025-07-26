@@ -4,7 +4,7 @@
 @import "./shared/slider.less";
 
 
-@setting-width: 400px * @ui-scale;
+@setting-width: 500px * @ui-scale;
 
 @button-blue: #5bc0de;
 @button-red: #d9534f;
@@ -116,6 +116,95 @@
 
     button.reset-btn {
         .setting-color-button(@button-red)
+    }
+}
+
+.cloud-settings {
+    position: relative;
+    @spacing-px: 20px;
+    margin-top: 50px;
+
+    background-color: white;
+    border: 1px solid #ccc;
+    .rounded-border();
+    .drop-shadow-m();
+    display: flex;
+    flex-direction: column;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    width: @setting-width;
+
+    justify-content: center;
+    align-items: center;
+
+    padding-top: @spacing-px;
+    padding-bottom: @spacing-px;
+
+    h3 {
+        margin: 0px;
+        margin-bottom: @spacing-px;
+        padding: 0px;
+        .font-large();
+    }
+
+    img {
+        width: @button-size + 2 * @button-margin;
+        height: @button-size + 2 * @button-margin;
+        
+        position: absolute;
+        right: 15px;
+        top: 15px;
+    }
+
+    .cloud-settings-content {
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+
+        .cloud-settings-text {
+            text-align: center;
+            padding-left: 20px;
+            padding-right: 20px;
+            .font-medium();
+        }
+
+        .button-container {
+            display: flex;
+            width: 100%;
+            box-sizing: border-box;
+            align-items: center;
+            justify-content: center;
+            gap: 10px * @ui-scale;
+            margin-top: 30px;
+            width: 70%;
+
+            button {
+                padding: 5px;
+                border: none;
+                border-radius: 3px;
+                cursor: pointer;
+                color: white;
+                flex: 1;
+                
+                .font-medium();
+
+                &.red {
+                    .setting-color-button(@button-red);
+                }
+
+                &.blue {
+                    .setting-color-button(@button-blue);
+                }
+
+                &.gray {
+                    .setting-color-button(@button-grey);
+                }
+            }
+        }
     }
 }
 

@@ -107,6 +107,36 @@ impl ReadingsDatabase
     fn get_rr_readings(&self, month: u32, day: u32) -> Vec<Reading>
     {
         if month == 1 && day == 28 { return vec![]; } // fix for leap year
+        if month == 5 && day == 18 // fix for June 19th, where the format is different
+        {
+            return vec![
+                Reading {
+                    prefix: None,
+                    book: "Judges".into(),
+                    chapter: 20,
+                    range: None,
+                },
+                Reading {
+                    prefix: None,
+                    book: "Isaiah".into(),
+                    chapter: 42,
+                    range: None,
+                },
+                Reading {
+                    prefix: Some(2),
+                    book: "John".into(),
+                    chapter: 0,
+                    range: None,
+                },
+                Reading {
+                    prefix: Some(3),
+                    book: "John".into(),
+                    chapter: 0,
+                    range: None,
+                },
+            ]
+        }
+
         let month_readings = self.robert_roberts.children().find(|c| {
             c.is("month", NSChoice::Any) && 
             c.attr("num").is_some_and(|num| {

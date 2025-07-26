@@ -3,7 +3,7 @@
 
 ### Version 0.8.0
 - [ ] Notebook Support
-  - [ ] Seperates different notes into notebooks
+  - [ ] Separates different notes into notebooks
   - [ ] Enable/Disable for viewing
   - [ ] See notes from different bible versions
 - [ ] Note viewer
@@ -17,8 +17,30 @@
 - [ ] IOS
 - [ ] Linux?
 
-### Version 0.6.0: Cloud Saving
-- [ ] Cloud saving via Google Drive
+### Version 0.6.0: Lexicon Support
+- [ ] Strong's
+- [ ] Brown's Driver's Brig's
+- [ ] Treasury of Scriptural Knowledge
+- [ ] Lexicon inspector
+  - [ ] Collapsible
+  - [ ] On side menu
+  - [ ] Looks nice
+- [ ] Collapse long notes/highlights
+- [ ] Strong's number parsing/searching
+- [ ] Support relegated to versions of the Bible where compatible
+
+### Version 0.5.4: Cloud Saving
+- [x] Cloud saving via Google Drive
+- [ ] ~~Auto saving (at intervals)~~
+  - [ ] ~~Auto syncing?~~
+- [x] Bugfixes
+  - [x] Scrollbar appears when it does not need to on erase highlight dropdown when reversed
+  - [x] Crashes on June 19th Robert Roberts reading, problem parsing 2 John-3 John
+  - [x] Highlight/Note menu not clamped horizontally, and possibly vertically
+  - [x] Deleting reference button does not work properly
+  - [x] Audio player auto plays whenever the user changes the behavior
+- [x] Added footer to all pages
+- [x] When erasing all highlights, a confirm popup will be displayed if selecting over 20 words
 
 ### Version 0.5.3: Bug Fixes and Improvements
 - [x] Lots o Bugs fixes

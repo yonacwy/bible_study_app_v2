@@ -1,5 +1,5 @@
 import { get_chapter } from "./bible.js";
-import { ChapterAnnotations, ChapterIndex, HighlightCategories, HighlightCategory, NoteSourceType } from "./bindings.js";
+import { ChapterAnnotations, ChapterIndex, HighlightCategories, HighlightCategory, NoteSourceType, ReferenceLocation } from "./bindings.js";
 import * as utils from "./utils/index.js";
 
 export async function create_category(color: string, name: string, description: string | null, source_type: NoteSourceType, priority: string): Promise<void>
@@ -62,49 +62,26 @@ export async function get_chapter_annotations(chapter: ChapterIndex): Promise<Ch
     return JSON.parse(annotations_json);
 }
 
-export async function highlight_word(chapter: any, word_pos: number, highlight_id: string): Promise<void>
+export async function highlight_location(location: ReferenceLocation, highlight_id: string): Promise<void>
 {
     if(highlight_id !== null && highlight_id !== undefined)
     {
-        return await utils.invoke('highlight_word', {
-            chapter: chapter,
-            word_position: word_pos,
+        return await utils.invoke('highlight_location', {
+            location: location,
             highlight_id: highlight_id,
         });
     }
 }
 
-export async function highlight_chapter_word(chapter: ChapterIndex, word_pos: number, highlight_id: string): Promise<void>
+export async function erase_location_highlight(location: ReferenceLocation, highlight_id: string): Promise<void>
 {
     if(highlight_id !== null && highlight_id !== undefined)
     {
-        return await utils.invoke('highlight_word', {
-            chapter: chapter,
-            word_position: word_pos,
+        return await utils.invoke('erase_location_highlight', {
+            location: location,
             highlight_id: highlight_id,
         });
     }
-}
-
-export async function erase_highlight(chapter: any, word_index: number, highlight_id: string): Promise<void>
-{
-    if(highlight_id !== null && highlight_id !== undefined)
-    {
-        return await utils.invoke('erase_highlight', {
-            chapter: chapter,
-            word_position: word_index,
-            highlight_id: highlight_id,
-        });
-    }
-}
-
-export async function erase_chapter_highlight(chapter: ChapterIndex, word_pos: number, highlight_id: string): Promise<void>
-{
-    return await utils.invoke('erase_highlight', {
-        chapter: chapter,
-        word_position: word_pos,
-        highlight_id: highlight_id,
-    });
 }
 
 export const MAX_RECENT_HIGHLIGHT_COUNT: number = 3;
