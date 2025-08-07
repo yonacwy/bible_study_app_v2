@@ -158,7 +158,7 @@ pub struct TtsRequest
 
 pub struct TtsPlayer
 {
-    manager: Arc<Mutex<AudioManager::<DefaultBackend>>>,
+    manager: Option<Arc<Mutex<AudioManager::<DefaultBackend>>>>,
     synthesizer: Arc<SpeechSynth>,
     player: Option<TtsPlayerThread>,
     app_handle: AppHandle,
@@ -174,7 +174,9 @@ impl TtsPlayer
         where R : Runtime
     {
         let synth = SpeechSynth::new(resolver);
-        let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
+        let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default())
+            .map(|m| Arc::new(Mutex::new(m)))
+            .ok(); // Convert Result to Option, discarding the error
 
         let app_handle_inner = app_handle.clone();
         app_handle.listen("loaded-tts-save", move |json| {
@@ -184,9 +186,9 @@ impl TtsPlayer
             state.set_settings(parsed);
         });
 
-        Self 
+        Self
         {
-            manager: Arc::new(Mutex::new(manager)),
+            manager,
             synthesizer: Arc::new(synth),
             player: None,
             app_handle,
@@ -241,8 +243,14 @@ impl TtsPlayer
         let binding = self.sources.lock().unwrap();
         if let Some(TtsSoundData::Generated(sound_data)) = binding.get(id)
         {
-            self.player = Some(TtsPlayerThread::new(self.manager.clone(), self.app_handle.clone(), sound_data.clone(), id.clone(), self.settings));
-            self.player.as_mut().unwrap().set_settings(self.settings);
+            if let Some(manager) = self.manager.clone() {
+                self.player = Some(TtsPlayerThread::new(manager, self.app_handle.clone(), sound_data.clone(), id.clone(), self.settings));
+            } else {
+                self.player = None; // No audio manager, so no player thread
+            }
+            if let Some(player) = self.player.as_mut() {
+                player.set_settings(self.settings);
+            }
             self.app_handle.emit(TTS_EVENT_NAME, TtsEvent::Set { id: id.clone() }).unwrap();
         }
     }

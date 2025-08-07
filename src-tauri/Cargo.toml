@@ -9,6 +9,11 @@ default-run = "app"
 edition = "2021"
 rust-version = "1.60"
 
+[package.metadata.tauri]
+before-dev-command = "tsc -p ../ui/tsconfig.json"
+dev-path = "../ui"
+dist-dir = "../ui"
+
 [workspace]
 members = ["crates/bible-gen", "crates/cloud_sync", "crates/test_runner"]
 

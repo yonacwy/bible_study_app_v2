@@ -8,7 +8,7 @@ pub const DEFAULT_SOURCES: &[(&str, &str)] = &[
 
 pub struct AudioPlayer
 {
-    manager: Arc<Mutex<AudioManager::<DefaultBackend>>>,
+    manager: Option<Arc<Mutex<AudioManager::<DefaultBackend>>>>,
     sources: HashMap<String, StaticSoundData>,
 }
 
@@ -17,7 +17,9 @@ impl AudioPlayer
     pub fn new<R>(resolver: &PathResolver<R>, sources: &[(&str, &str)]) -> Self 
         where R : Runtime
     {
-        let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
+        let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default())
+            .map(|m| Arc::new(Mutex::new(m)))
+            .ok(); // Convert Result to Option, discarding the error
 
         let sources: HashMap<_, _> = sources.iter().map(|(name, path)| {
             let r = resolver.resolve(path, BaseDirectory::Resource).unwrap();
@@ -27,7 +29,7 @@ impl AudioPlayer
 
         Self 
         {
-            manager: Arc::new(Mutex::new(manager)),
+            manager,
             sources
         }
     }
@@ -38,6 +40,10 @@ impl AudioPlayer
             return None;
         };
 
-        Some(self.manager.lock().unwrap().play(audio.clone()))
+        if let Some(manager) = self.manager.clone() {
+            Some(manager.lock().unwrap().play(audio.clone()))
+        } else {
+            None
+        }
     }
 }
