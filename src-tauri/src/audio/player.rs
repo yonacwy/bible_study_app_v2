@@ -1,5 +1,6 @@
 use std::{collections::HashMap, sync::{Arc, Mutex}};
-use kira::{sound::static_sound::{StaticSoundData, StaticSoundHandle}, AudioManager, AudioManagerSettings, DefaultBackend, PlaySoundError };
+use kira::{sound::static_sound::{StaticSoundData, StaticSoundHandle}, AudioManager, AudioManagerSettings, DefaultBackend, PlaySoundError};
+use kira::backend::cpal::Error as KiraError;
 use tauri::{path::{BaseDirectory, PathResolver}, Runtime};
 
 pub const DEFAULT_SOURCES: &[(&str, &str)] = &[
@@ -14,12 +15,11 @@ pub struct AudioPlayer
 
 impl AudioPlayer
 {
-    pub fn new<R>(resolver: &PathResolver<R>, sources: &[(&str, &str)]) -> Self 
+    pub fn new<R>(resolver: &PathResolver<R>, sources: &[(&str, &str)]) -> Result<Self, KiraError>
         where R : Runtime
     {
-        let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default())
-            .map(|m| Arc::new(Mutex::new(m)))
-            .ok(); // Convert Result to Option, discarding the error
+        let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default())?;
+        let manager = Some(Arc::new(Mutex::new(manager)));
 
         let sources: HashMap<_, _> = sources.iter().map(|(name, path)| {
             let r = resolver.resolve(path, BaseDirectory::Resource).unwrap();
@@ -27,11 +27,11 @@ impl AudioPlayer
             (name.to_string(), sd)
         }).collect();
 
-        Self 
+        Ok(Self
         {
             manager,
             sources
-        }
+        })
     }
 
     pub fn play(&self, name: &str) -> Option<Result<StaticSoundHandle, PlaySoundError<()>>>

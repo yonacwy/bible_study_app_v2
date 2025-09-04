@@ -57,7 +57,7 @@ pub struct AppStateHandle(Arc<Mutex<Option<AppData>>>);
 
 impl AppStateHandle
 {
-    pub fn get_ref(&self) -> AppStateRef
+    pub fn get_ref(&self) -> AppStateRef<'_>
     {
         AppStateRef(self.0.lock().unwrap())
     }

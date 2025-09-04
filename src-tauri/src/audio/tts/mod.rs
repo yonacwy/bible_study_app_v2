@@ -5,12 +5,13 @@ pub mod reader_behavior;
 
 use std::{collections::HashMap, sync::{Arc, Mutex}, thread::spawn};
 
+use anyhow::Result;
 use events::{TtsEvent, TTS_EVENT_NAME};
 use itertools::Itertools;
 use kira::{sound::static_sound::{StaticSoundData, StaticSoundSettings}, AudioManager, AudioManagerSettings, DefaultBackend, Frame};
 use serde::{Deserialize, Serialize};
 use synth::SpeechSynth;
-use tauri::{path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Listener, Manager, Runtime};
+use tauri::{path::{BaseDirectory, PathResolver}, AppHandle, Emitter, Runtime};
 
 use crate::{bible::{Bible, ChapterIndex, VerseRange}, utils};
 use self::player_thread::TtsPlayerThread;
@@ -59,14 +60,14 @@ pub struct VerseAudioData
 
 impl PassageAudio
 {
-    pub fn new(bible: &Bible, chapter_index: ChapterIndex, verse_range: Option<VerseRange>, synth: &SpeechSynth, app_handle: &AppHandle, id: String) -> Self 
+    pub fn new(bible: &Bible, chapter_index: ChapterIndex, verse_range: Option<VerseRange>, synth: &SpeechSynth, app_handle: &AppHandle, id: String) -> Result<Self>
     {
         const CHAPTER_SILENCE_TIME: f32 = 0.5;
         let book = &bible.books[chapter_index.book as usize].name;
         let chapter = chapter_index.number + 1;
         let mut chapter_intro = match verse_range {
-            Some(range) => synth.synth_text_to_frames(format!("{} Chapter {} verses {} to {}", book, chapter, range.start + 1, range.end + 1)),
-            None => synth.synth_text_to_frames(format!("{} Chapter {}", book, chapter))
+            Some(range) => synth.synth_text_to_frames(format!("{} Chapter {} verses {} to {}", book, chapter, range.start + 1, range.end + 1))?,
+            None => synth.synth_text_to_frames(format!("{} Chapter {}", book, chapter))?
         };
 
 
@@ -97,9 +98,11 @@ impl PassageAudio
                 app_handle.emit(TTS_EVENT_NAME, TtsEvent::GenerationProgress { id: id.clone(), progress }).unwrap();
                 frames
             })
+            .collect::<Result<Vec<Vec<Frame>>>>()?
+            .into_iter()
             .map(|mut v| {
-                v.append(&mut silence.clone()); 
-                v 
+                v.append(&mut silence.clone());
+                v
             })
             .collect::<Vec<_>>();
 
@@ -125,13 +128,13 @@ impl PassageAudio
             .map(|c| VerseAudioData { duration: c })
             .collect::<Vec<_>>();
 
-        Self {
+        Ok(Self {
             sound_data,
             chapter: chapter_index,
             bible: bible.name.clone(),
             verse_data,
             intro_duration
-        }
+        })
     }
 }
 
@@ -170,33 +173,24 @@ pub struct TtsPlayer
 
 impl TtsPlayer 
 {
-    pub fn new<R>(resolver: &PathResolver<R>, app_handle: AppHandle) -> Self
+    pub fn new<R>(resolver: &PathResolver<R>, app_handle: AppHandle) -> Result<Self>
         where R : Runtime
     {
-        let synth = SpeechSynth::new(resolver);
+        let synth = SpeechSynth::new(resolver)?;
         let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default())
             .map(|m| Arc::new(Mutex::new(m)))
             .ok(); // Convert Result to Option, discarding the error
-
-        let app_handle_inner = app_handle.clone();
-        app_handle.listen("loaded-tts-save", move |json| {
-            let state = app_handle_inner.state::<Mutex<TtsPlayer>>();
-            let mut state = state.lock().unwrap();
-            let parsed: TtsSettings = serde_json::from_str(json.payload()).unwrap();
-            state.set_settings(parsed);
-        });
-
-        Self
-        {
+        
+        Ok(Self {
             manager,
             synthesizer: Arc::new(synth),
             player: None,
             app_handle,
-
             source_ids: HashMap::new(),
             sources: Arc::new(Mutex::new(HashMap::new())),
             settings: TtsSettings::default(),
-        }
+        })
+
     }
 
     pub fn request_tts(&mut self, bible: Arc<Bible>, chapter_index: ChapterIndex, verse_range: Option<VerseRange>) -> TtsRequest
@@ -225,8 +219,16 @@ impl TtsPlayer
 
             spawn(move || {
                 let audio = PassageAudio::new(&bible, chapter_index, verse_range, &synth, &app_handle, id_inner.clone());
-                sources.lock().unwrap().insert(id_inner.clone(), TtsSoundData::Generated(Arc::new(audio)));
-                app_handle.emit(TTS_EVENT_NAME, TtsEvent::Generated { id: id_inner }).unwrap();
+                match audio {
+                    Ok(audio_data) => {
+                        sources.lock().unwrap().insert(id_inner.clone(), TtsSoundData::Generated(Arc::new(audio_data)));
+                        app_handle.emit(TTS_EVENT_NAME, TtsEvent::Generated { id: id_inner }).unwrap();
+                    },
+                    Err(e) => {
+                        eprintln!("Error generating TTS audio: {:?}", e);
+                        // Optionally, emit an error event to the frontend
+                    }
+                }
             });
 
             TtsRequest

@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use std::sync::Mutex;
 
+use anyhow::Result;
 use app_state::AppState;
 
 pub mod app_state;
@@ -22,19 +23,27 @@ pub mod prompt;
 use audio::{init_espeak, AudioPlayer, TtsPlayer};
 use commands::*;
 use readings::ReadingsDatabase;
-use tauri::{webview::PageLoadEvent, Manager};
+use tauri::{webview::PageLoadEvent, Manager, Listener};
 
-fn main() -> Result<(), tts::Error>
+fn main() -> Result<()>
 {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
             init_espeak(&app.path());
-            app.manage(Mutex::new(TtsPlayer::new(app.path(), app.handle().clone())));
+            app.manage(Mutex::new(TtsPlayer::new(app.path(), app.handle().clone())?));
             app.manage(AudioPlayer::new(app.path(), audio::DEFAULT_SOURCES));
             app.manage(ReadingsDatabase::new(app.path()));
             app.manage(AppState::create(app.path(), app.handle().clone()));
+
+            let app_handle_inner = app.handle().clone();
+            app.listen("loaded-tts-save", move |json| {
+                let state = app_handle_inner.state::<Mutex<TtsPlayer>>();
+                let mut state = state.lock().unwrap();
+                let parsed: audio::TtsSettings = serde_json::from_str(json.payload()).unwrap();
+                state.set_settings(parsed);
+            });
 
             #[cfg(debug_assertions)]
             {
