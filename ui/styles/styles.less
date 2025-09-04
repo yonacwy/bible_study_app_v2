@@ -9,6 +9,7 @@ body {
     background-color: #f4f4f4;
     visibility: hidden; /*Displays when everything is loaded*/
     .font-medium();
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 
     button {
         .set-font();
@@ -40,20 +41,30 @@ header {
     height: @header-height;
     background-color: #333;
     z-index: 1000; /* Ensures header is above other content */
-    justify-content: left;
+    justify-content: space-between;
     align-items: center;
     display: flex;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    flex-wrap: nowrap; /* Prevent items from wrapping to the next line */
+    overflow-x: auto; /* Allow horizontal scrolling within the header if content overflows */
+
+    .media-width(@screen__m, {
+        flex-wrap: nowrap; /* Prevent items from wrapping to the next line on larger screens */
+        overflow-x: auto; /* Allow horizontal scrolling within the header if content overflows on larger screens */
+    });
 
     .image-btn:not(.dropdown .small-dropdown-content .image-btn) {
         margin: 0px;
+        flex-shrink: 1; /* Allow buttons to shrink */
     }
 
-    gap: @button-margin * 2;
+    gap: @button-margin * 2; /* Re-added gap for spacing between header elements */
 
     // not great, but no idea why :last-child is not working
-    .shift-right {
-        margin-left: auto;
-        margin-right: 10px;
+    .shift-right { /* This class is used to push elements to the right */
+        margin-left: auto; /* Pushes the element to the far right */
+        margin-right: @button-margin; /* Add a consistent right margin */
+        flex-shrink: 1; /* Allow this element to shrink */
 
         .small-dropdown-content {
             left: -@button-margin;
@@ -63,6 +74,13 @@ header {
 
 main {
     padding: 20px;
+    display: flex; /* Enable flexbox for main content */
+    flex-direction: column; /* Stack children vertically */
+    flex-grow: 1; /* Allow main content to grow */
+
+    .media-width(@screen__m, {
+        padding: 10px; /* Reduce padding on smaller screens */
+    });
 }
 
 .bible-content {
@@ -73,7 +91,18 @@ main {
     margin-right: @content-margin;
     margin-left: @content-margin;
     .drop-shadow-l();
-    margin-bottom: calc(100vh - @header-height - 40px);
+    margin-bottom: 20px; /* Adjusted for responsiveness */
+    box-sizing: border-box; /* Include padding in the element's total width */
+    max-width: 100%; /* Ensure it doesn't exceed its container */
+    flex-grow: 1; /* Allow bible content to grow */
+    overflow-y: auto; /* Enable vertical scrolling for content */
+}
+
+@media (max-width: 768px) {
+    .bible-content {
+        margin-right: @content-margin-small;
+        margin-left: @content-margin-small;
+    }
 }
 
 .note-target {

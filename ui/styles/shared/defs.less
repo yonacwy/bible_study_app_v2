@@ -1,8 +1,36 @@
 @import "./extern.less";
 
+// Responsive Breakpoints
+@screen__xxs: 320px;
+@screen__xs: 480px;
+@screen__s: 640px;
+@screen__m: 767px;
+@screen__l: 1024px;
+@screen__xl: 1440px;
+
+// Media Query Mixins
+.media-width(@maxWidth; @rules) {
+    @media (max-width: @maxWidth) {
+        @rules();
+    }
+}
+
+.media-min-width(@minWidth; @rules) {
+    @media (min-width: @minWidth) {
+        @rules();
+    }
+}
+
+.media-range-width(@minWidth; @maxWidth; @rules) {
+    @media (min-width: @minWidth) and (max-width: @maxWidth) {
+        @rules();
+    }
+}
+
 @header-height: 35px * @ui-scale;
 @footer-height: 20px * @ui-scale;
 @content-margin: 15px * @ui-scale;
+@content-margin-small: 5px * @ui-scale;
 @button-margin: 2px * @ui-scale;
 @button-size: @header-height - @button-margin * 2;
 
@@ -55,3 +83,30 @@
 @color-secondary: #f4f4f4;
 
 @color-text: black;
+
+// Responsive Breakpoints
+@screen__xxs: 320px;
+@screen__xs: 480px;
+@screen__s: 640px;
+@screen__m: 767px;
+@screen__l: 1024px;
+@screen__xl: 1440px;
+
+// Media Query Mixins
+.media-width(@maxWidth; @rules) {
+    @media (max-width: @maxWidth) {
+        @rules();
+    }
+}
+
+.media-min-width(@minWidth; @rules) {
+    @media (min-width: @minWidth) {
+        @rules();
+    }
+}
+
+.media-range-width(@minWidth; @maxWidth; @rules) {
+    @media (min-width: @minWidth) and (max-width: @maxWidth) {
+        @rules();
+    }
+}

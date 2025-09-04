@@ -6,13 +6,18 @@
     position: fixed;
     display: block;
     z-index: 1000000;
-    width: min-content;
+    width: 100%;
+    max-width: 500px; /* Set a maximum width for larger screens */
+    min-width: 280px; /* Ensure audio player doesn't get too small */
 
-    &.spawned {
-        bottom: 10px;
-        left: 50%;
-        transform: translate(-50%, 0%);
-    }
+   &.spawned {
+       bottom: 10px;
+       left: 50%;
+       transform: translate(-50%, 0%);
+       width: calc(100% - 20px);
+       max-width: 500px;
+       min-width: 280px;
+   }
     
     background-color: white;
     border: 1px solid #333;
@@ -25,14 +30,22 @@
         box-sizing: border-box;
     }
 
-    .main-content 
+    .main-content
     {
         display: flex;
         justify-content: center;
         align-items: center;
         padding: 10px;
         padding-bottom: 2px;
-        .styled-slider(300px * @ui-scale, 7px * @ui-scale, 7px * @ui-scale);
+        flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+        gap: 10px; /* Add gap for spacing between items */
+
+        .media-width(@screen__s, {
+            .styled-slider(100%, 7px * @ui-scale, 7px * @ui-scale); /* Make slider full width on small screens */
+        });
+        .media-min-width(@screen__s, {
+            .styled-slider(300px * @ui-scale, 7px * @ui-scale, 7px * @ui-scale); /* Original size on larger screens */
+        });
 
         &.hidden {
             display: none;
@@ -98,6 +111,11 @@
             display: block;
             width: @slider-settings-size;
             height: fit-content;
+            flex-shrink: 0; /* Prevent shrinking */
+
+            .media-width(@screen__m, {
+                width: 100%; /* Take full width on medium screens and smaller */
+            });
 
             .setting-slider {
                 width: min-content;
@@ -115,6 +133,11 @@
             margin: 0px;
             width: calc(100% - @slider-settings-size);
             height: fit-content;
+            flex-grow: 1; /* Allow to grow */
+
+            .media-width(@screen__m, {
+                width: 100%; /* Take full width on medium screens and smaller */
+            });
 
             .behavior-selector {
                 float: left;
@@ -149,6 +172,8 @@
                     align-items: center;
                     box-sizing: border-box;
                     width: 100%;
+                    flex-wrap: wrap; /* Allow items to wrap */
+                    gap: 10px; /* Add gap for spacing */
 
                     .open-queue-button {
                         margin-left: auto;
@@ -162,6 +187,8 @@
                     align-items: center;
                     box-sizing: border-box;
                     width: 100%;
+                    flex-wrap: wrap; /* Allow items to wrap */
+                    gap: 10px; /* Add gap for spacing */
 
                     .readings-selector, .section-selector {
                         display: flex;
@@ -182,9 +209,13 @@
             margin: 10px auto 0 auto; // top margin, centered horizontally
             padding: 0;
 
-            flex: 0 0 auto; // ⬅ Prevent flex from stretching it
-            width: @timer-progress-width; // ⬅ Set the exact width you want
-            max-width: 100%; // ⬅ Prevent overflow if parent is too narrow
+            flex: 0 0 auto; /* Prevent flex from stretching it */
+            width: @timer-progress-width; /* Set the exact width you want */
+            max-width: 100%; /* Prevent overflow if parent is too narrow */
+
+            .media-width(@screen__s, {
+                width: 100%; /* Make timer progress full width on small screens */
+            });
             gap: 10px;
 
             .time-text {
@@ -197,7 +228,7 @@
     }
 
     .hidden-content.active {
-        max-height: 140px * @ui-scale;
+        max-height: 200px * @ui-scale;
         padding: 10px;
 
         border-top: 1px solid #333;
